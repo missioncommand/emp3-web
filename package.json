@@ -4,13 +4,17 @@
   "keywords": ["extensible", "map", "mapping", "platform"],
   "description": "A library for embedding and manipulationg maps in web applications.",
   "bugs": {
-    "url": "https://jira.di2e.net/projects/EMP/issues"
+    "url": "https://github.com/missioncommand/emp3-web/issues"
   },
   "author": "US Army SEC",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://stash.di2e.net/scm/emp/emp3-web-sdk.git"
+    "url": "https://github.com/missioncommand/emp3-web.git"
+  },
+  "scripts": {
+    "pretest": "npm install",
+    "test": "grunt test"
   },
   "devDependencies": {
     "babel-core": "^6.9.0",
