@@ -1,0 +1,79 @@
+<div class="mdl-grid" style="max-width: 1024px">
+    <div class="mdl-cell mdl-cell--12-col">
+        <p>Extensible Map Platform (EMP) is a framework for displaying and manipulating geospatial data with Android and
+            Web applications. This development guide provides an overview of the capabilities of EMP and how to use EMP
+            within your application</p>
+        <h2>EMP3 Web</h2>
+        <p>The EMP3 Web capability is based from the first EMP iteration so has a comparable amount of capability as EMP
+            with the addition of some new capabilities and refreshed user interface in the works.</p>
+        Use Cases:
+        <ul>
+            <li>Integration into the COE v3 Web Client Plugin Framework</li>
+            <li>Integration into web applications as a native component</li>
+            <li>Use as a "widget" in Ozone Widget Framework and Ozone Platform</li>
+            <li>Use as a "widget" via HTML 5 standards such as HTML Messaging</li>
+        </ul>
+        <h2>EMP3 Android</h2>
+        <p>EMP3 Android is brand new and in an early stage. The goal with the Android version is to implement a
+            consistent architecture with the web version, a developer facing API that is consistent in naming, style,
+            and capability set. Initially it will support the Android NASA WorldWind SDK.
+        </p>
+        <ul>
+            <li>Integration into the COE v3 Smart Client Plugin Framework</li>
+            <li>Integration into Android Applications API 19 (4.4.2) and newer</li>
+        </ul>
+        <h2>Architecture</h2>
+        <p>EMP3 is broken into a modular design with 4 primary component areas:</p>
+        <img src="img/components.png" style="width: 100%"/>
+        <ol>
+            <li><strong>Map API</strong>
+                <ul>
+                    <li>Acts as single, consistent interface for any application that uses the map framework</li>
+                    <li>Currently Implements <a href="http://www.cmapi.org" target="_blank">CMAPI 1.3.0</a> and CMAPI
+                        geospatial notation for joint interoperability
+                    </li>
+                </ul>
+            </li>
+            <li><strong>Map Core</strong>
+                <ul>
+                    <li>Performs majority of map internal business logic</li>
+                    <li>Stores data hierarchy and manages instance counts within data hierarchies</li>
+                    <li>Interacts with map engine through engine interface</li>
+                </ul>
+            </li>
+            <li><strong>Map Engine Interface</strong>
+                <ul>
+                    <li>Ensures consistent interface between map core and map engine implementation</li>
+                    <li>Protects map API and Map Core from different internal interfaces used by map engine SDKs</li>
+                    <li>Enables changing of map engine with least possible code overturn</li>
+                    <li>Provides coverage of what a map engine implementation glue code must provide</li>
+                </ul>
+            </li>
+            <li><strong>Map Engine Implementation</strong>
+                <ul>
+                    <li>Glue Code
+                        <ul>
+                            <li>Translates data and events between 3rd party SDK and the normalized map engine interface
+                                types
+                            </li>
+                            <li>Allows for integration of multiple 3rd party map SDKs without affecting development
+                                community using the EMP3 API
+                            </li>
+                            <li>Establish clear contract for integration of new map SDKs as needed</li>
+                        </ul>
+                    </li>
+                    <li>3rd Party Map SDK
+                        <ul>
+                            <li>Provides actual geospatial visualization of map, terrain, and feature data</li>
+                            <li>Examples Are Cesium, Leaflet, NASA WorldWind</li>
+                            <li>Developer interacting with EMP3 API has no knowledge of the specific SDK and can be
+                                confident their code will run consistently regardless
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ol>
+    </div>
+</div>
+

@@ -1,0 +1,134 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="EMP3 Map Widget">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EMP3 Map Widget</title>
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="EMP3 Map Widget">
+    <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png">
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+    <meta name="msapplication-TileColor" content="#3372DF">
+    <link href="vendor/mil-sym/renderer.css" rel="stylesheet" type="text/css" />
+    <link href="css/material.font.css" rel="stylesheet">
+    <link href="css/material.icons.css" rel="stylesheet">
+    <link href="css/material.cyan-orange.min.css" rel="stylesheet">
+    <script src="vendor/mdl/material.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://localhost:8080/iwc/js/ozpIwc-client.min.js"></script>
+</head>
+
+<body>
+    <div>
+        This is my UI
+        <button onclick="updateCamera();">Set Camera</button>
+    </div>
+    <script src='vendor/jquery-1.11.2.min.js' type="text/javascript"></script>
+    <script src='jquery-ui.custom.js' type="text/javascript"></script>
+    <script src="vendor/react.min.js" type="text/javascript"></script>
+    <script src="vendor/react-dom.min.js" type="text/javascript"></script>
+    <script src='vendor/mil-sym/savm-bc.js' type="text/javascript"></script>
+
+    <script src='emp3/emp3.min.js' type="text/javascript"></script>
+    <script>
+    function updateCamera() {
+        // Genernate a random start latitude for the camera
+        var lat = Math.random() * 10;
+        // Geenrate a random start longitude for the camera
+        var lon = Math.random() * 100;
+
+        // Get the map's current camera
+        var camera = map1.getCamera();
+
+        camera.latitude = lat;
+        camera.longitude = lon;
+        camera.tilt = 15;
+        camera.altitude = 500000;
+
+        // Apply the new camera updates
+        map1.setCamera({
+            camera: camera
+        });
+    }
+    var config = { // The map configuration parameters for this test.
+        environment: emp3.api.environment.iwc,
+        debug: false,
+        /*urlProxy: "urlproxy.jsp",
+        engineBasePath: engineBase,
+        startMapEngineId: 1,
+        wmsServerUrls: [],
+        mapEngines: [activeEngine],*/
+        iwcHost: "http://localhost:8080/iwc/"
+    };
+    var map1;
+    $(document).ready(function() {
+        map1 = new emp3.api.Map({
+            config: config,
+            onSuccess: function() {
+                console.log("Map creation success.");
+                var lat = Math.random() * 10;
+                var lon = Math.random() * 100;
+                var sym = new emp3.api.MilStdSymbol({
+                    name: "Example Unit - " + lon + " : " + lat,
+                    position: {
+                        latitude: lat,
+                        longitude: lon
+                    },
+                    symbolCode: "SFGPUCI----K---", // Friendly Infantry symbol code from MIL-STD-2525
+
+                    fillStyle: {
+                        fillColor: "00FF00" //green - optional, no color is needed
+                    },
+                    modifiers: {
+                        uniqueDesignation1: '1BCT', // see MIL-STD-2525 for meaning of modifiers
+                        higherFormation: '3ID'
+                    }
+                });
+
+                function processAdd(cbArgs) {
+                    overlay1.addFeature({
+                        feature: sym,
+                        visisble: true
+                    });
+                    var camera = new emp3.api.Camera({
+                        latitude: lat,
+                        longitude: lon
+                    });
+                    map1.setCamera({
+                        camera: camera
+                    });
+                }
+
+                function processError(error) {
+                    alert(JSON.stringify(error));
+                }
+
+                var overlay1 = new emp3.api.Overlay({
+                    name: "overlay1",
+                    id: "w834mne-sdg5467-sdf-we45"
+                });
+
+                map1.addOverlay({
+                    overlay: overlay1,
+                    onSuccess: processAdd,
+                    onError: processError
+                });
+
+            },
+            onError: function(args) {
+                console.log("Map creation failed.");
+            }
+        });
+    });
+    </script>
+</body>
+
+</html>

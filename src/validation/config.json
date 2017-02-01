@@ -1,0 +1,99 @@
+{
+  "environment": "browser",
+  "useProxy": false,
+  "editorFeatureDraggingEnable": true,
+  "urlProxy": "../../urlproxy.jsp",
+  "recorder": false,
+  "wmsServerUrls": [
+  ],
+  "startMapEngineId": "cesiumMapEngine",
+  "engines": [
+    {
+      "engineBasePath": "../mapengine/worldwind",
+      "mapEngineId": "worldWindMapEngine",
+      "manifestName": "manifest.js",
+      "properties": {
+        "debug": true,
+        "layers": {
+          "controls": false,
+          "compass": false,
+          "coordinates": false
+        }
+      }
+    },
+    {
+      "engineBasePath": "../mapengine/cesium",
+      "mapEngineId": "cesiumMapEngine",
+      "manifestName": "manifest.js",
+      "properties": {
+        "defaultImageryUrl": "http://localhost:8080/geoserver/wms",
+        "cesiumNavigation": {
+          "enableCompass": true,
+          "enableZoomControls": true,
+          "enableDistanceLegend": true
+        },
+        "renderingOptimization": {
+          "enabled": true
+        },
+        "debug": true,
+        "data": [
+          {
+            "type": "osm",
+            "name": "Open Street Map",
+            "url": "//a.tile.openstreetmap.org",
+            "disableProxy": "true",
+            "disable": "true",
+            "options": ""
+          },
+          {
+            "type": "arcgis93rest",
+            "name": "ESRI World Map",
+            "url": "https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
+            "disableProxy": "true",
+            "disable": "true",
+            "options": "0"
+          },
+          {
+            "type": "arcgis93rest",
+            "name": "ESRI Street Map",
+            "url": "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer",
+            "disableProxy": "true",
+            "disable": "true",
+            "options": "0"
+          },
+          {
+            "type": "wmts",
+            "name": "U. S. Geological Survey WMTS",
+            "url": "http://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/WMTS",
+            "disableProxy": "true",
+            "disable": "true",
+            "options": "USGSShadedReliefOnly"
+          },
+          {
+            "type": "terrain",
+            "name": "stk-terrain",
+            "url": "https://assets.agi.com/stk-terrain/world",
+            "disableProxy": "true",
+            "disable": "true",
+            "options": "cesium-provider"
+          }
+        ]
+      }
+    },
+    {
+      "engineBasePath": "../mapengine/leaflet",
+      "mapEngineId": "leafletMapEngine",
+      "manifestName": "manifest.js",
+      "properties": {
+        "debug": true,
+        "data": {
+          "Use_Proxy_For_Map_Request": false,
+          "Use_Proxy_For_Default_Map_Request": false,
+          "Minimum_Zoom_Level": 1,
+          "Maximum_Zoom_Level": 11,
+          "Default_Tile_Map_Server_URL": "http://localhost:8080/emp-map-tiles/tiles/{z}/{x}/{y}.png"
+        }
+      }
+    }
+  ]
+}

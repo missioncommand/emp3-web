@@ -1,0 +1,27 @@
+---
+env:
+  browser: true
+  jquery: true
+  node: true
+
+globals:
+  emp: true
+  mil: true
+  emp3: true
+  cmapi: true
+  $: true
+  armyc2: true
+  sec: true
+
+extends:
+  - eslint:recommended
+
+rules:
+  semi:
+    - error
+    - always
+  no-console:
+    - error
+    - allow:
+        - "warn"
+        - "error"

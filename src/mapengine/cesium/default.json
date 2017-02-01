@@ -1,0 +1,63 @@
+[
+    {
+        "type":"image",
+        "name":"Image - Texturesq",
+        "url":"/emp-engine-cesium/js-lib/cesium/Assets/Textures/NE2_LR_LC_SR_W_DR_2048.jpg",
+        "disableProxy":true,
+        "disable":false,
+        "options":""
+    },
+    {
+        "type":"bing",
+        "name":"Bing Aerial",
+        "url":"https://dev.virtualearth.net",
+        "disableProxy":true,
+        "disable":false,
+        "options":"Cesium.BingMapsStyle.AERIAL"
+    },
+    {
+        "type":"arcgis93rest",
+        "name":"ESRI World Map",
+        "url":"https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer",
+        "disableProxy":true,
+        "disable":false,
+        "options":"0"
+    },
+    {
+        "type":"arcgis93rest",
+        "name":"ESRI Street Map",
+        "url":"https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer",
+        "disableProxy":true,
+        "disable":false,
+        "options":"0"
+    },
+    {
+        "type":"osm",
+        "name":"Open Street Map",
+        "url":"https://a.tile.openstreetmap.org",
+        "disableProxy":true,
+        "disable":false,
+        "options":""
+    },{
+        "type":"terrain",
+        "name":"smallterrain",
+        "url":"http://127.0.0.1/tigr/ElevationServer.ashx",
+        "disableProxy":true,
+        "disable":false,
+        "options":"tigr-provider"
+    },{
+        "type":"terrain",
+        "name":"smallterrain",
+        "url":"//cesiumjs.org/tilesets/terrain/smallterrain",
+        "disableProxy":true,
+        "disable":true,
+        "options":"cesium-provider"
+    },{
+        "type":"test1",
+        "name":"test",
+        "url":"test",
+        "disableProxy":false,
+        "disable":false,
+        "options":""
+    }
+]

@@ -1,0 +1,10 @@
+---
+env:
+  mocha: true
+  jasmine: true
+  es6: true
+  node: true
+globals:
+  sinon: true
+  _: true
+  should: true

@@ -1,0 +1,5 @@
+---
+globals:
+  Cesium: true
+  cesiumEngine: true
+  EmpCesiumConstants: true

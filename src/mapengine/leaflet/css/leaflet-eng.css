@@ -1,0 +1,15 @@
+.icon-selected {
+    border: 3px solid yellow;
+}
+
+.iconStyleDiv {
+}
+
+.iconStyleDivIcon {
+}
+
+.iconStyleDivLabel {
+    font: 12px "Helvetica Neue", Arial, Helvetica, sans-serif;
+    white-space: nowrap;
+    vertical-align: middle;
+}

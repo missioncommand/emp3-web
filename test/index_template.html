@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Mocha</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="vendor/mocha.css"/>
+    <link rel="stylesheet" href="vendor/mil-sym/renderer.css"/>
+</head>
+<body>
+<div id="mocha"></div>
+
+<div id="testContainer"></div>
+
+<script src="vendor/jquery-1.11.2.min.js"></script>
+<script src="vendor/mocha.js"></script>
+<script src="vendor/chai.js"></script>
+<script src="vendor/chai-jquery.js"></script>
+<script src="vendor/sinon.js"></script>
+<script src="vendor/sinon-chai.js"></script>
+<script src="vendor/lodash.min.js"></script>
+<!--<script src="vendor/blanket_mocha.min.js"></script>-->
+<script src="vendor/mil-sym/savm-bc.min.js"></script>
+
+
+<script>mocha.setup('bdd');</script>
+
+<!-- injector:js -->
+<!-- endinjector -->
+
+<script>
+    var expect = chai.expect;
+    var should = chai.should();
+
+    mocha.checkLeaks();
+    mocha.globals(['jQuery', 'grandTotalTemplate', 'blanket_toggleSource']);
+    mocha.run();
+</script>
+</body>
+</html>

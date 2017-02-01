@@ -1,0 +1,14 @@
+    [{
+        "url": "performance-tester.html?iwchost=vendor/iwc/",
+        "title": "Perf Test External",
+        "type" : "tool",
+        "width": 250,
+        "height": 200
+    },
+    {
+        "url": "samples/validationV2/index.html?iwchost=../../vendor/iwc/",
+        "title": "Validation App",
+        "type" : "app",
+        "width": 450,
+        "height": 300
+    }]

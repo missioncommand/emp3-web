@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mocha</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="vendor/mocha.css" />
+    <link rel="stylesheet" href="../../../app/vendor/mil-sym/renderer.css" />
+  </head>
+  <body>
+    <div id="mocha"></div>
+
+    <canvas id="ww"></canvas>
+
+    <!-- Mocha required files -->
+    <script src="../../../app/vendor/jquery-1.11.2.min.js"></script>
+    <script src="vendor/mocha.js"></script>
+    <script src="vendor/chai.js"></script>
+    <script src="vendor/chai-jquery.js"></script>
+    <script src="vendor/sinon.js"></script>
+    <script src="vendor/sinon-chai.js"></script>
+
+    <script>mocha.setup('bdd');</script>
+
+    <!-- EMP vendor files -->
+    <script src="../../../app/vendor/mil-sym/savm-bc.min.js"></script>
+    <script src="../../../emp3/emp3.min.js"></script>
+    <script src="../worldwindlib.js"></script>
+
+    <!-- EMPWorldWind Tests -->
+    <script src="spec/EMPWorldWind.Spec.js"></script>
+    <script src="spec/controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.Spec.js"></script>
+
+    <!-- EMPWorldWind -->
+    <script src="../EMPWorldWind.js"></script>
+    <script src="../utils/EMPWorldWind.utils.js"></script>
+    <script src="../utils/EMPWorldWind.constants.js"></script>
+    <script src="../controllers/eventHandlers/EMPWorldWind.eventHandlers.js"></script>
+    <script src="../controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js"></script>
+
+    <script>
+      // Make globals
+      var expect = chai.expect;
+      var should = chai.should();
+      var worldWind = new WorldWind.WorldWindow("ww");
+      mocha.run();
+    </script>
+  </body>
+</html>

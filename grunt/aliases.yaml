@@ -1,0 +1,87 @@
+---
+default:
+  - 'clean'
+  - 'concurrent:minify'
+  - 'copy:appToDist'
+  - 'concurrent:copyMinifiedEngines'
+  - 'copy:min'
+  - 'concurrent:prepUnitTestsRelease'
+  - 'runUnitTests'
+  - 'concurrent:prepValidationRelease'
+  - 'concurrent:build'
+  - 'concurrent:copyExtras'
+  - 'string-replace'
+
+release:
+  - 'default'
+  - 'war'
+  - 'concurrent:compress'
+  - 'copy:cesiumV2'
+
+quick:
+  - 'clean'
+  - 'uglify'
+  - 'cssmin'
+  - 'copy:app'
+  - 'concurrent:copyMinifiedEngines'
+  - 'copy:min'
+  - 'jsdoc'
+  - 'copy:devguide'
+
+quickSDK:
+  - 'uglify:sdk'
+  - 'copy:min'
+
+quickLeaflet:
+  - 'uglify:leaflet'
+  - 'copy:min'
+
+quickCesium:
+  - 'uglify:cesium'
+  - 'copy:min'
+
+quickDevGuide:
+  - 'copy:min'
+  - 'copy:devguide'
+
+test:
+  - 'concurrent:prepUnitTests'
+  - 'runUnitTests'
+
+testRelease:
+  - 'remove'
+  - 'concurrent:prepUnitTestsRelease'
+  - 'runUnitTests'
+
+runUnitTests:
+  - 'concurrent:lintAndMocha'
+
+clean:
+  - 'remove'
+
+lint:
+  #- 'jshint'
+  - 'eslint:sdk'
+
+doc:
+  - 'jsdoc'
+
+genwar:
+  - 'war'
+
+min:
+  - 'uglify'
+  - 'cssmin'
+
+mocha:
+  - 'mocha_phantomjs'
+
+zip:
+  - 'compress:docs'
+  - 'compress:devguide'
+  - 'compress:emp3'
+
+serve:
+  - 'eslint:all'
+  - 'concurrent:prepValidation'
+  - 'webpack-dev-server'

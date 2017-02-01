@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package mil.emp3.api.enums;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>/**<a name="line.3"></a>
+<span class="sourceLineNo">004</span> * This class enumerates the different locks that can be placed on the map's motion.<a name="line.4"></a>
+<span class="sourceLineNo">005</span> */<a name="line.5"></a>
+<span class="sourceLineNo">006</span>public enum MapMotionLockEnum {<a name="line.6"></a>
+<span class="sourceLineNo">007</span><a name="line.7"></a>
+<span class="sourceLineNo">008</span>    /**<a name="line.8"></a>
+<span class="sourceLineNo">009</span>     * This enumerated value indicates that the map view is free to change i.e. pan, zoom, rotate, tilt<a name="line.9"></a>
+<span class="sourceLineNo">010</span>     * based on Gestures. Note that pan, zoom, rotate, tilt is not necessarily an exhaustive list of motions<a name="line.10"></a>
+<span class="sourceLineNo">011</span>     */<a name="line.11"></a>
+<span class="sourceLineNo">012</span>    UNLOCKED,<a name="line.12"></a>
+<span class="sourceLineNo">013</span>    /**<a name="line.13"></a>
+<span class="sourceLineNo">014</span>     * This enumerated value indicates that the map will not pan, zoom or rotate, tilt based on Gestures. The only<a name="line.14"></a>
+<span class="sourceLineNo">015</span>     * motion allowed is panning if the user is dragging an object at the edge of the viewing area.<a name="line.15"></a>
+<span class="sourceLineNo">016</span>     * This is currently used by the Freehand Editor<a name="line.16"></a>
+<span class="sourceLineNo">017</span>     */<a name="line.17"></a>
+<span class="sourceLineNo">018</span>    SMART_LOCK,<a name="line.18"></a>
+<span class="sourceLineNo">019</span>    /**<a name="line.19"></a>
+<span class="sourceLineNo">020</span>     * This enumerated value indicates that the map will not pan, zoom, rotate, tilt based on Gestures.<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * Client application can still use Camera and LookAt to change the map view.<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     */<a name="line.22"></a>
+<span class="sourceLineNo">023</span>    LOCKED<a name="line.23"></a>
+<span class="sourceLineNo">024</span>}<a name="line.24"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

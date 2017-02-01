@@ -1,0 +1,58 @@
+{
+    "metadata": {
+        "header": {
+            "title": "Leaflet Map Properties"
+        }
+    },
+    "properties": [
+        {
+            "name": "Use_Proxy_For_Map_Request",
+            "label": "Use Proxy For Map Request",
+            "type" : "checkbox",
+            "default" : false,
+            "format": "checkbox",
+            "id" : "useProxyForMapRqst",
+            "propertyOrder": 10,
+            "defaultValue": true
+        },
+        {
+            "name": "Use_Proxy_For_Default_Map_Request",
+            "label": "Use Proxy For Default Map Request",
+            "type" : "checkbox",
+            "default" : false,
+            "format": "checkbox",
+            "id" : "useProxyForDftMapRqst",
+            "propertyOrder": 25,
+            "defaultValue": false
+        },
+        {
+            "name": "Minimum_Zoom_Level",
+            "label": "Minimum Zoom Level",
+            "type": "number",
+            "maxLength": 2,
+            "minimum": 1,
+            "maximum": 18,
+            "id": "minlevel",
+            "propertyOrder": 30,
+            "defaultValue": 1
+        },
+        {
+            "name": "Maximum_Zoom_Level",
+            "label": "Maximum Zoom Level",
+            "type": "number",
+            "maxLength": 2,
+            "minimum": 1,
+            "maximum": 18,
+            "id": "maxlevel",
+            "propertyOrder": 40,
+            "defaultValue": 6
+        },
+        {
+            "name": "Default_Tile_Map_Server_URL",
+            "label": "Default Tile Map Server URL",
+            "type": "text",
+            "id": "defaultMap",
+            "defaultValue": "/emp-map-tiles/tiles/{z}/{x}/{y}.png"
+        }
+    ]
+}

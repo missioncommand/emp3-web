@@ -1,0 +1,25 @@
+---
+parser: babel-eslint
+parserOptions:
+  ecmaVersion: 6
+  sourceType: module
+  ecmaFeatures:
+    jsx: true
+
+env:
+  jest: true
+  es6: true
+  node: true
+
+globals:
+  toastr: true
+  _: true
+  componentHandler: true
+  empConfig: true
+  emp: true
+
+plugins:
+  - react
+
+extends:
+  - plugin:react/recommended

@@ -1,0 +1,65 @@
+ {
+      "type": "array",
+      "title": "Cesium Properties",
+      "format": "tab",
+      "items":
+      {
+	"type" : "object",
+	"id" : "imagery",
+	"properties":
+	{
+		"type":
+{
+"type": "string",
+        "default": "image",
+        "minimum": 3,
+        "maximum": 12,
+        "enum": [
+        "image",
+        "bing",
+        "arcgis93rest",
+        "osm",
+        "tms",
+        "terrain"
+      ]
+},
+		"name":
+		{
+			"type": "string"
+                        
+		},
+		"url":
+		{
+			"type": "string",
+                        "minimum": 0,
+                        "maximum": 99
+                       
+		},
+		"disableProxy":
+		{
+			"type": "string",
+			"enum": [
+			        "true",
+        			"false"
+        			],
+			 "default": "true"
+                       
+		},
+		"disable":
+		{
+			"type": "string",
+			"enum": [
+				"true",
+			         "false"  
+			         ],
+			 "default": "false"
+                        
+		},
+		"options":
+		{
+			"type": "string"
+                      
+		}
+       }
+     }
+        }

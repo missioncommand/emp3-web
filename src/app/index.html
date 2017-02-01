@@ -1,0 +1,97 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="EMP3 Map Widget">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EMP3 Map Widget</title>
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="EMP3 Map Widget">
+    <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png">
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+    <meta name="msapplication-TileColor" content="#3372DF">
+    <link href="vendor/mil-sym/renderer.css" rel="stylesheet" type="text/css"/>
+
+    <style>
+        .leaflet-control-zoom {
+            display: none;
+        }
+
+        .cesium-widget-cesiumNavigationContainer {
+            display: none;
+        }
+    </style>
+
+</head>
+
+<body>
+<div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0;" id="empmap"></div>
+<script src='vendor/jquery-1.11.2.min.js' type="text/javascript"></script>
+<script src='vendor/mil-sym/savm-bc.js' type="text/javascript"></script>
+<script src='emp3/emp3.min.js' type="text/javascript"></script>
+
+<script>
+    var config = { // The map configuration parameters for this test.
+        environment: "browser",
+        debug: false,
+        scriptPath: "js",
+        distPath: "",
+        urlProxy: "urlproxy.jsp",
+        engineBasePath: "emp3/",
+        startMapEngineId: 2,
+        wmsServerUrls: [],
+        mapEngines: [{
+            "id": 2,
+            "name": "Cesium",
+            "mapEngineId": 'cesiumMapEngine',
+            "url": "emp3-cesium/manifest.js",
+            "properties": {
+                "defaultImageryUrl": "http://localhost:8080/geoserver/wms",
+                "data": "[{'type' : 'osm','name' : 'Open Street Map','url' : '//a.tile.openstreetmap.org','disableProxy' : 'true','disable' : 'false','options' : '' },\n\
+                                     {'type' : 'bing','name' : 'Bing Aerial','url' : 'https://dev.virtualearth.net','disableProxy' : 'true','disable' : 'false','options' : 'Cesium.BingMapsStyle.AERIAL' },\n\
+                                     {'type' : 'arcgis93rest','name' : 'ESRI World Map','url' : 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer','disableProxy' : 'true','disable' : 'false','options' : '0' },\n\
+                                     {'type' : 'arcgis93rest','name' : 'ESRI Street Map','url' : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer','disableProxy' : 'true','disable' : 'false','options' : '0' }\n\
+                                     ]"
+            }
+        }, {
+            "id": 1,
+            "name": "Leaflet",
+            "mapEngineId": 'leafletMapEngine',
+            "url": "emp3-leaflet/manifest.js",
+            "properties": {
+                "data": "{'Use_Proxy_For_Map_Request':false,'Use_Proxy_For_Default_Map_Request':false,'Minimum_Zoom_Level':1,'Maximum_Zoom_Level':11,'Default_Tile_Map_Server_URL':'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'}"
+            }
+        }]
+    };
+
+</script>
+<script type="text/javascript">
+    $(document).ready(function () {
+        var map1 = new emp3.api.Map({
+            engine: {
+                "mapEngineId": 'cesiumMapEngine',
+                "engineBasePath": "./emp3/emp3-cesium/"
+            },
+            container: "empmap",
+            config: config,
+            onSuccess: function () {
+                console.log("Map creation success.");
+            },
+            onError: function (args) {
+                console.log("Map creation failed.");
+            }
+        });
+    });
+</script>
+
+</body>
+
+</html>

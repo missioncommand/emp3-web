@@ -1,0 +1,5 @@
+---
+globals:
+  WorldWind: true
+  armyc2: true
+  emp: true

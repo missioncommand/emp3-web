@@ -1,0 +1,42 @@
+# If files need to be ignored by git and are specific to a developer add them.
+
+
+# Generated/copied files
+/dist
+/emp3
+
+test/dist
+test/index.html
+test/vendor/mil-sym
+test/vendor/jquery-1.11.2.min.js
+test/vendor/jquery-ui.custom.js
+
+src/validation/index.html
+src/validation/vendor
+src/validation/dist
+
+# JetBrains
+*.iml
+.idea
+
+# Eclipse
+.project
+.settings
+
+# KDiff3
+*.orig
+
+# Node
+npm-debug.log
+node_modules
+
+/nbproject/private/
+/nbproject/
+
+# Cesium Unit Tests
+src/mapengine/cesium/test/index.html
+src/app/vendor/mil-sym/fonts/bak/UnitFont.woff
+src/app/vendor/mil-sym/fonts/bak/UnitFont.woff2
+grunt_quick.bat
+grunt_quick.bat - Shortcut.lnk
+grunt_serve.bat

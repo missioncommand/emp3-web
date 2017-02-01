@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Track Performace</title>
+    <script src='vendor/jquery-1.11.2.min.js' type="text/javascript"></script>
+    <script type="text/javascript" src="vendor/iwc/js/ozpIwc-client.min.js"></script>
+    <script src='vendor/mil-sym/savm-bc.js' type="text/javascript"></script>
+    <script type='text/javascript' src='emp3/emp3.min.js'></script>
+    <script type='text/javascript' src='vendor/com.octabits.starfish.min.js'></script>
+    <link href="css/material.font.css" rel="stylesheet">
+    <link href="css/material.icons.css" rel="stylesheet">
+    <link href="css/material.cyan-orange.min.css" rel="stylesheet">
+    <style>
+    body {
+        margin: 16px;
+    }
+    </style>
+    <script src="vendor/mdl/material.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+    var map,
+        icons = [],
+        overlay1,
+        updateIndex = 0,
+        running = false,
+        updateInterval,
+        paused = false;
+    $(function() {
+        document.getElementById("resetBtn").disabled = true;
+        map = new emp3.api.Map({
+            onSuccess: function(args) {
+                console.log("Map creation success.");
+
+            },
+            onError: function(args) {
+                console.log("Map creation failed.");
+            }
+        });
+    })
+
+    function runUpdates() {
+       // if (running === false || paused === true) {
+            var batch = parseInt(document.getElementById("batchInpt").value) || 100;
+            var batchInterval = parseInt(document.getElementById("batchIntervalInpt").value) || 250;
+
+            function runIteration(batchSize, index) {
+                for (var i = 0; i < batch; i++) {
+                    var feature = icons[updateIndex];
+                    feature.position.latitude += 0.25;
+                    if (feature.position.latitude > 90) {
+                        feature.position.latitude = -90;
+                    }
+                    feature.position.longitude += 0.25;
+                    if (feature.position.longitude > 180) {
+                        feature.position.longitude = -180;
+                    }
+                    feature.apply();
+                    updateIndex += 1;
+                    if (updateIndex >= icons.length) {
+                        updateIndex = 0;
+                    }
+                }
+                if (running === true && paused === false) {
+                    setTimeout(runIteration, batchInterval);
+                }
+            }
+            running = true;
+            setTimeout(runIteration, 0);
+            
+        //}
+    }
+
+    function addIcon() {
+        var lat = Math.random() * 10;
+        var lon = Math.random() * 100;
+        var affiliations = ["H", "F", "U", "N"]
+        var sym = new emp3.api.MilStdSymbol({
+            name: "Example Unit - " + lon + " : " + lat,
+            position: {
+                latitude: lat,
+                longitude: lon
+            },
+            symbolCode: "S" + affiliations[Math.round(Math.random() * 4)] + "GPUCI--------"
+
+
+        });
+        return sym;
+    }
+
+    function processAdd(cbArgs) {
+        var newIcon,
+            allIcons = [];
+        var total = parseInt(document.getElementById("unitNumberInpt").value) || 100;
+        for (var i = 0; i < total; i++) {
+            newIcon = addIcon();
+            allIcons.push(newIcon);
+            icons.push(newIcon);
+
+        }
+        overlay1.addFeatures({
+            features: allIcons,
+            visisble: true,
+            onSuccess: runUpdates
+        })
+
+    }
+
+    function processError(error) {
+        console.error(error);
+    }
+
+    function reset() {
+        clearInterval(updateInterval);
+        running = false;
+        document.getElementById("resetBtn").disabled = true;
+        document.getElementById("playPauseBtn").innerHTML = "play";
+        map.removeOverlay({
+            overlay: overlay1
+        });
+
+
+    }
+
+    function run() {
+        document.getElementById("resetBtn").disabled = false;
+
+
+        if (running === true && paused === false) {
+            paused = true;
+            document.getElementById("playPauseBtn").innerHTML = "play";
+
+        } else if (running = true && paused === true) {
+            paused = false;
+            document.getElementById("playPauseBtn").innerHTML = "pause";
+            runUpdates();
+
+        } else {
+            paused = false;
+            document.getElementById("playPauseBtn").innerHTML = "pause";
+
+            overlay1 = new emp3.api.Overlay({
+                name: "overlay1",
+                id: "w834mne-sdg5467-sdf-we45"
+            });
+
+            map.addOverlay({
+                overlay: overlay1,
+                onSuccess: processAdd,
+                onError: processError
+            });
+
+        }
+
+    }
+    </script>
+</head>
+
+<body>
+    <form action="#" style="width: 150px;">
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 150px;">
+            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" value="500" id="unitNumberInpt">
+            <label class="mdl-textfield__label" for="unitNumberInpt">Number of units...</label>
+            <span class="mdl-textfield__error">Input nust be a number!</span>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 150px;">
+            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" value="100" id="batchInpt">
+            <label class="mdl-textfield__label" for="batchInpt">Update Batch Size...</label>
+            <span class="mdl-textfield__error">Input nust be a number!</span>
+        </div>
+        <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label" style="width: 150px;">
+            <input class="mdl-textfield__input" type="text" pattern="-?[0-9]*(\.[0-9]+)?" value="250" id="batchIntervalInpt">
+            <label class="mdl-textfield__label" for="batchIntervalInpt">Update Batch Size...</label>
+            <span class="mdl-textfield__error">Input nust be a number!</span>
+        </div>
+    </form>
+    <button id="resetBtn" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" disabled onclick="reset();">
+        Reset
+    </button>
+    <button id="playPauseBtn" class="mdl-button mdl-js-button mdl-button--raised mdl-button--colored" onclick="run()">
+        Play
+    </button>
+</body>
+
+</html>

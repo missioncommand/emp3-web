@@ -1,0 +1,134 @@
+@import 'Navbar.css';
+@import 'ControlPanel.css';
+@import 'ResultsPanel.css';
+@import 'SymbolExplorer.css';
+
+body, html {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: url(../images/fabric_background.png) repeat;
+}
+
+.map {
+    float: left;
+    overflow: hidden;
+}
+
+.clearfix {
+    overflow: auto
+}
+
+#contentPane {
+    position: absolute;
+    top: 24px;
+    bottom: 0;
+    width: 100%;
+    overflow: hidden;
+}
+
+#sidebar {
+    height: 100%;
+    overflow-y: auto;
+    padding: 0 0 0 5px;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+#settingsPanel {
+    position: absolute;
+    height: 100%;
+    right: 0;
+    top: 0;
+    overflow: auto;
+}
+
+#mapsPanel {
+    position: absolute;
+    height: 100%;
+    right: 0;
+    top: 0;
+    overflow: hidden;
+}
+
+.dragbar {
+    position: absolute;
+    width: 3px;
+    top: 24px;
+    bottom: 0;
+    background-color: aliceblue;
+    z-index: 999;
+    cursor: col-resize;
+}
+
+.testEntry {
+    cursor: pointer;
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none;   /* Chrome/Safari/Opera */
+    -moz-user-select: none;      /* Firefox */
+    -ms-user-select: none;       /* Internet Explorer/Edge */
+    user-select: none;
+}
+
+.testEntryTest:hover {
+    color: #1B5E20;
+    background-color: #81c784;
+}
+
+.testEntryTest:active {
+    color: #19493f;
+    background-color: #22ad42;
+}
+
+.selectionPanel {
+    padding: 0 0 0 5px;
+}
+
+.selectionPanel span {
+    cursor: pointer;
+}
+
+.selectionPanel ul {
+    list-style: none;
+    padding: 0 0 0 5px;
+    margin: 0;
+}
+
+.selectionPanel li {
+    padding: 0 5px;
+    cursor: pointer;
+}
+
+.selectionPanel li.notImplemented {
+    text-decoration: line-through;
+}
+
+.selectionPanel li.notImplemented:hover {
+    color: #5e2455;
+    background-color: #c79abe;
+}
+
+.selectionPanel li.notImplemented:active {
+    color: #5e110c;
+    background-color: #c7222c;
+}
+
+.selectionPanel li:hover {
+    color: #1B5E20;
+    background-color: #81c784;
+}
+
+.selectionPanel li:active {
+    color: #19493f;
+    background-color: #22ad42;
+}
+
+.blocky {
+    display: block;
+    margin: 15px 25px;
+}
+
+.notification-toast-top-right {
+    top: 28px;
+    right: 6px;
+}

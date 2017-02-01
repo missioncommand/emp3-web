@@ -1,0 +1,16 @@
+<script type="text/javascript">
+var url = decodeURI(location.href),
+    hashParams = url.substr(url.indexOf('#') + 1).split('&'),
+    targetFrame, receive;
+
+try {
+	
+  targetFrame = hashParams[0] === '..' ? parent.parent
+                                       : parent.frames[decodeURIComponent(hashParams[0])];
+  receive = targetFrame.gadgets.rpc.receive;
+} catch (e) {
+  alert('Error found in container relay: ' + e.message);
+}
+
+receive && receive(hashParams);
+</script>

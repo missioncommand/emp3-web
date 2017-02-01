@@ -1,0 +1,174 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+<title>Source code</title>
+<link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
+</head>
+<body>
+<div class="sourceContainer">
+<pre><span class="sourceLineNo">001</span>package mil.emp3.mapengine.interfaces;<a name="line.1"></a>
+<span class="sourceLineNo">002</span><a name="line.2"></a>
+<span class="sourceLineNo">003</span>import android.util.SparseArray;<a name="line.3"></a>
+<span class="sourceLineNo">004</span><a name="line.4"></a>
+<span class="sourceLineNo">005</span>import org.cmapi.primitives.IGeoBounds;<a name="line.5"></a>
+<span class="sourceLineNo">006</span><a name="line.6"></a>
+<span class="sourceLineNo">007</span>import mil.emp3.api.MilStdSymbol;<a name="line.7"></a>
+<span class="sourceLineNo">008</span>import mil.emp3.api.interfaces.IFeature;<a name="line.8"></a>
+<span class="sourceLineNo">009</span>import mil.emp3.api.interfaces.core.IStorageManager;<a name="line.9"></a>
+<span class="sourceLineNo">010</span><a name="line.10"></a>
+<span class="sourceLineNo">011</span>/**<a name="line.11"></a>
+<span class="sourceLineNo">012</span> *<a name="line.12"></a>
+<span class="sourceLineNo">013</span> * This interface defines access to the core MilStd rendering capability required by the map instances.<a name="line.13"></a>
+<span class="sourceLineNo">014</span> */<a name="line.14"></a>
+<span class="sourceLineNo">015</span>public interface IMilStdRenderer {<a name="line.15"></a>
+<span class="sourceLineNo">016</span>    void setStorageManager(IStorageManager storageManager);<a name="line.16"></a>
+<span class="sourceLineNo">017</span><a name="line.17"></a>
+<span class="sourceLineNo">018</span>    /**<a name="line.18"></a>
+<span class="sourceLineNo">019</span>     * This method sets the Cache Directory used by renderer and also sets the available heap memory for the application<a name="line.19"></a>
+<span class="sourceLineNo">020</span>     * @param sCacheDir<a name="line.20"></a>
+<span class="sourceLineNo">021</span>     * @param getMemoryClass<a name="line.21"></a>
+<span class="sourceLineNo">022</span>     */<a name="line.22"></a>
+<span class="sourceLineNo">023</span>    void setRendererCacheDir(String sCacheDir, int getMemoryClass);<a name="line.23"></a>
+<span class="sourceLineNo">024</span><a name="line.24"></a>
+<span class="sourceLineNo">025</span>    /**<a name="line.25"></a>
+<span class="sourceLineNo">026</span>     * This method is called by the map instances to get a list of renderable that compose the<a name="line.26"></a>
+<span class="sourceLineNo">027</span>     * MilStd tactical graphic symbol.<a name="line.27"></a>
+<span class="sourceLineNo">028</span>     * @param mapInstance<a name="line.28"></a>
+<span class="sourceLineNo">029</span>     * @param symbol<a name="line.29"></a>
+<span class="sourceLineNo">030</span>     * @param selected<a name="line.30"></a>
+<span class="sourceLineNo">031</span>     * @return A list of basic IFeature objects. See {@link IFeature).<a name="line.31"></a>
+<span class="sourceLineNo">032</span>     */<a name="line.32"></a>
+<span class="sourceLineNo">033</span>    java.util.List&lt;IFeature&gt; getTGRenderableShapes(IMapInstance mapInstance, MilStdSymbol symbol, boolean selected);<a name="line.33"></a>
+<span class="sourceLineNo">034</span>    <a name="line.34"></a>
+<span class="sourceLineNo">035</span>    /**<a name="line.35"></a>
+<span class="sourceLineNo">036</span>     * This method is called by the map instances the bitmap that compose the<a name="line.36"></a>
+<span class="sourceLineNo">037</span>     * MilStd icon symbol.<a name="line.37"></a>
+<span class="sourceLineNo">038</span>     * @param sSymbolCode The symbol code that identifies the 2525 symbol.<a name="line.38"></a>
+<span class="sourceLineNo">039</span>     * @param oModifiers An array of modifiers to apply to the icon.<a name="line.39"></a>
+<span class="sourceLineNo">040</span>     * @param oAttr An array of attributes to use for the icon.<a name="line.40"></a>
+<span class="sourceLineNo">041</span>     * @return {@link IEmpImageInfo}.<a name="line.41"></a>
+<span class="sourceLineNo">042</span>     */<a name="line.42"></a>
+<span class="sourceLineNo">043</span>    IEmpImageInfo getMilStdIcon(String sSymbolCode, SparseArray oModifiers, SparseArray oAttr);<a name="line.43"></a>
+<span class="sourceLineNo">044</span><a name="line.44"></a>
+<span class="sourceLineNo">045</span>    /**<a name="line.45"></a>
+<span class="sourceLineNo">046</span>     * This method returns a SparseArray of the 2525 modifiers define in the symbol.<a name="line.46"></a>
+<span class="sourceLineNo">047</span>     * @param mapInstance The map instance making the call.<a name="line.47"></a>
+<span class="sourceLineNo">048</span>     * @param symbol the feature.<a name="line.48"></a>
+<span class="sourceLineNo">049</span>     * @return SparseArray as per MilStd 2525 renderer<a name="line.49"></a>
+<span class="sourceLineNo">050</span>     */<a name="line.50"></a>
+<span class="sourceLineNo">051</span>    SparseArray&lt;String&gt; getUnitModifiers(IMapInstance mapInstance, MilStdSymbol symbol);<a name="line.51"></a>
+<span class="sourceLineNo">052</span><a name="line.52"></a>
+<span class="sourceLineNo">053</span>    /**<a name="line.53"></a>
+<span class="sourceLineNo">054</span>     * This method returns a SparseArray of the 2525 modifiers define in the tactical graphic symbol.<a name="line.54"></a>
+<span class="sourceLineNo">055</span>     * @param mapInstance The map instance making the call.<a name="line.55"></a>
+<span class="sourceLineNo">056</span>     * @param symbol the feature.<a name="line.56"></a>
+<span class="sourceLineNo">057</span>     * @return SparseArray as per MilStd 2525 renderer<a name="line.57"></a>
+<span class="sourceLineNo">058</span>     */<a name="line.58"></a>
+<span class="sourceLineNo">059</span>    SparseArray&lt;String&gt; getTGModifiers(IMapInstance mapInstance, MilStdSymbol symbol);<a name="line.59"></a>
+<span class="sourceLineNo">060</span><a name="line.60"></a>
+<span class="sourceLineNo">061</span>    /**<a name="line.61"></a>
+<span class="sourceLineNo">062</span>     * This method returns a SparseArray of the attributes define in the symbol.<a name="line.62"></a>
+<span class="sourceLineNo">063</span>     * @param mapInstance The map instance making the call.<a name="line.63"></a>
+<span class="sourceLineNo">064</span>     * @param symbol the feature.<a name="line.64"></a>
+<span class="sourceLineNo">065</span>     * @return SparseArray as per MilStd 2525 renderer<a name="line.65"></a>
+<span class="sourceLineNo">066</span>     */<a name="line.66"></a>
+<span class="sourceLineNo">067</span>    SparseArray&lt;String&gt; getAttributes(IMapInstance mapInstance, MilStdSymbol symbol, boolean selected);<a name="line.67"></a>
+<span class="sourceLineNo">068</span><a name="line.68"></a>
+<span class="sourceLineNo">069</span>    /**<a name="line.69"></a>
+<span class="sourceLineNo">070</span>     * This method retrieves the far distance threshold for the map. All single point MilStd icons at or<a name="line.70"></a>
+<span class="sourceLineNo">071</span>     * beyond the far distances threshold (from the camera) are displayed as dots.<a name="line.71"></a>
+<span class="sourceLineNo">072</span>     * @param mapInstance The map instance for request.<a name="line.72"></a>
+<span class="sourceLineNo">073</span>     * @return The far distance threshold in meters.<a name="line.73"></a>
+<span class="sourceLineNo">074</span>     */<a name="line.74"></a>
+<span class="sourceLineNo">075</span>    double getFarDistanceThreshold(IMapInstance mapInstance);<a name="line.75"></a>
+<span class="sourceLineNo">076</span><a name="line.76"></a>
+<span class="sourceLineNo">077</span>    /**<a name="line.77"></a>
+<span class="sourceLineNo">078</span>     * This method retrieves the mid distance threshold for the map. All single point MiloStd icons at<a name="line.78"></a>
+<span class="sourceLineNo">079</span>     * a distance less than the mid distance threshold are displayed as fully qualified MilStd icons. The<a name="line.79"></a>
+<span class="sourceLineNo">080</span>     * labels displayed will depend on the maps MilStd label setting.<a name="line.80"></a>
+<span class="sourceLineNo">081</span>     * the distances<a name="line.81"></a>
+<span class="sourceLineNo">082</span>     * @param mapInstance The map instance for request.<a name="line.82"></a>
+<span class="sourceLineNo">083</span>     * @return The mid distance threshold in meters.<a name="line.83"></a>
+<span class="sourceLineNo">084</span>     */<a name="line.84"></a>
+<span class="sourceLineNo">085</span>    double getMidDistanceThreshold(IMapInstance mapInstance);<a name="line.85"></a>
+<span class="sourceLineNo">086</span><a name="line.86"></a>
+<span class="sourceLineNo">087</span>    /**<a name="line.87"></a>
+<span class="sourceLineNo">088</span>     * Returns the name of the cache being used. In the current implementation if we want to use the RenderCache implemented<a name="line.88"></a>
+<span class="sourceLineNo">089</span>     * by NASA WW then MilStdRenderer must use "NoBitmapCache".<a name="line.89"></a>
+<span class="sourceLineNo">090</span>     * If we want to use the EMP cache then "BitmapCache" or "AdaptiveBitmapCache" should be used.<a name="line.90"></a>
+<span class="sourceLineNo">091</span>     * "BitmapCache" and "AdaptiveBitmapCache" does not work well with NAS WW but is kept in place if we move to or add a new map engine.<a name="line.91"></a>
+<span class="sourceLineNo">092</span>     * @return<a name="line.92"></a>
+<span class="sourceLineNo">093</span>     */<a name="line.93"></a>
+<span class="sourceLineNo">094</span>    String getBitmapCacheName();<a name="line.94"></a>
+<span class="sourceLineNo">095</span><a name="line.95"></a>
+<span class="sourceLineNo">096</span>    /**<a name="line.96"></a>
+<span class="sourceLineNo">097</span>     * this methos return the selected icon scale factor for the map instance.<a name="line.97"></a>
+<span class="sourceLineNo">098</span>     * @param mapInstance<a name="line.98"></a>
+<span class="sourceLineNo">099</span>     * @return<a name="line.99"></a>
+<span class="sourceLineNo">100</span>     */<a name="line.100"></a>
+<span class="sourceLineNo">101</span>    double getSelectedIconScale(IMapInstance mapInstance);<a name="line.101"></a>
+<span class="sourceLineNo">102</span>}<a name="line.102"></a>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</pre>
+</div>
+</body>
+</html>

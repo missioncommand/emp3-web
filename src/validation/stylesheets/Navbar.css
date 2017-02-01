@@ -1,0 +1,22 @@
+#navbar {
+    color: black;
+    background-color: aliceblue;
+    overflow: hidden;
+    width: 100%;
+}
+
+#navbar ul {
+    margin: 0;
+    padding: 0;
+}
+
+#navbar ul li {
+    padding: 3px 16px;
+    display: inline;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#navbar li:hover {
+    background-color: #d1d1d1;
+}

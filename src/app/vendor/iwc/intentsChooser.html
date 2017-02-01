@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Choose an Intent</title>
+    <script type="text/javascript" src="js/ozpIwc-client.js"></script>
+    <style>
+        body {
+            margin: 0;
+            -webkit-user-select: none; /* Chrome/Safari */
+            -moz-user-select: none; /* Firefox */
+            -ms-user-select: none; /* IE10+ */
+        }
+
+        #titleBar {
+            background-color: #323232;
+            width: 100%;
+            height: 45px;
+            position: fixed;
+            top: 0;
+            z-index: 20;
+        }
+
+        #lists {
+            width: 100%;
+            background-color: #DBDBDB;
+            position: fixed;
+            top: 45px;
+            bottom: 40px;
+            overflow: auto;
+        }
+
+        #handlers {
+            width: 100%;
+            height: 50%
+        }
+
+        #launchers {
+            width: 100%;
+            height: 50%;
+        }
+
+        #footerBar {
+            height: 40px;
+            width: 100%;
+            min-width: 300px;
+            background: #323232;
+            position: fixed;
+            bottom: 0;
+        }
+
+        .titleText {
+            margin: 2px;
+            color: #F5F5F5;
+            white-space: nowrap;
+        }
+
+        .entry {
+            cursor: pointer;
+            height: 80px;
+            width: 80px;
+            display: block;
+            float: left;
+            border: 1px solid rgba(182, 182, 182, 0.5);
+            margin-left: -1px;
+            margin-top: -1px;
+            overflow: hidden;
+            font-size: 14px;
+        }
+
+        .entry:hover {
+            background-color: #F5F5F5;
+        }
+
+        .selected {
+            background-color: #009688;
+        }
+
+        .selected:hover {
+            background-color: rgba(158, 158, 158, 0.6);
+        }
+
+        .icon {
+            height: 32px;
+            width: 32px;
+            display: block;
+            position: relative;
+            left: 24px;
+            top: 10px;
+        }
+
+        .text {
+            word-wrap: break-word;
+            text-align: center;
+        }
+
+        .footButton {
+            cursor: pointer;
+            height: 30px;
+            width: 105px;
+            float: right;
+            display: block;
+            border: 1px solid rgba(182, 182, 182, 0.3);
+            position: relative;
+            top: 4px;
+            right: 4px;
+            margin-left: -1px;
+            visibility: hidden;
+
+        }
+
+        .footButton:hover {
+            background-color: #9e9e9e;
+        }
+
+        .footButton p {
+            position: relative;
+            color: #F5F5F5;
+            top: 6px;
+            word-wrap: break-word;
+            text-align: center;
+            margin: 0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+<div id="titleBar"></div>
+<div id="lists">
+    <div id="handlers">
+        <span id="handlerTitle"></span>
+
+        <div id="handlerList"></div>
+    </div>
+
+    <div id="launchers">
+        <span id="launcherTitle"></span>
+
+        <div id="launcherList"></div>
+    </div>
+</div>
+<div id="footerBar">
+    <div id="cancelButton" class="footButton">
+        <p>Cancel</p>
+    </div>
+    <div id="onceButton" class="footButton">
+        <p>Use Once</p>
+    </div>
+    <div id="alwaysButton" class="footButton">
+        <p>Use While Open</p>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    var cancelButton, onceButton, alwaysButton, selection;
+    var m = /ozpIwc.intentSelection=([^&#]+)/.exec(window.name);
+
+    if (!m) {
+        //Fallback for IE
+        m = /ozpIwc.intentSelection=([^&#]+)/.exec(window.location.search);
+    }
+
+    if (!m) {
+        failure("This page is intended to be launch only by the Ozone Platform intents API.");
+    }
+    var loc = ozpIwc.util.parseOzpUrl(m[1]);
+    loc.action = "watch";
+    var client = new ozpIwc.Client();
+
+
+    client.send(loc, onHandlerChange).then(function (reply) {
+        var action, type;
+        if (reply.entity && reply.entity.intent) {
+            action = reply.entity.intent.action;
+            type = reply.entity.intent.type;
+        }
+        showTitle(action, type);
+        showFooter(reply);
+        getHandlers(reply.collection).then(showHandlers);
+    }, failure);
+
+
+    function getHandlers(array) {
+        var promises = [];
+        for (var i in array) {
+            promises.push(client.intents().get(array[i]));
+        }
+        return Promise.all(promises);
+    }
+
+    function onHandlerChange(reply, done) {
+        if (reply.entity.deleted) {
+            done();
+            window.close();
+        }
+        var collection = reply.entity.newCollection || [];
+        getHandlers(collection).then(showHandlers);
+    }
+
+    function failure(msg) {
+        document.getElementById("handlerList").textContent = msg;
+    }
+
+    function handleSelection(handler, intentInvocation) {
+        client.intents().set(intentInvocation.resource, {
+            contentType: intentInvocation.contentType,
+            entity: {
+                'state': "delivering",
+                'handler': {
+                    'resource': handler.resource,
+                    'reason': "userSelected"
+                }
+            }
+        }).then(function () {
+            window.close();
+        });
+    }
+
+    function showTitle(action, type) {
+        var actionText = document.createElement("p");
+        actionText.setAttribute("class", "titleText");
+        actionText.innerHTML = "<b>Action:</b> " + action;
+        var typeText = document.createElement("p");
+        typeText.setAttribute("class", "titleText");
+        typeText.innerHTML = "<b>Type:</b> " + type;
+
+        var titleBar = document.getElementById("titleBar");
+        titleBar.appendChild(actionText);
+        titleBar.appendChild(typeText);
+
+    }
+
+    function removeHighlight(handler) {
+        var element = document.getElementById(handler.resource);
+        if (element) {
+            element.setAttribute("class", "entry");
+        }
+    }
+
+    function addHighlight(handler) {
+        var element = document.getElementById(handler.resource);
+        if (element) {
+            element.setAttribute("class", "entry selected");
+            onceButton.style.visibility = "visible";
+            alwaysButton.style.visibility = "visible";
+        }
+    }
+
+    function showHandlers(handlers) {
+
+        onceButton.style.visibility = "hidden";
+        alwaysButton.style.visibility = "hidden";
+        document.getElementById("handlerList").innerHTML = "";
+        document.getElementById("launcherList").innerHTML = "";
+        document.getElementById("launcherTitle").innerHTML = "";
+        document.getElementById("handlerTitle").innerHTML = "";
+
+        handlers.forEach(function (h) {
+            var handler = h;
+            var entry = document.createElement("div");
+            entry.setAttribute("class", "entry");
+            entry.setAttribute("id", handler.resource);
+            entry.setAttribute("class", "entry");
+
+            var icon = document.createElement("img");
+            icon.setAttribute("src", handler.entity.icon);
+            icon.setAttribute("alt", handler.entity.label);
+            icon.setAttribute("class", "icon");
+
+            var text = document.createElement("p");
+            text.setAttribute("class", "text");
+            text.appendChild(document.createTextNode(handler.entity.label));
+
+            entry.appendChild(icon);
+            entry.appendChild(text);
+            entry.addEventListener("click", function (evt) {
+                evt.preventDefault();
+                if (selection) {
+                    removeHighlight(selection);
+                }
+                client.intents.invoke('/application/ozp-iwc/highlight/'+h.entity.invokeIntent.dst);
+                selection = handler;
+                addHighlight(selection);
+            });
+
+            if (h.entity.invokeIntent && h.entity.invokeIntent.action === "launch") {
+                document.getElementById("launcherTitle").innerHTML = "Open application to run:";
+                document.getElementById("launcherList").appendChild(entry);
+            } else {
+                document.getElementById("handlerTitle").innerHTML = "Run in open application:";
+                document.getElementById("handlerList").appendChild(entry);
+            }
+        });
+    }
+
+    function showFooter(intentInvocation) {
+        alwaysButton = document.getElementById("alwaysButton");
+        alwaysButton.addEventListener("click", function () {
+            var invoker = intentInvocation.entity.invokePacket.src;
+            var handler = selection.entity.invokeIntent.dst;
+            var intent = intentInvocation.entity.intent;
+
+            var resource = "/ozp/iwc/intents.api/" + invoker + "/" + intent.type +
+                           "/" + intent.action;
+
+            var prefRef = new client.data.Reference(resource,{
+                lifespan:{
+                    'bound': handler
+                }
+            });
+
+            prefRef.set(selection.resource);
+            handleSelection(selection, intentInvocation);
+        });
+
+        cancelButton = document.getElementById("cancelButton");
+        cancelButton.addEventListener("click", function (evt) {
+            client.intents().set(intentInvocation.resource, {
+                contentType: intentInvocation.contentType,
+                entity: {
+                    reply: {
+                        'contentType': intentInvocation.contentType,
+                        entity: "User canceled the selection."
+                    },
+                    state: "complete"
+                }
+            }).then(function () {
+                window.close();
+            });
+        });
+        cancelButton.style.visibility = "visible";
+
+        onceButton = document.getElementById("onceButton");
+        onceButton.addEventListener("click", function () {
+            handleSelection(selection, intentInvocation);
+        });
+    }
+</script>
+</body>
+</html>

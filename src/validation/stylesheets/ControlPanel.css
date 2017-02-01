@@ -1,0 +1,76 @@
+/* Slide control panel to test panel */
+.panelToTest-enter {
+    transform: translate(-100%);
+}
+
+.panelToTest-enter.panelToTest-enter-active {
+    transform: translate(0%);
+    transition: transform 200ms ease-in;
+}
+
+.panelToTest-leave {
+    transform: translate(0%);
+}
+
+.panelToTest-leave.panelToTest-leave-active {
+    transform: translate(100%);
+    transition: transform 100ms ease-in;
+}
+
+/* Slide test panel back to control panel */
+.testToPanel-enter {
+    transform: translate(100%);
+}
+
+.testToPanel-enter.testToPanel-enter-active {
+    transform: translate(0%);
+    transition: transform 200ms ease-in;
+}
+
+.testToPanel-leave {
+    transform: translate(0%);
+}
+
+.testToPanel-leave.testToPanel-leave-active {
+    transform: translate(-100%);
+    transition: transform 100ms ease-in;
+}
+
+
+/* Hide test group */
+.hideGroup-enter {
+    transform: translate(-100%);
+}
+
+.hideGroup-enter.hideGroup-enter-active {
+    transform: translate(0%);
+    transition: transform 50ms ease-in;
+}
+
+.hideGroup-leave {
+    transform: translate(0%);
+}
+
+.hideGroup-leave.hideGroup-leave-active {
+    transform: translate(100%);
+    transition: transform 50ms ease-in;
+}
+
+/* Show test group */
+.showGroup-enter {
+    transform: translate(100%);
+}
+
+.showGroup-enter.showGroup-enter-active {
+    transform: translate(0%);
+    transition: transform 50ms ease-in;
+}
+
+.showGroup-leave {
+    transform: translate(0%);
+}
+
+.showGroup-leave.showGroup-leave-active {
+    transform: translate(-100%);
+    transition: transform 50ms ease-in;
+}

@@ -1,0 +1,17 @@
+.symbolExplorer-node {
+  display: inline;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.selectedNode {
+  background-color: rgba(0, 209, 224, 0.25);
+}
+
+.over {
+  background-color: #d1d1d1;
+}
+
+.over:active {
+  background-color: #f3f3f3;
+}

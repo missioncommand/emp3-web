@@ -1,0 +1,300 @@
+<!doctype html>
+<html class="no-js" lang="">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="EMP3 Map Widget">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>EMP3 Map Widget</title>
+    <!-- Add to homescreen for Chrome on Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" sizes="192x192" href="images/touch/chrome-touch-icon-192x192.png">
+    <!-- Add to homescreen for Safari on iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="EMP3 Map Widget">
+    <link rel="apple-touch-icon-precomposed" href="apple-touch-icon-precomposed.png">
+    <!-- Tile icon for Win8 (144x144 + tile color) -->
+    <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon-144x144-precomposed.png">
+    <meta name="msapplication-TileColor" content="#3372DF">
+    <link href="vendor/mil-sym/renderer.css" rel="stylesheet" type="text/css" />
+    <link href="css/material.font.css" rel="stylesheet">
+    <link href="css/material.icons.css" rel="stylesheet">
+    <link href="css/material.cyan-orange.min.css" rel="stylesheet">
+    <script src="vendor/mdl/material.min.js" type="text/javascript"></script>
+    <script type="text/javascript" src="http://localhost:8080/iwc/js/ozpIwc-client.min.js"></script>
+    <style>
+    .leaflet-control-zoom {
+        display: none;
+    }
+
+    .cesium-widget-cesiumNavigationContainer {
+        display: none;
+    }
+    </style>
+    <style>
+    .leaflet-control-zoom {
+        display: none;
+    }
+
+    .emp3-locpanel {
+        box-sizing: border-box;
+        padding: 8px;
+        height: 48px;
+        position: absolute;
+        top: 16px;
+        left: 50%;
+        margin: 0px 0 0 -200px;
+        width: 400px;
+        z-index: 998;
+    }
+
+    .demo-list-icon {
+        width: 300px;
+    }
+
+    @media only screen and (max-width: 400px) {
+        .emp3-locpanel {
+            top: 0px;
+            left: 0px;
+            right: 0px;
+            margin: 0 0 0 0;
+            width: 100%;
+        }
+    }
+    </style>
+    <script>
+    var menuIsVisible = false;
+
+    function toggleMenu() {
+        if (menuIsVisible === false) {
+            //$("#content_tree").show();
+            $("#content_shade").show();
+            menuIsVisible = true;
+
+            $("#content_tree").animate({
+                "left": "+=270px"
+            }, "fast");
+
+
+        } else {
+            //$("#content_tree").hide();
+            $("#content_tree").animate({
+                "left": "-=270px"
+            }, "fast");
+            $("#content_shade").hide();
+            menuIsVisible = false;
+        }
+    }
+    </script>
+</head>
+
+<body>
+    <div style="position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;" id="empmap"></div>
+    <div style="background-color: rgba(0,0,0,.7); position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px; z-index: 9998; display:none; " onclick="toggleMenu();" id="content_shade"></div>
+    <div class="mdl-color--white mdl-shadow--2dp " style="position: absolute; top: 0px; left: -270px;width: 270px; bottom: 0px; z-index: 9999; overflow-y: auto; overflow-x: hidden;" id="content_tree">
+        <div style="padding-left: 16px">
+            <h5>CP CE Map Widget</h5></div>
+        <hr/>
+        <ul class="demo-list-icon mdl-list">
+            <li class="mdl-list__item">
+                <span class="mdl-list__item-primary-content">
+    <i class="material-icons mdl-list__item-icon">apps</i>
+    Map Tools
+</span>
+            </li>
+            <li class="mdl-list__item">
+                <span class="mdl-list__item-primary-content">
+    <i class="material-icons mdl-list__item-icon">layers</i>
+    Map Content
+</span>
+            </li>
+            <li class="mdl-list__item">
+                <span class="mdl-list__item-primary-content">
+    <i class="material-icons mdl-list__item-icon">map</i>
+    Map Backgrounds
+</span>
+            </li>
+        </ul>
+        <hr/>
+        <ul class="demo-list-icon mdl-list">
+            <li class="mdl-list__item">
+                <span class="mdl-list__item-primary-content">
+    <i class="material-icons mdl-list__item-icon">help</i>
+    Help
+</span>
+            </li>
+            <li class="mdl-list__item">
+                <span class="mdl-list__item-primary-content">
+    <i class="material-icons mdl-list__item-icon">settings</i>
+    Settings
+  </span>
+            </li>
+            <li class="mdl-list__item">
+                <span class="mdl-list__item-primary-content">
+    <i class="material-icons mdl-list__item-icon">info</i>
+    About
+  </span>
+            </li>
+        </ul>
+    </div>
+    <div class="mdl-color--primary mdl-shadow--2dp emp3-locpanel">
+        <button id="hamburgler" class="mdl-button mdl-js-button mdl-button--icon" onclick="toggleMenu();"><i class="material-icons">menu</i></button>
+        <span style="margin-left: 8px; height: 24px; line-height: 24px; vertical-align: middle;">38S LD 1234 1234</span>
+        <button onclick="updateCamera();">Set Camera</button>
+        <button id="demo-menu-lower-right" class="mdl-button mdl-js-button mdl-button--icon" style="float:right">
+            <i class="material-icons">more_vert</i>
+        </button>
+        <ul class="mdl-menu mdl-menu--bottom-right mdl-js-menu mdl-js-ripple-effect" for="demo-menu-lower-right">
+            <li class="mdl-menu__item">Some Action</li>
+            <li class="mdl-menu__item">Another Action</li>
+            <li disabled class="mdl-menu__item">Disabled Action</li>
+            <li class="mdl-menu__item">Yet Another Action</li>
+        </ul>
+    </div>
+    <div style="position: absolute; right: 16px; width: 48px;top: 50%; margin-top: -42px;">
+        <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored" style="margin-bottom:8px;">
+            <i class="material-icons">add</i>
+        </button>
+        <button class="mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab mdl-button--colored">
+            <i class="material-icons">remove</i>
+        </button>
+    </div>
+    <script src='vendor/jquery-1.11.2.min.js' type="text/javascript"></script>
+    <script src='jquery-ui.custom.js' type="text/javascript"></script>
+    <script src="vendor/react.min.js" type="text/javascript"></script>
+    <script src="vendor/react-dom.min.js" type="text/javascript"></script>
+    <script src='vendor/mil-sym/savm-bc.js' type="text/javascript"></script>
+    <script src='emp3/emp3.min.js' type="text/javascript"></script>
+    <script src='ui/tree.js' type="text/javascript"></script>
+    <script>
+    function getParameterByName(name, url) {
+        if (!url) url = window.location.href;
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
+    }
+
+    var cesiumEngineDef = {
+        "id": 1,
+        "name": "Cesium",
+        "mapEngineId": 'cesiumMapEngine',
+        "url": "emp3-cesium/manifest.js",
+        "properties": {
+            "defaultImageryUrl": "http://localhost:8080/geoserver/wms",
+            "data": "[{'type' : 'osm','name' : 'Open Street Map','url' : '//a.tile.openstreetmap.org','disableProxy' : 'true','disable' : 'false','options' : '' },\n\
+                                     {'type' : 'bing','name' : 'Bing Aerial','url' : 'https://dev.virtualearth.net','disableProxy' : 'true','disable' : 'false','options' : 'Cesium.BingMapsStyle.AERIAL' },\n\
+                                     {'type' : 'arcgis93rest','name' : 'ESRI World Map','url' : 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer','disableProxy' : 'true','disable' : 'false','options' : '0' },\n\
+                                     {'type' : 'arcgis93rest','name' : 'ESRI Street Map','url' : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer','disableProxy' : 'true','disable' : 'false','options' : '0' }\n\
+                                     ]"
+        }
+    }
+    var leafletEngineDef = {
+        "id": 1,
+        "name": "Leaflet",
+        "mapEngineId": 'leafletMapEngine',
+        "url": "emp3-leaflet/manifest.js",
+        "properties": {
+            "data": "{'Use_Proxy_For_Map_Request':false,'Use_Proxy_For_Default_Map_Request':false,'Minimum_Zoom_Level':1,'Maximum_Zoom_Level':11,'Default_Tile_Map_Server_URL':'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'}"
+        }
+    }
+
+    var engineBase = getParameterByName('emp3enginePath');
+    if (!engineBase || engineBase === "") {
+        engineBase = "emp3/"
+    }
+    var activeEngine = cesiumEngineDef;
+    var engine = getParameterByName('emp3engine');
+    switch (engine) {
+        case "leaflet":
+            activeEngine = leafletEngineDef;
+            break;
+        case "cesium":
+        default:
+            activeEngine = cesiumEngineDef;
+            break;
+
+    }
+    var env;
+    var envstr = getParameterByName('emp3env');
+    switch (envstr) {
+        case "iwc":
+            env = emp3.api.environment.iwc;
+            break;
+        case "browser":
+        default:
+            env = emp3.api.environment.browser;
+            break;
+
+    }
+
+    var config = { // The map configuration parameters for this test.
+        environment: env,
+        debug: false,
+        urlProxy: "urlproxy.jsp",
+        engineBasePath: engineBase,
+        startMapEngineId: 1,
+        wmsServerUrls: [],
+        mapEngines: [activeEngine],
+        iwcHost: "http://localhost:8080/iwc/"
+    };
+    </script>
+    <script type="text/javascript">
+    var map1
+    $(document).ready(function() {
+        if (env === emp3.api.environment.browser) {
+            map1 = new emp3.api.Map({
+                container: "empmap",
+                config: config,
+                environment: env,
+                onSuccess: function() {
+                    console.log("Map creation success.");
+                },
+                onError: function(args) {
+                    console.log("Map creation failed.");
+                }
+            });
+        } else {
+            $("#empmap").hide();
+            map1 = new emp3.api.Map({
+
+                config: config,
+                environment: env,
+                onSuccess: function() {
+                    console.log("Map creation success.");
+                },
+                onError: function(args) {
+                    console.log("Map creation failed.");
+                }
+            });
+        }
+
+    });
+
+    function updateCamera() {
+        // Genernate a random start latitude for the camera
+        var lat = Math.random() * 10;
+        // Geenrate a random start longitude for the camera
+        var lon = Math.random() * 100;
+
+        // Get the map's current camera
+        var camera = map1.getCamera();
+
+        camera.latitude = lat;
+        camera.longitude = lon;
+        camera.tilt = 15;
+        camera.altitude = 500000;
+
+        // Apply the new camera updates
+        map1.setCamera({
+            camera: camera
+        });
+    }
+    </script>
+</body>
+
+</html>
