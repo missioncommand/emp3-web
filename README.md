@@ -1,5 +1,7 @@
 Extensible Map Platform 3 (EMP3) - Web SDK
 ===========
+[![Build Status](https://travis-ci.org/missioncommand/emp3-web.svg?branch=master)](https://travis-ci.org/missioncommand/emp3-web)
+
 This project contains the EMP3 Map API, and Core SDK components as well as a map application with UI components leveraging the EMP SDK.
 
 
