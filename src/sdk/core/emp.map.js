@@ -927,8 +927,12 @@ emp.map = function (args) {
             // if mouse button is still down, start drag
             if (this.mapDragStart && this.mapDrag !== true) {
 
+              // retrieve the editingManager in case we are in edit mode.
+              var editingManager = mapInstance.editingManager.get();
+
               // Were we over a feature when we started dragging?
               if (this.mapDragStart.featureId && mapInstance.status.get() === emp.map.states.EDIT) {
+
                 this.mapDrag = true;
 
                 // create a feature drag event.
@@ -940,7 +944,7 @@ emp.map = function (args) {
 
                 // pass the transaction to the editingManager to determine if this
                 // transaction should be run.
-                var editingManager = mapInstance.editingManager.get();
+
                 editingManager.editDragStart(this.mapDragStart.featureId, dragPointer);
 
               // We weren't over a feature we were over the map.

@@ -1,6 +1,6 @@
-emp.editingManager = function (args) {
+emp.editingManager = function(args) {
 
-  var editTransaction,  // The original edit transaction.
+  var editTransaction, // The original edit transaction.
     mapInstance = args.mapInstance, // The map the edit is occurring on
     feature, // the current state of the feature.
     activeEditor, // The editor chosen based on the format and or draw type.
@@ -12,7 +12,7 @@ emp.editingManager = function (args) {
      * Called when the map goes into edit mode.
      */
     edit: function(transaction) {
-        var symbol = false,
+      var symbol = false,
         standard,
         symbolCode,
         basicCode,
@@ -34,20 +34,23 @@ emp.editingManager = function (args) {
       });
 
       editTransaction.items[0].update({
-          name: editTransaction.items[0].name,
-          updates: {},
-          properties: editTransaction.items[0].properties,
-          updateEventType: emp.typeLibrary.UpdateEventType.START,
-          mapInstanceId: mapInstance.mapInstanceId
+        name: editTransaction.items[0].name,
+        updates: {},
+        properties: editTransaction.items[0].properties,
+        updateEventType: emp.typeLibrary.UpdateEventType.START,
+        mapInstanceId: mapInstance.mapInstanceId
       });
 
       // Determine the type of editor to create.
-      feature = emp.storage.findFeature(null, editTransaction.items[0].featureId);
+      feature = emp.storage.get.id({
+        id: editTransaction.items[0].originFeature.coreId
+      });
+      //feature = emp.storage.findFeature(null, editTransaction.items[0].featureId);
 
       // copy the feature.  we do not want to modify the original feature in
       // the transaction.  This feature will track the current state.
       if (feature) {
-        feature = feature.getObjectData();
+        feature = feature.getObjectData(mapInstance.mapInstanceId, emp.storage.getRootGuid(mapInstance.mapInstanceId));
         feature = emp.helpers.copyObject(feature);
         // The feature prior to any changes occurring.
         originalFeature = emp.helpers.copyObject(feature);
@@ -75,7 +78,8 @@ emp.editingManager = function (args) {
           if (symbolDef) {
             drawCategory = symbolDef.drawCategory;
           }
-        } else {
+        }
+        else {
           unitDef = armyc2.c2sd.renderer.utilities.UnitDefTable.getUnitDef(basicCode, standard);
           if (unitDef) {
             drawCategory = unitDef.drawCategory;
@@ -91,15 +95,14 @@ emp.editingManager = function (args) {
           feature: feature,
           mapInstance: args.mapInstance
         });
-      } else {
+      }
+      else {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.EditorBase({
           feature: feature,
           mapInstance: args.mapInstance
         });
       }
-
-
 
       // have the editor create any editing features on the map.
       activeEditor.addControlPoints();
@@ -115,43 +118,48 @@ emp.editingManager = function (args) {
       var initFailList = [];
 
       initFailList.push(new emp.typeLibrary.Error({
-          coreId: editTransaction.items[0].coreId,
-          message: "The editing was cancelled.",
-          level: emp.typeLibrary.Error.level.INFO
+        coreId: editTransaction.items[0].coreId,
+        message: "The editing was cancelled.",
+        level: emp.typeLibrary.Error.level.INFO
       }));
 
       editTransaction.items[0].originFeature = originalFeature;
       mapInstance.eventing.EditEnd({
-          transaction: editTransaction,
-          failures: initFailList
+        transaction: editTransaction,
+        failures: initFailList
       });
 
       // remove editing control points from the map.
       activeEditor.removeControlPoints();
 
-/*
+
       // restore the feature to its original state.  Create
       // a FEATURE_ADD transaction that updates the feature
       // to its original state.
       transaction = new emp.typeLibrary.Transaction({
-          intent: emp.intents.control.FEATURE_ADD,
-          mapInstanceId: mapInstance.mapInstanceId,
-          transactionId: null,
-          sender: mapInstance.mapInstanceId,
-          originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-          source: emp.api.cmapi.SOURCE,
-          messageOriginator: mapInstance.mapInstanceId,
-          originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-          items: [feature]
+        intent: emp.intents.control.FEATURE_ADD,
+        mapInstanceId: mapInstance.mapInstanceId,
+        transactionId: null,
+        sender: mapInstance.mapInstanceId,
+        originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+        source: emp.api.cmapi.SOURCE,
+        messageOriginator: mapInstance.mapInstanceId,
+        originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+        items: [originalFeature]
       });
 
       // undo any changes that were made during the edit.
       transaction.run();
-*/
 
       // finish running the edit transaction
       editTransaction.run();
 
+      // We are done editing. Reset state of editingManager.
+      editTransaction = undefined;
+      feature = undefined;
+      activeEditor = undefined;
+      updateData = undefined;
+      originalFeature = undefined;
     },
 
     complete: function() {
@@ -163,7 +171,7 @@ emp.editingManager = function (args) {
       editTransaction.items[0].updatedFeature = activeEditor.featureCopy;
 
       mapInstance.eventing.EditEnd({
-          transaction: editTransaction
+        transaction: editTransaction
       });
 
       // remove editing control points from the map.
@@ -174,26 +182,25 @@ emp.editingManager = function (args) {
       // to its new state.  We pull that state from the editor.
       item = activeEditor.featureCopy;
 
-
       transaction = new emp.typeLibrary.Transaction({
-          intent: emp.intents.control.FEATURE_ADD,
-          mapInstanceId: mapInstance.mapInstanceId,
-          transactionId: null,
-          sender: mapInstance.mapInstanceId,
-          originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-          source: emp.api.cmapi.SOURCE,
-          messageOriginator: mapInstance.mapInstanceId,
-          originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-          items: [item]
+        intent: emp.intents.control.FEATURE_ADD,
+        mapInstanceId: mapInstance.mapInstanceId,
+        transactionId: null,
+        sender: mapInstance.mapInstanceId,
+        originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+        source: emp.api.cmapi.SOURCE,
+        messageOriginator: mapInstance.mapInstanceId,
+        originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+        items: [item]
       });
 
       // Send out the message that will trigger the complete callback.
       editTransaction.items[0].update({
-          name: feature.name,
-          updates: updateData.coordinateUpdate,
-          properties: updateData.properties,
-          updateEventType: emp.typeLibrary.UpdateEventType.COMPLETE,
-          mapInstanceId: mapInstance.mapInstanceId
+        name: feature.name,
+        updates: updateData.coordinateUpdate,
+        properties: updateData.properties,
+        updateEventType: emp.typeLibrary.UpdateEventType.COMPLETE,
+        mapInstanceId: mapInstance.mapInstanceId
       });
 
 
@@ -202,6 +209,13 @@ emp.editingManager = function (args) {
 
       // finish running the transaction
       editTransaction.run();
+
+      // We are done editing. Reset state of editingManager.
+      editTransaction = undefined;
+      feature = undefined;
+      activeEditor = undefined;
+      updateData = undefined;
+      originalFeature = undefined;
     },
 
     editDragStart: function(featureId, pointer) {
@@ -210,61 +224,71 @@ emp.editingManager = function (args) {
       var lockMapTransaction;
       var mapLock;
 
-      mapLock = new emp.typeLibrary.Lock({
+      // only raise the event if the item we are trying to drag is
+      // the item that is being edited.
+      if (featureId === originalFeature.featureId) {
+
+        mapLock = new emp.typeLibrary.Lock({
           lock: true
-      });
-
-      // first lock the map in place so the map does not pan.
-
-      lockMapTransaction = new emp.typeLibrary.Transaction({
-        intent: emp.intents.control.VIEW_LOCK,
-        mapInstanceId: mapInstance.mapInstanceId,
-        source: mapInstance.mapInstanceId,
-        messageOriginator: mapInstance.mapInstanceId,
-        originalMessageType: cmapi.channel.names.MAP_VIEW_LOCK,
-        items: [mapLock]
-      });
-
-      lockMapTransaction.run();
-
-      // If we are dragging a control point, we don't want
-      // any events going out, because it is not a feature.
-      if (activeEditor.isControlPoint(featureId)) {
-        activeEditor.moveControlPoint(featureId, pointer);
-      } else if (activeEditor.isFeature(featureId)) {
-        // If this is the feature we are editing, raise a feature drag
-        // event.
-
-        // create a feature drag event.
-        transaction = new emp.typeLibrary.Transaction({
-          mapInstanceId: mapInstance.mapInstanceId,
-          intent: emp.intents.control.POINTER,
-          originChannel: "cmapi2.map.view.drag",
-          source: emp.core.sources.MAP,
-          transactionId: emp.helpers.id.newGUID(),
-          items: [pointer]
         });
 
-        // send out the event.
-        transaction.run();
+        // first lock the map in place so the map does not pan.
+
+        lockMapTransaction = new emp.typeLibrary.Transaction({
+          intent: emp.intents.control.VIEW_LOCK,
+          mapInstanceId: mapInstance.mapInstanceId,
+          source: mapInstance.mapInstanceId,
+          messageOriginator: mapInstance.mapInstanceId,
+          originalMessageType: cmapi.channel.names.MAP_VIEW_LOCK,
+          items: [mapLock]
+        });
+
+        lockMapTransaction.run();
+
+        // If we are dragging a control point, we don't want
+        // any events going out, because it is not a feature.
+        if (activeEditor.isControlPoint(featureId)) {
+          activeEditor.moveControlPoint(featureId, pointer);
+        }
+        else if (activeEditor.isFeature(featureId)) {
+          // If this is the feature we are editing, raise a feature drag
+          // event.
+
+          // create a feature drag event.
+          transaction = new emp.typeLibrary.Transaction({
+            mapInstanceId: mapInstance.mapInstanceId,
+            intent: emp.intents.control.POINTER,
+            originChannel: "cmapi2.map.view.drag",
+            source: emp.core.sources.MAP,
+            transactionId: emp.helpers.id.newGUID(),
+            items: [pointer]
+          });
+
+          // send out the event.
+          transaction.run();
+        }
       }
     },
 
     editDragMove: function(featureId, startX, startY, pointer) {
 
-      if (activeEditor.isControlPoint(featureId)) {
-        updateData = activeEditor.moveControlPoint(featureId, pointer);
-      } else if (activeEditor.isFeature(featureId)) {
-        updateData = activeEditor.moveFeature(startX, startY, pointer);
-      }
+      if (featureId === originalFeature.featureId) {
 
-      editTransaction.items[0].update({
+        if (activeEditor.isControlPoint(featureId)) {
+          updateData = activeEditor.moveControlPoint(featureId, pointer);
+        }
+        else if (activeEditor.isFeature(featureId)) {
+          updateData = activeEditor.moveFeature(startX, startY, pointer);
+        }
+
+        editTransaction.items[0].update({
           name: feature.name,
           updates: updateData.coordinateUpdate,
           properties: updateData.properties,
           updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
           mapInstanceId: mapInstance.mapInstanceId
-      });
+        });
+      }
     },
 
     editDragComplete: function(featureId, startX, startY, pointer) {
@@ -272,45 +296,48 @@ emp.editingManager = function (args) {
       var lockMapTransaction;
       var mapLock;
 
-      if (activeEditor.isControlPoint(featureId)) {
-        updateData = activeEditor.moveControlPoint(featureId, pointer);
-      } else if (activeEditor.isFeature(featureId)) {
-        updateData = activeEditor.moveFeature(startX, startY, pointer);
+      if (featureId === originalFeature.featureId) {
+        if (activeEditor.isControlPoint(featureId)) {
+          updateData = activeEditor.moveControlPoint(featureId, pointer);
+        }
+        else if (activeEditor.isFeature(featureId)) {
+          updateData = activeEditor.moveFeature(startX, startY, pointer);
 
-        // send out a feature drag complete event.
-        transaction = new emp.typeLibrary.Transaction({
-          mapInstanceId: mapInstance.mapInstanceId,
-          intent: emp.intents.control.POINTER,
-          originChannel: "cmapi2.map.view.dragComplete",
-          source: emp.core.sources.MAP,
-          transactionId: emp.helpers.id.newGUID(),
-          items: [pointer]
-        });
-        transaction.run();
-      }
+          // send out a feature drag complete event.
+          transaction = new emp.typeLibrary.Transaction({
+            mapInstanceId: mapInstance.mapInstanceId,
+            intent: emp.intents.control.POINTER,
+            originChannel: "cmapi2.map.view.dragComplete",
+            source: emp.core.sources.MAP,
+            transactionId: emp.helpers.id.newGUID(),
+            items: [pointer]
+          });
+          transaction.run();
+        }
 
-      editTransaction.items[0].update({
+        editTransaction.items[0].update({
           name: feature.name,
           updates: updateData.coordinateUpdate,
           properties: updateData.properties,
           updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
           mapInstanceId: mapInstance.mapInstanceId
-      });
+        });
 
-      mapLock = new emp.typeLibrary.Lock({
+        mapLock = new emp.typeLibrary.Lock({
           lock: false
-      });
+        });
 
-      lockMapTransaction = new emp.typeLibrary.Transaction({
-        intent: emp.intents.control.VIEW_LOCK,
-        mapInstanceId: mapInstance.mapInstanceId,
-        source: mapInstance.mapInstanceId,
-        messageOriginator: mapInstance.mapInstanceId,
-        originalMessageType: cmapi.channel.names.MAP_VIEW_LOCK,
-        items: [mapLock]
-      });
+        lockMapTransaction = new emp.typeLibrary.Transaction({
+          intent: emp.intents.control.VIEW_LOCK,
+          mapInstanceId: mapInstance.mapInstanceId,
+          source: mapInstance.mapInstanceId,
+          messageOriginator: mapInstance.mapInstanceId,
+          originalMessageType: cmapi.channel.names.MAP_VIEW_LOCK,
+          items: [mapLock]
+        });
 
-      lockMapTransaction.run();
+        lockMapTransaction.run();
+      }
     }
   };
   return publicInterface;

@@ -310,6 +310,7 @@ emp.typeLibrary.Edit = function(args) {
       newTrans.run();
       outBoundTrans.run();
     }, 0);
+
   };
 
   this.prepForExecution = function() {
