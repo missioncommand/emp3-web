@@ -227,7 +227,7 @@ emp.editingManager = function(args) {
 
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.
-      if (featureId === originalFeature.featureId) {
+      if (originalFeature && featureId === originalFeature.featureId) {
 
         mapLock = new emp.typeLibrary.Lock({
           lock: true
@@ -257,7 +257,7 @@ emp.editingManager = function(args) {
 
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.
-      if (featureId === originalFeature.featureId) {
+      if (originalFeature && featureId === originalFeature.featureId) {
 
         // If we are dragging a control point, we don't want
         // any events going out, because it is not a feature.
@@ -304,7 +304,7 @@ emp.editingManager = function(args) {
 
     editDragMove: function(featureId, startX, startY, pointer) {
 
-      if (featureId === originalFeature.featureId) {
+      if (originalFeature && featureId === originalFeature.featureId) {
 
         if (activeEditor.isControlPoint(featureId)) {
           updateData = activeEditor.moveControlPoint(featureId, pointer);
@@ -328,7 +328,7 @@ emp.editingManager = function(args) {
       var lockMapTransaction;
       var mapLock;
 
-      if (featureId === originalFeature.featureId) {
+      if (originalFeature && featureId === originalFeature.featureId) {
         if (activeEditor.isControlPoint(featureId)) {
           updateData = activeEditor.moveControlPoint(featureId, pointer);
         }
