@@ -82,19 +82,26 @@ class MapEditFeatureTest extends Component {
           feature: feature,
           onEditStart: (args) => {
             toastr.success('Map.editFeature onEditStart called: \n ' +
-              JSON.stringify(args));
+              'map instance: ' + args.map.geoId + '\n' +
+              'feature: ' + JSON.stringify(args.feature));
           },
           onEditUpdate: (args) => {
             toastr.success('Map.editFeature onEditUpdate called: \n ' +
-              JSON.stringify(args));
+              'map instance: ' + args.map.geoId + '\n' +
+              'updateList: ' + JSON.stringify(args.updateList) + '\n' +
+              'feature: ' + JSON.stringify(args.feature));
           },
           onEditComplete: (args) => {
             toastr.success('Map.editFeature onEditComplete called: \n ' +
-              JSON.stringify(args));
+              'map instance: ' + args.map.geoId + '\n' +
+              'updateList: ' + JSON.stringify(args.updateList) + '\n' +
+              'feature: ' + JSON.stringify(args.feature));
           },
           onEditCancel: (args) => {
             toastr.success('Map.editFeature onEditCancel called: \n ' +
-              JSON.stringify(args));
+              'map instance: ' + args.map.geoId + '\n' +
+              'updateList: ' + JSON.stringify(args.updateList) + '\n' +
+              'feature: ' + JSON.stringify(args.feature));
           },
           onEditError: (err) => {
             toastr.error('Map.editFeature', JSON.stringify(err.errorMessage));

@@ -913,34 +913,37 @@ emp.map = function (args) {
             //     down, then this is a drag.
             if (mapInstance.status.get() === emp.map.states.EDIT) {
               this.mapDragStart = {
-                featureId: pointer.featureId
+                featureId: pointer.featureId,
+                startX: pointer.clientX,
+                startY: pointer.clientY
               };
             } else {
               this.mapDragStart = {};
             }
+
           //  Check to see if this is a mouse move
           } else if (args.type === emp.typeLibrary.Pointer.EventType.MOVE) {
 
             // if mouse button is still down, start drag
             if (this.mapDragStart && this.mapDrag !== true) {
 
+              // Were we over a feature when we started dragging?
               if (this.mapDragStart.featureId && mapInstance.status.get() === emp.map.states.EDIT) {
                 this.mapDrag = true;
+
+                // create a feature drag event.
                 args.featureId = this.mapDragStart.featureId;
                 args.target = "feature";
                 args.type = emp.typeLibrary.Pointer.EventType.DRAG;
 
                 dragPointer = new emp.typeLibrary.Pointer(args);
-                fTransaction = new emp.typeLibrary.Transaction({
-                  mapInstanceId: mapInstanceId,
-                  intent: intent,
-                  originChannel: "cmapi2.map.view.drag",
-                  source: emp.core.sources.MAP,
-                  transactionId: emp.helpers.id.newGUID(),
-                  items: [dragPointer]
-                });
-                fTransaction.run();
 
+                // pass the transaction to the editingManager to determine if this
+                // transaction should be run.
+                var editingManager = mapInstance.editingManager.get();
+                editingManager.editDragStart(this.mapDragStart.featureId, dragPointer);
+
+              // We weren't over a feature we were over the map.
               } else {
                 this.mapDrag = true;
 
@@ -948,6 +951,7 @@ emp.map = function (args) {
                 args.coreId = undefined;
                 args.featureId = undefined;
                 args.target = 'globe';
+
                 dragPointer = new emp.typeLibrary.Pointer(args);
 
                 fTransaction = new emp.typeLibrary.Transaction({
@@ -960,6 +964,15 @@ emp.map = function (args) {
                 });
                 fTransaction.run();
               }
+            } else if (this.mapDragStart && this.mapDrag === true &&
+                this.mapDragStart.featureId && mapInstance.status.get() === emp.map.states.EDIT &&
+                this.mapDrag === true) {
+              // pass the pointer to editor manager. to decide if
+              mapInstance.editingManager.get().editDragMove(
+                this.mapDragStart.featureId,
+                this.mapDragStart.startX,
+                this.mapDragStart.startY,
+                pointer);
             }
           //   Check to see if this is a mouse up
           } else if (args.type === emp.typeLibrary.Pointer.EventType.MOUSEUP) {
@@ -972,15 +985,14 @@ emp.map = function (args) {
                 args.target = "feature";
                 args.featureId = this.mapDragStart.featureId;
                 dragPointer = new emp.typeLibrary.Pointer(args);
-                fTransaction = new emp.typeLibrary.Transaction({
-                  mapInstanceId: mapInstanceId,
-                  intent: intent,
-                  originChannel: "cmapi2.map.view.dragComplete",
-                  source: emp.core.sources.MAP,
-                  transactionId: emp.helpers.id.newGUID(),
-                  items: [dragPointer]
-                });
-                fTransaction.run();
+
+                // let the editingManager decide if event should be raised.
+                mapInstance.editingManager.get().editDragComplete(
+                  this.mapDragStart.featureId,
+                  this.mapDragStart.startX,
+                  this.mapDragStart.startY,
+                  dragPointer);
+
                 this.mapDragStart = null;
                 this.mapDrag = false;
               } else {
