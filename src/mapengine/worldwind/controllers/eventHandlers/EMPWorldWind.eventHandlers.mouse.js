@@ -79,7 +79,7 @@ EMPWorldWind.eventHandlers.mouse = {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
     coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
 
-    EMPWorldWind.eventHandlers.extractFeatureFromEvent(this, event, coords);
+    EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, coords);
     if (coords.lat !== undefined) {
       this.empMapInstance.eventing.Pointer(coords);
     }
