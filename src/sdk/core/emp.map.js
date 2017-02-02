@@ -896,6 +896,8 @@ emp.map = function (args) {
           mapInstance = emp.instanceManager.getInstance(mapInstanceId),
           dragPointer;
 
+        // retrieve the editingManager in case we are in edit mode.
+        var editingManager = mapInstance.editingManager.get();
 
         // If we are not in freehand mode.
         if (!freehandMode) {
@@ -912,11 +914,14 @@ emp.map = function (args) {
             //     Memorize location, if next event comes as a move with button still
             //     down, then this is a drag.
             if (mapInstance.status.get() === emp.map.states.EDIT) {
+
               this.mapDragStart = {
                 featureId: pointer.featureId,
                 startX: pointer.clientX,
                 startY: pointer.clientY
               };
+
+              editingManager.editMouseDown(pointer.featureId, pointer);
             } else {
               this.mapDragStart = {};
             }
@@ -927,8 +932,7 @@ emp.map = function (args) {
             // if mouse button is still down, start drag
             if (this.mapDragStart && this.mapDrag !== true) {
 
-              // retrieve the editingManager in case we are in edit mode.
-              var editingManager = mapInstance.editingManager.get();
+
 
               // Were we over a feature when we started dragging?
               if (this.mapDragStart.featureId && mapInstance.status.get() === emp.map.states.EDIT) {

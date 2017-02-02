@@ -1,3 +1,8 @@
+/**
+ * Controls the process of editing Features on the map.  Will
+ * start the process to make sure all the messages are published
+ * to the map.
+ */
 emp.editingManager = function(args) {
 
   var editTransaction, // The original edit transaction.
@@ -218,11 +223,7 @@ emp.editingManager = function(args) {
       originalFeature = undefined;
     },
 
-    editDragStart: function(featureId, pointer) {
-
-      var transaction;
-      var lockMapTransaction;
-      var mapLock;
+    editMouseDown: function(featureId, pointer) {
 
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.
@@ -244,6 +245,19 @@ emp.editingManager = function(args) {
         });
 
         lockMapTransaction.run();
+      }
+
+    },
+
+    editDragStart: function(featureId, pointer) {
+
+      var transaction;
+      var lockMapTransaction;
+      var mapLock;
+
+      // only raise the event if the item we are trying to drag is
+      // the item that is being edited.
+      if (featureId === originalFeature.featureId) {
 
         // If we are dragging a control point, we don't want
         // any events going out, because it is not a feature.
@@ -267,6 +281,24 @@ emp.editingManager = function(args) {
           // send out the event.
           transaction.run();
         }
+      }
+      else {
+        mapLock = new emp.typeLibrary.Lock({
+          lock: false
+        });
+
+        // first lock the map in place so the map does not pan.
+
+        lockMapTransaction = new emp.typeLibrary.Transaction({
+          intent: emp.intents.control.VIEW_LOCK,
+          mapInstanceId: mapInstance.mapInstanceId,
+          source: mapInstance.mapInstanceId,
+          messageOriginator: mapInstance.mapInstanceId,
+          originalMessageType: cmapi.channel.names.MAP_VIEW_LOCK,
+          items: [mapLock]
+        });
+
+        lockMapTransaction.run();
       }
     },
 
