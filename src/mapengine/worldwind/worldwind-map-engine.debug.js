@@ -387,6 +387,16 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     }
   };
 
+  /**
+   *
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.selection.set = function(transaction) {
+    var rc = empWorldWind.selectFeatures(transaction.items);
+    transaction.failures = rc.failed;
+  };
+
+
   // return the engineInterface object as a new engineTemplate instance
   return engineInterface;
 };

@@ -51,6 +51,15 @@ EMPWorldWind.map = function(wwd) {
       altitude: 0
     },
     /**
+     * Default selection style
+     * @type SelectionStyle
+     */
+    selectionStyle: {
+      scale: 1,
+      lineColor: "#FFFF00",
+      fillColor: undefined
+    },
+    /**
      * Label styles for the renderer
      */
     labelStyles: {
@@ -339,6 +348,32 @@ EMPWorldWind.map.prototype.unplotFeature = function(args) {
   }
 
   return rc;
+};
+
+/**
+ *
+ * @param {emp.typeLibrary.Selection[]} empSelections
+ */
+EMPWorldWind.map.prototype.selectFeatures = function(empSelections) {
+  var selected = [],
+    failed = [];
+  emp.util.each(empSelections, function(selectedFeature) {
+    var feature = this.features[selectedFeature.featureId];
+    if (feature) {
+      feature.selected = selectedFeature.select;
+      selected.push(feature);
+    } else {
+      failed.push(feature);
+    }
+  }.bind(this));
+
+  this.worldWind.redraw();
+
+  return {
+    success: selected.length !== 0,
+    selected: selected,
+    failed: failed
+  }
 };
 
 /**
@@ -845,3 +880,10 @@ EMPWorldWind.map.prototype.setContrast = function(contrast) {
 
   this.worldWind.redraw();
 };
+
+/**
+ * @typedef {object} SelectionStyle
+ * @property {number} scale
+ * @property {string|undefined} lineColor
+ * @property {string|undefined} fillColor
+ */

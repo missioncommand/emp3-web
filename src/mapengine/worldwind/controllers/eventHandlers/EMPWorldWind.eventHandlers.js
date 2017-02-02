@@ -90,3 +90,25 @@ EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
     // this.refresh();
   }
 };
+
+/**
+ *
+ * @param mouseEvent
+ * @param empEventingArgs
+ */
+EMPWorldWind.eventHandlers.extractFeatureFromEvent = function(mouseEvent, empEventingArgs) {
+  var obj,
+    pickList = this.worldWind.pick(this.worldWind.canvasCoordinates(mouseEvent.clientX, mouseEvent.clientY));
+
+  len = pickList.objects.length;
+  for (var i = 0; i < len; i++) {
+    obj = pickList.objects[i];
+    if (!obj.isTerrain) {
+      if (obj.userObject.userProperties && obj.userObject.userProperties.id) {
+        empEventingArgs.coreId = obj.userObject.userProperties.id;
+        empEventingArgs.target = "feature";
+        break;
+      }
+    }
+  }
+};
