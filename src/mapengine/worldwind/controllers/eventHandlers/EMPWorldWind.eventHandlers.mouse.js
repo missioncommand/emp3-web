@@ -56,6 +56,7 @@ EMPWorldWind.eventHandlers.mouse = {
   mouseup: function (event) {
     var mouseupEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
     mouseupEvent.type = emp.typeLibrary.Pointer.EventType.MOUSEUP;
+    EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, mouseupEvent);
     this.empMapInstance.eventing.Pointer(mouseupEvent);
   },
   /**
