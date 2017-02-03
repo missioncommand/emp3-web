@@ -7,6 +7,11 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  */
 
 /**
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent}
+ * @typedef {Object} WheelEvent
+ */
+
+/**
  * Mouse event handlers
  */
 EMPWorldWind.eventHandlers.mouse = {
@@ -65,11 +70,10 @@ EMPWorldWind.eventHandlers.mouse = {
   },
   /**
    *
-   * @param {MouseEvent} event
+   * @param {WheelEvent} event
    * @this EMPWorldWind.map
    */
   wheel: function (event) {
-    event.preventDefault();
     if (event.wheelDeltaY < 0 && this.worldWind.navigator.range > EMPWorldWind.constants.view.MAX_HEIGHT) {
       this.worldWind.navigator.range = EMPWorldWind.constants.view.MAX_HEIGHT;
     }
@@ -78,7 +82,7 @@ EMPWorldWind.eventHandlers.mouse = {
       case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
       case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
       case emp3.api.enums.MapMotionLockEnum.NO_ZOOM:
-        event.stopPropagation();
+        event.preventDefault();
         break;
       default:
         // business as usual
@@ -90,7 +94,6 @@ EMPWorldWind.eventHandlers.mouse = {
    * @this EMPWorldWind.map
    */
   mousemove: function (event) {
-    event.preventDefault();
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
     coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
     if (coords.lat !== undefined) {
@@ -104,8 +107,7 @@ EMPWorldWind.eventHandlers.mouse = {
           case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
           case emp3.api.enums.MapMotionLockEnum.NO_PAN:
           case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
-            window.console.debug(event);
-            event.stopPropagation();
+            event.preventDefault();
             break;
           case emp3.api.enums.MapMotionLockEnum.SMART_MOTION: // TODO check for special locations
           case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
