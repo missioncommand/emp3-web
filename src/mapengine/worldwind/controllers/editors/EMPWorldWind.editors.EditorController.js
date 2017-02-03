@@ -240,13 +240,18 @@ EMPWorldWind.editors.EditorController = (function() {
   }
 
   /**
-   * Requires access to the current scope
-   * ie .bind .call .apply
+   * Requires access to the current scope ie .bind .call .apply
+   *
    * @param {emp.typeLibrary.Feature} feature
    */
   function processModifiers(feature) {
     var modifiers, enhancedModifiers, override;
-    modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, this.state.labelStyles, this.state.pixelSize);
+    if (feature.data.type === "Point") {
+      modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, this.state.labelStyles, this.state.pixelSize);
+    } else {
+      modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, {}, this.state.pixelSize);
+    }
+
     modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, this.state.labelStyles.CN === true);
 
     enhancedModifiers = EMPWorldWind.utils.milstd.checkForRequiredModifiers(feature);
@@ -734,70 +739,31 @@ EMPWorldWind.editors.EditorController = (function() {
     /**
      *
      * @param {EMPWorldWind.data.EmpFeature} wwFeature
+     * @this EMPWorldWind.map
      */
     updateFeatureLabelStyle: function(wwFeature) {
-      var i,
-        imageInfo, imageCenter, imageBounds, imageOffset,
-        attributes, modifiers,
-        empLayer;
+      var shapes,
+        empLayer = this.getLayer(wwFeature.feature.parentCoreId);
 
-      empLayer = this.getLayer(wwFeature.feature.parentCoreId);
-
-      if (wwFeature.feature.format === "milstd") {
-        modifiers = processModifiers.call(this, wwFeature);
-
-        if (wwFeature.feature.data.type === "Point") {
-          imageInfo = armyc2.c2sd.renderer.MilStdIconRenderer.Render(wwFeature.feature.symbolCode, modifiers);
-          imageCenter = imageInfo.getCenterPoint();
-          imageBounds = imageInfo.getImageBounds();
-
-          imageOffset = new WorldWind.Offset(
-            WorldWind.OFFSET_FRACTION, imageCenter.x / imageBounds.width,
-            WorldWind.OFFSET_FRACTION, 1 - (imageCenter.y / imageBounds.height)
-          );
-
-          attributes = new WorldWind.PlacemarkAttributes();
-          attributes.imageScale = this.worldWind.navigator.range;
-          attributes.imageOffset = imageOffset;
-          attributes.imageColor = WorldWind.Color.WHITE;
-
-          attributes.imageSource = imageInfo.toDataUrl();
-
-          wwFeature.shapes[0].attributes = new WorldWind.PlacemarkAttributes(attributes);
-        } else {
-          // TODO update renderer to return JSON object
-          imageInfo = JSON.parse(sec.web.renderer.SECWebRenderer.RenderSymbol(
-            wwFeature.feature.name,
-            wwFeature.feature.coreId,
-            wwFeature.feature.description,
-            wwFeature.feature.symbolCode,
-            wwFeature.positions,
-            "clampToGround",
-            this.worldWind.navigator.range * 10,
-            wwFeature.bbox,
-            modifiers,
-            EMPWorldWind.constants.MultiPointRenderType.GEOJSON));
-
-          i = wwFeature.shapes.length;
-          while (i--) {
-            // Remove and replace the new text objects
-            if (wwFeature.shapes[i] instanceof WorldWind.GeographicText) {
-              empLayer.layer.removeRenderable(wwFeature.shapes[i]);
-              wwFeature.shapes.splice(i);
-            }
-          }
-
-          var shapes = [], newText;
-          for (i = 0; i < imageInfo.features.length; i++) {
-            if (imageInfo.features[i].geometry.type === "Point") {
-              newText = constructText(imageInfo.features[i]);
-              empLayer.layer.addRenderable(newText);
-              shapes.push(newText);
-            }
-          }
-
-          wwFeature.shapes = wwFeature.shapes.concat(shapes);
-        }
+      switch (wwFeature.feature.format) {
+        case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL:
+          empLayer.removeFeature(wwFeature);
+          wwFeature.clearShapes();
+          shapes = constructMilStdSymbol.call(this, wwFeature.feature);
+          wwFeature.addShapes(shapes);
+          empLayer.addFeature(wwFeature);
+          break;
+        case emp3.api.enums.FeatureTypeEnum.GEO_ACM:
+        case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
+        case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
+        case emp3.api.enums.FeatureTypeEnum.GEO_PATH:
+        case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
+        case emp3.api.enums.FeatureTypeEnum.GEO_POLYGON:
+        case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
+        case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
+        case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
+        default:
+          // do nothing
       }
     }
   };
