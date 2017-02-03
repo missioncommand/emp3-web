@@ -845,3 +845,11 @@ EMPWorldWind.map.prototype.setContrast = function(contrast) {
 
   this.worldWind.redraw();
 };
+
+/**
+ *
+ * @param lockState
+ */
+EMPWorldWind.map.prototype.setLockState = function(lockState) {
+  window.console.debug(lockState);
+};
