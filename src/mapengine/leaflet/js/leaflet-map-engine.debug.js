@@ -1,4 +1,4 @@
-/*globals emp, L */
+/*globals emp, L */ 
 /* global L, leafLet, cmapi */
 
 var emp = emp || {};
@@ -404,7 +404,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             instanceInterface.oGraphicsInViewingArea = [];
             var oMapBounds = instanceInterface.leafletInstance.getBounds();
             var oEmpMapBounds = new leafLet.typeLibrary.EmpBoundary(oMapBounds.getSouthWest(), oMapBounds.getNorthEast());
-            var oFeatureBounds;
+            var oFeatureBounds = undefined;
 
             for (sCoreID in instanceInterface.mapEngObjectList) {
                 if (!instanceInterface.mapEngObjectList.hasOwnProperty(sCoreID)) {
@@ -418,9 +418,9 @@ emp.engineDefs.leafletMapEngine = function (args) {
                             if (oEmpObject.isMilStd() && oEmpObject.isMultiPointTG()) {
                                 // Put it on the list only if its a TG, its visible and the scale changed.
                                 oFeatureBounds = oEmpObject.getFeatureBounds();
-                                if (oFeatureBounds && oFeatureBounds.intersects(oEmpMapBounds)) {
+                                //if (oFeatureBounds && oFeatureBounds.intersects(oEmpMapBounds)) {
                                     instanceInterface.oGraphicsInViewingArea.push(oEmpObject);
-                                }
+                                //}
                             } else if (oEmpObject.isAirspace() || oEmpObject.isAOI() || oEmpObject.isGeoEllipse()) {
                                 // Put it on the list.
                                 oFeatureBounds = oEmpObject.getFeatureBounds();
@@ -665,13 +665,20 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
     function checkMapWidth() {
         var oMapBounds;
+        var center;
+        var angularWidth;
         var iZoom;
 
         oMapBounds = instanceInterface.leafletInstance.getBounds();
+        center = instanceInterface.leafletInstance.getCenter();
+        angularWidth = Math.abs(oMapBounds.getEast() - oMapBounds.getWest());
 
-        if ((oMapBounds.getEast() - oMapBounds.getWest() > 360.0)) {
+        //console.log("Deg Wide : " + angularWidth);
+        // We must make sure we don't zoom out beyond 180 deg width. The render has problems rendering
+        // graphics when the BBox is wider than 180.
+        if (angularWidth >= 180.0) {
             iZoom = instanceInterface.leafletInstance.getZoom() + 1;
-            instanceInterface.leafletInstance.setZoom(iZoom, {animate: false});
+            instanceInterface.leafletInstance.setView(center, iZoom, {animate: false});
         }
     }
     ;
@@ -723,13 +730,19 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onMoveEnd(e) {
-            var center = instanceInterface.leafletInstance.getCenter();
+            var center;
+            var mapBounds;
 
             checkMapCenter();
+            center = instanceInterface.leafletInstance.getCenter();
+            
             if ((center.lng < -180.0) || (center.lng > 180.0)) {
                 instanceInterface.leafletInstance.setView(center.wrap());
                 return;
             }
+            
+            //console.log("Center Lat: " + center.lat + " lng: " + center.lng);
+
             var view = instanceInterface.getView();
             var lookAt = instanceInterface.viewToLookAt(view);
             instanceInterface.scheduleRendering(view);
@@ -755,17 +768,17 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
         function onZoomEnd(oEvent) {
             checkMapWidth();
-            var view = instanceInterface.getView();
-            var lookAt = instanceInterface.viewToLookAt(view);
+            //var view = instanceInterface.getView();
+            // lookAt = instanceInterface.viewToLookAt(view);
 
-            instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-            instanceInterface.processViewSetTrans();
-            instanceInterface.scheduleRendering(view);
+            //instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
+            //instanceInterface.processViewSetTrans();
+            //instanceInterface.scheduleRendering(view);
         }
 
         function onViewReset(e) {
-            checkMapWidth();
-            instanceInterface.scheduleRendering();
+            //checkMapWidth();
+            //instanceInterface.scheduleRendering();
         }
 
         function onMouseUpDown(e) {
@@ -2163,6 +2176,9 @@ emp.engineDefs.leafletMapEngine = function (args) {
     try {
         var center;
         var level = 0;
+        var southWest = L.latLng(-90.0, -180.0);
+        var northEast = L.latLng(90.0, 180.0);
+        var maxBounds = L.latLngBounds(southWest, northEast);
 
         if (args.initialExtent !== undefined) {
             if (args.initialExtent.hasOwnProperty('centerLat')) {
@@ -2191,6 +2207,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             minZoom: 1,
             center: center,
             zoom: level,
+            //maxBounds : maxBounds,
             boxZoom: false,
             trackResize: false,
             attributionControl: false,
