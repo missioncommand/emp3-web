@@ -126,11 +126,11 @@
             for (String sValue: entry.getValue())
             {
                 // do not add  transfer-encoding when the value is chunked
-                if (entry.getKey()  != null && entry.getKey().equalsIgnoreCase("transfer-encoding") && sValue != null && sValue.equalsIgnoreCase("chunked") )
+                if ( (entry.getKey()  == null) || (entry.getKey()  != null && entry.getKey().equalsIgnoreCase("transfer-encoding") && sValue != null && sValue.equalsIgnoreCase("chunked") ) )
                {
                    //System.out.println(entry.getKey() + "   " + sValue );
                    continue;
-                }
+               }
                 response.addHeader(entry.getKey(), sValue);
             }
         }
