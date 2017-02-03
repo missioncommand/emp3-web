@@ -97,7 +97,7 @@ EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
  * @param empEventingArgs
  */
 EMPWorldWind.eventHandlers.extractFeatureFromEvent = function(mouseEvent, empEventingArgs) {
-  var obj,
+  var obj, len,
     pickList = this.worldWind.pick(this.worldWind.canvasCoordinates(mouseEvent.clientX, mouseEvent.clientY));
 
   len = pickList.objects.length;

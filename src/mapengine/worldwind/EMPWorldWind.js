@@ -363,7 +363,7 @@ EMPWorldWind.map.prototype.selectFeatures = function(empSelections) {
       feature.selected = selectedFeature.select;
       selected.push(feature);
     } else {
-      failed.push(feature);
+      failed.push(selectedFeature.featureId);
     }
   }.bind(this));
 
@@ -373,7 +373,7 @@ EMPWorldWind.map.prototype.selectFeatures = function(empSelections) {
     success: selected.length !== 0,
     selected: selected,
     failed: failed
-  }
+  };
 };
 
 /**

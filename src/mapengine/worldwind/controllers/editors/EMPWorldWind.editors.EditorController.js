@@ -15,12 +15,19 @@ EMPWorldWind.editors.EditorController = (function() {
    */
   function constructAirControlMeasure(feature, selectionStyle) {
     var primitivePolygon, boundaries, attributes, highlightAttributes,
-      i,
+      i, selectedFillColor,
       len = feature.data.coordinates.length;
 
     attributes = new WorldWind.ShapeAttributes();
     highlightAttributes = new WorldWind.ShapeAttributes();
     // TODO highlight attributes for ACM
+
+    if (selectionStyle.fillColor) {
+      selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
+      highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.r, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    } else {
+      highlightAttributes.interiorColor = WorldWind.Color.YELLOW;
+    }
 
     boundaries = [];
     for (i = 0; i < len; i++) {

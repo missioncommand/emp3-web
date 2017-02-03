@@ -54,7 +54,7 @@ EMPWorldWind.data.EmpFeature = function (feature){
    */
   Object.defineProperty(this, 'selected', {
     enumerable: true,
-    get: function() { return _selected},
+    get: function() { return _selected; },
     set: function(value) {
       var shapesCount = this.shapesCount();
       for (var i = 0; i < shapesCount; i++) {
@@ -62,7 +62,7 @@ EMPWorldWind.data.EmpFeature = function (feature){
       }
       _selected = value;
     }
-  })
+  });
 };
 
 EMPWorldWind.data.EmpFeature.prototype.shapesCount = function() {
