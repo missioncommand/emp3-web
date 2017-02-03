@@ -11,7 +11,13 @@ emp.editors = {} || emp.editors;
  */
 emp.editors.EditorBase = function(args) {
 
+  // A hash of the control points.  These are the existing points that
+  // control the look and feel of the symbol.
   this.controlPoints = [];
+
+  // a hash of the ids that serve as midpoints to the graphic.  drag these
+  // to add new points.
+  this.midPoints = [];
 
   // make a copy of feature as we do not want to change the feature passed in.
   this.featureCopy = emp.helpers.copyObject(args.feature);

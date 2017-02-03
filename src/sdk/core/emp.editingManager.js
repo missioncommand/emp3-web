@@ -101,7 +101,7 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
-        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {{
+        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.Path({
           feature: feature,
