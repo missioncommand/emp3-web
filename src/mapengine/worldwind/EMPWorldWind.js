@@ -45,6 +45,10 @@ EMPWorldWind.map = function(wwd) {
      */
     lastMousePosition: undefined,
     /**
+     * Lock state
+     */
+    lockState: emp3.api.enums.MapMotionLockEnum.UNLOCKED,
+    /**
      * Object for holding state to compute when MilStdSymbols should be re-rendered
      */
     lastRender: {
@@ -122,7 +126,7 @@ EMPWorldWind.map.prototype.initialize = function(map) {
     if (event.state in EMPWorldWind.eventHandlers.drag) {
       EMPWorldWind.eventHandlers.drag[event.state].call(this, event);
     }
-  });
+  }.bind(this));
 
   // Register DOM event handlers
   var eventClass, eventHandler;
@@ -848,8 +852,8 @@ EMPWorldWind.map.prototype.setContrast = function(contrast) {
 
 /**
  *
- * @param lockState
+ * @param {emp.typeLibrary.Lock} lockState
  */
 EMPWorldWind.map.prototype.setLockState = function(lockState) {
-  window.console.debug(lockState);
+  this.state.lockState = lockState.lock;
 };

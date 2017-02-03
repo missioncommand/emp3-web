@@ -69,11 +69,20 @@ EMPWorldWind.eventHandlers.mouse = {
    * @this EMPWorldWind.map
    */
   wheel: function (event) {
+    event.preventDefault();
     if (event.wheelDeltaY < 0 && this.worldWind.navigator.range > EMPWorldWind.constants.view.MAX_HEIGHT) {
-      event.preventDefault();
       this.worldWind.navigator.range = EMPWorldWind.constants.view.MAX_HEIGHT;
     }
 
+    switch (this.state.lockState) {
+      case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
+      case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
+      case emp3.api.enums.MapMotionLockEnum.NO_ZOOM:
+        event.stopPropagation();
+        break;
+      default:
+        // business as usual
+    }
     EMPWorldWind.eventHandlers.notifyViewChange.call(this);
   },
   /**
@@ -81,6 +90,7 @@ EMPWorldWind.eventHandlers.mouse = {
    * @this EMPWorldWind.map
    */
   mousemove: function (event) {
+    event.preventDefault();
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
     coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
     if (coords.lat !== undefined) {
@@ -90,7 +100,18 @@ EMPWorldWind.eventHandlers.mouse = {
     switch (event.buttons) {
       case 1: // Left button, we're moving the map
       case 2: // Right button, we're tilting/rotating the map
-        EMPWorldWind.eventHandlers.notifyViewChange.call(this);
+        switch (this.state.lockState) {
+          case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
+          case emp3.api.enums.MapMotionLockEnum.NO_PAN:
+          case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
+            window.console.debug(event);
+            event.stopPropagation();
+            break;
+          case emp3.api.enums.MapMotionLockEnum.SMART_MOTION: // TODO check for special locations
+          case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
+          default:
+            EMPWorldWind.eventHandlers.notifyViewChange.call(this);
+        }
         break;
       case 4: // Wheel/middle button
       case 8: // 4th button (back)
