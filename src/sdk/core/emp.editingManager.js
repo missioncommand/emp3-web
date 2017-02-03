@@ -120,7 +120,8 @@ emp.editingManager = function(args) {
      */
     cancel: function() {
 
-      var initFailList = [];
+      var initFailList = [],
+      transaction;
 
       initFailList.push(new emp.typeLibrary.Error({
         coreId: editTransaction.items[0].coreId,
@@ -223,7 +224,10 @@ emp.editingManager = function(args) {
       originalFeature = undefined;
     },
 
-    editMouseDown: function(featureId, pointer) {
+    editMouseDown: function(featureId) {
+
+      var mapLock,
+        lockMapTransaction;
 
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.

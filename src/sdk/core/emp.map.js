@@ -921,7 +921,7 @@ emp.map = function (args) {
                 startY: pointer.clientY
               };
 
-              editingManager.editMouseDown(pointer.featureId, pointer);
+              editingManager.editMouseDown(pointer.featureId);
             } else {
               this.mapDragStart = {};
             }
@@ -931,8 +931,6 @@ emp.map = function (args) {
 
             // if mouse button is still down, start drag
             if (this.mapDragStart && this.mapDrag !== true) {
-
-
 
               // Were we over a feature when we started dragging?
               if (this.mapDragStart.featureId && mapInstance.status.get() === emp.map.states.EDIT) {
