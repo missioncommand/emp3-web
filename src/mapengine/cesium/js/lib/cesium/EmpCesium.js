@@ -129,7 +129,7 @@ function EmpCesium()
     this.selectionScale = 1;// 1 BY DEFAULT / only applies to single points.
     this.secRendererWorker = {};
     this.secRendererWorker.A = undefined;
-    //this.secRendererWorker.B = undefined;
+    this.secRendererWorker.B = undefined;
     //this.secRendererWorker.Selection = undefined;
     //this.secRendererWorker.DeSelection = undefined;
     this.mapLocked = false;
@@ -504,148 +504,148 @@ function EmpCesium()
         }.bind(this);
 
 
-//        this.secRendererWorker.B = new Worker(this.relativeBaseURL + 'js/lib/renderer/MPCWorker.js');
+        this.secRendererWorker.B = new Worker(this.relativeBaseURL + 'js/lib/renderer/MPCWorker.js');
 //        // this.secRendererWorker.A = new Worker( '../../vendor/ mil-sym/MPWorker.js');
-//        this.secRendererWorker.B.onerror = function (error)
-//        {
-//            //logs error to console
-//            armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker B", "postMessage", error);
-//        };
-//        this.secRendererWorker.B.onmessage = function (e)
-//        {
-////             if (this.isMapMoving())
-////             {
-////                 return;
-////             }
-//            //console.log("on message A");
-//            var batchCall = false;
-//            var rendererData = [];
-//            if (e.data.id)//not a batch call
-//            {
-//                rendererData.push = e.data.result;
-//            }
-//            else
-//            {
-//                batchCall = true;
-//                rendererData = e.data.result;
-//            }
-//            if (e.data.format === "ERROR")
-//            {
-//                console.log("Render error: " + rendererData);
-//                return;
-//            }
-//
-//            if (rendererData && rendererData !== null && typeof rendererData === 'string')
-//            {
-//                console.log("Render error: " + rendererData);
-//                return;
-//            }
-//
-//            for (var index = 0; index < rendererData.length; index++)
-//            {
-//                if (!this.defined(rendererData[index]))
-//                {
-//                    console.log("Render error: renderer data is undefined");
-//                    return;
-//                }
-//                if (typeof rendererDataValue === 'string')
-//                {
-//                    console.log("Render error: " + rendererData);
-//                    return;
-//                }
-//                var multiPointObject = this.getMultiPoint(rendererData[index].id);
-//                if (this.defined(multiPointObject))
-//                {
-//                    if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] === 'string')
-//                    {
-//                        console.log("Render error: " + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
-//                        result.success = false;
-//                        result.message = rendererData[index];
-//                        result.jsError = "function: addSymbolMulti(args)  -  EmpCesiumConstants.MultiPointRenderType.SVG";
-//                        return;
-//                    }
-//                    else if (rendererData[index] && rendererData[index] !== null && (!this.defined(rendererData[index].west) || !this.defined(rendererData[index].south) || !this.defined(rendererData[index].east) || !this.defined(rendererData[index].north)))
-//                    {
-//                        console.log("Render returning  undefined west south east north " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
-//                        // result.success = false;
-//                        //result.message = rendererData;
-//                        //result.jsError = "function: addSymbolMulti(args)  -  EmpCesiumConstants.MultiPointRenderType.SVG";
-////                        rendererData[index].geoBR = {};
-////                        rendererData[index].geoBR.x = 0;
-////                        rendererData[index].geoBR.y = 0;
-////                        rendererData[index].geoTL = {};
-////                        rendererData[index].geoTL.x = 0;
-////                        rendererData[index].geoTL.y = 0;
-//
-//                        rendererData[index].west = {};
-//                        rendererData[index].west.x = 0;
-//                        rendererData[index].west.y = 0;
-//                        rendererData[index].south = {};
-//                        rendererData[index].south.x = 0;
-//                        rendererData[index].south.y = 0;
-//                        rendererData[index].east = {};
-//                        rendererData[index].east.x = 0;
-//                        rendererData[index].east.y = 0;
-//                        rendererData[index].north = {};
-//                        rendererData[index].north.x = 0;
-//                        rendererData[index].north.y = 0;
-//                        // rendererData[index].svg = 'data:image/svg+xml,' + this.highScaleImage.blankMultipoint;
-//                    }
-//                    if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] !== 'string')
-//                    {
-//
-//                        if (Math.abs(rendererData[index].north.y) > 90 || Math.abs(rendererData[index].south.y > 90))
-//                        {
-//                            //console.log("Render error:  bad bound returned by renderer" + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
-//                            result.success = false;
-//                            result.message = 'bad bound returned by renderer.. latitudes bigger than 90 degrees';
-//                            result.jsError = "function: secRendererWorker.A.onmessage(args) - bad bound.. latitudes bigger than 90 degrees";
-//                            return;
-//                        }
-//
-//                        if (Math.abs(rendererData[index].west.x) > 180 || Math.abs(rendererData[index].east.x > 180))
-//                        {
-//                            //console.log("Render error: bad bound returned by renderer " + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
-//                            result.success = false;
-//                            result.message = 'bad bound returned by renderer.. longitutes bigger than 180 degrees';
-//                            result.jsError = "function: secRendererWorker.A.onmessage(args) - bad bound.. longitutes bigger than 180 degrees";
-//                            return;
-//                        }
-//
-//                        // console.log("bounds from renderer: w s e n" + rendererData[index].west.x + " " + rendererData[index].south.y + rendererData[index].east.x + " " + rendererData[index].north.y );
-//                        var addCanvasToOverlayParams = {
-//                            symbolCode: multiPointObject.symbolCode,
-//                            parentCoreId: multiPointObject.parentCoreId,
-//                            overlayId: multiPointObject.overlayId,
-//                            id: multiPointObject.coreId || multiPointObject.id,
-//                            data: rendererData[index],
-//                            properties: multiPointObject.properties,
-//                            name: multiPointObject.name,
-//                            description: multiPointObject.description || multiPointObject.properties.description,
-//                            visible: multiPointObject.visible,
-//                            feature: multiPointObject,
-//                            extrudedHeight: multiPointObject.extrudedHeight
-//                        };
-//                        result = this.addCanvasToOverlay(addCanvasToOverlayParams);
-//                        if (rendererData[index].hasOwnProperty("wasClipped"))
-//                        {
-//                            multiPointObject.wasClipped = rendererData[index].wasClipped;
-//                            multiPointObject.forceRedraw = rendererData[index].forceRedraw;
-//                        }
-//                        else
-//                        {
-//                            multiPointObject.wasClipped = false;
-//                            multiPointObject.forceRedraw = false;
-//                        }
-//                    }
-//                    rendererData[index] = undefined;
-//                    // console.log("on message A finish");
-//                    // this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
-//                    //this.cesiumRenderOptimizer.boundNotifyRepaintRequired();
-//                }//  if (this.defined(multiPointObject))
-//            }// for loop
-//            this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
-//        }.bind(this);
+        this.secRendererWorker.B.onerror = function (error)
+        {
+            //logs error to console
+            armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker B", "postMessage", error);
+        };
+        this.secRendererWorker.B.onmessage = function (e)
+        {
+//             if (this.isMapMoving())
+//             {
+//                 return;
+//             }
+            //console.log("on message A");
+            var batchCall = false;
+            var rendererData = [];
+            if (e.data.id)//not a batch call
+            {
+                rendererData.push = e.data.result;
+            }
+            else
+            {
+                batchCall = true;
+                rendererData = e.data.result;
+            }
+            if (e.data.format === "ERROR")
+            {
+                console.log("Render error: " + rendererData);
+                return;
+            }
+
+            if (rendererData && rendererData !== null && typeof rendererData === 'string')
+            {
+                console.log("Render error: " + rendererData);
+                return;
+            }
+
+            for (var index = 0; index < rendererData.length; index++)
+            {
+                if (!this.defined(rendererData[index]))
+                {
+                    console.log("Render error: renderer data is undefined");
+                    return;
+                }
+                if (typeof rendererDataValue === 'string')
+                {
+                    console.log("Render error: " + rendererData);
+                    return;
+                }
+                var multiPointObject = this.getMultiPoint(rendererData[index].id);
+                if (this.defined(multiPointObject))
+                {
+                    if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] === 'string')
+                    {
+                        console.log("Render error: " + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
+                        result.success = false;
+                        result.message = rendererData[index];
+                        result.jsError = "function: addSymbolMulti(args)  -  EmpCesiumConstants.MultiPointRenderType.SVG";
+                        return;
+                    }
+                    else if (rendererData[index] && rendererData[index] !== null && (!this.defined(rendererData[index].west) || !this.defined(rendererData[index].south) || !this.defined(rendererData[index].east) || !this.defined(rendererData[index].north)))
+                    {
+                        console.log("Render returning  undefined west south east north " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
+                        // result.success = false;
+                        //result.message = rendererData;
+                        //result.jsError = "function: addSymbolMulti(args)  -  EmpCesiumConstants.MultiPointRenderType.SVG";
+//                        rendererData[index].geoBR = {};
+//                        rendererData[index].geoBR.x = 0;
+//                        rendererData[index].geoBR.y = 0;
+//                        rendererData[index].geoTL = {};
+//                        rendererData[index].geoTL.x = 0;
+//                        rendererData[index].geoTL.y = 0;
+
+                        rendererData[index].west = {};
+                        rendererData[index].west.x = 0;
+                        rendererData[index].west.y = 0;
+                        rendererData[index].south = {};
+                        rendererData[index].south.x = 0;
+                        rendererData[index].south.y = 0;
+                        rendererData[index].east = {};
+                        rendererData[index].east.x = 0;
+                        rendererData[index].east.y = 0;
+                        rendererData[index].north = {};
+                        rendererData[index].north.x = 0;
+                        rendererData[index].north.y = 0;
+                        // rendererData[index].svg = 'data:image/svg+xml,' + this.highScaleImage.blankMultipoint;
+                    }
+                    if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] !== 'string')
+                    {
+
+                        if (Math.abs(rendererData[index].north.y) > 90 || Math.abs(rendererData[index].south.y > 90))
+                        {
+                            //console.log("Render error:  bad bound returned by renderer" + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
+                            result.success = false;
+                            result.message = 'bad bound returned by renderer.. latitudes bigger than 90 degrees';
+                            result.jsError = "function: secRendererWorker.A.onmessage(args) - bad bound.. latitudes bigger than 90 degrees";
+                            return;
+                        }
+
+                        if (Math.abs(rendererData[index].west.x) > 180 || Math.abs(rendererData[index].east.x > 180))
+                        {
+                            //console.log("Render error: bad bound returned by renderer " + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
+                            result.success = false;
+                            result.message = 'bad bound returned by renderer.. longitutes bigger than 180 degrees';
+                            result.jsError = "function: secRendererWorker.A.onmessage(args) - bad bound.. longitutes bigger than 180 degrees";
+                            return;
+                        }
+
+                        // console.log("bounds from renderer: w s e n" + rendererData[index].west.x + " " + rendererData[index].south.y + rendererData[index].east.x + " " + rendererData[index].north.y );
+                        var addCanvasToOverlayParams = {
+                            symbolCode: multiPointObject.symbolCode,
+                            parentCoreId: multiPointObject.parentCoreId,
+                            overlayId: multiPointObject.overlayId,
+                            id: multiPointObject.coreId || multiPointObject.id,
+                            data: rendererData[index],
+                            properties: multiPointObject.properties,
+                            name: multiPointObject.name,
+                            description: multiPointObject.description || multiPointObject.properties.description,
+                            visible: multiPointObject.visible,
+                            feature: multiPointObject,
+                            extrudedHeight: multiPointObject.extrudedHeight
+                        };
+                        result = this.addCanvasToOverlay(addCanvasToOverlayParams);
+                        if (rendererData[index].hasOwnProperty("wasClipped"))
+                        {
+                            multiPointObject.wasClipped = rendererData[index].wasClipped;
+                            multiPointObject.forceRedraw = rendererData[index].forceRedraw;
+                        }
+                        else
+                        {
+                            multiPointObject.wasClipped = false;
+                            multiPointObject.forceRedraw = false;
+                        }
+                    }
+                    rendererData[index] = undefined;
+                    // console.log("on message A finish");
+                    // this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
+                    //this.cesiumRenderOptimizer.boundNotifyRepaintRequired();
+                }//  if (this.defined(multiPointObject))
+            }// for loop
+            this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
+        }.bind(this);
 //
 //        this.secRendererWorker.Selection = new Worker(this.relativeBaseURL + 'js/lib/renderer/MPCWorker.js');
 //        // this.secRendererWorker.A = new Worker( '../../vendor/ mil-sym/MPWorker.js');
@@ -8964,16 +8964,16 @@ function EmpCesium()
                     // if (false)
                     {
                         // use worker
-                        // if (this.secRendererWorker.lastSelected === EmpCesiumConstants.RendererWorker.B)
-                        //  {
-                        this.secRendererWorker.A.postMessage(data);
-                        //       this.secRendererWorker.lastSelected = EmpCesiumConstants.RendererWorker.A;
-                        //     }
-                        //     else
-                        //     {
-                        //         this.secRendererWorker.B.postMessage(data);
-                        //         this.secRendererWorker.lastSelected = EmpCesiumConstants.RendererWorker.B;
-                        //     }
+                        if (this.secRendererWorker.lastSelected === EmpCesiumConstants.RendererWorker.B)
+                        {
+                            this.secRendererWorker.A.postMessage(data);
+                            this.secRendererWorker.lastSelected = EmpCesiumConstants.RendererWorker.A;
+                        }
+                        else
+                        {
+                            this.secRendererWorker.B.postMessage(data);
+                            this.secRendererWorker.lastSelected = EmpCesiumConstants.RendererWorker.B;
+                        }
                     }
             else if (data.batch.length === 1)
                     //else 
@@ -12860,7 +12860,7 @@ var CesiumRenderOptimizer = function (empCesium)
     {
         try
         {
-             console.log("inside preRenderListener" );
+            //console.log("inside preRenderListener" );
             var position = empCesium.viewer.scene.camera.position;
             //var orientation =
             if (empCesium.isMapMoving())
@@ -12896,7 +12896,7 @@ var CesiumRenderOptimizer = function (empCesium)
     this.removePreRenderListener = empCesium.viewer.scene.preRender.addEventListener(this.preRenderListener.bind(this));
     this.postRenderListener = function (cesium, date)
     {
-         console.log("inside postRenderListener" );
+        //console.log("inside postRenderListener" );
         // We can safely stop rendering when:
         //  - the camera position hasn't changed in over a second,
         //  - there are no tiles waiting to load, and
@@ -12914,18 +12914,18 @@ var CesiumRenderOptimizer = function (empCesium)
             //var cameraMovedInLastSecond = now - empCesium.lastCameraMoveTime < 1000;
             //var surface = scene.globe._surface;
             //var tilesWaiting = !surface._tileProvider.ready || surface._tileLoadQueue.length > 0 || surface._debug.tilesWaitingForChildren > 0;
-           // if (!cameraMovedInLastSecond && !tilesWaiting && empCesium.scene.tweens.length === 0 && !Cesium.defined(this.viewTransaction) && !Cesium.defined(empCesium.drawHelper) && empCesium.getSinglePointsIdOnHoldCount() === 0)
+            // if (!cameraMovedInLastSecond && !tilesWaiting && empCesium.scene.tweens.length === 0 && !Cesium.defined(this.viewTransaction) && !Cesium.defined(empCesium.drawHelper) && empCesium.getSinglePointsIdOnHoldCount() === 0)
             //{
-                //  go to sleep mode is the editors are not active, nothing is on hold,
-                //if (!cameraMovedInLastSecond && !tilesWaiting && !empCesium.viewer.clock.shouldAnimate && empCesium.scene.tweens.length === 0) {
-               // if (this.verboseRendering)
-              //  {
-             //       console.log('stopping rendering @ ' + empCesium.getTimestamp());
-             //   }
-                //empCesium.viewer._cesiumWidget.useDefaultRenderLoop = false;
-                //this.stoppedRendering = true;
+            //  go to sleep mode is the editors are not active, nothing is on hold,
+            //if (!cameraMovedInLastSecond && !tilesWaiting && !empCesium.viewer.clock.shouldAnimate && empCesium.scene.tweens.length === 0) {
+            // if (this.verboseRendering)
+            //  {
+            //       console.log('stopping rendering @ ' + empCesium.getTimestamp());
+            //   }
+            //empCesium.viewer._cesiumWidget.useDefaultRenderLoop = false;
+            //this.stoppedRendering = true;
             //}
-           // empCesium.Matrix4.clone(scene.camera.viewMatrix, this.lastCameraViewMatrix);
+            // empCesium.Matrix4.clone(scene.camera.viewMatrix, this.lastCameraViewMatrix);
         }
         catch (e)
         {
