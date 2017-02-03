@@ -2183,7 +2183,7 @@ emp3.api.MessageHandler = (function() {
           // get the camera with extent values previously assigned to the map
           camera = map.getCamera();
           cameraEvent = new emp3.api.events.CameraEvent({
-            event: payload.animate === emp3.api.enums.MapViewEventEnum.VIEW_IN_MOTION ? emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION : emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED,
+            event: payload.animate !== 0 ? emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION : emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED,
             target: camera
           });
           // if this is our first time the extent was set, make the old extent the same

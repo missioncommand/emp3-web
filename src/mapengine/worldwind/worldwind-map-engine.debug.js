@@ -167,7 +167,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
         };
         break;
       default:
-        window.console.debug(transaction.items[0].globalType);
+        transaction.failures.push(transaction.items[0]);
     }
 
     if (transaction.items[0].animate === true) {
@@ -176,9 +176,12 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       args.animate = true;
       args.animateCB = function() {
         transaction.run();
+        // Notify movement ended
+        EMPWorldWind.eventHandlers.notifyViewChange.call(empWorldWind, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
       };
     }
-
+    // Notify start of movement
+    EMPWorldWind.eventHandlers.notifyViewChange.call(empWorldWind, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
     empWorldWind.centerOnLocation(args);
   };
 

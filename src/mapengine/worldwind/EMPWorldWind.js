@@ -41,6 +41,10 @@ EMPWorldWind.map = function(wwd) {
      */
     editing: false,
     /**
+     * Whether the map is being dragged
+     */
+    dragging: false,
+    /**
      * Placeholder for the last detected mouse down/move/touch event
      */
     lastMousePosition: undefined,
