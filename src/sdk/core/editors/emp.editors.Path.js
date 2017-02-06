@@ -1,3 +1,5 @@
+/*global LatLon*/
+
 emp.editors.Path = function(args) {
 
   emp.editors.EditorBase.call(this, args);
