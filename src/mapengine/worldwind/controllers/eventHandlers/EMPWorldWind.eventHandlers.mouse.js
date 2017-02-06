@@ -20,24 +20,13 @@ EMPWorldWind.eventHandlers.mouse = {
    * @this EMPWorldWind.map
    */
   click: function (event) {
-    var i,
-      len, obj,
-      coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
+    var clickEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
 
-    coords.type = emp.typeLibrary.Pointer.EventType.SINGLE_CLICK;
+    clickEvent.type = emp.typeLibrary.Pointer.EventType.SINGLE_CLICK;
 
-    var pickList = this.worldWind.pick(this.worldWind.canvasCoordinates(event.clientX, event.clientY));
-    len = pickList.objects.length;
-    for (i = 0; i < len; i++) {
-      obj = pickList.objects[i];
-      if (obj.isTerrain) {
-        continue;
-      }
-      // TODO properly select features on click
-      // coords.featureId = obj.userObject.userProperties.featureId;
-    }
+    EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, clickEvent);
 
-    this.empMapInstance.eventing.Pointer(coords);
+    this.empMapInstance.eventing.Pointer(clickEvent);
   },
   /**
    *
@@ -45,19 +34,24 @@ EMPWorldWind.eventHandlers.mouse = {
    * @this EMPWorldWind.map
    */
   dblclick: function (event) {
-    var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
-    coords.type = emp.typeLibrary.Pointer.EventType.DBL_CLICK;
-    this.empMapInstance.eventing.Pointer(coords);
+    var dblClickEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
+    dblClickEvent.type = emp.typeLibrary.Pointer.EventType.DBL_CLICK;
+
+    EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, dblClickEvent);
+
+    this.empMapInstance.eventing.Pointer(dblClickEvent);
   },
   /**
    * @param {MouseEvent} event
    * @this EMPWorldWind.map
    */
   mousedown: function (event) {
-    var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
+    var mousedownEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
 
-    coords.type = emp.typeLibrary.Pointer.EventType.MOUSEDOWN;
-    this.empMapInstance.eventing.Pointer(coords);
+    mousedownEvent.type = emp.typeLibrary.Pointer.EventType.MOUSEDOWN;
+    EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, mousedownEvent);
+
+    this.empMapInstance.eventing.Pointer(mousedownEvent);
   },
   /**
    * @param {MouseEvent} event
@@ -73,6 +67,7 @@ EMPWorldWind.eventHandlers.mouse = {
     }
 
     this.state.autoPanning = EMPWorldWind.constants.NO_PANNING;
+    EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, coords);
     this.empMapInstance.eventing.Pointer(coords);
   },
   /**
@@ -104,6 +99,7 @@ EMPWorldWind.eventHandlers.mouse = {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
     coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
 
+    EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, coords);
     if (coords.lat !== undefined) {
       this.empMapInstance.eventing.Pointer(coords);
     }
