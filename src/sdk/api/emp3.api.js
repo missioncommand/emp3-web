@@ -232,15 +232,6 @@ emp3.api.convertToKilometers = function (measurement, units) {
 };
 
 /**
- *
- * convertColor combines color and opacity values from DCGS into a single "AARRGGBB" hex value
- * @private
- * @param {string} color a hex value RRGGBB
- * @param {int} opacity a value 0-1
- * @returns {string} returns the converted color
- */
-
-/**
  * Takes a geojson object and converts it into a kml coordinate string.  Does not support
  * the multipoint, multilinestring, multipolygon or geometryCollection geojson types. This function
  * will only return the outer ring of a polygon, and not interior polygons. An
