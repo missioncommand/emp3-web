@@ -498,6 +498,7 @@ leafLet.utils.milstd = (function() {
             var bIsSelected = oArgs.oFeature.isSelected();
             var oSelectAttributes = oArgs.instanceInterface.selectAttributes;
             var bIDLInView = empMapBounds.containsIDL();
+            var pointConverter = new leafLet.utils.milstd.rendererPointConverter(oMap, oDimension.x, oDimension.y, empMapBounds.getNorth(), empMapBounds.getWest(), empMapBounds.getSouth(), empMapBounds.getEast());
             
             oSouthWest = empMapBounds.getSouthWest();
             oNorthEast = empMapBounds.getNorthEast();
@@ -510,7 +511,7 @@ leafLet.utils.milstd = (function() {
             //console.log("  center lng: " + oMap.getCenter().lng);
 
             try {
-                var sGeoJsonData = oRenderer.RenderSymbol2D(oArgs.sID, oArgs.sName, oArgs.sDescription, oArgs.sSymbolCode, sCoordinateStr, oDimension.x, oDimension.y, sBBox, oArgs.oModifiers, iOutputFormat, oArgs.i2525Version);
+                var sGeoJsonData = oRenderer.RenderSymbol2D(oArgs.sID, oArgs.sName, oArgs.sDescription, oArgs.sSymbolCode, sCoordinateStr, oDimension.x, oDimension.y, sBBox, oArgs.oModifiers, iOutputFormat, oArgs.i2525Version, null, pointConverter);
                 var oGeoJson = JSON.parse(sGeoJsonData);
 /*
                 console.log("Call to RenderSymbol2D:\n" +

@@ -131,6 +131,7 @@ function initlializeLeaflet(args) {
       "js/utils/leaflet-eng.utils.kml.js",
       "js/utils/leaflet-eng.utils.airspace.js",
       "js/utils/leaflet-eng.utils.oval.js",
+      "js/utils/leaflet-eng-renderer-PointConverter.js",
 
       "js/typeLibrary/airspace/leaflet-eng.typeLibrary.airspace.attributes.js",
       "js/typeLibrary/airspace/leaflet-eng.typeLibrary.airspace.cylinder.js",
