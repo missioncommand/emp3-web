@@ -7,6 +7,11 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  */
 
 /**
+ * {@link https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent}
+ * @typedef {Object} WheelEvent
+ */
+
+/**
  * Mouse event handlers
  */
 EMPWorldWind.eventHandlers.mouse = {
@@ -65,15 +70,23 @@ EMPWorldWind.eventHandlers.mouse = {
   },
   /**
    *
-   * @param {MouseEvent} event
+   * @param {WheelEvent} event
    * @this EMPWorldWind.map
    */
   wheel: function (event) {
     if (event.wheelDeltaY < 0 && this.worldWind.navigator.range > EMPWorldWind.constants.view.MAX_HEIGHT) {
-      event.preventDefault();
       this.worldWind.navigator.range = EMPWorldWind.constants.view.MAX_HEIGHT;
     }
 
+    switch (this.state.lockState) {
+      case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
+      case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
+      case emp3.api.enums.MapMotionLockEnum.NO_ZOOM:
+        event.preventDefault();
+        break;
+      default:
+        // business as usual
+    }
     EMPWorldWind.eventHandlers.notifyViewChange.call(this);
   },
   /**
@@ -90,7 +103,17 @@ EMPWorldWind.eventHandlers.mouse = {
     switch (event.buttons) {
       case 1: // Left button, we're moving the map
       case 2: // Right button, we're tilting/rotating the map
-        EMPWorldWind.eventHandlers.notifyViewChange.call(this);
+        switch (this.state.lockState) {
+          case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
+          case emp3.api.enums.MapMotionLockEnum.NO_PAN:
+          case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
+            event.preventDefault();
+            break;
+          case emp3.api.enums.MapMotionLockEnum.SMART_MOTION: // TODO check for special locations
+          case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
+          default:
+            EMPWorldWind.eventHandlers.notifyViewChange.call(this);
+        }
         break;
       case 4: // Wheel/middle button
       case 8: // 4th button (back)

@@ -387,6 +387,14 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     }
   };
 
+  /**
+   *
+   * @param transaction
+   */
+  engineInterface.navigation.enable = function(transaction) {
+    empWorldWind.setLockState(transaction.items[0]);
+  };
+
   // return the engineInterface object as a new engineTemplate instance
   return engineInterface;
 };
