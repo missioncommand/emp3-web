@@ -10,14 +10,24 @@ EMPWorldWind.editors.EditorController = (function() {
   /**
    *
    * @param {emp.typeLibrary.Feature} feature
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.Polygon}
    */
-  function constructAirControlMeasure(feature) {
-    var primitivePolygon, boundaries, attributes,
-      i,
+  function constructAirControlMeasure(feature, selectionStyle) {
+    var primitivePolygon, boundaries, attributes, highlightAttributes,
+      i, selectedFillColor,
       len = feature.data.coordinates.length;
 
     attributes = new WorldWind.ShapeAttributes();
+    highlightAttributes = new WorldWind.ShapeAttributes();
+    // TODO highlight attributes for ACM
+
+    if (selectionStyle.fillColor) {
+      selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
+      highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.r, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    } else {
+      highlightAttributes.interiorColor = WorldWind.Color.YELLOW;
+    }
 
     boundaries = [];
     for (i = 0; i < len; i++) {
@@ -30,6 +40,7 @@ EMPWorldWind.editors.EditorController = (function() {
     primitivePolygon = new WorldWind.Polygon(boundaries, attributes);
     primitivePolygon.altitudeMode = WorldWind.ABSOLUTE;
     primitivePolygon.extrude = true;
+    primitivePolygon.highlightAttributes = new WorldWind.ShapeAttributes(highlightAttributes);
 
     return primitivePolygon;
   }
@@ -37,13 +48,15 @@ EMPWorldWind.editors.EditorController = (function() {
   /**
    * Constructs a {@link EMPWorldWind.data.EmpFeature} using using the {@link WorldWind.SurfaceCircle} primitive
    * @param {emp.typeLibrary.Feature} feature
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.SurfaceCircle}
    */
-  function constructSurfaceCircle(feature) {
-    var attributes, lineColor, fillColor, highlightAttributes, location, circlePrimitive;
+  function constructSurfaceCircle(feature, selectionStyle) {
+    var attributes, lineColor, fillColor,
+      highlightAttributes, selectedLineColor, selectedFillColor,
+      location, circlePrimitive;
 
     attributes = new WorldWind.ShapeAttributes();
-
     if (feature.properties.lineColor) {
       lineColor = EMPWorldWind.utils.hexToRGBA(feature.properties.lineColor);
       attributes.outlineColor = new WorldWind.Color(lineColor.r, lineColor.g, lineColor.b, lineColor.a);
@@ -60,15 +73,27 @@ EMPWorldWind.editors.EditorController = (function() {
 
     attributes.outlineWidth = feature.properties.lineWidth || attributes.outlineWidth;
 
-    highlightAttributes = new WorldWind.ShapeAttributes(attributes);
-    highlightAttributes.interiorColor = WorldWind.Color.WHITE;
+    highlightAttributes = new WorldWind.ShapeAttributes();
+    if (selectionStyle.lineColor) {
+      selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    } else {
+      highlightAttributes.outlineColor = WorldWind.Color.BLACK;
+    }
+
+    if (selectionStyle.fillColor) {
+      selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
+      highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.r, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    } else {
+      highlightAttributes.drawInterior = false;
+    }
 
     location = new WorldWind.Location(feature.coordinates[1], feature.coordinates[0]);
 
     circlePrimitive = new WorldWind.SurfaceCircle(location, feature.properties.radius, attributes);
     circlePrimitive.displayName = feature.name;
     circlePrimitive.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
-    circlePrimitive.highlightAttributes = highlightAttributes;
+    circlePrimitive.highlightAttributes = new WorldWind.ShapeAttributes(highlightAttributes);
 
     return circlePrimitive;
   }
@@ -76,10 +101,12 @@ EMPWorldWind.editors.EditorController = (function() {
   /**
    * Constructs a {@link EMPWorldWind.data.EmpFeature} using using the {@link WorldWind.SurfaceEllipse} primitive
    * @param {emp.typeLibrary.Feature} feature
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.SurfaceEllipse}
    */
-  function constructSurfaceEllipse(feature) {
-    var attributes, lineColor, fillColor, highlightAttributes, location, ellipsePrimitive;
+  function constructSurfaceEllipse(feature, selectionStyle) {
+    var attributes, lineColor, fillColor, highlightAttributes, location, ellipsePrimitive,
+      selectedLineColor, selectedFillColor;
 
     attributes = new WorldWind.ShapeAttributes();
 
@@ -103,6 +130,20 @@ EMPWorldWind.editors.EditorController = (function() {
     highlightAttributes.interiorColor = WorldWind.Color.WHITE;
     location = new WorldWind.Location(feature.coordinates[1], feature.coordinates[0]);
 
+    highlightAttributes = new WorldWind.ShapeAttributes();
+    if (selectionStyle.lineColor) {
+      selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    } else {
+      highlightAttributes.outlineColor = WorldWind.Color.BLACK;
+    }
+    if (selectionStyle.fillColor) {
+      selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
+      highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.r, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    } else {
+      highlightAttributes.drawInterior = false;
+    }
+
     ellipsePrimitive = new WorldWind.SurfaceEllipse(location,
       feature.properties.semiMajor,
       feature.properties.semiMinor,
@@ -110,7 +151,7 @@ EMPWorldWind.editors.EditorController = (function() {
       attributes);
     ellipsePrimitive.displayName = feature.name;
     ellipsePrimitive.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
-    ellipsePrimitive.highlightAttributes = highlightAttributes;
+    ellipsePrimitive.highlightAttributes = new WorldWind.ShapeAttributes(highlightAttributes);
 
     return ellipsePrimitive;
   }
@@ -118,11 +159,12 @@ EMPWorldWind.editors.EditorController = (function() {
   /**
    * @param {emp.typeLibrary.Feature} feature
    * @param {object} modifiers
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.Placemark}
    * @private
    */
-  function _constructSinglePointMilStdSymbol(feature, modifiers) {
-    var placemark, attributes, position, imageInfo, imageCenter, imageBounds, imageOffset;
+  function _constructSinglePointMilStdSymbol(feature, modifiers, selectionStyle) {
+    var placemark, attributes, highlightAttributes, position, imageInfo, imageCenter, imageBounds, imageOffset, selectedImage;
 
     attributes = new WorldWind.PlacemarkAttributes();
 
@@ -145,6 +187,17 @@ EMPWorldWind.editors.EditorController = (function() {
     attributes.imageOffset = imageOffset;
     attributes.imageSource = imageInfo.toDataUrl();
 
+    // Highlight attributes
+    highlightAttributes = new WorldWind.PlacemarkAttributes();
+    highlightAttributes.imageColor = WorldWind.Color.WHITE;
+    highlightAttributes.imageOffset = imageOffset;
+
+    // Note that this is done statically, if the selection style changes a bulk update to every feature will need to be done
+    modifiers.LINECOLOR = selectionStyle.lineColor;
+    modifiers.FILLCOLOR = selectionStyle.fillColor;
+    selectedImage = armyc2.c2sd.renderer.MilStdIconRenderer.Render(feature.symbolCode, modifiers).toDataUrl();
+    highlightAttributes.imageSource = selectedImage;
+
     position = new WorldWind.Position(
       feature.data.coordinates[1],
       feature.data.coordinates[0],
@@ -153,6 +206,7 @@ EMPWorldWind.editors.EditorController = (function() {
     placemark = new WorldWind.Placemark(position, true, null);
     placemark.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
     placemark.attributes = new WorldWind.PlacemarkAttributes(attributes);
+    placemark.highlightAttributes = new WorldWind.PlacemarkAttributes(highlightAttributes);
 
     return placemark;
   }
@@ -161,10 +215,11 @@ EMPWorldWind.editors.EditorController = (function() {
    *
    * @param {emp.typeLibrary.Feature} feature
    * @param {object} modifiers
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.SurfaceShape[]}
    * @private
    */
-  function _constructMultiPointMilStdFeature(feature, modifiers) {
+  function _constructMultiPointMilStdFeature(feature, modifiers, selectionStyle) {
     var imageInfo, bbox, componentFeature, lineCount, subGeoJSON,
       i, j,
       positions = "",
@@ -219,17 +274,17 @@ EMPWorldWind.editors.EditorController = (function() {
               coordinates: componentFeature.geometry.coordinates[j]
             };
 
-            shapes.push(constructSurfacePolylineFromGeoJSON(subGeoJSON));
+            shapes.push(constructSurfacePolylineFromGeoJSON(subGeoJSON, selectionStyle));
           }
           break;
         case "LineString":
-          shapes.push(constructSurfacePolylineFromGeoJSON(componentFeature));
+          shapes.push(constructSurfacePolylineFromGeoJSON(componentFeature, selectionStyle));
           break;
         case "Point":
-          shapes.push(constructPlacemarkFromGeoJSON(componentFeature));
+          shapes.push(constructPlacemarkFromGeoJSON(componentFeature, selectionStyle));
           break;
         case "Polygon":
-          shapes.push(constructSurfacePolygonFromGeoJSON(componentFeature));
+          shapes.push(constructSurfacePolygonFromGeoJSON(componentFeature, selectionStyle));
           break;
         default:
           window.console.error("Unable to render symbol with type " + componentFeature.geometry.type);
@@ -270,19 +325,20 @@ EMPWorldWind.editors.EditorController = (function() {
    * ie .bind .call .apply
    *
    * @param {emp.typeLibrary.Feature} feature
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.SurfaceShape[]}
    */
-  function constructMilStdSymbol(feature) {
+  function constructMilStdSymbol(feature, selectionStyle) {
     var modifiers, shapes = [];
 
     // Process the modifiers
     modifiers = processModifiers.call(this, feature);
 
     if (feature.data.type === "Point") {
-      shapes.push(_constructSinglePointMilStdSymbol(feature, modifiers));
+      shapes.push(_constructSinglePointMilStdSymbol(feature, modifiers, selectionStyle));
     } else if (feature.data.type === "LineString") {
       // Requires access to the WorldWindow navigator, bind to the current scope
-      shapes = shapes.concat(_constructMultiPointMilStdFeature.call(this, feature, modifiers));
+      shapes = shapes.concat(_constructMultiPointMilStdFeature.call(this, feature, modifiers, selectionStyle));
     } else {
       window.console.error("Unhandled feature type: " + feature.data.type + " in EMPWorldWind");
     }
@@ -293,10 +349,12 @@ EMPWorldWind.editors.EditorController = (function() {
   /**
    * Constructs a {@link EMPWorldWind.data.EmpFeature} using using the {@link WorldWind.SurfacePolyline} primitive
    * @param {emp.typeLibrary.Feature} feature
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.SurfacePolyline}
    */
-  function constructSurfacePolyline(feature) {
+  function constructSurfacePolyline(feature, selectionStyle) {
     var i, color, pathPrimitive, attributes, highlightAttributes,
+      selectedLineColor,
       len = feature.data.coordinates.length,
       locations = [];
 
@@ -316,13 +374,19 @@ EMPWorldWind.editors.EditorController = (function() {
       locations.push(new WorldWind.Location(feature.data.coordinates[i][1], feature.data.coordinates[i][0]));
     }
 
-    highlightAttributes = new WorldWind.ShapeAttributes(attributes);
-    highlightAttributes.interiorColor = WorldWind.Color.WHITE;
+    highlightAttributes = new WorldWind.ShapeAttributes();
+    if (selectionStyle.lineColor) {
+      selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    } else {
+      // TODO check polyline highlight defaults are correct
+      highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
+    }
 
     pathPrimitive = new WorldWind.SurfacePolyline(locations, attributes);
     pathPrimitive.displayName = feature.name;
     pathPrimitive.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
-    pathPrimitive.highlightAttributes = highlightAttributes;
+    pathPrimitive.highlightAttributes = new WorldWind.ShapeAttributes(highlightAttributes);
 
     return pathPrimitive;
   }
@@ -330,10 +394,11 @@ EMPWorldWind.editors.EditorController = (function() {
   /**
    * This function is similar to the feature based version except it takes a geoJSON object as the only parameter.
    * @param {object} geoJSON
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.SurfacePolyline}
    */
-  function constructSurfacePolylineFromGeoJSON(geoJSON) {
-    var i, color, attributes, polylinePrimitive,
+  function constructSurfacePolylineFromGeoJSON(geoJSON, selectionStyle) {
+    var i, color, attributes, highlightAttributes, polylinePrimitive, selectedLineColor,
       len = geoJSON.coordinates.length,
       locations = [];
 
@@ -352,8 +417,18 @@ EMPWorldWind.editors.EditorController = (function() {
       locations.push(new WorldWind.Location(geoJSON.coordinates[i][1], geoJSON.coordinates[i][0]));
     }
 
+    highlightAttributes = new WorldWind.ShapeAttributes();
+    if (selectionStyle.lineColor) {
+      selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    } else {
+      // TODO see above, is this color correct for default polyline highlight
+      attributes.outlineColor = WorldWind.Color.YELLOW;
+    }
+
     polylinePrimitive = new WorldWind.SurfacePolyline(locations, attributes);
     polylinePrimitive.altitudeMode = geoJSON.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
+    polylinePrimitive.highlightAttributes = new WorldWind.ShapeAttributes(highlightAttributes);
 
     return polylinePrimitive;
   }
@@ -361,62 +436,95 @@ EMPWorldWind.editors.EditorController = (function() {
   /**
    * Constructs a {@link EMPWorldWind.data.EmpFeature} using using the {@link WorldWind.Placemark} primitive
    * @param {emp.typeLibrary.Feature} feature
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.Placemark}
    */
-  function constructPlacemark(feature) {
-    var position, placemark, highlightAttributes, attributes,
+  function constructPlacemark(feature, selectionStyle) {
+    var location, placemark, highlightAttributes, attributes, selectedLineColor,
       eyeDistanceScaling = true;
 
     attributes = new WorldWind.PlacemarkAttributes();
     attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+    attributes.labelAttributes = new WorldWind.TextAttributes();
+    attributes.labelAttributes.offset = new WorldWind.Offset(
+      WorldWind.OFFSET_FRACTION, -0.5,
+      WorldWind.OFFSET_FRACTION, 1.5
+    );
 
-    position = new WorldWind.Location(feature.data.coordinates[1], feature.data.coordinates[0]);
+    location = new WorldWind.Location(feature.data.coordinates[1], feature.data.coordinates[0]);
 
     highlightAttributes = new WorldWind.PlacemarkAttributes();
-    highlightAttributes.imageScale = 1.5;
+    if (selectionStyle.scale) {
+      highlightAttributes.imageScale = selectionStyle.scale;
+    }
 
-    placemark = new WorldWind.Placemark(position, eyeDistanceScaling, attributes);
+    if (selectionStyle.lineColor) {
+      selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.imageColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    } else {
+      highlightAttributes.imageColor = WorldWind.Color.YELLOW;
+    }
+
+    highlightAttributes.labelAttributes.offset = attributes.labelAttributes.offset;
+    highlightAttributes.labelAttributes.color = highlightAttributes.imageColor;
+
+    placemark = new WorldWind.Placemark(location, eyeDistanceScaling, attributes);
+    placemark.label = feature.name;
     placemark.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
-    placemark.highlightAttributes = highlightAttributes;
+    placemark.highlightAttributes = new WorldWind.PlacemarkAttributes(highlightAttributes);
 
     return placemark;
   }
 
   /**
    * @param {object} geoJSON
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.Placemark}
    */
-  function constructPlacemarkFromGeoJSON(geoJSON) {
-    var color, location, text;
+  function constructPlacemarkFromGeoJSON(geoJSON, selectionStyle) {
+    var color, location, placemark, attributes, highlightAttributes, selectedTextColor,
+      eyeDistanceScaling = true;
 
-    var attributes = new WorldWind.TextAttributes();
+    attributes = new WorldWind.PlacemarkAttributes();
+    attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+    attributes.labelAttributes.offset = new WorldWind.Offset(
+      WorldWind.OFFSET_FRACTION, -0.5,
+      WorldWind.OFFSET_FRACTION, 1.5
+    );
 
     color = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.fontColor, null, true);
     attributes.color = new WorldWind.Color(color.r, color.g, color.b, color.a);
 
-    attributes.font = new WorldWind.Font(
-      geoJSON.properties.fontSize,
-      "normal",
-      "normal",
-      geoJSON.properties.fontWeight,
-      geoJSON.properties.fontFamily,
-      geoJSON.properties.labelAlign);
-
     location = new WorldWind.Location(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0], 0);
 
-    text = new WorldWind.GeographicText(location, geoJSON.properties.label);
-    text.altitudeMode = WorldWind.CLAMP_TO_GROUND;
+    highlightAttributes = new WorldWind.TextAttributes();
+    if (selectionStyle.lineColor) {
+      selectedTextColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.color = new WorldWind.Color(selectedTextColor.r, selectedTextColor.g, selectedTextColor.b, selectedTextColor.a);
+    } else {
+      highlightAttributes.color = WorldWind.Color.YELLOW;
+    }
 
-    return text;
+    highlightAttributes.labelAttributes.offset = attributes.labelAttributes.offset;
+    highlightAttributes.labelAttributes.color = highlightAttributes.imageColor;
+
+    placemark = new WorldWind.Placemark(location, eyeDistanceScaling, attributes);
+    //placemark.label = feature.name;
+    placemark.altitudeMode = WorldWind.CLAMP_TO_GROUND;
+    placemark.highlightAttributes = new WorldWind.PlacemarkAttributes(highlightAttributes);
+
+    return placemark;
   }
 
   /**
    * Constructs a {@link EMPWorldWind.data.EmpFeature} using using the {@link WorldWind.SurfacePolygon} primitive
    * @param {emp.typeLibrary.Feature} feature
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.SurfacePolygon}
    */
-  function constructSurfacePolygon(feature) {
+  function constructSurfacePolygon(feature, selectionStyle) {
     var polygonPrimitive, attributes, highlightAttributes, interiorColor, outlineColor, boundaryLen,
+      selectedFillColor, selectedLineColor,
       i, j,
       boundaries = [],
       numBounds = feature.data.coordinates.length;
@@ -451,13 +559,24 @@ EMPWorldWind.editors.EditorController = (function() {
     attributes.outlineStippleFactor = feature.properties.stippleFactor || attributes.outlineStippleFactor;
     attributes.outlineStipplePattern = feature.properties.stipplePattern || attributes.outlineStipplePattern;
 
-    highlightAttributes = new WorldWind.ShapeAttributes(attributes);
-    highlightAttributes.interiorColor = WorldWind.Color.WHITE;
+    highlightAttributes = new WorldWind.ShapeAttributes();
+    if (selectionStyle.lineColor) {
+      selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    } else {
+      highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
+    }
+    if (selectionStyle.fillColor) {
+      selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
+      highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.r, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    } else {
+      highlightAttributes.drawInterior = false;
+    }
 
     polygonPrimitive = new WorldWind.SurfacePolygon(boundaries, attributes);
     polygonPrimitive.displayName = feature.name;
     polygonPrimitive.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
-    polygonPrimitive.highlightAttributes = highlightAttributes;
+    polygonPrimitive.highlightAttributes = new WorldWind.ShapeAttributes(highlightAttributes);
 
     return polygonPrimitive;
   }
@@ -465,10 +584,12 @@ EMPWorldWind.editors.EditorController = (function() {
   /**
    *
    * @param {object} geoJSON
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.SurfacePolygon}
    */
-  function constructSurfacePolygonFromGeoJSON(geoJSON) {
+  function constructSurfacePolygonFromGeoJSON(geoJSON, selectionStyle) {
     var attributes, interiorColor, outlineColor, boundaryLen, polygonPrimitive,
+      selectedLineColor, selectedFillColor, highlightAttributes,
       i, j,
       boundaries = [],
       numBounds = geoJSON.geometry.coordinates.length;
@@ -502,9 +623,24 @@ EMPWorldWind.editors.EditorController = (function() {
     attributes.outlineStippleFactor = geoJSON.properties.stippleFactor || attributes.outlineStippleFactor;
     attributes.outlineStipplePattern = geoJSON.properties.stipplePattern || attributes.outlineStipplePattern;
 
+    highlightAttributes = new WorldWind.ShapeAttributes();
+    if (selectionStyle.lineColor) {
+      selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.a, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    } else {
+      highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
+    }
+    if (selectionStyle.fillColor) {
+      selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
+      highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.a, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    } else {
+      highlightAttributes.drawInterior = false;
+    }
+
     polygonPrimitive = new WorldWind.SurfacePolygon(boundaries, attributes);
     polygonPrimitive.altitudeMode = geoJSON.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
     polygonPrimitive.displayName = geoJSON.properties.name;
+    polygonPrimitive.highlightAttributes = new WorldWind.ShapeAttributes(highlightAttributes);
 
     return polygonPrimitive;
   }
@@ -513,10 +649,12 @@ EMPWorldWind.editors.EditorController = (function() {
    * Constructs a {@link EMPWorldWind.data.EmpFeature} using using the {@link WorldWind.SurfaceRectangle} primitive
    * This handles rectangles and squares
    * @param {emp.typeLibrary.Feature} feature
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.SurfaceRectangle}
    */
-  function constructSurfaceRectangle(feature) {
-    var attributes, lineColor, fillColor, highlightAttributes, location, rectPrimitive;
+  function constructSurfaceRectangle(feature, selectionStyle) {
+    var attributes, lineColor, fillColor, highlightAttributes, location, rectPrimitive,
+      selectedLineColor, selectedFillColor;
 
     attributes = new WorldWind.ShapeAttributes(null);
 
@@ -536,8 +674,20 @@ EMPWorldWind.editors.EditorController = (function() {
 
     attributes.outlineWidth = feature.properties.lineWidth || attributes.outlineWidth;
 
-    highlightAttributes = new WorldWind.ShapeAttributes(attributes);
-    highlightAttributes.interiorColor = WorldWind.Color.WHITE;
+    highlightAttributes = new WorldWind.ShapeAttributes();
+    if (selectionStyle.fillColor) {
+      selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
+      highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.r, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    } else {
+      highlightAttributes.drawInterior = false;
+    }
+    if (selectionStyle.lineColor) {
+      selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    } else {
+      highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
+    }
+
     location = new WorldWind.Location(feature.coordinates[1], feature.coordinates[0], (feature.coordinates.length > 2) ? feature.coordinates[1] : 0);
 
     if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
@@ -548,7 +698,7 @@ EMPWorldWind.editors.EditorController = (function() {
 
     rectPrimitive.displayName = feature.name;
     rectPrimitive.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
-    rectPrimitive.highlightAttributes = highlightAttributes;
+    rectPrimitive.highlightAttributes = new WorldWind.ShapeAttributes(highlightAttributes);
 
     return rectPrimitive;
   }
@@ -556,10 +706,11 @@ EMPWorldWind.editors.EditorController = (function() {
   /**
    * Constructs a {@link EMPWorldWind.data.EmpFeature} using using the {@link WorldWind.Text} primitive
    * @param {emp.typeLibrary.Feature} feature
+   * @param {SelectionStyle} selectionStyle
    * @returns {WorldWind.Text}
    */
-  function constructText(feature) {
-    var attributes, location, textPrimitive, highlightAttributes, labelColor;
+  function constructText(feature, selectionStyle) {
+    var attributes, location, textPrimitive, highlightAttributes, labelColor, selectedLabelColor;
 
     attributes = new WorldWind.TextAttributes(null);
     attributes.depthTest = false;
@@ -568,7 +719,7 @@ EMPWorldWind.editors.EditorController = (function() {
       labelColor = feature.properties.labelStyle.color;
       attributes.color = new WorldWind.Color(labelColor.red, labelColor.green, labelColor.blue, labelColor.alpha);
     } else {
-      labelColor = EMPWorldWind.utils.hexToRGBA(EMPWorldWind.constants.propertyDefaults.FILL_COLOR_HEX);// white
+      labelColor = EMPWorldWind.utils.hexToRGBA(EMPWorldWind.constants.propertyDefaults.FILL_COLOR_HEX);
       attributes.color = new WorldWind.Color(labelColor.r, labelColor.g, labelColor.b, labelColor.a);
     }
 
@@ -584,8 +735,14 @@ EMPWorldWind.editors.EditorController = (function() {
       attributes.font.size = feature.properties.labelStyle.size;
     }
 
-    highlightAttributes = new WorldWind.ShapeAttributes(attributes);
-    highlightAttributes.interiorColor = WorldWind.Color.WHITE;
+    highlightAttributes = new WorldWind.TextAttributes();
+    if (selectionStyle.lineColor) {
+      selectedLabelColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.color = new WorldWind.Color(selectedLabelColor.r, selectedLabelColor.g, selectedLabelColor.b, selectedLabelColor.a);
+    } else {
+      highlightAttributes.color = WorldWind.Color.YELLOW;
+    }
+
     location = new WorldWind.Location(feature.coordinates[1], feature.coordinates[0]);
 
     textPrimitive = new WorldWind.GeographicText(location, feature.name);
@@ -650,10 +807,10 @@ EMPWorldWind.editors.EditorController = (function() {
         return rc;
       }
 
-      wwFeature = new EMPWorldWind.data.EmpFeature(empFeature);
+      wwFeature = new EMPWorldWind.data.EmpFeature(empFeature, this.state.labelStyles);
 
       try {
-        shapes = buildShapes(empFeature);
+        shapes = buildShapes(empFeature, this.state.selectionStyle);
 
         wwFeature.addShapes(shapes);
 
@@ -701,29 +858,29 @@ EMPWorldWind.editors.EditorController = (function() {
           wwFeature.addShapes(constructMilStdSymbol.call(this, empFeature));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_ACM:
-          wwFeature.addShapes(constructAirControlMeasure(empFeature));
+          wwFeature.addShapes(constructAirControlMeasure.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
-          wwFeature.addShapes(constructSurfaceCircle(empFeature));
+          wwFeature.addShapes(constructSurfaceCircle.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
-          wwFeature.addShapes(constructSurfaceEllipse(empFeature));
+          wwFeature.addShapes(constructSurfaceEllipse.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_PATH:
-          wwFeature.addShapes(constructSurfacePolyline(empFeature));
+          wwFeature.addShapes(constructSurfacePolyline.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
-          wwFeature.addShapes(constructPlacemark(empFeature));
+          wwFeature.addShapes(constructPlacemark.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_POLYGON:
-          wwFeature.addShapes(constructSurfacePolygon(empFeature));
+          wwFeature.addShapes(constructSurfacePolygon.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
         case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
-          wwFeature.addShapes(constructSurfaceRectangle(empFeature));
+          wwFeature.addShapes(constructSurfaceRectangle.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
-          wwFeature.addShapes(constructText(empFeature));
+          wwFeature.addShapes(constructText.call(this, empFeature, this.state.labelStyles));
           break;
         default:
           rc.success = false;
