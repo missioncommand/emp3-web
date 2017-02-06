@@ -55,29 +55,29 @@ emp.storage.addToParent = function(sCoreId) {
  *
  * @param {string} sCoreId
  */
-emp.storage.removeChild = function(sCoreId) {
+emp.storage.removeChild = function(coreId) {
 
   /** @type emp.classLibrary.EmpRenderableObject */
-  var oItem = emp.storage._storage.store[sCoreId];
+  var item = emp.storage._storage.store[coreId];
 
-  if (oItem !== undefined) {
-    //console.log("SE Removing " + oItem.name + " (" + oItem.coreId + ").");
+  if (item !== undefined) {
+    //console.log("SE Removing " + item.name + " (" + item.coreId + ").");
     // Make sure the items is in storage.
     // Loop while it has children
 
-    if (oItem.hasChildren()) {
-      var aCoreIdList = oItem.getChildrenCoreIds();
-      var numChildren = aCoreIdList.length;
-      for (var iIndex = 0; iIndex < numChildren; iIndex++) {
-        emp.storage.removeChild(aCoreIdList[iIndex]);
+    if (item.hasChildren()) {
+      var coreIdList = item.getChildrenCoreIds();
+      var numChildren = coreIdList.length;
+      for (var i = 0; i < numChildren; i++) {
+        emp.storage.removeChild(coreIdList[i]);
       }
     }
 
     //Take it off its parents child list.
-    oItem.removeFromAllParent();
+    item.removeFromAllParent();
     // Now delete the child.
-    delete emp.storage._storage.store[sCoreId];
-    //console.log("     DELETED " + oItem.name + " (" + oItem.coreId + ").");
+    delete emp.storage._storage.store[coreId];
+    //console.log("     DELETED " + item.name + " (" + item.coreId + ").");
   }
 };
 
@@ -505,85 +505,88 @@ emp.storage.executeTransactions = function(oTransactions) {
  * Removes a features from the store. Any children of the feature will be recursively removed if they no longer have
  * any other parent.
  *
- * @param {emp.typeLibrary.Transaction} oTransaction
+ * @param {emp.typeLibrary.Transaction} transaction
  */
-emp.storage.feature.remove = function(oTransaction) {
-  var oStorageEntry;
-  var oaItems = oTransaction.items;
-  var aMapList, aPrevMapList;
-  var oTransactions = {};
-  var iIndex;
-  var oItem;
-  var oParent;
+emp.storage.feature.remove = function(transaction) {
+  var storageEntry;
+  var items = transaction.items;
+  var mapList, previousMapList;
+  var transactions = {};
+  var i;
+  var item;
+  var parent;
 
-  for (iIndex = 0; iIndex < oaItems.length; iIndex++) {
-    oItem = oaItems[iIndex];
-    //console.log(iIndex + " - coreId: " + oItem.coreId + " overlayId: " + oItem.overlayId);
-    oStorageEntry = emp.storage.get.id({
-      id: oItem.coreId
+  for (i = 0; i < items.length; i++) {
+
+    item = items[i];
+
+    storageEntry = emp.storage.get.id({
+      id: item.coreId
     });
 
-    if (oStorageEntry === undefined) {
-      oTransaction.fail({
-        coreId: oItem.coreId,
+    // See if the item actually exists.   If not, fail the transaction.
+    if (storageEntry === undefined) {
+      transaction.fail({
+        coreId: item.coreId,
         level: emp.typeLibrary.Error.level.MAJOR,
-        message: "Feature remove: feature " + oItem.coreId + " not found."
+        message: "Feature remove: feature " + item.coreId + " not found."
       });
       continue;
     }
 
-    if (!emp.helpers.isEmptyString(oItem.parentId)) {
+    // Check the parent id of the item being passed in
+    if (!emp.helpers.isEmptyString(item.parentId)) {
       // If it has a parent feature, get it.
-      oParent = emp.storage.findFeature(oItem.overlayId, oItem.parentId);
-      if (oParent === undefined) {
-        oTransaction.fail({
-          coreId: oItem.coreId,
+      parent = emp.storage.findFeature(item.overlayId, item.parentId);
+      if (parent === undefined) {
+        transaction.fail({
+          coreId: item.coreId,
           level: emp.typeLibrary.Error.level.MAJOR,
-          message: "Unable to find parent feature of feature " + oStorageEntry.getName() + "."
+          message: "Unable to find parent feature of feature " + storageEntry.getName() + "."
         });
         continue;
       }
     }
     else {
-      oParent = emp.storage.findOverlay(oItem.overlayId);
+      parent = emp.storage.findOverlay(item.overlayId);
 
-      if (oParent === undefined) {
-        oTransaction.fail({
-          coreId: oItem.coreId,
+      if (parent === undefined) {
+        transaction.fail({
+          coreId: item.coreId,
           level: emp.typeLibrary.Error.level.MAJOR,
-          message: "Unable to find parent overlay of feature " + oStorageEntry.getName() + "."
+          message: "Unable to find parent overlay of feature " + storageEntry.getName() + "."
         });
         continue;
       }
     }
 
-    if (!oParent.isParentOf(oStorageEntry.getCoreId())) {
+    if (!parent.isParentOf(storageEntry.getCoreId())) {
       // The identified parent is not a parent of the storage object.
-      oTransaction.fail({
-        coreId: oItem.coreId,
+      transaction.fail({
+        coreId: item.coreId,
         level: emp.typeLibrary.Error.level.MAJOR,
-        message: oParent.getName() + " is not a parent of feature " + oStorageEntry.getName() + "."
+        message: parent.getName() + " is not a parent of feature " + storageEntry.getName() + "."
       });
       continue;
     }
-    aPrevMapList = oStorageEntry.getParentMapInstanceList();
+    previousMapList = storageEntry.getParentMapInstanceList();
 
-    if (oStorageEntry.parentCount() === 1) {
+    if (storageEntry.parentCount() === 1) {
       // The storage entry will have no more parents.
       // Delete all children with no other parents.
-      emp.storage.removeParentFromChildren(oStorageEntry);
+      emp.storage.removeParentFromChildren(storageEntry);
     }
 
-    oParent.removeChild(oStorageEntry);
+    parent.removeChild(storageEntry);
 
-    aMapList = oStorageEntry.getParentMapInstanceList();
+    mapList = storageEntry.getParentMapInstanceList();
 
-    emp.storage.processRequest(oTransactions, aPrevMapList, aMapList, oParent, oStorageEntry);
+    emp.storage.processRequest(transactions, previousMapList, mapList, parent, storageEntry);
 
-    emp.storage.deleteObject(oStorageEntry);
+    emp.storage.deleteObject(storageEntry);
 
   }
-  emp.storage.executeTransactions(oTransactions);
+  emp.storage.executeTransactions(transactions);
 };
 
 /**
@@ -615,33 +618,34 @@ emp.storage.feature.editUpdate = function(oTransaction) {
  *
  * @param  {emp.typeLibrary.Transaction} oTransaction
  */
-emp.storage.removeItems = function(oTransaction) {
+emp.storage.removeItems = function(transaction) {
 
-  var oItem;
+  var item;
   var store = emp.storage._storage.store;
-  var oaItems = oTransaction.items;
+  var items = transaction.items;
+  var i;
 
-  for (var i = 0; i < oaItems.length; i = i + 1) {
-    oItem = store[oaItems[i].coreId];
+  for (i = 0; i < items.length; i = i + 1) {
+    item = store[items[i].coreId];
 
-    if (oItem === undefined)
+    if (item === undefined)
       continue;
 
-    //console.log("SE Removing " + oItem.name + " (" + oItem.coreId + ").");
-    if (oItem.hasChildren()) {
+    //console.log("SE Removing " + item.name + " (" + item.coreId + ").");
+    if (item.hasChildren()) {
       // Go thru the children.
-      var aCoreIdList = oItem.getChildrenCoreIds();
+      var coreIdList = item.getChildrenCoreIds();
 
-      for (var iIndex = 0; iIndex < aCoreIdList.length; iIndex++) {
-        emp.storage.removeChild(aCoreIdList[iIndex]);
+      for (i = 0; i < coreIdList.length; i++) {
+        emp.storage.removeChild(coreIdList[i]);
       }
     }
 
     //Take it off its parents child list.
-    oItem.removeFromAllParent();
+    item.removeFromAllParent();
     // Now delete the item
-    delete store[oItem.coreId];
-    //console.log("   DELETED " + oItem.name + " (" + oItem.coreId + ").");
+    delete store[item.coreId];
+    //console.log("   DELETED " + item.name + " (" + item.coreId + ").");
   }
 };
 /**
@@ -1149,24 +1153,24 @@ emp.storage.addToAddTransaction = function(oTransactionList, mapInstanceId, oPar
 
 /**
  *
- * @param {Object} oTransactionList
+ * @param {Object} transactionList
  * @param {string} mapInstanceId
  * @param {emp.classLibrary.EmpRenderableObject} oParent
  * @param {emp.classLibrary.EmpRenderableObject} oChild
  */
-emp.storage.addToRemoveTransaction = function(oTransactionList, mapInstanceId, oParent, oChild) {
+emp.storage.addToRemoveTransaction = function(transactionList, mapInstanceId, oParent, oChild) {
   var oDupItem;
 
   switch (oChild.getCoreObjectType()) {
     case emp.typeLibrary.types.FEATURE:
       // The child is a feature.
       // If the transaction list does not exists create it.
-      if (!oTransactionList.hasOwnProperty('oFeatureRemoveFromMapTransactions')) {
-        oTransactionList.oFeatureRemoveFromMapTransactions = {};
+      if (!transactionList.hasOwnProperty('oFeatureRemoveFromMapTransactions')) {
+        transactionList.oFeatureRemoveFromMapTransactions = {};
       }
       // If the remove transaction does not exists, create it.
-      if (!oTransactionList.oFeatureRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
-        oTransactionList.oFeatureRemoveFromMapTransactions[mapInstanceId] =
+      if (!transactionList.oFeatureRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
+        transactionList.oFeatureRemoveFromMapTransactions[mapInstanceId] =
           new emp.typeLibrary.Transaction({
             intent: emp.intents.control.MI_FEATURE_REMOVE,
             mapInstanceId: mapInstanceId,
@@ -1175,17 +1179,17 @@ emp.storage.addToRemoveTransaction = function(oTransactionList, mapInstanceId, o
       }
       // Add this feature to the remove transaction items list.
       oDupItem = oChild.getObjectData(mapInstanceId, oParent.getCoreId());
-      oTransactionList.oFeatureRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
+      transactionList.oFeatureRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
       break;
     case emp.typeLibrary.types.WMS:
       // The child is a WMS.
       // If the transaction list does not exists create it.
-      if (!oTransactionList.hasOwnProperty('oWMSRemoveFromMapTransactions')) {
-        oTransactionList.oWMSRemoveFromMapTransactions = {};
+      if (!transactionList.hasOwnProperty('oWMSRemoveFromMapTransactions')) {
+        transactionList.oWMSRemoveFromMapTransactions = {};
       }
       // Check to see if the remove transaction exists and create it if not.
-      if (!oTransactionList.oWMSRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
-        oTransactionList.oWMSRemoveFromMapTransactions[mapInstanceId] =
+      if (!transactionList.oWMSRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
+        transactionList.oWMSRemoveFromMapTransactions[mapInstanceId] =
           new emp.typeLibrary.Transaction({
             intent: emp.intents.control.MI_WMS_REMOVE,
             mapInstanceId: mapInstanceId,
@@ -1194,18 +1198,18 @@ emp.storage.addToRemoveTransaction = function(oTransactionList, mapInstanceId, o
       }
       oDupItem = oChild.getObjectData(mapInstanceId, oParent.getCoreId());
       oDupItem.parentCoreId = emp.storage.getRootGuid(mapInstanceId);
-      oTransactionList.oWMSRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
+      transactionList.oWMSRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
       break;
 
     case emp.typeLibrary.types.WMTS:
       // The child is a WMS.
       // If the transaction list does not exists create it.
-      if (!oTransactionList.hasOwnProperty('oWMTSRemoveFromMapTransactions')) {
-        oTransactionList.oWMTSRemoveFromMapTransactions = {};
+      if (!transactionList.hasOwnProperty('oWMTSRemoveFromMapTransactions')) {
+        transactionList.oWMTSRemoveFromMapTransactions = {};
       }
       // Check to see if the remove transaction exists and create it if not.
-      if (!oTransactionList.oWMTSRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
-        oTransactionList.oWMTSRemoveFromMapTransactions[mapInstanceId] =
+      if (!transactionList.oWMTSRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
+        transactionList.oWMTSRemoveFromMapTransactions[mapInstanceId] =
           new emp.typeLibrary.Transaction({
             intent: emp.intents.control.MI_WMTS_REMOVE,
             mapInstanceId: mapInstanceId,
@@ -1214,17 +1218,17 @@ emp.storage.addToRemoveTransaction = function(oTransactionList, mapInstanceId, o
       }
       oDupItem = oChild.getObjectData(mapInstanceId, oParent.getCoreId());
       oDupItem.parentCoreId = emp.storage.getRootGuid(mapInstanceId);
-      oTransactionList.oWMTSRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
+      transactionList.oWMTSRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
       break;
     case emp.typeLibrary.types.KML:
         // The child is a WMS.
         // If the transaction list does not exists create it.
-        if (!oTransactionList.hasOwnProperty('oKmlLayerRemoveFromMapTransactions')) {
-          oTransactionList.oKmlLayerRemoveFromMapTransactions = {};
+        if (!transactionList.hasOwnProperty('oKmlLayerRemoveFromMapTransactions')) {
+          transactionList.oKmlLayerRemoveFromMapTransactions = {};
         }
         // Check to see if the remove transaction exists and create it if not.
-        if (!oTransactionList.oKmlLayerRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
-          oTransactionList.oKmlLayerRemoveFromMapTransactions[mapInstanceId] =
+        if (!transactionList.oKmlLayerRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
+          transactionList.oKmlLayerRemoveFromMapTransactions[mapInstanceId] =
             new emp.typeLibrary.Transaction({
               intent: emp.intents.control.MI_MAP_LAYER_REMOVE,
               mapInstanceId: mapInstanceId,
@@ -1233,16 +1237,16 @@ emp.storage.addToRemoveTransaction = function(oTransactionList, mapInstanceId, o
         }
         oDupItem = oChild.getObjectData(mapInstanceId, oParent.getCoreId());
         oDupItem.parentCoreId = emp.storage.getRootGuid(mapInstanceId);
-        oTransactionList.oKmlLayerRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
+        transactionList.oKmlLayerRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
         break;
     case emp.typeLibrary.types.OVERLAY:
       // This child is an overlay
       // If the transaction list does not exists create it.
-      if (!oTransactionList.hasOwnProperty('oObjectRemoveTransaction')) {
-        oTransactionList.oObjectRemoveTransaction = {};
+      if (!transactionList.hasOwnProperty('oObjectRemoveTransaction')) {
+        transactionList.oObjectRemoveTransaction = {};
       }
-      if (!oTransactionList.oObjectRemoveTransaction.hasOwnProperty(mapInstanceId)) {
-        oTransactionList.oObjectRemoveTransaction[mapInstanceId] =
+      if (!transactionList.oObjectRemoveTransaction.hasOwnProperty(mapInstanceId)) {
+        transactionList.oObjectRemoveTransaction[mapInstanceId] =
           new emp.typeLibrary.Transaction({
             intent: emp.intents.control.STORAGE_OBJECT_REMOVED,
             mapInstanceId: mapInstanceId,
@@ -1250,7 +1254,7 @@ emp.storage.addToRemoveTransaction = function(oTransactionList, mapInstanceId, o
           });
       }
       oDupItem = oChild.getObjectData(mapInstanceId, oParent.getCoreId());
-      oTransactionList.oObjectRemoveTransaction[mapInstanceId].items.push(oDupItem);
+      transactionList.oObjectRemoveTransaction[mapInstanceId].items.push(oDupItem);
       break;
   }
 };
@@ -2827,10 +2831,10 @@ emp.storage.removeParentFromChildren = function(oParent) {
   if (oParent.hasChildren()) {
     // This parent is being removed, so we must take it off of the
     // parent list of all its children.
-    var aCoreIdList = oParent.getChildrenCoreIds();
+    var coreIdList = oParent.getChildrenCoreIds();
 
-    for (var iIndex = 0; iIndex < aCoreIdList.length; iIndex++) {
-      oChild = oParent.getChild(aCoreIdList[iIndex]);
+    for (var iIndex = 0; iIndex < coreIdList.length; iIndex++) {
+      oChild = oParent.getChild(coreIdList[iIndex]);
       oParent.removeChild(oChild);
 
       if (!oChild.hasParents()) {
