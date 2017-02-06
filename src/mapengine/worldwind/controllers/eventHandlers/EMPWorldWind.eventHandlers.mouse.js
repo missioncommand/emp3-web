@@ -66,6 +66,12 @@ EMPWorldWind.eventHandlers.mouse = {
   mouseup: function (event) {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
     coords.type = emp.typeLibrary.Pointer.EventType.MOUSEUP;
+
+    if (this.state.dragging) {
+      this.state.dragging = false;
+      EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
+    }
+
     this.empMapInstance.eventing.Pointer(coords);
   },
   /**

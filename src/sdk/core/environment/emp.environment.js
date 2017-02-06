@@ -77,7 +77,7 @@ emp.environment = (function() {
   function publishAll(args) {
     var i, len = environmentList.length;
     for (i = 0; i < len; i++) {
-      // Filter out mouse move events for all envronments except browser for performance reasons
+      // Filter out mouse move events for all environments except browser for performance reasons
       if (args.channel !== cmapi.channel.names.MAP_VIEW_MOUSEMOVE || environmentList[i] === emp.environment.browser) {
         environmentList[i].pubSub.publish(args);
       }
