@@ -800,6 +800,11 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 //if there is a parentId, use that. Otherwise, use the overlayId.
                 if (!emp.util.isEmptyString(item.parentId))
                 {
+                    //v2
+                    item.parentType = "feature";
+                }
+                 else if (!emp.util.isEmptyString(item.coreParent))
+                {
                     item.parentType = "feature";
                 }
                 else
