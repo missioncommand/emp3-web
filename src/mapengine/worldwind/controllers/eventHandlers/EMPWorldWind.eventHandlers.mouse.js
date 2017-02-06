@@ -108,8 +108,7 @@ EMPWorldWind.eventHandlers.mouse = {
       this.empMapInstance.eventing.Pointer(coords);
     }
 
-    // TODO test in FireFox
-    var element = event.srcElement;
+    var element = event.srcElement || event.originalTarget;
     var smartAreaBuffer = 0.05;
     var elementBounds = element.getBoundingClientRect();
     var pan = {

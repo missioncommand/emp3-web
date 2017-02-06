@@ -897,8 +897,8 @@ EMPWorldWind.map.prototype.setLockState = function(lockState) {
 EMPWorldWind.map.prototype.spinGlobe = function () {
   var vertical = 0,
     horizontal = 0;
-  // TODO pass in a step dynamically
-  var step = 1;
+
+  var step = this.worldWind.navigator.range / (WorldWind.EARTH_RADIUS);
 
   if (this.state.autoPanning.up) {
     vertical = step;
