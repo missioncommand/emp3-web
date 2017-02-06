@@ -72,6 +72,7 @@ EMPWorldWind.eventHandlers.mouse = {
       EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
     }
 
+    this.state.autoPanning = EMPWorldWind.constants.NO_PANNING;
     this.empMapInstance.eventing.Pointer(coords);
   },
   /**
@@ -102,9 +103,21 @@ EMPWorldWind.eventHandlers.mouse = {
   mousemove: function (event) {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
     coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
+
     if (coords.lat !== undefined) {
       this.empMapInstance.eventing.Pointer(coords);
     }
+
+    // TODO test in FireFox
+    var element = event.srcElement;
+    var smartAreaBuffer = 0.05;
+    var elementBounds = element.getBoundingClientRect();
+    var pan = {
+      up: false,
+      down: false,
+      left: false,
+      right: false
+    };
 
     switch (event.buttons) {
       case 1: // Left button, we're moving the map
@@ -113,9 +126,27 @@ EMPWorldWind.eventHandlers.mouse = {
           case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
           case emp3.api.enums.MapMotionLockEnum.NO_PAN:
           case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
+            this.state.dragging = true;
             event.preventDefault();
             break;
-          case emp3.api.enums.MapMotionLockEnum.SMART_MOTION: // TODO check for special locations
+          case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
+            event.preventDefault();
+
+            // Pan left or right
+            pan.left = event.offsetX < elementBounds.width * smartAreaBuffer;
+            pan.right = event.offsetX > elementBounds.width - (elementBounds.width * smartAreaBuffer);
+
+            // Pan up or down
+            pan.up = event.offsetY < elementBounds.height * smartAreaBuffer;
+            pan.down = event.offsetY > elementBounds.height - (elementBounds.height * smartAreaBuffer);
+
+            if (pan.up || pan.down || pan.left || pan.right) {
+              this.state.autoPanning = pan;
+              this.spinGlobe();
+            } else {
+              this.state.autoPanning = EMPWorldWind.constants.NO_PANNING;
+            }
+            break;
           case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
           default:
             EMPWorldWind.eventHandlers.notifyViewChange.call(this);
@@ -128,6 +159,6 @@ EMPWorldWind.eventHandlers.mouse = {
       // No actions
     }
 
-    this.state.lastMousePosition = event;
+    this.state.lastInteractionEvent = event;
   }
 };

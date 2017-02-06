@@ -41,13 +41,13 @@ EMPWorldWind.map = function(wwd) {
      */
     editing: false,
     /**
-     * Whether the map is being dragged
+     * Whether we are dragging
      */
     dragging: false,
     /**
-     * Placeholder for the last detected mouse down/move/touch event
+     * Placeholder for the last detected mouse move/touch/pointer event
      */
-    lastMousePosition: undefined,
+    lastInteractionEvent: undefined,
     /**
      * Lock state
      */
@@ -57,6 +57,16 @@ EMPWorldWind.map = function(wwd) {
      */
     lastRender: {
       altitude: 0
+    },
+    /**
+     * Object for describing autoPanning behavior
+     */
+    autoPanning: {
+      step: 0.5,
+      up: false,
+      down: false,
+      left: false,
+      right: false
     },
     /**
      * Label styles for the renderer
@@ -139,7 +149,7 @@ EMPWorldWind.map.prototype.initialize = function(map) {
       eventClass = EMPWorldWind.eventHandlers[eventClass];
       for (eventHandler in eventClass) {
         if (eventClass.hasOwnProperty(eventHandler)) {
-          this.worldWind.addEventListener(eventHandler, EMPWorldWind.eventHandlers.throttle(eventClass[eventHandler].bind(this)));
+          this.worldWind.addEventListener(eventHandler, eventClass[eventHandler].bind(this));
         }
       }
     }
@@ -280,6 +290,9 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
  */
 EMPWorldWind.map.prototype.lookAt = function(args) {
   // substituting range for altitude for now
+  if (args.range !== 0) {
+    args.range = args.range || this.worldWind.navigator.range;
+  }
   var position = new WorldWind.Position(args.latitude, args.longitude, args.range);
 
   function _completeLookAtMotion() {
@@ -876,4 +889,40 @@ EMPWorldWind.map.prototype.setContrast = function(contrast) {
  */
 EMPWorldWind.map.prototype.setLockState = function(lockState) {
   this.state.lockState = lockState.lock;
+};
+
+/**
+ * Spins the globe if autoPanning is enabled
+ */
+EMPWorldWind.map.prototype.spinGlobe = function () {
+  var vertical = 0,
+    horizontal = 0;
+  // TODO pass in a step dynamically
+  var step = 1;
+
+  if (this.state.autoPanning.up) {
+    vertical = step;
+  } else if (this.state.autoPanning.down) {
+    vertical = -step;
+  }
+
+  if (this.state.autoPanning.left) {
+    horizontal = -step;
+  } else if (this.state.autoPanning.right) {
+    horizontal = step;
+  }
+
+  var position = new WorldWind.Position(
+    this.worldWind.navigator.lookAtLocation.latitude + vertical,
+    this.worldWind.navigator.lookAtLocation.longitude + horizontal,
+    this.worldWind.navigator.range);
+  this.goToAnimator.travelTime = 500; // TODO smooth the transition if this is getting called too often
+
+  if (this.state.autoPanning.up ||
+    this.state.autoPanning.left ||
+    this.state.autoPanning.down ||
+    this.state.autoPanning.right) {
+    this.goToAnimator.goTo(position);
+    setTimeout(this.spinGlobe.bind(this), 250);
+  }
 };
