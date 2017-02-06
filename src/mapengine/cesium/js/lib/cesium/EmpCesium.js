@@ -2647,6 +2647,23 @@ function EmpCesium()
                                     url = url.replace(/&/g, "%26");
                                     entity.billboard.image = url;
                                 }
+
+                                if (args.feature.properties.iconUrl && args.feature.properties.iconUrl.length > 0)
+                                {
+                                    if (useProxy)
+                                    {
+                                        entity.billboard.image = new this.ConstantProperty(this.getProxyUrl() + "?url=" + args.feature.properties.iconUrl);
+                                    }
+                                    else
+                                    {
+                                        entity.billboard.image = new this.ConstantProperty(args.feature.properties.iconUrl);
+                                    }
+                                }
+//                                else
+//                                {
+//                                    //use default emp icon. Local icon not requiring proxy.
+//                                    entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
+//                                }
 //                                entity.billboard.image = url;
 //                                var defaultIconName = emp.utilities.getDefaultIcon().iconUrl.split("/");
 //                                if (defaultIconName && defaultIconName.length > 0)
@@ -2909,9 +2926,15 @@ function EmpCesium()
             success: true
         },
         options = {},
+                useProxy = true, // proxy active by default
                 layer;
         try
         {
+            if (args.feature && args.feature.useProxy)
+            {
+                useProxy = args.feature.useProxy;
+            }
+
             options.stroke = EmpCesiumConstants.propertyDefaults.LINE_COLOR;
             options.fill = EmpCesiumConstants.propertyDefaults.FILL_COLOR;
             var geoJsonDataSource = new this.GeoJsonDataSource();
@@ -3002,7 +3025,24 @@ function EmpCesium()
                                         //}
                                         //else
                                         //{
-                                        entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
+                                        if (args.feature.properties.iconUrl && args.feature.properties.iconUrl.length > 0)
+                                        {
+                                            if (useProxy)
+                                            {
+                                                entity.billboard.image = new this.ConstantProperty(this.getProxyUrl() + "?url=" + args.feature.properties.iconUrl);
+                                            }
+                                            else
+                                            {
+                                                entity.billboard.image = new this.ConstantProperty(args.feature.properties.iconUrl);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            //use default emp icon. Local icon not requiring proxy.
+                                            entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
+                                        }
+
+
                                         if (!this.defined(entity.label))
                                         {
                                             var label = new this.LabelGraphics({"text": args.name});
@@ -10457,6 +10497,17 @@ function EmpCesium()
         else
         {
             return undefined;
+        }
+    };
+    this.isLayer = function (id)
+    {
+        if (this.empLayers.hasOwnProperty(id))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     };
 //    this.removeImageryServiceFromDropDown = function (layer)
