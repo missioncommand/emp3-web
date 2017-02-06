@@ -958,7 +958,10 @@ EMPWorldWind.map.prototype.spinGlobe = function () {
     this.state.autoPanning.down ||
     this.state.autoPanning.right) {
     this.goToAnimator.goTo(position);
+    EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
     setTimeout(this.spinGlobe.bind(this), 250);
+  } else {
+    EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
   }
 };
 
