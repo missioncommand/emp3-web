@@ -187,8 +187,8 @@ EMPWorldWind.editors.EditorController = (function() {
       positions += featureCoords[i] + "," + featureCoords[i + 1] + " ";
     }
 
-    positions.trim();
-    bbox = lowerLeftX + "," + lowerLeftY + "," + upperRightX + "," + upperRightY;
+    positions = positions.trim();
+    bbox = 0.8 * lowerLeftX + "," + 0.8 * lowerLeftY + "," + 1.2 * upperRightX + "," + 1.2 * upperRightY;
 
     // preserve the bounding box information
     feature.positions = positions;
