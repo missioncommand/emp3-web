@@ -35,7 +35,6 @@
         "renderingOptimization": {
           "enabled": true
         },
-        "debug": true,
         "data": [
           {
             "type": "osm",
@@ -85,7 +84,6 @@
       "mapEngineId": "leafletMapEngine",
       "manifestName": "manifest.js",
       "properties": {
-        "debug": true,
         "data": {
           "Use_Proxy_For_Map_Request": false,
           "Use_Proxy_For_Default_Map_Request": false,
