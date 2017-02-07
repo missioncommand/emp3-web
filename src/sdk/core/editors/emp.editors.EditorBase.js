@@ -12,12 +12,14 @@ emp.editors = {} || emp.editors;
 emp.editors.EditorBase = function(args) {
 
   // A hash of the control points.  These are the existing points that
-  // control the look and feel of the symbol.
+  // control the vertices of the symbol.
   this.controlPoints = [];
+  this.vertices = new emp.editors.Vertices();
 
-  // a hash of the ids that serve as midpoints to the graphic.  drag these
-  // to add new points.
-  this.midPoints = [];
+  // A hash of the control points that are used to add vertices to the existing
+  // feature.  These are the existing points that
+  // control the look and feel of the symbol.
+  this.addPoints = [];
 
   // make a copy of feature as we do not want to change the feature passed in.
   this.featureCopy = emp.helpers.copyObject(args.feature);
@@ -123,6 +125,16 @@ emp.editors.EditorBase.prototype.isControlPoint = function(featureId) {
   return result;
 };
 
+emp.editors.EditorBase.prototype.isAddPoint = function(featureId) {
+  var result = false;
+
+  if (this.addPoints[featureId]) {
+    result = true;
+  }
+
+  return result;
+};
+
 /**
  * Return true if the featureId passed in is the feature that is
  * being edited.
@@ -141,7 +153,7 @@ emp.editors.EditorBase.prototype.isFeature = function(featureId) {
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
  */
-emp.editors.EditorBase.prototype.moveControlPoint = function(featureId, x, y, pointer) {
+emp.editors.EditorBase.prototype.moveControlPoint = function(featureId, pointer) {
 
   var controlPoint,
     transaction;
@@ -164,6 +176,68 @@ emp.editors.EditorBase.prototype.moveControlPoint = function(featureId, x, y, po
   transaction.run();
 
 };
+
+/**
+ * Starts the move of an add point. Turns the add point into a vertex and creates
+ * a new add point
+ */
+emp.editors.EditorBase.prototype.startMoveAddPoint = function(featureId, pointer) {
+
+  var addPoint,
+    transaction;
+
+  addPoint = this.addPoints[featureId];
+  addPoint.data.coordinates = [pointer.lon, pointer.lat];
+
+  this.controlPoints[featureId] = addPoint;
+  delete this.addPoints[featureId];
+
+
+  transaction = new emp.typeLibrary.Transaction({
+      intent: emp.intents.control.FEATURE_ADD,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+      items: [addPoint]
+  });
+
+  transaction.run();
+
+};
+
+/**
+ * Moves control point passed in to the new location provided.
+ * Also updates the control point and the feature with the change.
+ */
+emp.editors.EditorBase.prototype.moveAddPoint = function(featureId, pointer) {
+
+  var controlPoint,
+    transaction;
+
+  controlPoint = this.controlPoints[featureId];
+  controlPoint.data.coordinates = [pointer.lon, pointer.lat];
+
+  transaction = new emp.typeLibrary.Transaction({
+      intent: emp.intents.control.FEATURE_ADD,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+      items: [controlPoint]
+  });
+
+  transaction.run();
+
+};
+
+
 
 /**
  * Moves the entire feature, offsetting from the starting position.

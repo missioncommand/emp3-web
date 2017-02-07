@@ -76,7 +76,7 @@ emp.editors.Path.prototype.addControlPoints = function() {
         }
       });
 
-      this.midPoints[controlPointFeatureId] = controlPoint;
+      this.addPoints[controlPointFeatureId] = controlPoint;
       items.push(controlPoint);
     } // end for
 
