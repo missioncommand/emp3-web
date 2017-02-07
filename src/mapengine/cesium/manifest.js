@@ -663,7 +663,7 @@ function initializeCesium(args)
             layerBrightnessBlack.isTopLayer = true;
             empCesium.enableLayer(layerBrightnessBlack, true);
             empCesium.stiBrightnessBlack =  layerBrightnessBlack.providers[0].imageryLayer;
-            empCesium.setBackgroundBrightness ((args.configProperties.brightness)?args.configProperties.brightness:0);
+            empCesium.setBackgroundBrightness ((args.configProperties.brightness)?args.configProperties.brightness:50);
             //   brightness tile imagery end
             
             
