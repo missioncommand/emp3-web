@@ -1,6 +1,5 @@
 language: node_js
 node_js:
-  - "5"
   - "6"
 
 before_script:
@@ -17,6 +16,7 @@ deploy:
   file:
     - "dist/zips/EMP3 Developer Guide.zip"
     - "dist/zips/emp3.zip"
+    - "dist/zips/emp3-map.zip"
     - "dist/zips/emp3-jsdocs.zip"
   on:
     tags: true
