@@ -3002,6 +3002,15 @@ function EmpCesium()
                                         //}
                                         //else
                                         //{
+                                            if (args.feature.properties.iconUrl.indexOf("data:image") > -1)
+                                            {
+                                            if (args.feature.properties.iconUrl.indexOf("data:image") > -1)
+                                            {
+                                                entity.billboard.image = args.feature.properties.iconUrl;// Cesium.loadImage(base)
+                                            }
+                                            else if (useProxy)
+                                            }
+                                            else if (useProxy)
                                         entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
                                         if (!this.defined(entity.label))
                                         {
