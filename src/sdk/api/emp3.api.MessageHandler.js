@@ -2706,7 +2706,7 @@ emp3.api.MessageHandler = (function() {
           type: message.properties.featureType,
           geoId: message.featureId,
           name: message.name,
-          coordinates: emp3.api.convertLocationArrayToCMAPI(message.feature.coordinates),
+          coordinates: emp3.api.convertGeoJsonToCMAPIPositions(message.feature),
           properties: message.properties
         });
       }
