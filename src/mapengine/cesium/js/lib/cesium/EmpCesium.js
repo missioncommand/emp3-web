@@ -2908,10 +2908,16 @@ function EmpCesium()
         var result = {
             success: true
         },
-        options = {},
+        options = {}, useProxy = true,
                 layer;
         try
         {
+
+            if (args.feature && args.feature.useProxy)
+            {
+                useProxy = args.feature.useProxy;
+            }
+
             options.stroke = EmpCesiumConstants.propertyDefaults.LINE_COLOR;
             options.fill = EmpCesiumConstants.propertyDefaults.FILL_COLOR;
             var geoJsonDataSource = new this.GeoJsonDataSource();
@@ -3002,16 +3008,22 @@ function EmpCesium()
                                         //}
                                         //else
                                         //{
+                                        if (args.feature.properties && args.feature.properties.iconUrl && args.feature.properties.iconUrl.length > 0)
+                                        {
                                             if (args.feature.properties.iconUrl.indexOf("data:image") > -1)
                                             {
-                                            if (args.feature.properties.iconUrl.indexOf("data:image") > -1)
-                                            {
+                                                // no proxy needed for dataUrl
                                                 entity.billboard.image = args.feature.properties.iconUrl;// Cesium.loadImage(base)
                                             }
                                             else if (useProxy)
+                                            {
+                                                entity.billboard.image = new this.ConstantProperty(this.getProxyUrl() + "?url=" + args.feature.properties.iconUrl);
                                             }
-                                            else if (useProxy)
-                                        entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
+                                        }
+                                        else
+                                        {
+                                            entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
+                                        }
                                         if (!this.defined(entity.label))
                                         {
                                             var label = new this.LabelGraphics({"text": args.name});
