@@ -490,25 +490,21 @@ leafLet.utils.milstd = (function() {
             var iZoom = oMap.getZoom();
             var dScale = oArgs.instanceInterface.getScale(iZoom);
             var dMaxLabelScale = oArgs.instanceInterface.dMaxLabelScale;
-            var oSouthWest;
-            var oNorthEast;
             var sBBox = null;
             var oDimension = oMap.getSize();
             var cModifiers = leafLet.utils.milstd.longModifiers;
             var bIsSelected = oArgs.oFeature.isSelected();
             var oSelectAttributes = oArgs.instanceInterface.selectAttributes;
             var bIDLInView = empMapBounds.containsIDL();
-            var pointConverter = new leafLet.utils.milstd.rendererPointConverter(oMap, oDimension.x, oDimension.y, empMapBounds.getNorth(), empMapBounds.getWest(), empMapBounds.getSouth(), empMapBounds.getEast());
-            
-            oSouthWest = empMapBounds.getSouthWest();
-            oNorthEast = empMapBounds.getNorthEast();
+            var pointConverter = new leafLet.utils.renderer.PointConverter(oMap, oDimension.x, oDimension.y, mapBounds, empMapBounds);
             
             if ((mapBounds.getEast() - mapBounds.getWest()) < 180.0) {
-                sBBox = oSouthWest.lng + "," + oSouthWest.lat + "," + oNorthEast.lng + "," + oNorthEast.lat;
+                sBBox = empMapBounds.getWest() + "," + empMapBounds.getSouth() + "," + empMapBounds.getEast() + "," + empMapBounds.getNorth();
             }
-            //console.log("BBox: " + sBBox);
-            //console.log("    map BBox: " + mapBounds.getWest() + "," + mapBounds.getSouth() + "," + mapBounds.getEast() + "," + mapBounds.getNorth());
-            //console.log("  center lng: " + oMap.getCenter().lng);
+            console.log("BBox: " + sBBox);
+            console.log("    map BBox: " + mapBounds.getWest() + "," + mapBounds.getSouth() + "," + mapBounds.getEast() + "," + mapBounds.getNorth());
+            console.log("  center lng: " + oMap.getCenter().lng);
+            console.log("      size x: " + oDimension.x + " y:" + oDimension.y);
 
             try {
                 var sGeoJsonData = oRenderer.RenderSymbol2D(oArgs.sID, oArgs.sName, oArgs.sDescription, oArgs.sSymbolCode, sCoordinateStr, oDimension.x, oDimension.y, sBBox, oArgs.oModifiers, iOutputFormat, oArgs.i2525Version, null, pointConverter);

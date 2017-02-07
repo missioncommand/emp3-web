@@ -149,32 +149,13 @@ leafLet.typeLibrary.EmpBoundary = function(oSouthWest, oNorthEast) {
                     return false;
                 }
 
-                var degSE2Coord = emp.geoLibrary.GetAzimuth({x: degEast, y: degSouth}, {x: oCoordinate.lng, y: oCoordinate.lat});
-
-                if (degWest < degEast) {
-                    // The IDL is not in the bounds.
-                    if (degSE2Coord > 0.0) {
-                        // The Logitude is east of the east edge.
+                if (this.containsIDL()) {
+                    if ((oCoordinate.lng > degEast) && (oCoordinate.lng < degWest)) {
                         return false;
-                    } else {
-                        var degSW2Coord = emp.geoLibrary.GetAzimuth({x: degWest, y: degSouth}, {x: oCoordinate.lng, y: oCoordinate.lat});
-
-                        if (degSW2Coord < 0.0) {
-                            // The Logitude is to the west of the west edge.
-                            return false;
-                        }
                     }
                 } else {
-                    if (degSE2Coord < 0.0) {
-                        // The Logitude is east of the east edge.
+                    if ((oCoordinate.lng < degWest) || (oCoordinate.lng > degEast)) {
                         return false;
-                    } else {
-                        var degSW2Coord = emp.geoLibrary.GetAzimuth({x: degWest, y: degSouth}, {x: oCoordinate.lng, y: oCoordinate.lat});
-
-                        if (degSW2Coord > 0.0) {
-                            // The Logitude is to the west of the west edge.
-                            return false;
-                        }
                     }
                 }
             }

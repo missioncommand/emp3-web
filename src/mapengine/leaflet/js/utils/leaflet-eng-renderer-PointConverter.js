@@ -1,60 +1,30 @@
 /* global leafLet, L, emp, armyc2, sec */
 
 leafLet.utils = leafLet.utils || {};
-leafLet.utils.milstd = leafLet.utils.milstd || {};
+leafLet.utils.renderer = leafLet.utils.renderer || {};
 
-leafLet.utils.milstd.rendererPointConverter = function(leafletMap, pixelWidth, pixelHeight, geoTop, geoLeft, geoBottom, geoRight) {
+leafLet.utils.renderer.PointConverter = function(leafletMap, pixelWidth, pixelHeight, mapBounds, empMapBounds) {
     var privateInterface = {
-        scale: 0,
         pixelWidth: 0,
         pixelHeight: 0,
-        geoTop: 0,
-        geoLeft: 0,
-        geoBottom: 0,
-        geoRight: 0,
-        pixelMultiplierX: 0,
-        pixelMultiplierY: 0,
+        mapBounds: undefined,
+        empMapBounds: undefined,
+        mapCenter: undefined,
+        leafletLatLng: new L.LatLng(0,0),
+        leafletPoint: new L.Point(0,0),
+        point2D: new armyc2.c2sd.graphics2d.Point2D (),
         normalize: true,
-        leafletMap: null;
-        rendererPointConverter: function(leafletMap, pixelWidth, pixelHeight, geoTop, geoLeft, geoBottom, geoRight) {
-            var distanceInDegrees;
-            var distanceInMeters;
-            var scale;
-            
+        leafletMap: undefined,
+        containeIDL: false,
+        rendererPointConverter: function(leafletMap, pixelWidth, pixelHeight, mapBounds, empMapBounds) {
             privateInterface.leafletMap = leafletMap;
             privateInterface.pixelWidth = Number(pixelWidth);
             privateInterface.pixelHeight = Number(pixelHeight);
-            privateInterface.geoTop = Number(geoTop);
-            privateInterface.geoLeft = Number(geoLeft);
-            privateInterface.geoBottom = Number(geoBottom);
-            privateInterface.geoRight = Number(geoRight);
-            privateInterface.pixelMultiplierX = (privateInterface.geoRight - privateInterface.geoLeft) / (privateInterface.pixelWidth);
-            privateInterface.pixelMultiplierY = (privateInterface.geoTop - privateInterface.geoBottom) / (privateInterface.pixelHeight);
-
-            if ((privateInterface.geoRight - privateInterface.geoLeft) < -180) {
-                privateInterface.pixelMultiplierX = (privateInterface.geoRight - privateInterface.geoLeft + 360) / (privateInterface.pixelWidth);
-            }
-
-            if ((privateInterface.geoRight - privateInterface.geoLeft) > 180) {
-                privateInterface.pixelMultiplierX = (360 - (privateInterface.geoRight - privateInterface.geoLeft)) / (privateInterface.pixelWidth);
-            }
-
-            if (privateInterface.geoTop < privateInterface.geoBottom) {
-                privateInterface.pixelMultiplierY = -Math.abs(privateInterface.pixelMultiplierY);
-            } else {
-                privateInterface.pixelMultiplierY = Math.abs(privateInterface.pixelMultiplierY);
-            }
-                
-            distanceInDegrees = Math.abs(privateInterface.geoRight - privateInterface.geoLeft);
-            
-            if(Math.abs(privateInterface.geoRight - privateInterface.geoLeft) > 180) {
-                distanceInDegrees=Math.abs(distanceInDegrees-360);
-            }
-            
-    	    distanceInMeters = (distanceInDegrees / 360) * (40.075 * 1000000);
-            scale = (privateInterface.pixelWidth / distanceInMeters) * (1.0 / 96.0) * (1.0 / 39.37);
-            privateInterface.scale = 1.0 / scale;
-        };
+            privateInterface.mapBounds = mapBounds;
+            privateInterface.empMapBounds = empMapBounds;
+            privateInterface.mapCenter = leafletMap.getCenter();
+            privateInterface.containeIDL = empMapBounds.containsIDL();
+        }
     };
 
     var publicInterface = {
@@ -62,58 +32,75 @@ leafLet.utils.milstd.rendererPointConverter = function(leafletMap, pixelWidth, p
             privateInterface.normalize = value;
         },
         PixelsToGeo: function(pixel) {
-            var coords =  new armyc2.c2sd.graphics2d.Point2D ();
-/*            
-            var x = ((pixel.getX () * privateInterface.pixelMultiplierX) + privateInterface.geoLeft);
-            var y = (privateInterface.geoTop - (pixel.getY () * privateInterface.pixelMultiplierY));
+            privateInterface.leafletPoint.x = pixel.getX();
+            privateInterface.leafletPoint.y = pixel.getY();
+            var latlng = privateInterface.leafletMap.layerPointToLatLng(privateInterface.leafletPoint).wrap();
             
-            if (x > 180) {
-                x -= 360;
-            }
+            console.log("PixeltoGeo: x:" + pixel.getX() + " y:" + pixel.getY() + " => " + latlng.lat + "/" + latlng.lng);
             
-            if (x < -180) {
-                x += 360;
-            }
+            privateInterface.point2D.setLocation(latlng.lng, latlng.lat);
             
-            coords.setLocation(x, y);
-   */
-            var point = new L.Point(pixel.getX(), pixel.getY());
-            var latlng = privateInterface.leafletMap.containerPointToLatLng(point).wrap();
-            
-            coords.setLocation(latlng.lng, latlng.lat);
-            
-            return coords;
+            return privateInterface.point2D;
         },
         GeoToPixels: function(coord) {
-            var pixel =  new armyc2.c2sd.graphics2d.Point2D ();
-/*
-            var x = 0;
-            var y = 0;
-            var calcValue = coord.getX() - privateInterface.geoLeft;
+            var point;
+            var inBoundingBox = false;
+            var tempLng;
             
-            if (privateInterface.normalize) {
-                if (calcValue < -180) {
-                    calcValue += 360;
-                } else if (calcValue > 180) {
-                    calcValue -= 360;
+            privateInterface.leafletLatLng.lat = coord.y;
+            privateInterface.leafletLatLng.lng = coord.x;
+            
+            inBoundingBox = privateInterface.empMapBounds.containsCoordiante(privateInterface.leafletLatLng);
+            
+            if (privateInterface.containeIDL) {
+                // Find the half of the outside lng.
+                tempLng = (privateInterface.empMapBounds.getWest() - privateInterface.empMapBounds.getEast()) / 2.0;
+                tempLng += privateInterface.empMapBounds.getEast();
+                if (privateInterface.mapBounds.getEast() > 180) {
+                    // The IDL is on the right.
+                    if (privateInterface.leafletLatLng.lng < tempLng) {
+                        privateInterface.leafletLatLng.lng += 360;
+                    }
+                } else {
+                    // The IDL is on the left.
+                    if (privateInterface.leafletLatLng.lng > tempLng) {
+                        privateInterface.leafletLatLng.lng -= 360;
+                    }
+                }
+            } else {
+                //inBoundingBox = privateInterface.empMapBounds.containsCoordiante(privateInterface.leafletLatLng);
+
+                if (!inBoundingBox) {
+                    // Find the half of the outside lng.
+                    tempLng = (privateInterface.empMapBounds.getWest() + 180.0);
+                    tempLng += (180.0 - privateInterface.empMapBounds.getEast());
+                    tempLng = tempLng / 2.0;
+                    
+                    if ((privateInterface.empMapBounds.getWest() - tempLng) >= -180) {
+                        tempLng = privateInterface.empMapBounds.getWest() - tempLng;
+                        if (privateInterface.leafletLatLng.lng < tempLng) {
+                            privateInterface.leafletLatLng.lng += 360;
+                        }
+                    } else {
+                        tempLng = privateInterface.empMapBounds.getEast() + tempLng;
+                        if ((privateInterface.empMapBounds.getEast() > privateInterface.leafletLatLng.lng) ||
+                                (privateInterface.leafletLatLng.lng > tempLng)) {
+                            privateInterface.leafletLatLng.lng -= 360;
+                        }
+                    }
                 }
             }
-            x = (calcValue / privateInterface.pixelMultiplierX);
-
-            y = ((privateInterface.geoTop - coord.getY ()) / privateInterface.pixelMultiplierY);
-
-            pixel.setLocation(x, y);
-*/
-            var latlng = new L.LatLng(coord.y, coord.x).wrap();
-            var point = privateInterface.leafletMap.latLngToContainerPoint(latlng);
             
-            pixel.setLocation(point.x, point.);
+            point = privateInterface.leafletMap.latLngToLayerPoint(privateInterface.leafletLatLng);
             
-            return pixel;
+            console.log("GeoToPixel IDL:" + privateInterface.containeIDL + " InBBox:" + inBoundingBox + " Moved:" + (privateInterface.leafletLatLng.lng != coord.x) + " lat/Lng:" + coord.y + "/" + coord.x + "=>  x:" + point.x + " y:" + point.y);
+            privateInterface.point2D.setLocation(point.x, point.y);
+            
+            return privateInterface.point2D;
         }
     };
 
-    privateInterface.rendererPointConverter(pixelWidth, pixelHeight, geoTop, geoLeft, geoBottom, geoRight);
+    privateInterface.rendererPointConverter(leafletMap, pixelWidth, pixelHeight, mapBounds, empMapBounds);
     
     return publicInterface;
 };
