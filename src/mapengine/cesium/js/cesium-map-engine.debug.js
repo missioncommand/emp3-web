@@ -135,11 +135,18 @@ emp.engineDefs.cesiumMapEngine = function (args)
         PULSE_SOFT_LIMIT: 250,
         PULSE_HARD_LIMIT: 300
     };
-    engineInterface.capture.screenshot = function (args)
+    engineInterface.capture.screenshot = function (transaction)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
         console.log("screenshot");
-        return empCesium.canvas.toDataURL();
+         for (var i = 0; i < transaction.items.length; i += 1)
+        {
+            var item = transaction.items[i];
+            if (empCesium.defined(item))
+            {
+                item.dataUrl = empCesium.canvas.toDataURL();
+            }
+        }
     };
     engineInterface.status.get = function (transaction)
     {
