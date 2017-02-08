@@ -25,14 +25,5 @@ module.exports = {
     expand: true,
     cwd: 'dist/devguide/',
     src: ['**']
-  },
-  emp3: {
-    options: {
-      archive: 'dist/zips/emp3.zip',
-      pretty: true
-    },
-    expand: true,
-    cwd: 'dist/emp3-map/emp3/',
-    src: ['**', '../urlproxy.jsp', '../README.md']
   }
 };
