@@ -1,8 +1,22 @@
 language: node_js
 node_js:
-  - "5"
   - "6"
 
 before_script:
   - npm install -g grunt-cli
-script: npm test
+script:
+  - grunt release
+
+deploy:
+  skip_cleanup: true
+  file_glob: true
+  provider: releases
+  api_key:
+    secure: svrLl3tj2rqow7vwBDbwaaBqBb8bp+Ba+clfZuVWDDmubzrMCqM64C+3JjCfgZt8v2WYGKV2zcHEWCiraTvv6mzAsij1/DYgGkjbarKL+nv2MR39SzNYAlxmrKzFlrZ5CBbxYZOUOgmci4EBQTu+/IdCnRwrrwJD6TKI84ITKufw13B+tN2Xr6DP79DmI+Y0SldTbk3ZSboSKZkztTWIccpME/o07nFVAsgXZXEN7YhxI8M6GuVQd/dcd83sqZov+E6qGBTSFEf068qAgJpROcfrVBjo5OlZqEd18NLEGu5ciZYdTT1j6yLZb+tJg4pDY9Ivvs550be3h6P02A+DMVCig47U7b9Qi+6UTfYxFGXt1w9hu+fk43sSWZ6KhkUJ4ATKU+BA/Xv7hUoGTtHUzjRMI09ssVIkxGaHmB0qM5E21thPRqAmYuywt693m16BY/NvfVT1sQKHVn5QTe0pRThEKxM1ryJ6cJC+/F01AO9oNAMs1o1GJrZoYYL3O9YzdHGaFbQEstnJynUdUqtVNWlrfmZTN4BccCz8LUDfHr8cIxj22DdJR/ixgPEro6AbPL9Ku9UjWHHxOeKwQiZqXbQcMyczXFhvOXe6K7josVND0icUoDak/FSR6yapGzYU51hGVCbTb4xW9IsGHwIfEBxAmZvByPbixSaPzIxwTyI=
+  file:
+    - "dist/zips/EMP3 Developer Guide.zip"
+    - "dist/zips/emp3.zip"
+    - "dist/zips/emp3-map.zip"
+    - "dist/zips/emp3-jsdocs.zip"
+  on:
+    tags: true

@@ -32,7 +32,7 @@ module.exports = {
       pretty: true
     },
     expand: true,
-    cwd: 'dist/emp3-map/emp3/',
-    src: ['**', '../urlproxy.jsp', '../README.md']
+    cwd: 'dist/emp3/',
+    src: ['**']
   }
 };

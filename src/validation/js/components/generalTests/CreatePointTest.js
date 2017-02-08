@@ -20,7 +20,8 @@ class CreatePointTest extends Component {
         name: '',
         geoId: '',
         position: '',
-        description: ''
+        description: '',
+        useProxy: false
       },
       selectedOverlayId: selectedOverlayId
     };
@@ -119,7 +120,12 @@ class CreatePointTest extends Component {
     let prop = ev.target.id.split('-')[1],
       feature = {...this.state.feature};
 
-    feature[prop] = ev.target.value;
+    if (prop === "useProxy") {
+      feature[prop] = ev.target.checked;
+    } else {
+      feature[prop] = ev.target.value;
+    }
+
     this.setState({feature: feature});
   }
 
@@ -204,6 +210,11 @@ class CreatePointTest extends Component {
             onClick={() => this.apply()}>
             Update
           </button>
+
+          <div className="mdl-cell mdl-cell--12-col">
+            <label htmlFor="point-useProxy">Use Proxy</label>
+            <input id="point-useProxy" type="checkbox" value={this.state.feature.useProxy} onChange={this.update}/>
+          </div>
 
           <PropertiesBox featureType={emp3.api.enums.FeatureTypeEnum.GEO_POINT}
                          callback={this.updateProperties}
