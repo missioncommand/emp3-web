@@ -2,22 +2,25 @@
 default:
   - 'clean'
   - 'concurrent:minify'
-  - 'copy:appToDist'
+  - 'copy:licenses'
   - 'copy:urlProxyToEMP'
-  - 'concurrent:copyMinifiedEngines'
-  - 'copy:min'
+  - 'concurrent:copyEnginesToEMP'
+
   - 'concurrent:prepUnitTestsRelease'
   - 'runUnitTests'
+
   - 'concurrent:prepValidationRelease'
   - 'concurrent:build'
-  - 'concurrent:copyExtras'
+  - 'injector:validationRelease'
   - 'string-replace'
+
+  - 'copy:appToDist'
+  - 'copy:devguide'
 
 release:
   - 'default'
   - 'war'
   - 'concurrent:compress'
-  - 'copy:cesiumV2'
 
 quick:
   - 'clean'
