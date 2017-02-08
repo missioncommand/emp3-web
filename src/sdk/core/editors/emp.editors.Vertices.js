@@ -1,4 +1,4 @@
-/*global LatLon*/
+emp.editors = emp.editors || {};
 
 /**
  * Keeps track of the control points of an edit graphic while in
@@ -41,94 +41,20 @@ emp.editors.Vertices.prototype.push = function(vertex) {
   }
 };
 
-/**
- * Changes the vertex passed in to a new vertex, and creates
- * two new add points.  The vertex passed in must be an add point,
- * That vertex will turn into a vertex, and two new add points will get
- * created in front and back of that vertex.
- *
- * @return [emp.typeLibrary.Feature] returns back two new points
- */
-emp3.editors.Vertices.prototype.add = function(featureId) {
-  var vertex = this.find(featureId);
-  var front;
-  var back;
-  var frontFeature;
-  var backFeature;
-  var newFrontFeature;
-  var newBackFeature;
-  var currentFeature;
-  var result = [];
-  var pt1, pt2, pt3, midpoint;
+emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
+  var target = this.find(featureId);
 
-  if (vertex) {
-    if (vertex.type === 'add') {
-      vertex.type = 'vertex';
+  vertex.before = target.before;
+  vertex.next = target;
+  target.before = vertex;
+};
 
-      currentFeature = vertex.feature;
+emp.editors.Vertices.prototype.append = function(featureId, vertex) {
+  var target = this.find(featureId);
 
-      // get the midpoint between current point and previous point.
-      backFeature = vertex.before.feature;
-
-      pt1 = new LatLon(backFeature.data.coordinates[0][1], backFeature.data.coordinates[0][0]);
-      pt2 = new LatLon(currentFeature.data.coordinates[0][1], currentFeature.data.coordinates[0][0]);
-
-      // Get the mid point between this vertex and the next vertex.
-      pt3 = pt1.midpointTo(pt2);
-      midpoint = [pt3.lon(), pt3.lat()];
-
-      newBackFeature = new emp.typeLibrary.Feature({
-        overlayId: "vertices",
-        featureId: emp3.api.createGUID(),
-        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-        data: {
-          coordinates: midpoint,
-          type: 'Point'
-        },
-        properties: {
-          iconUrl: "http://localhost:3000/src/sdk/assets/images/orangeHandle16.png"
-        }
-      });
-
-      // get the midpoint between current point and next point.
-      frontFeature = vertex.next.feature;
-
-      pt1 = new LatLon(currentFeature.data.coordinates[0][1], currentFeature.data.coordinates[0][0]);
-      pt2 = new LatLon(frontFeature.data.coordinates[0][1], frontFeature.data.coordinates[0][0]);
-
-      // Get the mid point between this vertex and the next vertex.
-      pt3 = pt1.midpointTo(pt2);
-      midpoint = [pt3.lon(), pt3.lat()];
-
-      newFrontFeature = new emp.typeLibrary.Feature({
-        overlayId: "vertices",
-        featureId: emp3.api.createGUID(),
-        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-        data: {
-          coordinates: midpoint,
-          type: 'Point'
-        },
-        properties: {
-          iconUrl: "http://localhost:3000/src/sdk/assets/images/orangeHandle16.png"
-        }
-      });
-
-      // update vertices with new items.
-      front = new emp.editors.Vertex(newFrontFeature, "add");
-      front.next = vertex.next;
-      vertex.next = front;
-
-      back = new emp.editors.Vertex(newBackFeature, "add");
-      back.before = vertex.before;
-      vertex.before = back;
-
-      currentFeature.properties.iconUrl = "http://localhost:3000/src/sdk/assets/images/blueHandle32.png";
-
-      result = [newBackFeature, newFrontFeature, currentFeature];
-    }
-  }
-
-  return result;
+  vertex.next = target.next;
+  vertex.before = target;
+  target.next = vertex;
 };
 
 /**
@@ -136,4 +62,27 @@ emp3.editors.Vertices.prototype.add = function(featureId) {
  */
 emp.editors.Vertices.prototype.find = function(featureId) {
   return this.list[featureId];
+};
+
+/**
+ * Returns the feature of the specified id.
+ */
+emp.editors.Vertices.prototype.findFeature = function(featureId) {
+  return this.list[featureId].feature;
+};
+
+/**
+ * Returns an array of all the features stored in the vertices.
+ */
+emp.editors.Vertices.prototype.getFeatures = function() {
+  var id,
+    vertex,
+    result = [];
+
+  for (id in this.list) {
+    vertex = this.list[id];
+    result.push(vertex.feature);
+  }
+
+  return result;
 };

@@ -1,3 +1,5 @@
+emp.editors = emp.editors || {};
+
 /**
  * Represents a point that can be manipulated by the user when the map is
  * in edit mode.

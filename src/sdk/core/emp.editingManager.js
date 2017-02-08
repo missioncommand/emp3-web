@@ -100,16 +100,14 @@ emp.editingManager = function(args) {
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
+      } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
         (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.Path({
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else {
+      } else {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.EditorBase({
           feature: feature,
@@ -129,7 +127,7 @@ emp.editingManager = function(args) {
     cancel: function() {
 
       var initFailList = [],
-        transaction;
+      transaction;
 
       initFailList.push(new emp.typeLibrary.Error({
         coreId: editTransaction.items[0].coreId,
@@ -274,10 +272,7 @@ emp.editingManager = function(args) {
         // If we are dragging a control point, we don't want
         // any events going out, because it is not a feature.
         if (activeEditor.isControlPoint(featureId)) {
-          activeEditor.moveControlPoint(featureId, pointer);
-        }
-        else if (activeEditor.isAddPoint(featureId)) {
-          activeEditor.startMoveAddPoint(featureId, pointer);
+          activeEditor.startMoveControlPoint(featureId, pointer);
         }
         else if (activeEditor.isFeature(featureId)) {
           // If this is the feature we are editing, raise a feature drag
@@ -323,9 +318,8 @@ emp.editingManager = function(args) {
 
         if (activeEditor.isControlPoint(featureId)) {
           updateData = activeEditor.moveControlPoint(featureId, pointer);
-        } else if (activeEditor.isAddPoint(featureId)) {
-          activeEditor.moveAddPoint(featureId, pointer);
-        } else if (activeEditor.isFeature(featureId)) {
+        }
+        else if (activeEditor.isFeature(featureId)) {
           updateData = activeEditor.moveFeature(startX, startY, pointer);
         }
 

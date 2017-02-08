@@ -1,4 +1,4 @@
-emp.editors = {} || emp.editors;
+emp.editors = emp.editors || {};
 
 /**
  * Controls the vertices on the map during an edit or draw and the animation
@@ -15,11 +15,6 @@ emp.editors.EditorBase = function(args) {
   // control the vertices of the symbol.
   this.controlPoints = [];
   this.vertices = new emp.editors.Vertices();
-
-  // A hash of the control points that are used to add vertices to the existing
-  // feature.  These are the existing points that
-  // control the look and feel of the symbol.
-  this.addPoints = [];
 
   // make a copy of feature as we do not want to change the feature passed in.
   this.featureCopy = emp.helpers.copyObject(args.feature);
@@ -46,10 +41,12 @@ emp.editors.EditorBase.prototype.addControlPoints = function() {
   if (this.featureCopy.data.type === 'LineString') {
     length = this.featureCopy.data.coordinates.length;
     coordinates = this.featureCopy.data.coordinates;
-  } else if (this.featureCopy.data.type === 'Polygon') {
+  }
+  else if (this.featureCopy.data.type === 'Polygon') {
     length = this.featureCopy.data.coordinates[0].length;
     coordinates = this.featureCopy.data.coordinates[0];
-  } else if (this.featureCopy.data.type === 'Point') {
+  }
+  else if (this.featureCopy.data.type === 'Point') {
     length = 1;
     coordinates = [this.featureCopy.data.coordinates];
   }
@@ -60,28 +57,28 @@ emp.editors.EditorBase.prototype.addControlPoints = function() {
     controlPointFeatureId = emp3.api.createGUID();
     // create a feature for each of these coordinates.
     controlPoint = new emp.typeLibrary.Feature({
-        overlayId: "vertices",
-        featureId: controlPointFeatureId,
-        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-        data: {
-          coordinates: coordinates[i],
-          type: 'Point'
-        }
+      overlayId: "vertices",
+      featureId: controlPointFeatureId,
+      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+      data: {
+        coordinates: coordinates[i],
+        type: 'Point'
+      }
     });
 
     this.controlPoints[controlPointFeatureId] = controlPoint;
   }
 
   transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: this.controlPoints
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: this.controlPoints
   });
 
   transaction.run();
@@ -93,15 +90,15 @@ emp.editors.EditorBase.prototype.removeControlPoints = function() {
   var transaction;
 
   transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-      items: this.controlPoints
+    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+    items: this.vertices.getFeatures()
   });
 
   transaction.run();
@@ -118,17 +115,7 @@ emp.editors.EditorBase.prototype.removeControlPoints = function() {
 emp.editors.EditorBase.prototype.isControlPoint = function(featureId) {
   var result = false;
 
-  if (this.controlPoints[featureId]) {
-    result = true;
-  }
-
-  return result;
-};
-
-emp.editors.EditorBase.prototype.isAddPoint = function(featureId) {
-  var result = false;
-
-  if (this.addPoints[featureId]) {
+  if (this.vertices.find(featureId)) {
     result = true;
   }
 
@@ -162,15 +149,15 @@ emp.editors.EditorBase.prototype.moveControlPoint = function(featureId, pointer)
   controlPoint.data.coordinates = [pointer.lon, pointer.lat];
 
   transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: [controlPoint]
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: [controlPoint]
   });
 
   transaction.run();
@@ -181,63 +168,27 @@ emp.editors.EditorBase.prototype.moveControlPoint = function(featureId, pointer)
  * Starts the move of an add point. Turns the add point into a vertex and creates
  * a new add point
  */
-emp.editors.EditorBase.prototype.startMoveAddPoint = function(featureId, pointer) {
+emp.editors.EditorBase.prototype.startMoveControlPoint = function(featureId, pointer) {
 
-  var addPoint,
-    transaction;
+  // If this is an add point we are moving, we need to add new vertices.
+  var newFeature = this.vertices.findFeature(featureId);
+  newFeature.data.coordinates = [pointer.lon, pointer.lat];
 
-  addPoint = this.addPoints[featureId];
-  addPoint.data.coordinates = [pointer.lon, pointer.lat];
-
-  this.controlPoints[featureId] = addPoint;
-  delete this.addPoints[featureId];
-
-
-  transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: [addPoint]
+  var transaction = new emp.typeLibrary.Transaction({
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: [newFeature]
   });
 
   transaction.run();
 
 };
-
-/**
- * Moves control point passed in to the new location provided.
- * Also updates the control point and the feature with the change.
- */
-emp.editors.EditorBase.prototype.moveAddPoint = function(featureId, pointer) {
-
-  var controlPoint,
-    transaction;
-
-  controlPoint = this.controlPoints[featureId];
-  controlPoint.data.coordinates = [pointer.lon, pointer.lat];
-
-  transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: [controlPoint]
-  });
-
-  transaction.run();
-
-};
-
-
 
 /**
  * Moves the entire feature, offsetting from the starting position.
@@ -257,23 +208,23 @@ emp.editors.EditorBase.prototype.moveFeature = function(startX, startY, pointer)
     this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
 
     item = new emp.typeLibrary.Feature({
-        overlayId: this.featureCopy.overlayId,
-        featureId: this.featureCopy.featureId,
-        format: this.featureCopy.format,
-        data: this.featureCopy.data,
-        properties: this.featureCopy.properties
+      overlayId: this.featureCopy.overlayId,
+      featureId: this.featureCopy.featureId,
+      format: this.featureCopy.format,
+      data: this.featureCopy.data,
+      properties: this.featureCopy.properties
     });
 
     transaction = new emp.typeLibrary.Transaction({
-        intent: emp.intents.control.FEATURE_ADD,
-        mapInstanceId: this.mapInstance.mapInstanceId,
-        transactionId: null,
-        sender: this.mapInstance.mapInstanceId,
-        originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-        source: emp.api.cmapi.SOURCE,
-        messageOriginator: this.mapInstance.mapInstanceId,
-        originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-        items: [item]
+      intent: emp.intents.control.FEATURE_ADD,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+      items: [item]
     });
 
     transaction.run();
@@ -281,6 +232,6 @@ emp.editors.EditorBase.prototype.moveFeature = function(startX, startY, pointer)
 
   //} else if (featureCopy.data.type === 'Polygon') {
 
-//  }
+  //  }
 
 };

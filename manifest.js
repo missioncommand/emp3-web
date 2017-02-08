@@ -64,6 +64,8 @@ var manifest = {
     'src/sdk/core/storage/emp.storage.query.js',
     'src/sdk/core/storage/emp.storage.get.js',
     'src/sdk/core/storage/emp.storage.repopulate.js',
+    'src/sdk/core/editors/emp.editors.Vertex.js',
+    'src/sdk/core/editors/emp.editors.Vertices.js',
     'src/sdk/core/editors/emp.editors.EditorBase.js',
     'src/sdk/core/editors/emp.editors.Point.js',
     'src/sdk/core/editors/emp.editors.Path.js',
