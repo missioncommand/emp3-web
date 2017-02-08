@@ -8,6 +8,15 @@ emp.editors = emp.editors || {};
  * @param {String} "add" or "vertex"  Determines if this is an add point or vertex.
  */
 emp.editors.Vertex = function(feature, type) {
+
+  if (!feature) {
+    throw new Error("Missing parameter: feature");
+  }
+
+  if (!type) {
+    throw new Error("Missing parameter: type");
+  }
+  
   this.feature = feature;
   this.type = type;
   this.next = null; // This is used by Vertices to determine the next vertex in the list.
