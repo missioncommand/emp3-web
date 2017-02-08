@@ -162,8 +162,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
       // get the midpoint between current point and previous point.
       backFeature = currentVertex.before.feature;
 
-      pt1 = new LatLon(backFeature.data.coordinates[0][1], backFeature.data.coordinates[0][0]);
-      pt2 = new LatLon(currentFeature.data.coordinates[0][1], currentFeature.data.coordinates[0][0]);
+      pt1 = new LatLon(backFeature.data.coordinates[1], backFeature.data.coordinates[0]);
+      pt2 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
 
       // Get the mid point between this vertex and the next vertex.
       pt3 = pt1.midpointTo(pt2);
@@ -183,7 +183,7 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
       });
 
       // get the midpoint between current point and next point.
-      frontFeature = currentFeature.next.feature;
+      frontFeature = currentVertex.next.feature;
 
       pt1 = new LatLon(currentFeature.data.coordinates[0][1], currentFeature.data.coordinates[0][0]);
       pt2 = new LatLon(frontFeature.data.coordinates[0][1], frontFeature.data.coordinates[0][0]);

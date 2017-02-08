@@ -51,6 +51,8 @@ emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
   vertex.next = target;
   target.before = vertex;
 
+  this.list[vertex.feature.featureId] = vertex;
+
   this.length++;
 };
 
@@ -60,6 +62,8 @@ emp.editors.Vertices.prototype.append = function(featureId, vertex) {
   vertex.next = target.next;
   vertex.before = target;
   target.next = vertex;
+
+  this.list[vertex.feature.featureId] = vertex;
 
   this.length++;
 };
