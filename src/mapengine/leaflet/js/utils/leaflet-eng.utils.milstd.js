@@ -501,10 +501,10 @@ leafLet.utils.milstd = (function() {
             if ((mapBounds.getEast() - mapBounds.getWest()) < 180.0) {
                 sBBox = empMapBounds.getWest() + "," + empMapBounds.getSouth() + "," + empMapBounds.getEast() + "," + empMapBounds.getNorth();
             }
-            console.log("BBox: " + sBBox);
-            console.log("    map BBox: " + mapBounds.getWest() + "," + mapBounds.getSouth() + "," + mapBounds.getEast() + "," + mapBounds.getNorth());
-            console.log("  center lng: " + oMap.getCenter().lng);
-            console.log("      size x: " + oDimension.x + " y:" + oDimension.y);
+            //console.log("BBox: " + sBBox);
+            //console.log("    map BBox: " + mapBounds.getWest() + "," + mapBounds.getSouth() + "," + mapBounds.getEast() + "," + mapBounds.getNorth());
+            //console.log("  center lng: " + oMap.getCenter().lng);
+            //console.log("      size x: " + oDimension.x + " y:" + oDimension.y);
 
             try {
                 var sGeoJsonData = oRenderer.RenderSymbol2D(oArgs.sID, oArgs.sName, oArgs.sDescription, oArgs.sSymbolCode, sCoordinateStr, oDimension.x, oDimension.y, sBBox, oArgs.oModifiers, iOutputFormat, oArgs.i2525Version, null, pointConverter);
@@ -525,7 +525,6 @@ leafLet.utils.milstd = (function() {
                         "geoJSON returned:\n" + sGeoJsonData + "\n"
                         );
 */
-
                 var oLeaftletGeoJSON = new L.GeoJSON(oGeoJson, {
                     style: function (oGeoJsonfeature) {
                         var oStyle = {};

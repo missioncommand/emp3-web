@@ -131,110 +131,81 @@ leafLet.utils.wrapLongitude = function(oMapBoundry, oLatLng) {
 leafLet.utils.wrapCoordinates = function(oMapBoundry, oLatLngList, bWrappedAlready) {
     var iIndex;
     var lng;
+    var tempLng;
+    var bLnginView;
     var iCoorCnt = oLatLngList.length;
     var bCoordWrapped = bWrappedAlready || false;
     var oMapCenter = oMapBoundry.getCenter();
-    var oNorthEastBoundry = oMapBoundry.getNorthEast().wrap();
-    var oSouthWestBoundry = oMapBoundry.getSouthWest().wrap();
-    var bIDLEast = (oMapBoundry.getEast() > 180.0);
-    var bIDLWest = (oMapBoundry.getWest() < -180.0);
-    var bIDLinView = bIDLEast || bIDLWest;
-    var bLnginView = false;
     var diffWithWest;
     var diffWithEast;
+    var empBoundary = new leafLet.typeLibrary.EmpBoundary(oMapBoundry);
+    var bIDLinView = empBoundary.containsIDL();
     
-    console.log("Start wrapCoordinte");
+    //console.log("Start wrapCoordinte");
     
     for (iIndex = 0; iIndex < iCoorCnt; iIndex++) {
         oLatLngList[iIndex] = oLatLngList[iIndex].wrap();
-/*
-        if (bCoordWrapped) {
-            if (bIDLEast) {
-                if (oLatLngList[iIndex].lng < oSouthWestBoundry.lng) {
-                    console.log("EM Init wrap. " + oLatLngList[iIndex].lng + " => " + (oLatLngList[iIndex].lng + 360));
-                    oLatLngList[iIndex].lng = oLatLngList[iIndex].lng + 360;
-                }
-            } else if (bIDLWest) {
-                if (oLatLngList[iIndex].lng >= oSouthWestBoundry.lng) {
-                    console.log("WM Init wrap. " + oLatLngList[iIndex].lng + " => " + (oLatLngList[iIndex].lng - 360));
-                    oLatLngList[iIndex].lng = oLatLngList[iIndex].lng - 360;
-                }
-            }
-        } else if (bIDLEast) {
-            // The right side of the map went beyond the date line.
-            if (oLatLngList[iIndex].lng < oSouthWestBoundry.lng) {
-                iIndex = -1; // Reset the index to start over;
-                // Once we find 1 that needs wrapping we must wrap all of them.
-                bCoordWrapped = true;
-                continue;
-            }
-        } else if (bIDLWest) {
-            // The left side of the map went beyond the date line.
-            if (oLatLngList[iIndex].lng >= oSouthWestBoundry.lng) {
-                iIndex = -1; // Reset the index to start over;
-                // Once we find 1 that needs wrapping we must wrap all of them.
-                bCoordWrapped = true;
-                continue;
-            }
-        }
-*/
-    }
-/*
-    if (!bCoordWrapped && leafLet.utils.dateLineInFeature(oLatLngList)) {
-    //if (leafLet.utils.dateLineInFeature(oLatLngList)) {
-        // If it didn't wrap we need to check if its on the date line.
-        // If it is, see where is the IDL.
-        for (var iIndex = 0; iIndex < iCoorCnt; iIndex++) {
-            if (oMapCenter.lng > 0) {
-                if (oLatLngList[iIndex].lng < 0) {
-                    //oLatLngList[iIndex] = oLatLngList[iIndex].wrap();
-                    console.log("Feature IDL wrap right. " + oLatLngList[iIndex].lng + " => " + (oLatLngList[iIndex].lng + 360));
-                    oLatLngList[iIndex].lng = oLatLngList[iIndex].lng + 360;
-                    bCoordWrapped = true;
-                }
-            } else if (oLatLngList[iIndex].lng > 0) {
-                //oLatLngList[iIndex] = oLatLngList[iIndex].wrap();
-                console.log("Feature IDL wrap left. " + oLatLngList[iIndex].lng + " => " + (oLatLngList[iIndex].lng - 360));
-                oLatLngList[iIndex].lng = oLatLngList[iIndex].lng - 360;
-                bCoordWrapped = true;
-            }
-        }
-
-        //bCoordWrapped = true;
-    }
-*/
-    for (iIndex = 0; iIndex < iCoorCnt; iIndex++) {
         lng = oLatLngList[iIndex].lng;
         
-        if (bIDLinView && ((lng >= oSouthWestBoundry.lng) || (lng <= oNorthEastBoundry.lng))) {
-            bLnginView = true;
-        } else if (!bIDLinView && ((lng >= oSouthWestBoundry.lng) && (lng <= oNorthEastBoundry.lng))) {
-            bLnginView = true;
+        bLnginView = empBoundary.containsCoordiante(oLatLngList[iIndex]);
+
+        if (bIDLinView) {
+            tempLng = (empBoundary.getWest() - empBoundary.getEast()) / 2.0;
+            tempLng += empBoundary.getEast();
+            if (oMapBoundry.getEast() > 180) {
+                // The IDL is on the right.
+                if (lng < tempLng) {
+                    oLatLngList[iIndex].lng += 360;
+                }
+            } else {
+                // The IDL is on the left.
+                if (lng > tempLng) {
+                    oLatLngList[iIndex].lng -= 360;
+                }
+            }
         } else {
-            bLnginView = false;
+            if (!bLnginView) {
+                // Find the half of the outside lng.
+                tempLng = (empBoundary.getWest() + 180.0);
+                tempLng += (180.0 - empBoundary.getEast());
+                tempLng = tempLng / 2.0;
+                
+                if ((empBoundary.getWest() - tempLng) >= -180) {
+                    tempLng = empBoundary.getWest() - tempLng;
+                    if (lng < tempLng) {
+                        oLatLngList[iIndex].lng += 360;
+                    }
+                } else {
+                    tempLng = empBoundary.getEast() + tempLng;
+                    if (lng > tempLng) {
+                        oLatLngList[iIndex].lng -= 360;
+                    }
+                }
+            }
         }
-        
+        //console.log("IDL:" + bIDLinView + " InBBox:" + bLnginView + " Moved:" + (lng != oLatLngList[iIndex].lng) + " lat/Lng:" + oLatLngList[iIndex].lat + "/" + oLatLngList[iIndex].lng + ((lng != oLatLngList[iIndex].lng)? "(" + oLatLngList[iIndex].lat + "/" + lng + ")": ""));
+
+/*
         if (bLnginView) {
             // The Lng is in view.
             if (oMapCenter.lng >= 0) {
-                if (bIDLinView && (lng <= oNorthEastBoundry.lng)) {
+                if (bIDLinView && (lng <= empBoundary.getEast())) {
                     // Its in view and on the right of the IDL.
                     oLatLngList[iIndex].lng += 360;
                     bCoordWrapped = true;
                 } // Else its in view on the left of the IDL.
             } else {
-                if (bIDLinView && (lng >= oSouthWestBoundry.lng)) {
+                if (bIDLinView && (lng >= empBoundary.getWest())) {
                     // Its in view and on the left of the IDL.
                     oLatLngList[iIndex].lng -= 360;
                     bCoordWrapped = true;
                 }
             }
-            console.log("In View. moved: " + ((lng != oLatLngList[iIndex].lng)?  "true  " + lng + " => " + oLatLngList[iIndex].lng: "false " + lng));
         } else {
             // The Lng is not in view.
             if (bIDLinView) {
-                diffWithWest = oSouthWestBoundry.lng - lng;
-                diffWithEast = lng - oNorthEastBoundry.lng;
+                diffWithWest = empBoundary.getWest() - lng;
+                diffWithEast = lng - empBoundary.getEast();
 
                 // The IDL is in view. So we need to figure out on which side it goes.
                 if (oMapCenter.lng < 0) {
@@ -249,9 +220,12 @@ leafLet.utils.wrapCoordinates = function(oMapBoundry, oLatLngList, bWrappedAlrea
                     }
                          
                 }
+            } else {
+                
             }
-            console.log("Not In View. moved: " + ((lng != oLatLngList[iIndex].lng)?  "true  " + lng + " => " + oLatLngList[iIndex].lng: "false " + lng));
         }
+*/
+        //console.log("IDL in View:" + bIDLinView + " Coord In View:" + bLnginView + " Moved: " + ((lng != oLatLngList[iIndex].lng)?  "true  " + oLatLngList[iIndex].lat + "/" + lng + " => " + oLatLngList[iIndex].lat + "/" + oLatLngList[iIndex].lng: "false " + oLatLngList[iIndex].lat + "/" + lng));
     }
 
     return bCoordWrapped;

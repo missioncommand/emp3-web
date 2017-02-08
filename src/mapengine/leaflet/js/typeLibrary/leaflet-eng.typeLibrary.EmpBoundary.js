@@ -15,10 +15,8 @@ leafLet.typeLibrary.EmpBoundary = function(oSouthWest, oNorthEast) {
         } else if (oNE === undefined) {
             if (oSW instanceof L.LatLngBounds) {
                 if (oSW.getSouthWest() && oSW.getNorthEast()) {
-                    var oSouthWest = oSW.getSouthWest().wrap();
-                    var oNorthEast = oSW.getNorthEast().wrap();
-                    oSW = oSouthWest.wrap();
-                    oNE = oNorthEast.wrap();
+                    oNE = oSW.getNorthEast();
+                    oSW = oSW.getSouthWest();
                 } else {
                     throw new Error("Invalid type oSouthWest.");
                 }
@@ -150,11 +148,11 @@ leafLet.typeLibrary.EmpBoundary = function(oSouthWest, oNorthEast) {
                 }
 
                 if (this.containsIDL()) {
-                    if ((oCoordinate.lng > degEast) && (oCoordinate.lng < degWest)) {
+                    if ((degEast < oCoordinate.lng) && (oCoordinate.lng < degWest)) {
                         return false;
                     }
                 } else {
-                    if ((oCoordinate.lng < degWest) || (oCoordinate.lng > degEast)) {
+                    if ((degEast < oCoordinate.lng) || (oCoordinate.lng < degWest)) {
                         return false;
                     }
                 }
