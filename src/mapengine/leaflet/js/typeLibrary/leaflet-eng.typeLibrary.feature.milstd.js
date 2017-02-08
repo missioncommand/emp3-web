@@ -154,107 +154,139 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
         },
         _getSinglePointIcon: function(oItem, oMainModifiers)
         {
-            var iconUrl;
-            var sModifier;
-            var oModifierArray = [];
-            var oModifiers = {};
-            var sClassName = '';
-            var msa = armyc2.c2sd.renderer.utilities.MilStdAttributes;
-            
-            if (!oMainModifiers.hasOwnProperty('T') ||
-                    (oMainModifiers.hasOwnProperty('T') && (oMainModifiers.T !== oItem.name)))
-            {
-                // If there is no T or its diff than name.
-                oMainModifiers["CN"] = oItem.name;
-            }
-            
-            for (sModifier in oMainModifiers)
-            {
-                if (oMainModifiers.hasOwnProperty(sModifier)) {
-                    switch (sModifier) {
-                        case leafLet.utils.milstd.longModifiers.FILL_COLOR:
-                            if (L.Browser.canvas) {
-                                oModifiers[msa.FillColor] = '#' + oMainModifiers[sModifier];
-                            } else {
-                                oModifiers['fillcolor'] = oMainModifiers[sModifier];
-                            }
-                            break;
-                        case leafLet.utils.milstd.longModifiers.LINE_COLOR:
-                            if (L.Browser.canvas) {
-                                oModifiers[msa.LineColor] = '#' + oMainModifiers[sModifier];
-                            } else {
-                                oModifiers['linecolor'] = oMainModifiers[sModifier];
-                            }
-                            break;
-                        case leafLet.utils.milstd.Modifiers.STANDARD:
-                            oModifiers[sModifier] = oMainModifiers[sModifier];
-                            break;
-                        default:
-                            if (this._modifierOnList(sModifier))
-                            {
-                                oModifiers[sModifier] = oMainModifiers[sModifier];
-                            }
-                            break;
-                    }
-                }
-            }
-            
-            oModifiers.SIZE = this.getEngineInstanceInterface().iMilStdIconSize;
-            if (this.isSelected()) {
-                sClassName = 'icon-selected';
-            }
-            
-            if (L.Browser.canvas) {
-                var image;
+          var iconUrl,
+              sModifier,
+              oModifierArray = [],
+              oModifiers = {},
+              sClassName = '',
+              strippedSymbolCode = '',
+              msa = armyc2.c2sd.renderer.utilities.MilStdAttributes,
+              image,
+              oMilStdIcon,
+              oOffset,
+              oImageBounds,
+              renderingOptimization,
+              baseURL,
+              sModifiers,
+              size;
 
-                image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, oModifiers);
-                iconUrl = image.toDataUrl();
+          if (!oMainModifiers.hasOwnProperty('T') ||
+            (oMainModifiers.hasOwnProperty('T') && (oMainModifiers.T !== oItem.name))) {
+            // If there is no T or its diff than name.
+            oMainModifiers["CN"] = oItem.name;
+          }
 
-                var oOffset = image.getCenterPoint();
-                var oImageBounds = image.getImageBounds();
-                var oMilStdIcon;
-                
-                oMilStdIcon = new L.Icon({
-                    iconUrl:iconUrl,
+          for (sModifier in oMainModifiers) {
+            if (oMainModifiers.hasOwnProperty(sModifier)) {
+              switch (sModifier) {
+                case leafLet.utils.milstd.longModifiers.FILL_COLOR:
+                  if (L.Browser.canvas) {
+                    oModifiers[msa.FillColor] = '#' + oMainModifiers[sModifier];
+                  } else {
+                    oModifiers['fillcolor'] = oMainModifiers[sModifier];
+                  }
+                  break;
+                case leafLet.utils.milstd.longModifiers.LINE_COLOR:
+                  if (L.Browser.canvas) {
+                    oModifiers[msa.LineColor] = '#' + oMainModifiers[sModifier];
+                  } else {
+                    oModifiers['linecolor'] = oMainModifiers[sModifier];
+                  }
+                  break;
+                case leafLet.utils.milstd.Modifiers.STANDARD:
+                  oModifiers[sModifier] = oMainModifiers[sModifier];
+                  break;
+                default:
+                  if (this._modifierOnList(sModifier)) {
+                    oModifiers[sModifier] = oMainModifiers[sModifier];
+                  }
+                  break;
+              }
+            }
+          }
+
+          oModifiers.SIZE = this.getEngineInstanceInterface().iMilStdIconSize;
+          if (this.isSelected()) {
+            sClassName = 'icon-selected';
+          }
+
+          if (L.Browser.canvas) {
+            image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, oModifiers);
+            iconUrl = image.toDataUrl();
+            oOffset = image.getCenterPoint();
+            oImageBounds = image.getImageBounds();
+            oMilStdIcon;
+            if (this.getEngineInstanceInterface().renderingOptimization.viewInZone) {
+              renderingOptimization = this.getEngineInstanceInterface().renderingOptimization;
+              switch (renderingOptimization.viewInZone) {
+                case "farDistanceZone":
+                  switch (oItem.data.symbolCode.charAt(1)) {
+                    case "H":
+                      image = renderingOptimization.farDistanceThreshold.dotImages.RED;
+                      break;
+                    case "F":
+                      image = renderingOptimization.farDistanceThreshold.dotImages.BLUE;
+                      break;
+                    case "N":
+                      image = renderingOptimization.farDistanceThreshold.dotImages.GREEN;
+                      break;
+                    case "U":
+                      image = renderingOptimization.farDistanceThreshold.dotImages.YELLOW;
+                      break;
+                    default:
+                      image = renderingOptimization.farDistanceThreshold.dotImages.YELLOW;
+                      break;
+                  }
+                  iconUrl = 'data:image/svg+xml,' + image;
+                  oMilStdIcon = new L.Icon({
+                    iconUrl: iconUrl,
                     iconAnchor: new L.Point(oOffset.x, oOffset.y),
-                    iconSize: new L.Point(oImageBounds.width, oImageBounds.height),
-                    popupAnchor:  new L.Point(oOffset.x, oOffset.y),
+                    popupAnchor: new L.Point(oOffset.x, oOffset.y),
                     className: sClassName
-                });
-
-                return oMilStdIcon;
+                  });
+                  return oMilStdIcon;
+                  break;
+                case "midDistanceZone":
+                  strippedSymbolCode = oItem.data.symbolCode.slice(0, 10).concat("-----");
+                  image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(strippedSymbolCode, {SIZE: oModifiers.SIZE});
+                  iconUrl = image.toDataUrl();
+                  oOffset = image.getCenterPoint();
+                  oImageBounds = image.getImageBounds();
+                  break;
+              }
             }
-
-            var baseURL;
-            var sModifiers = "";
-
-            for (sModifier in oModifiers)
-            {
-                if (oModifiers.hasOwnProperty(sModifier)) {
-                    oModifierArray.push(sModifier + "=" + oModifiers[sModifier]);
-                }
-            }
-
-            if (oModifierArray.length > 0)
-            {
-                sModifiers = "?" + oModifierArray.join("&");
-            }
-
-            if (!emp.map.engine.rendererUrl || emp.map.engine.rendererUrl === "") {
-                baseURL = location.protocol + "//" + location.host + "/";
-            } else {
-                baseURL = emp.map.engine.rendererUrl;
-            }
-
-            iconUrl = baseURL + "/mil-sym-service/renderer/image/" + oItem.data.symbolCode + sModifiers;
-
-            var size = oModifiers.size || 32;
-            var oMilStdIcon = new L.Icon({
-                iconUrl:iconUrl,
-                className: sClassName
+            oMilStdIcon = new L.Icon({
+              iconUrl: iconUrl,
+              iconAnchor: new L.Point(oOffset.x, oOffset.y),
+              // iconSize: new L.Point(oImageBounds.width, oImageBounds.height),
+              popupAnchor: new L.Point(oOffset.x, oOffset.y),
+              className: sClassName
             });
 
             return oMilStdIcon;
+          }
+          sModifiers = "";
+          for (sModifier in oModifiers) {
+            if (oModifiers.hasOwnProperty(sModifier)) {
+              oModifierArray.push(sModifier + "=" + oModifiers[sModifier]);
+            }
+          }
+          if (oModifierArray.length > 0) {
+            sModifiers = "?" + oModifierArray.join("&");
+          }
+          if (!emp.map.engine.rendererUrl || emp.map.engine.rendererUrl === "") {
+            baseURL = location.protocol + "//" + location.host + "/";
+          } else {
+            baseURL = emp.map.engine.rendererUrl;
+          }
+          iconUrl = baseURL + "/mil-sym-service/renderer/image/" + oItem.data.symbolCode + sModifiers;
+          size = oModifiers.size || 32;
+          oMilStdIcon = new L.Icon({
+            iconUrl: iconUrl,
+            className: sClassName
+          });
+
+          return oMilStdIcon;
         },
         _updateSinglePointFeature: function(oItem, oModifiers, bUpdateIcon)
         {
