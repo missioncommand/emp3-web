@@ -5,7 +5,7 @@ module.exports = {
   prepUnitTestsRelease: ['copy:vendorFilesToUnitTests', 'injector:unitTestsRelease'],
   lintAndMocha: ['eslint:all', 'mocha_phantomjs'],
   prepValidation: ['copy:vendorFilesToValidation', 'injector:validation'],
-  prepValidationRelease: ['copy:vendorFilesToValidation', 'copy:emp3ToValidation', 'injector:validationRelease', 'copy:validationToDist'],
+  prepValidationRelease: ['copy:vendorFilesToValidation', 'copy:emp3ToValidation', 'copy:validationToDist'],
   build: ['webpack:build', 'jsdoc'],
   compress: ['compress:docs', 'compress:devguide', 'compress:app'],
   copyExtras: ['copy:devguide']
