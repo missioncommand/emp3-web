@@ -3,6 +3,7 @@ default:
   - 'clean'
   - 'concurrent:minify'
   - 'copy:appToDist'
+  - 'copy:urlProxyToEMP'
   - 'concurrent:copyMinifiedEngines'
   - 'copy:min'
   - 'concurrent:prepUnitTestsRelease'
@@ -60,7 +61,6 @@ clean:
   - 'remove'
 
 lint:
-  #- 'jshint'
   - 'eslint:sdk'
 
 doc:

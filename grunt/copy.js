@@ -5,6 +5,12 @@ module.exports = {
     src: ['**'],
     dest: 'dist/emp3-map'
   },
+  urlProxyToEMP: {
+    expand: true,
+    cwd: 'src/app/',
+    src: ['urlproxy.jsp', 'README.md'],
+    dest: 'dist/emp3'
+  },
   leaflet: {
     expand: true,
     cwd: 'src/mapengine/leaflet/',
@@ -27,15 +33,9 @@ module.exports = {
     files: [
       {
         expand: true,
-        cwd: 'src/emp3/',
+        cwd: 'dist/emp3/',
         src: ['**'],
-        dest: 'dist/emp3-map/emp3'
-      },
-      {
-        expand: true,
-        cwd: 'dist/minified',
-        src: 'emp3.min.js*',
-        dest: 'dist/emp3-map'
+        dest: 'dist/emp3-map/'
       }
     ]
   },
@@ -78,7 +78,7 @@ module.exports = {
       dest: 'dist/devguide/emp3'
     }, {
       expand: true,
-      cwd: 'dist/minified',
+      cwd: 'dist/emp3-map',
       src: ['**'],
       dest: 'dist/devguide/emp3'
     }, {

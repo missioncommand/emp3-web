@@ -8,6 +8,10 @@ module.exports = {
         {
           pattern: /mapengine\//g,
           replacement: '../emp3-'
+        },
+        {
+          pattern: /"debug": true/g,
+          replacement: '"debug": false'
         }
       ]
     }
