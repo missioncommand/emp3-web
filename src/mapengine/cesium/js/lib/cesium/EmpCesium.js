@@ -125,7 +125,7 @@ function EmpCesium()
     this.enableRenderingOptimization = false;
     this.editorFeatureDraggingEnable = false;
     this.selectionColor = EmpCesiumConstants.selectionProperties.COLOR;// YELLOW BY DEFAULT
-    this.selectionColor_hex = EmpCesiumConstants.selectionProperties.COLOR_HEX;// YELLOW BY DEFAULT
+    this.selectionColorHex = EmpCesiumConstants.selectionProperties.COLOR_HEX;// YELLOW BY DEFAULT
     this.selectionScale = 1;// 1 BY DEFAULT / only applies to single points.
     this.secRendererWorker = {};
     this.secRendererWorker.A = undefined;
@@ -4454,6 +4454,8 @@ function EmpCesium()
                                     name: item.name,
                                     properties: emp.helpers.copyObject(item.properties)
                                 };
+                                this.storeFeatureSelection(selectionProperties[item.id].id, selectionProperties);
+                                var itemSelected = emp.helpers.copyObject(item);
                                 basicSymbolID = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(selectionProperties[item.id].symbolCode);
                                 switch (basicSymbolID)
                                 {
@@ -4462,17 +4464,16 @@ function EmpCesium()
                                     case "S*U*WDM---*****":
                                     case "S*U*ND----*****":
                                     case "S*U*X-----*****":
-                                        selectionProperties[item.id].properties.fillColor = this.selectionColor_hex;
+                                        itemSelected.properties.fillColor = this.selectionColorHex;
                                         //selectionProperties[item.id].properties.fillColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                                         break;
                                     default:
-                                        selectionProperties[item.id].properties.lineColor = this.selectionColor_hex;
-                                        ;
+                                        itemSelected.properties.lineColor = this.selectionColorHex;
                                         //selectionProperties[item.id].properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                                         break;
                                 }
-                                this.storeFeatureSelection(selectionProperties[item.id].id, selectionProperties);
                             }
+
                             billboardCollection = layer.getFeature(item.id);
                             //check if only the coordinates changed. If only the coordinates there is no need to call the renderer.
                             if ((billboardCollection._billboards[0].name !== args.name) && (this.iconLabelOption !== 'none'))
@@ -4573,7 +4574,7 @@ function EmpCesium()
 
                             if (callRenderer)
                             {
-                                billboard = selectionProperties !== undefined ? this.getSinglePointBillboardPrimitive([selectionProperties[item.id]])[0] : this.getSinglePointBillboardPrimitive([item])[0];
+                                billboard = selectionProperties !== undefined ? this.getSinglePointBillboardPrimitive([itemSelected])[0] : this.getSinglePointBillboardPrimitive([item])[0];
                                 billboardCollection.updateCount += 1;
 
                             }
@@ -7913,50 +7914,50 @@ function EmpCesium()
                     if (feature.symbolCode)
                     {
                         // Create a yellow MIL-STD-2525 single point.
-                        if (feature.billboard)
-                        {
-                            selectionProperties.symbolCode = feature.symbolCode;
-                            selectionProperties.lat = feature.coordinates[0];
-                            selectionProperties.lon = feature.coordinates[1];
-                            selectionProperties.name = feature.name;
-                            //selectionProperties.scale = feature.billboard.scale;
-                            selectionProperties.properties = emp.helpers.copyObject(feature.properties);
-                            var basicSymbolID = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(selectionProperties.symbolCode);
-                            switch (basicSymbolID)
-                            {
-                                case "S*U*WDMG--*****":
-                                case "S*U*WDMM--*****":
-                                case "S*U*WDM---*****":
-                                case "S*U*ND----*****":
-                                case "S*U*X-----*****":
-                                    selectionProperties.properties.fillColor = 'FF' + this.selectionColor_hex;
-                                    //selectionProperties.properties.fillColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
-                                    break;
-                                default:
-                                    selectionProperties.properties.lineColor = 'FF' + this.selectionColor_hex;
-                                    // selectionProperties.properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
-                                    break;
-                            }
-                            feature.billboard = this.getSinglePointBillboard([selectionProperties])[0];
-                            //feature.billboard.scale = this.selectionScale;
-                            delete selectionProperties.properties.lineColor;
-                            delete selectionProperties.properties.fillColor;
-                            if (feature.properties.modifiers)
-                            {
-                                delete feature.properties.modifiers.LINECOLOR;
-                                delete feature.properties.modifiers.FILLCOLOR;
-                            }
-                            else
-                            {
-                                feature.properties.modifiers = {};
-                            }
-                        }
-                        if (rendererData !== undefined && rendererData !== null)
-                        {
-                            feature.rectangle.material.image = rendererData.image;
-                            //feature.rectangle.material.image.setValue(rendererData.image);
-                        }
-                        this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
+//                        if (feature.billboard)
+//                        {
+//                            selectionProperties.symbolCode = feature.symbolCode;
+//                            selectionProperties.lat = feature.coordinates[0];
+//                            selectionProperties.lon = feature.coordinates[1];
+//                            selectionProperties.name = feature.name;
+//                            //selectionProperties.scale = feature.billboard.scale;
+//                            selectionProperties.properties = emp.helpers.copyObject(feature.properties);
+//                            var basicSymbolID = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(selectionProperties.symbolCode);
+//                            switch (basicSymbolID)
+//                            {
+//                                case "S*U*WDMG--*****":
+//                                case "S*U*WDMM--*****":
+//                                case "S*U*WDM---*****":
+//                                case "S*U*ND----*****":
+//                                case "S*U*X-----*****":
+//                                    selectionProperties.properties.fillColor = 'FF' + this.selectionColorHex;
+//                                    //selectionProperties.properties.fillColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
+//                                    break;
+//                                default:
+//                                    selectionProperties.properties.lineColor = 'FF' + this.selectionColorHex;
+//                                    // selectionProperties.properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
+//                                    break;
+//                            }
+//                            feature.billboard = this.getSinglePointBillboard([selectionProperties])[0];
+//                            //feature.billboard.scale = this.selectionScale;
+//                            delete selectionProperties.properties.lineColor;
+//                            delete selectionProperties.properties.fillColor;
+//                            if (feature.properties.modifiers)
+//                            {
+//                                delete feature.properties.modifiers.LINECOLOR;
+//                                delete feature.properties.modifiers.FILLCOLOR;
+//                            }
+//                            else
+//                            {
+//                                feature.properties.modifiers = {};
+//                            }
+//                        }
+//                        if (rendererData !== undefined && rendererData !== null)
+//                        {
+//                            feature.rectangle.material.image = rendererData.image;
+//                            //feature.rectangle.material.image.setValue(rendererData.image);
+//                        }
+//                        this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
                     }
                     else
                     {
@@ -7968,11 +7969,16 @@ function EmpCesium()
                         {
                             selectionProperties.pointColor = undefined;
                         }
-                        selectionProperties.pointScale = (this.defined(feature.billboard.scale)) ? feature.billboard.scale.getValue() : 1;
+                        if (!this.defined(feature.billboard.scale))
+                        {
+                            feature.billboard.scale = 1;
+                        }
+                        selectionProperties.pointScale = feature.billboard.scale.getValue();
                         feature.billboard.color = this.selectionColor;
                         //feature.billboard.color = EmpCesiumConstants.selectionProperties.COLOR;
-                        //changing the scale is affecting the calculations in the starburst.
-                        //feature.billboard.scale = feature.billboard.scale.getValue() + EmpCesiumConstants.selectionProperties.SCALE;
+
+                        //changing the scale is affecting the calculations in the starburst.  OJO
+                        feature.billboard.scale = feature.billboard.scale.getValue() * this.selectionScale;
                     }
                 }
                 if (feature.polyline && !feature.polyline.isPedestal)
@@ -8071,7 +8077,7 @@ function EmpCesium()
                     };
                     selectionProperties.properties = emp.helpers.copyObject(multipoint.properties);
                     selectionProperties.properties.modifiers = emp.typeLibrary.utils.milstd.convertModifierStringTo2525(selectionProperties.properties.modifiers, this.showLabels && showlabelsAtCurrentCameraAltitude);
-                    selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = this.selectionColor_hex;
+                    selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = this.selectionColorHex;
                     //selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = EmpCesiumConstants.selectionProperties.COLOR_HEX;
 
 //                     if ( selectionProperties.properties.modifiers.hasOwnProperty(emp.typeLibrary.utils.milstd.Modifiers.UNIQUE_DESIGNATOR_1) &&
@@ -8096,7 +8102,7 @@ function EmpCesium()
                                 var segmentColor = segmentColorArray[index].split(":");
                                 if (index !== segmentColorArray.length - 1)
                                 {
-                                    selectedAdditionalInfo = segmentColor[0] + ":" + this.selectionColor_hex + ",";
+                                    selectedAdditionalInfo = segmentColor[0] + ":" + this.selectionColorHex + ",";
                                     //selectedAdditionalInfo = segmentColor[0] + ":" + EmpCesiumConstants.selectionProperties.COLOR_HEX + ",";
                                 }
                             }
@@ -8210,7 +8216,7 @@ function EmpCesium()
                     };
                     selectionProperties.properties = emp.helpers.copyObject(multipoint.properties);
                     selectionProperties.properties.modifiers = emp.typeLibrary.utils.milstd.convertModifierStringTo2525(selectionProperties.properties.modifiers, this.showLabels && showlabelsAtCurrentCameraAltitude);
-                    selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = this.selectionColor_hex;
+                    selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = this.selectionColorHex;
                     //selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = EmpCesiumConstants.selectionProperties.COLOR_HEX;
                     selectionProperties.coordinates = cesiumEngine.utils.convertMilStdMultiPointCoordsToString({type: multipoint.data.type, coordinates: multipoint.coordinates});
                     selectionProperties.extent = this.getExtent();
@@ -8327,11 +8333,11 @@ function EmpCesium()
                             case "S*U*WDM---*****":
                             case "S*U*ND----*****":
                             case "S*U*X-----*****":
-                                selectionProperties.properties.fillColor = this.selectionColor_hex;
+                                selectionProperties.properties.fillColor = this.selectionColorHex;
                                 //selectionProperties.properties.fillColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                                 break;
                             default:
-                                selectionProperties.properties.lineColor = this.selectionColor_hex;
+                                selectionProperties.properties.lineColor = this.selectionColorHex;
                                 //selectionProperties.properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                                 break;
                         }
@@ -8350,6 +8356,7 @@ function EmpCesium()
                         billboard.rotation = feature.get(0).rotation;
                         billboard.position = this.Cartesian3.fromDegrees(selectionProperties.lon, selectionProperties.lat, selectionProperties.altitude);
                         //feature.updateCount += 1;
+                        //save unselected style colors after calling the renderer
                         selectionProperties.properties.lineColor = feature.properties.lineColor;
                         selectionProperties.properties.fillColor = feature.properties.fillColor;
                         if (feature.properties.modifiers)
@@ -8371,7 +8378,7 @@ function EmpCesium()
                         billboardCollection.image = billboard.image;
                         billboardCollection.get(0).image = billboard.image;
                         billboardCollection.get(0).pixelOffset = billboard.pixelOffset;
-                        billboardCollection.get(0).scale = this.selectionScale;
+                        // scale already sent to renderer ...  setting scale here shift the pivot point     billboardCollection.get(0).scale = (!this.defined(billboardCollection.get(0).scale) || billboardCollection.get(0).scale === 0)?this.selectionScale:billboardCollection.get(0).scale * this.selectionScale;
                         billboardCollection.updateCount = billboardCollection.updateCount + 1;
                         this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
 
@@ -8501,7 +8508,7 @@ function EmpCesium()
                     {
                         if (this.isFeatureSelected(billboardCollection.id))
                         {
-                            singlePointBatch.properties.lineColor = this.selectionColor_hex;
+                            singlePointBatch.properties.lineColor = this.selectionColorHex;
                             //singlePointBatch.properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                         }
                         if (layer.isFeaturePresentById(billboardCollection.id))
@@ -8584,7 +8591,7 @@ function EmpCesium()
                 {
                     if (this.isFeatureSelected(billboardCollection.id))
                     {
-                        singlePointBatch.properties.lineColor = this.selectionColor_hex;
+                        singlePointBatch.properties.lineColor = this.selectionColorHex;
                         //singlePointBatch.properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                     }
                     if (this.isFeaturePresent(billboardCollection.id))
@@ -8645,6 +8652,37 @@ function EmpCesium()
 
         }
     };
+
+
+    this.updateSelections = function ()
+    {
+        var id;
+        try
+        {
+            var selections = this.getSelections();
+            for (id in selections)
+            {
+                var feature = this.getFeature(id);
+                if (this.defined(feature))
+                {
+                    var selectionArgs = {
+                        featureId: feature.featureId,
+                        coreId: feature.id,
+                        overlayId: feature.overlayId,
+                        sendEvent: false,
+                        isApiInitiatedSelection : true
+                    };
+                    this.manageDeselect(selectionArgs);
+                    this.manageSelect(selectionArgs);
+                }
+            }
+        }
+        catch (e)
+        {
+
+        }
+    };
+
     /**
      * @desc Adds a mil std 2525 multi point symbol
      *
