@@ -847,18 +847,22 @@ emp.map = function (args) {
       },
       /**
        * @public
-       * @description This call generates a view change event. It must be called by
-       * a map engine implementation each time the maps view is changed.
+       * @description This call generates a view change event. It must be called by a map engine implementation each
+       * time the maps view is changed.
        * @param {emp.typeLibrary.View.ParameterType} viewArgs This parameter contains the data needed to generate the event.
        * @param {emp.typeLibrary.LookAt.ParameterType} lookAtArgs This parameter contains the data needed to generate the lookAt
+       * @param {emp3.api.enums.CameraEventType} mapViewEventEnum
        */
       ViewChange: function (viewArgs, lookAtArgs, mapViewEventEnum) {
 
         if (!bReloadInProgress) {
           var view = new emp.typeLibrary.View(viewArgs);
-          view.animate = mapViewEventEnum;
+          // reverse the enum value
+          view.animate = (mapViewEventEnum === emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION ? 1 : 0);
+
           var lookAt = new emp.typeLibrary.LookAt(lookAtArgs);
-          lookAt.animate = mapViewEventEnum;
+          // reverse the enum value
+          lookAt.animate = (mapViewEventEnum === emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION ? 1 : 0);
 
           // Set the stored map view for map swaps
           oViewCenter.lat = view.location.lat;
