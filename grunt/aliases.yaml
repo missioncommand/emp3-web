@@ -2,21 +2,25 @@
 default:
   - 'clean'
   - 'concurrent:minify'
-  - 'copy:appToDist'
-  - 'concurrent:copyMinifiedEngines'
-  - 'copy:min'
+  - 'copy:licenses'
+  - 'copy:urlProxyToEMP'
+  - 'concurrent:copyEnginesToEMP'
+
   - 'concurrent:prepUnitTestsRelease'
   - 'runUnitTests'
+
   - 'concurrent:prepValidationRelease'
   - 'concurrent:build'
-  - 'concurrent:copyExtras'
+  - 'injector:validationRelease'
   - 'string-replace'
+
+  - 'copy:appToDist'
+  - 'copy:devguide'
 
 release:
   - 'default'
   - 'war'
   - 'concurrent:compress'
-  - 'copy:cesiumV2'
 
 quick:
   - 'clean'
@@ -60,7 +64,6 @@ clean:
   - 'remove'
 
 lint:
-  #- 'jshint'
   - 'eslint:sdk'
 
 doc:

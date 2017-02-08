@@ -68,6 +68,7 @@ EMPWorldWind.eventHandlers.mouse = {
 
     this.state.autoPanning = EMPWorldWind.constants.NO_PANNING;
     EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, coords);
+
     this.empMapInstance.eventing.Pointer(coords);
   },
   /**

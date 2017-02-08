@@ -2,43 +2,43 @@
 
 // Register a message completion builder for EDIT_BEGIN
 cmapi.map.message.complete.builder[emp.intents.control.EDIT_BEGIN] = {
-    
-    // oTransaction will have a transaction property
-    build: function (oTransaction) {
 
-        var oFeature;
-        var oDetail;
-        var oMsgCompletion = new cmapi.typeLibrary.MessageComplete(oTransaction);
+    // transaction will have a transaction property
+    build: function (transaction) {
 
-        if (oTransaction.failures.length > 0)
+        var feature;
+        var detail;
+        var messageComplete = new cmapi.typeLibrary.MessageComplete(transaction);
+
+        if (transaction.failures.length > 0)
         {
-            if (oTransaction.failures[0].level === emp.typeLibrary.Error.level.INFO)
+            if (transaction.failures[0].level === emp.typeLibrary.Error.level.INFO)
             {
                 // Its being cancelled.
-                oMsgCompletion.status = cmapi.typeLibrary.msgComplete.status.CANCELLED;
-                oFeature = oTransaction.items[0].originFeature;
+                messageComplete.status = cmapi.typeLibrary.msgComplete.status.CANCELLED;
+                feature = transaction.items[0].originFeature;
             }
         }
         else
         {
-            oFeature = oTransaction.items[0].updatedFeature;
+            feature = transaction.items[0].updatedFeature;
         }
-        
-        if (oFeature)
+
+        if (feature)
         {
-            oDetail = {
-                overlayId: oFeature.overlayId,
-                parentId: oFeature.parentId,
-                featureId: oFeature.featureId,
-                name: oFeature.name, 
-                format: oFeature.format,
-                feature: oFeature.data, 
-                properties: oFeature.properties, 
-                menuId: oFeature.menuId
+            detail = {
+                overlayId: feature.overlayId,
+                parentId: feature.parentId,
+                featureId: feature.featureId,
+                name: feature.name,
+                format: feature.format,
+                feature: feature.data,
+                properties: feature.properties,
+                menuId: feature.menuId
             };
-            
-            oMsgCompletion.details = oDetail;
+
+            messageComplete.details = detail;
         }
-        return oMsgCompletion;
+        return messageComplete;
     }
 };

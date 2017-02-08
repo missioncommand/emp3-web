@@ -57,7 +57,6 @@ emp.intents.control = {
   DRAW_COMPLETE: "draw.complete",
   EDIT_BEGIN: "edit.begin",
   EDIT_CANCEL: "edit.cancel",
-  EDIT_COMPLETE: "edit.complete",
   EDIT_END: "edit.end",
   EDIT_ENDED: "edit.ended",
   SELECTION_GET: "selection.get",
@@ -303,6 +302,70 @@ emp.intents.control.transactionComplete = function(args) {
       emp.storage.processTransactionComplete(args);
       break;
   }
+};
+
+/**
+ * This is a temporary function used to determine if we should use new core
+ * editing or the old editing.  Once the full transtion to the new editing is
+ * done remove this.
+ */
+emp.intents.control.useNewEditing = function(args) {
+  var result = false;
+
+  // At this point we need to decide if we are doing this the
+  // old way or new way.  Until all the editors or done, we must
+  // support both.
+  //
+  // In this case we need the format and drawCategory (if it's a MILSymbol)
+  // This will tell me if this is something the new core editors
+  // handle
+  //
+  // remove this code after all core editors have been complete.
+  var originalFeature = args.items[0].originFeature;
+  var symbol;
+  var symbolCode;
+  var standard;
+  var basicCode;
+  var symbolDef;
+  var unitDef;
+  var drawCategory;
+
+  // Determine if this is a MIL Symbol.  The mil symbol categories can greatly
+  // vary, so we need to know the symbol code and standard for this.
+  if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+    symbol = true;
+
+    // get the symbolCode of the MIL Std feature
+    symbolCode = originalFeature.data.symbolCode;
+
+    // Get which standard the symbol is using, by default it is MIL-STD-2525C.
+    if (originalFeature.properties && originalFeature.properties.modifiers) {
+      standard = originalFeature.properties.modifiers.standard || 1;
+    }
+
+    basicCode = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(symbolCode, standard);
+
+    // Determine the draw category.  We do this using our renderer's utility
+    // methods.  The draw category tells us what type of editor to use.
+    if (armyc2.c2sd.renderer.utilities.SymbolDefTable.hasSymbolDef(basicCode, standard)) {
+      symbolDef = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(basicCode, standard);
+      if (symbolDef) {
+        drawCategory = symbolDef.drawCategory;
+      }
+    } else {
+      unitDef = armyc2.c2sd.renderer.utilities.UnitDefTable.getUnitDef(basicCode, standard);
+      if (unitDef) {
+        drawCategory = unitDef.drawCategory;
+      }
+    }
+  }
+
+  if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
+    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT)) {
+    result = true;
+  }
+
+  return result;
 };
 
 emp.intents.control.intentSequenceMapper = (function() {
@@ -993,20 +1056,25 @@ emp.intents.control.intentSequenceMapper = (function() {
           if (oMapInstance && oMapInstance.status) {
             oMapInstance.status.validateState(args);
           }
-        },/*
+        },
         emp.storage.editBegin,
         function(args) {
           var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
+          var useNewEditing;
 
-          if (oMapInstance && oMapInstance.editingManager) {
-            oMapInstance.editingManager.get().edit(args);
-          }
-        }*/
-        function(args) {
-          var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
+          // Check to see if we are using the new editing for this feature.
+          useNewEditing = emp.intents.control.useNewEditing(args);
 
-          if (oMapInstance && oMapInstance.engine) {
-            oMapInstance.engine.edit.begin(args);
+          if (useNewEditing) {
+            // new editing.
+            if (oMapInstance && oMapInstance.editingManager) {
+              oMapInstance.editingManager.get().edit(args);
+            }
+          } else {
+              // old editing.
+            if (oMapInstance && oMapInstance.engine) {
+              oMapInstance.engine.edit.begin(args);
+            }
           }
         }
       ],
@@ -1020,19 +1088,21 @@ emp.intents.control.intentSequenceMapper = (function() {
   intentSequenceMapper[emp.intents.control.EDIT_END] = function() {
     return {
       forward: [
-        /*
+
         function(args) {
           var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
 
-          if (oMapInstance && oMapInstance.status) {
-            oMapInstance.editingManager.get().complete(args);
-          }
-        }*/
-        function(args) {
-          var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
+          // Check to see if we are using the new editing for this feature.
+          var useNewEditing = emp.intents.control.useNewEditing(args);
 
-          if (oMapInstance && oMapInstance.engine) {
-            oMapInstance.engine.edit.end(args);
+          if (useNewEditing) {
+            if (oMapInstance && oMapInstance.status) {
+              oMapInstance.editingManager.get().complete(args);
+            }
+          } else {
+            if (oMapInstance && oMapInstance.engine) {
+              oMapInstance.engine.edit.end(args);
+            }
           }
         }
       ],
@@ -1044,36 +1114,21 @@ emp.intents.control.intentSequenceMapper = (function() {
   };
   intentSequenceMapper[emp.intents.control.EDIT_CANCEL] = function() {
     return {
-      forward: [/*
-        function(args) {
-          var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
-
-          if (oMapInstance && oMapInstance.status) {
-            oMapInstance.editingManager.get().cancel(args);
-          }
-        }*/
-        function(args) {
-          var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
-
-          if (oMapInstance && oMapInstance.engine) {
-            oMapInstance.engine.edit.cancel(args);
-          }
-        }
-      ],
-      exit: [
-        emp.transactionQueue._custom
-      ],
-      constructor: [emp.typeLibrary.Edit]
-    };
-  };
-  intentSequenceMapper[emp.intents.control.EDIT_COMPLETE] = function() {
-    return {
       forward: [
         function(args) {
           var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
 
-          if (oMapInstance && oMapInstance.engine) {
-            oMapInstance.engine.edit.end(args);
+          // Check to see if we are using the new editing for this feature.
+          var useNewEditing = emp.intents.control.useNewEditing(args);
+
+          if (useNewEditing) {
+            if (oMapInstance && oMapInstance.status) {
+              oMapInstance.editingManager.get().cancel(args);
+            }
+          } else {
+            if (oMapInstance && oMapInstance.engine) {
+              oMapInstance.engine.edit.cancel(args);
+            }
           }
         }
       ],
@@ -1485,10 +1540,19 @@ emp.intents.control.intentSequenceMapper = (function() {
   };
   intentSequenceMapper[emp.intents.control.POINTER] = function() {
     return {
-      forward: [/*
+      forward: [  /*
         function(transaction) {
+
           // check to see if we are in edit mode, if not exit.
-          //
+          var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
+          var pointer = transaction.items[0];
+
+          if (oMapInstance && oMapInstance.editingManager) {
+            if (pointer.type === emp.typeLibrary.Pointer.EventType.DRAG) {
+
+            }
+          }
+
           // is it a feature drag event?
           //
           //   if so is it an editing feature?

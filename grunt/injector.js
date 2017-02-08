@@ -25,7 +25,7 @@ module.exports = {
       template: 'test/index_template.html'
     },
     files: {
-      'test/index.html': ['dist/minified/emp3.min.js', 'test/spec/**/*.js']
+      'test/index.html': ['dist/emp3/emp3.min.js', 'test/spec/**/*.js']
     }
   },
   cesium: {
@@ -57,12 +57,11 @@ module.exports = {
   },
   validationRelease: {
     options: {
-      ignorePath: 'dist/emp3-map/',
-      prefix: '..',
+      relative: true,
       template: 'src/validation/index_template.html'
     },
     files: {
-      'src/validation/index.html': 'dist/emp3-map/emp3.min.js'
+      'dist/validation/index.html': 'dist/validation/emp3/emp3.min.js'
     }
   }
 };

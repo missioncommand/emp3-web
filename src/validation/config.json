@@ -91,7 +91,7 @@
           "Use_Proxy_For_Default_Map_Request": false,
           "Minimum_Zoom_Level": 1,
           "Maximum_Zoom_Level": 11,
-          "Default_Tile_Map_Server_URL": "http://localhost:8080/emp-map-tiles/tiles/{z}/{x}/{y}.png"
+          "Default_Tile_Map_Server_URL": "/emp-map-tiles/tiles/{z}/{x}/{y}.png"
         }
       }
     }
