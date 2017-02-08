@@ -19,9 +19,10 @@ emp.editors.Path.prototype.addControlPoints = function() {
     transaction,
     length,
     coordinates,
-    controlPointFeatureId,
     midpoint,
-    items = [];
+    items = [],
+    vertex,
+    addPoint;
 
   // All features entering into this method should be a LineString
   // otherwise this will not work.
@@ -32,11 +33,11 @@ emp.editors.Path.prototype.addControlPoints = function() {
     // Create a feature on the map for each vertex.
     for (i = 0; i < length; i++) {
 
-      controlPointFeatureId = emp3.api.createGUID();
+
       // create a feature for each of these coordinates.
       controlPoint = new emp.typeLibrary.Feature({
         overlayId: "vertices",
-        featureId: controlPointFeatureId,
+        featureId: emp3.api.createGUID(),
         format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
         data: {
           coordinates: coordinates[i],
@@ -47,39 +48,42 @@ emp.editors.Path.prototype.addControlPoints = function() {
         }
       });
 
-      this.controlPoints[controlPointFeatureId] = controlPoint;
+      vertex = new emp.editors.Vertex(controlPoint, "vertex");
+      this.vertices.push(vertex);
       items.push(controlPoint);
+
+      // If there is another point to add, we need to add an "add" controlPoint
+      if (i < length - 1) {
+
+        // find the mid point between this point and the next point.
+        var pt1 = new LatLon(coordinates[i][1], coordinates[i][0]);
+        var pt2 = new LatLon(coordinates[i + 1][1], coordinates[i + 1][0]);
+
+        // Get the mid point between this vertex and the next vertex.
+        var pt3 = pt1.midpointTo(pt2);
+        midpoint = [pt3.lon(), pt3.lat()];
+
+        // create a feature for each of these coordinates.  This
+        // will be our 'add point'
+        addPoint = new emp.typeLibrary.Feature({
+          overlayId: "vertices",
+          featureId: emp3.api.createGUID(),
+          format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+          data: {
+            coordinates: midpoint,
+            type: 'Point'
+          },
+          properties: {
+            iconUrl: "http://localhost:3000/src/sdk/assets/images/orangeHandle16.png"
+          }
+        });
+
+        items.push(addPoint);
+        vertex = new emp.editors.Vertex(addPoint, "add");
+        this.vertices.push(vertex);
+      }
     }
 
-    // Create mid point graphic for each point in between to add new points.
-
-    for (i = 0; i < (length - 1); i++) {
-      controlPointFeatureId = emp3.api.createGUID();
-
-      var pt1 = new LatLon(coordinates[i][1], coordinates[i][0]);
-      var pt2 = new LatLon(coordinates[i + 1][1], coordinates[i + 1][0]);
-
-      // Get the mid point between this vertex and the next vertex.
-      var pt3 = pt1.midpointTo(pt2);
-      midpoint = [pt3.lon(), pt3.lat()];
-
-      // create a feature for each of these coordinates.
-      controlPoint = new emp.typeLibrary.Feature({
-        overlayId: "vertices",
-        featureId: controlPointFeatureId,
-        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-        data: {
-          coordinates: midpoint,
-          type: 'Point'
-        },
-        properties: {
-          iconUrl: "http://localhost:3000/src/sdk/assets/images/orangeHandle16.png"
-        }
-      });
-
-      this.addPoints[controlPointFeatureId] = controlPoint;
-      items.push(controlPoint);
-    } // end for
 
     // Create a line graphic to replace the line that exists.  We do this for the
     // sake of MIL-STD symbols which may take a long time to draw.
@@ -104,6 +108,7 @@ emp.editors.Path.prototype.addControlPoints = function() {
 
 emp.editors.Path.prototype.removeControlPoints = function() {
   // do nothing
+
 };
 
 /**
@@ -111,9 +116,16 @@ emp.editors.Path.prototype.removeControlPoints = function() {
  * This is useful for determining if a featureDrag event should be staticContent
  * out or not.
  */
-emp.editors.Path.prototype.isControlPoint = function() {
-  // there is no control points, never return true.
-  return false;
+emp.editors.Path.prototype.isControlPoint = function(featureId) {
+
+  var result = false;
+
+  // Return true if we found the id.
+  if (this.vertices.find(featureId)) {
+    result = true;
+  }
+
+  return result;
 };
 
 emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) {
@@ -238,11 +250,16 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
     front,
     backFeature,
     frontFeature,
+    nextFrontVertexFeature,
+    nextBackVertexFeature,
     items =[],
     pt1,
     pt2,
     pt3,
-    midpoint;
+    midpoint,
+    newCoordinates,
+    coordinateUpdate,
+    updateData = {};
 
   // First update the control point with new pointer info.
   currentVertex = this.vertices.find(featureId);
@@ -253,22 +270,23 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
 
   // now that this point moved, we need to update the points directly to the leaflet
   // and right of this feature.
-  back = currentVertex.behind;
+  back = currentVertex.before;
   front = currentVertex.next;
 
   // Make sure that we are not moving the head.  If we are, skip.
   if (back !== null) {
     backFeature = back.feature;
+    nextBackVertexFeature = back.before.feature;
 
     // get the new location of the backFeature
-    pt1 = new LatLon(backFeature.data.coordinates[0][1], backFeature.data.coordinates[0][0]);
-    pt2 = new LatLon(currentFeature.data.coordinates[0][1], currentFeature.data.coordinates[0][0]);
+    pt1 = new LatLon(nextBackVertexFeature.data.coordinates[1], nextBackVertexFeature.data.coordinates[0]);
+    pt2 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
 
     // Get the mid point between this vertex and the next vertex.
     pt3 = pt1.midpointTo(pt2);
     midpoint = [pt3.lon(), pt3.lat()];
 
-    backFeature.midpoint.data.coordinates = midpoint;
+    backFeature.data.coordinates = midpoint;
 
     items.push(backFeature);
 
@@ -277,15 +295,16 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
   // Make sure that we are not moving the tail.  If we are skip.
   if (front !== null) {
     frontFeature = front.feature;
+    nextFrontVertexFeature = front.next.feature;
     // get the new location of the frontFeature.
-    pt1 = new LatLon(currentFeature.data.coordinates[0][1], currentFeature.data.coordinates[0][0]);
-    pt2 = new LatLon(frontFeature.data.coordinates[0][1], frontFeature.data.coordinates[0][0]);
+    pt1 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
+    pt2 = new LatLon(nextFrontVertexFeature.data.coordinates[1], nextFrontVertexFeature.data.coordinates[0]);
 
     // Get the mid point between this vertex and the next vertex.
     pt3 = pt1.midpointTo(pt2);
     midpoint = [pt3.lon(), pt3.lat()];
 
-    frontFeature.midpoint.data.coordinates = midpoint;
+    frontFeature.data.coordinates = midpoint;
 
     items.push(frontFeature);
   }
@@ -303,6 +322,24 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
   });
 
   transaction.run();
+
+  // Create the return object.  This will tell you which index was changed,
+  // the locations of the new indeces, and the type of change it was.
+  newCoordinates = [{
+    lat: pointer.lat,
+    lon: pointer.lon
+  }];
+
+  coordinateUpdate = {
+      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+      indices: [0], //TODO: Get the correct index.
+      coordinates: newCoordinates
+  };
+
+  updateData.coordinateUpdate = coordinateUpdate;
+  updateData.properties = this.featureCopy.properties;
+
+  return updateData;
 };
 
 /**

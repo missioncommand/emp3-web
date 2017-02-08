@@ -23,16 +23,19 @@ emp.editors.Vertices.prototype.push = function(vertex) {
   if (vertex.feature && vertex.type) {
 
     if (this.head === null) {
-      this.head === vertex;
+      this.head = vertex;
       vertex.before = null;
     }
 
     if (this.tail === null) {
-      this.tail === vertex;
+      this.tail = vertex;
       vertex.next = null;
     } else {
+      vertex.before = this.tail;
       this.tail.next = vertex;
       vertex.next = null;
+      this.tail = vertex;
+
     }
 
     this.list[vertex.feature.featureId] = vertex;
@@ -47,6 +50,8 @@ emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
   vertex.before = target.before;
   vertex.next = target;
   target.before = vertex;
+
+  this.length++;
 };
 
 emp.editors.Vertices.prototype.append = function(featureId, vertex) {
@@ -55,6 +60,8 @@ emp.editors.Vertices.prototype.append = function(featureId, vertex) {
   vertex.next = target.next;
   vertex.before = target;
   target.next = vertex;
+
+  this.length++;
 };
 
 /**
