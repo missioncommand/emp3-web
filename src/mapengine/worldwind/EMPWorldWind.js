@@ -41,6 +41,10 @@ EMPWorldWind.map = function(wwd) {
      */
     editing: false,
     /**
+     * Whether the map is being dragged
+     */
+    dragging: false,
+    /**
      * Placeholder for the last detected mouse down/move/touch event
      */
     lastMousePosition: undefined,
@@ -260,8 +264,7 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
 
   if (args.animate) {
     this.goToAnimator.travelTime = EMPWorldWind.constants.globeMoveTime;
-    this.goToAnimator.goTo(position, args.animateCB || function() {
-      });
+    this.goToAnimator.goTo(position, args.animateCB || function() { });
   } else {
     this.goToAnimator.travelTime = 0;
     this.goToAnimator.goTo(position);
@@ -273,25 +276,42 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
  * @param {object} args
  * @param {number} args.latitude
  * @param {number} args.longitude
- * @param {number} args.altitude
+ * @param {number} [args.altitude] Currently unused by WorldWind
  * @param {number} args.range
  * @param {number} args.tilt
  * @param {number} args.heading
+ * @param {boolean} args.animate
+ * @param {function} args.animateCB
  */
 EMPWorldWind.map.prototype.lookAt = function(args) {
+  // substituting range for altitude for now
+  var position = new WorldWind.Position(args.latitude, args.longitude, args.range);
 
-  this.worldWind.navigator.lookAtLocation.latitude = args.latitude;
-  this.worldWind.navigator.lookAtLocation.longitude = args.longitude;
+  function _completeLookAtMotion() {
+    this.worldWind.navigator.lookAtLocation.latitude = args.latitude;
+    this.worldWind.navigator.lookAtLocation.longitude = args.longitude;
 
-  // TODO implement altitude support in WorldWind
-  window.console.warn('WorldWind.lookAt does not yet support altitude');
-  this.worldWind.navigator.lookAtLocation.altitude = args.altitude;
+    // lookAt does not support altitude in WorldWind yet
+    // this.worldWind.navigator.lookAtLocation.altitude = args.altitude;
 
-  this.worldWind.navigator.range = args.range;
-  this.worldWind.navigator.tilt = args.tilt;
-  this.worldWind.navigator.heading = args.heading;
+    this.worldWind.navigator.range = args.range;
+    this.worldWind.navigator.tilt = args.tilt;
+    this.worldWind.navigator.heading = args.heading;
 
-  this.worldWind.redraw();
+    if (args.animateCB) {
+      args.animateCB();
+    }
+
+    this.worldWind.redraw();
+  }
+
+  if (args.animate) {
+    this.goToAnimator.travelTime = EMPWorldWind.constants.globeMoveTime;
+    this.goToAnimator.goTo(position, _completeLookAtMotion.bind(this));
+  } else {
+    this.goToAnimator.travelTime = 0;
+    this.goToAnimator.goTo(position, _completeLookAtMotion.bind(this));
+  }
 };
 
 /**

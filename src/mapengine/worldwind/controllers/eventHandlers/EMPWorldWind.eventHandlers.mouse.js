@@ -57,6 +57,11 @@ EMPWorldWind.eventHandlers.mouse = {
     var mouseupEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
     mouseupEvent.type = emp.typeLibrary.Pointer.EventType.MOUSEUP;
     EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, mouseupEvent);
+    
+    if (this.state.dragging) {
+      this.state.dragging = false;
+      EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
+    }
     this.empMapInstance.eventing.Pointer(mouseupEvent);
   },
   /**
@@ -88,7 +93,8 @@ EMPWorldWind.eventHandlers.mouse = {
     switch (event.buttons) {
       case 1: // Left button, we're moving the map
       case 2: // Right button, we're tilting/rotating the map
-        EMPWorldWind.eventHandlers.notifyViewChange.call(this);
+        this.state.dragging = true;
+        EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
         break;
       case 4: // Wheel/middle button
       case 8: // 4th button (back)

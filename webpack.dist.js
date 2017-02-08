@@ -10,12 +10,9 @@ module.exports = {
     validation: './src/validation/validation.entry'
   },
   output: {
-    path: path.join(__dirname, 'src/validation/dist'),
+    path: path.join(__dirname, 'dist/validation/dist'),
     filename: '[name].bundle.js',
     publicPath: 'dist/'
-  },
-  externals: {
-    config: 'src/validation/config.json'
   },
   plugins: [
     new webpack.optimize.DedupePlugin(),
