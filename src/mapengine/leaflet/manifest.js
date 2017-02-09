@@ -131,6 +131,7 @@ function initlializeLeaflet(args) {
       "js/utils/leaflet-eng.utils.kml.js",
       "js/utils/leaflet-eng.utils.airspace.js",
       "js/utils/leaflet-eng.utils.oval.js",
+      "js/utils/leaflet-eng-renderer-PointConverter.js",
 
       "js/typeLibrary/airspace/leaflet-eng.typeLibrary.airspace.attributes.js",
       "js/typeLibrary/airspace/leaflet-eng.typeLibrary.airspace.cylinder.js",
@@ -173,7 +174,7 @@ function initlializeLeaflet(args) {
     ];
 
     if (args.engine.properties && args.engine.properties.hasOwnProperty("debug") && args.engine.properties.debug === true) {
-        if (!$) {
+        if (!window.$) {
           resourceList.push("js/lib/cesium/ThirdParty/jquery-1.11.2.min.js");
         }
         oRetObject = {
@@ -186,7 +187,7 @@ function initlializeLeaflet(args) {
           "emp3-leaflet.min.js"
         ];
 
-        if (!$) {
+        if (!window.$) {
           resourceList.push("js/lib/cesium/ThirdParty/jquery-1.11.2.min.js");
         }
         oRetObject = {

@@ -299,9 +299,11 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
  */
 EMPWorldWind.map.prototype.lookAt = function(args) {
   // substituting range for altitude for now
+
   if (args.range !== 0) {
     args.range = args.range || this.worldWind.navigator.range;
   }
+
   var position = new WorldWind.Position(args.latitude, args.longitude, args.range);
 
   function _completeLookAtMotion() {

@@ -192,6 +192,7 @@
         resourceList.push(engPath + "emp-engine-leaflet/js/utils/leaflet-eng.utils.kml.js");
         resourceList.push(engPath + "emp-engine-leaflet/js/utils/leaflet-eng.utils.airspace.js");
         resourceList.push(engPath + "emp-engine-leaflet/js/utils/leaflet-eng.utils.oval.js");
+        resourceList.push(engPath + "emp-engine-leaflet/js/utils/leaflet-eng-renderer-PointConverter.js");
 
         resourceList.push(engPath + "emp-engine-leaflet/js/typeLibrary/airspace/leaflet-eng.typeLibrary.airspace.attributes.js");
         resourceList.push(engPath + "emp-engine-leaflet/js/typeLibrary/airspace/leaflet-eng.typeLibrary.airspace.cylinder.js");
