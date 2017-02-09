@@ -26,10 +26,13 @@ leafLet.utils.renderer.PointConverter = function(leafletMap, pixelWidth, pixelHe
         set_normalize: function(value) {
             privateInterface.normalize = value;
         },
+        /*
+        This method translates a pixel x/y postion to a lat/lng coordinate.
+        The Lat/Lng is normalized.
+        */
         PixelsToGeo: function(pixel) {
             var leafletPoint = new L.Point(pixel.getX(), pixel.getY());
             var point2D = new armyc2.c2sd.graphics2d.Point2D ();
-            //var latlng = privateInterface.leafletMap.layerPointToLatLng(leafletPoint).wrap();
             var latlng = privateInterface.leafletMap.containerPointToLatLng(leafletPoint).wrap();
             
             //console.log("PixeltoGeo: x:" + pixel.getX() + " y:" + pixel.getY() + " => " + latlng.lat + "/" + latlng.lng);
@@ -38,6 +41,13 @@ leafLet.utils.renderer.PointConverter = function(leafletMap, pixelWidth, pixelHe
             
             return point2D;
         },
+        /*
+        This method translates a lat/lng coordinate to a pixel x/y position.
+        The lat/lng is normalized then updated based on the map bounding box.
+        The Leaflet map can have a bounding box with an West value < -180 or
+        an East value > 180 when the IDL is in the viewing area.
+        The longitude width of the viewing area is < 180 deg.
+        */
         GeoToPixels: function(coord) {
             var point;
             var inBoundingBox;
@@ -47,27 +57,34 @@ leafLet.utils.renderer.PointConverter = function(leafletMap, pixelWidth, pixelHe
             var leafletPoint = new L.Point(0,0);
             var point2D = new armyc2.c2sd.graphics2d.Point2D ();
             
-            inBoundingBox = privateInterface.empMapBounds.containsCoordiante(leafletLatLng);
+            //inBoundingBox = privateInterface.empMapBounds.containsCoordiante(leafletLatLng);
             
             if (privateInterface.containeIDL) {
-                // Find the half of the outside lng.
+                // The IDL is in the viewing area.
+                // Find the middle of the outside lng degrees.
                 tempLng = (privateInterface.empMapBounds.getWest() - privateInterface.empMapBounds.getEast()) / 2.0;
                 tempLng += privateInterface.empMapBounds.getEast();
                 if (privateInterface.mapBounds.getEast() > 180.0) {
-                    // The IDL is on the right.
+                    // The IDL is on the right of the map.
                     if (leafletLatLng.lng < tempLng) {
+                        // The coordinate is on the right side of the globe
                         leafletLatLng.lng += 360.0;
                     }
                 } else {
-                    // The IDL is on the left.
+                    // West < -180
+                    // The IDL is on the left of the map.
                     if (leafletLatLng.lng > tempLng) {
+                        // The coordinate is on the left side of the globe.
                         leafletLatLng.lng -= 360.0;
                     }
                 }
             } else {
-                //inBoundingBox = privateInterface.empMapBounds.containsCoordiante(privateInterface.leafletLatLng);
+                // the IDL is NOT in the viewing area.
+                inBoundingBox = privateInterface.empMapBounds.containsCoordiante(privateInterface.leafletLatLng);
 
                 if (!inBoundingBox) {
+                    // The coordinate is NOT in the viewing area.
+                    // We need to find on which side of the globe the coordiante is on.
                     // Find the half of the outside lng.
                     tempLng = (privateInterface.empMapBounds.getWest() + 180.0);
                     tempLng += (180.0 - privateInterface.empMapBounds.getEast());
@@ -76,18 +93,19 @@ leafLet.utils.renderer.PointConverter = function(leafletMap, pixelWidth, pixelHe
                     if ((privateInterface.empMapBounds.getWest() - tempLng) >= -180.0) {
                         tempLng = privateInterface.empMapBounds.getWest() - tempLng;
                         if (leafletLatLng.lng < tempLng) {
+                            // The coordinate is not in the viewing area and is on the right side of the globe.
                             leafletLatLng.lng += 360.0;
                         }
                     } else {
                         tempLng = privateInterface.empMapBounds.getEast() + tempLng;
                         if (leafletLatLng.lng > tempLng) {
+                            // The coordinate is not in the viewing area and is on the left side of the globe.
                             leafletLatLng.lng -= 360.0;
                         }
                     }
                  }
             }
-            
-            //point = privateInterface.leafletMap.latLngToLayerPoint(leafletLatLng);
+            // Get the pixel coordainte of the lat/lng coordinate.
             point = privateInterface.leafletMap.latLngToContainerPoint(leafletLatLng);
             
             //console.log("GeoToPixel IDL:" + privateInterface.containeIDL + " InBBox:" + inBoundingBox + " Moved:" + (leafletLatLng.lng != coord.x) + " lat/Lng:" + coord.y + "/" + coord.x + ((leafletLatLng.lng != coord.x)? "(" + leafletLatLng.lat + "/" + leafletLatLng.lng + ")": "") + " =>  x:" + point.x + " y:" + point.y);

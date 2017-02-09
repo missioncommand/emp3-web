@@ -153,18 +153,19 @@ leafLet.utils.wrapCoordinates = function(oMapBoundry, oLatLngList, bWrappedAlrea
             tempLng = (empBoundary.getWest() - empBoundary.getEast()) / 2.0;
             tempLng += empBoundary.getEast();
             if (oMapBoundry.getEast() > 180) {
-                // The IDL is on the right.
+                // The IDL is on the right of the map.
                 if (lng < tempLng) {
                     oLatLngList[iIndex].lng += 360;
                 }
             } else {
-                // The IDL is on the left.
+                // The IDL is on the left of the map.
                 if (lng > tempLng) {
                     oLatLngList[iIndex].lng -= 360;
                 }
             }
         } else {
             if (!bLnginView) {
+                // The coordinate is not in view. We need to calculate where to place the point.
                 // Find the half of the outside lng.
                 tempLng = (empBoundary.getWest() + 180.0);
                 tempLng += (180.0 - empBoundary.getEast());
@@ -184,48 +185,6 @@ leafLet.utils.wrapCoordinates = function(oMapBoundry, oLatLngList, bWrappedAlrea
             }
         }
         //console.log("IDL:" + bIDLinView + " InBBox:" + bLnginView + " Moved:" + (lng != oLatLngList[iIndex].lng) + " lat/Lng:" + oLatLngList[iIndex].lat + "/" + oLatLngList[iIndex].lng + ((lng != oLatLngList[iIndex].lng)? "(" + oLatLngList[iIndex].lat + "/" + lng + ")": ""));
-
-/*
-        if (bLnginView) {
-            // The Lng is in view.
-            if (oMapCenter.lng >= 0) {
-                if (bIDLinView && (lng <= empBoundary.getEast())) {
-                    // Its in view and on the right of the IDL.
-                    oLatLngList[iIndex].lng += 360;
-                    bCoordWrapped = true;
-                } // Else its in view on the left of the IDL.
-            } else {
-                if (bIDLinView && (lng >= empBoundary.getWest())) {
-                    // Its in view and on the left of the IDL.
-                    oLatLngList[iIndex].lng -= 360;
-                    bCoordWrapped = true;
-                }
-            }
-        } else {
-            // The Lng is not in view.
-            if (bIDLinView) {
-                diffWithWest = empBoundary.getWest() - lng;
-                diffWithEast = lng - empBoundary.getEast();
-
-                // The IDL is in view. So we need to figure out on which side it goes.
-                if (oMapCenter.lng < 0) {
-                    if (diffWithWest < diffWithEast) {
-                        oLatLngList[iIndex].lng -= 360;
-                        bCoordWrapped = true;
-                    }
-                } else {
-                    if (diffWithWest > diffWithEast) {
-                        oLatLngList[iIndex].lng += 360;
-                        bCoordWrapped = true;
-                    }
-                         
-                }
-            } else {
-                
-            }
-        }
-*/
-        //console.log("IDL in View:" + bIDLinView + " Coord In View:" + bLnginView + " Moved: " + ((lng != oLatLngList[iIndex].lng)?  "true  " + oLatLngList[iIndex].lat + "/" + lng + " => " + oLatLngList[iIndex].lat + "/" + oLatLngList[iIndex].lng: "false " + oLatLngList[iIndex].lat + "/" + lng));
     }
 
     return bCoordWrapped;
