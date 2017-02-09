@@ -1,4 +1,4 @@
-import React, {Component,PropTypes} from 'react';
+import React, {Component, PropTypes} from 'react';
 import DropdownList from 'react-widgets/lib/DropdownList';
 import {RelatedTests} from '../../containers';
 
@@ -12,37 +12,30 @@ class MapSetMotionLockModeTest extends Component {
     }
 
     this.state = {
-      selectedMapId: selectedMapId,
-      lockMode: emp3.api.enums.MapMotionLockEnum.NO_MOTION
+      selectedMapId: selectedMapId
     };
 
-    this.lockMap = this.lockMap.bind(this);
-    this.unlockMap = this.unlockMap.bind(this);
+    this.setLockState = this.setLockState.bind(this);
   }
 
-  lockMap() {
+  componentWillReceiveProps(props) {
+    if (this.state.selectedMapId === '' && props.maps.length > 0) {
+      this.setState({selectedMapId: _.first(props.maps).geoId});
+    }
+  }
+
+  setLockState(lockState) {
     const {maps} = this.props;
     const map = _.find(maps, {geoId: this.state.selectedMapId});
 
     try {
-      map.setMotionLockMode({mode: this.state.lockMode});
-      toastr.info('Locking ' + map.container);
+      map.setMotionLockMode({mode: lockState});
+      toastr.info('Set Lock State to ' + lockState);
     } catch (err) {
       toastr.error(err.message, 'map.setMotionLockMode: Critical');
     }
   }
 
-  unlockMap() {
-    const {maps} = this.props;
-    const map = _.find(maps, {geoId: this.state.selectedMapId});
-
-    try {
-      map.setMotionLockMode({mode: emp3.api.enums.MapMotionLockEnum.UNLOCKED});
-      toastr.info('Unlocking ' + map.container);
-    } catch (err) {
-      toastr.error(err.message, 'map.setMotionLockMode: Critical');
-    }
-  }
 
   render() {
     const {maps} = this.props;
@@ -60,29 +53,18 @@ class MapSetMotionLockModeTest extends Component {
             value={this.state.selectedMapId}
             onChange={map => this.setState({selectedMapId: map.geoId})}/>
 
-          <button
-            className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
-            disabled={this.state.selectedMapId === ''}
-            onClick={this.lockMap}>
-            <i className='fa fa-lock'/> Lock
-          </button>
+          {_.map(emp3.api.enums.MapMotionLockEnum, (value, key) => {
+            return (
+              <button
+                key={key}
+                className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
+                disabled={this.state.selectedMapId === ''}
+                onClick={this.setLockState.bind(this, value)}>
+                {_.replace(key, /_/g, " ")}
+              </button>);
+          })}
 
-          <button
-            className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
-            disabled={this.state.selectedMapId === ''}
-            onClick={this.unlockMap}>
-            <i className='fa fa-unlock'/> Unlock
-          </button>
-
-          <hr/>
-
-          <div className='mdl-cell mdl-cell--12-col'>
-
-          </div>
-
-          <RelatedTests relatedTests={[
-
-          ]}/>
+          <RelatedTests relatedTests={[]}/>
         </div>
       </div>
     );
