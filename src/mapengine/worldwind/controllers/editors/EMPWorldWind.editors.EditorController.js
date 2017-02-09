@@ -905,7 +905,7 @@ EMPWorldWind.editors.EditorController = (function() {
         case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL:
           empLayer.removeFeature(wwFeature);
           wwFeature.clearShapes();
-          shapes = constructMilStdSymbol.call(this, wwFeature.feature);
+          shapes = constructMilStdSymbol.call(this, wwFeature.feature, this.state.selectionStyle);
           wwFeature.addShapes(shapes);
           empLayer.addFeature(wwFeature);
           break;
