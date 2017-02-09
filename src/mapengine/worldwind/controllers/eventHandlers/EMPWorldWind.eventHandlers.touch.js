@@ -25,7 +25,7 @@ EMPWorldWind.eventHandlers.touch = {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event.touches[0]);
 
     coords.type = emp.typeLibrary.Pointer.EventType.MOUSEDOWN;
-    this.state.lastMousePosition = event;
+    this.state.lastInteractionEvent = event;
     this.empMapInstance.eventing.Pointer(coords);
   },
   /**
@@ -34,7 +34,7 @@ EMPWorldWind.eventHandlers.touch = {
    * @this EMPWorldWind.map
    */
   touchend: function(/*event*/) {
-    var coords = EMPWorldWind.utils.getEventCoordinates.call(this, this.state.lastMousePosition.touches[0]);
+    var coords = EMPWorldWind.utils.getEventCoordinates.call(this, this.state.lastInteractionEvent.touches[0]);
 
     coords.type = emp.typeLibrary.Pointer.EventType.MOUSEUP;
     this.empMapInstance.eventing.Pointer(coords);
@@ -60,7 +60,7 @@ EMPWorldWind.eventHandlers.touch = {
     }
 
     // TODO check if map is locked or not before notifying view change
-    this.state.lastMousePosition = event;
+    this.state.lastInteractionEvent = event;
     EMPWorldWind.eventHandlers.notifyViewChange.call(this);
   }
 };
