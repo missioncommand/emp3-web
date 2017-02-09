@@ -31,6 +31,18 @@ EMPWorldWind.constants.WHITE_CONTRAST = 0;
 EMPWorldWind.constants.BLACK_CONTRAST = 1;
 
 /**
+ * No panning state for autoPanning in smart motion
+ * @constant {object}
+ */
+EMPWorldWind.constants.NO_PANNING = {
+  step: 0,
+  up: false,
+  down: false,
+  right: false,
+  left: false
+};
+
+/**
  * @readonly
  * @type {number}
  */

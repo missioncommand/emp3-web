@@ -36,9 +36,10 @@ EMPWorldWind.eventHandlers.throttle = function (fn, threshold, scope) {
  * NOTE: The altitude, latitude, and longitude for the returned view may not be accurate as they are still based on
  * the navigator which is based on the lookAt location.
  *
+ * @param {emp3.api.enums.CameraEventType} [viewEventType]
  * @this EMPWorldWind.map
  */
-EMPWorldWind.eventHandlers.notifyViewChange = function() {
+EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
   var view = {
     range: this.worldWind.navigator.range,
     tilt: this.worldWind.navigator.tilt,
@@ -61,7 +62,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function() {
     longitude: this.worldWind.navigator.lookAtLocation.longitude
   };
 
-  this.empMapInstance.eventing.ViewChange(view, lookAt);
+  this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
 
   // TODO Throttle this call
   //EMPWorldWind.eventHandlers.checkIfRenderRequired.call(this);
@@ -88,5 +89,27 @@ EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
 
     // TODO trigger re-render
     // this.refresh();
+  }
+};
+
+/**
+ *
+ * @param mouseEvent
+ * @param empEventingArgs
+ */
+EMPWorldWind.eventHandlers.extractFeatureFromEvent = function(mouseEvent, empEventingArgs) {
+  var obj, len,
+    pickList = this.worldWind.pick(this.worldWind.canvasCoordinates(mouseEvent.clientX, mouseEvent.clientY));
+
+  len = pickList.objects.length;
+  for (var i = 0; i < len; i++) {
+    obj = pickList.objects[i];
+    if (!obj.isTerrain) {
+      if (obj.userObject.userProperties && obj.userObject.userProperties.id) {
+        empEventingArgs.coreId = obj.userObject.userProperties.id;
+        empEventingArgs.target = "feature";
+        break;
+      }
+    }
   }
 };
