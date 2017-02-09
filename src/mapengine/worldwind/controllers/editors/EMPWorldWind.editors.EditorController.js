@@ -250,7 +250,7 @@ EMPWorldWind.editors.EditorController = (function() {
       feature.symbolCode,
       positions,
       "clampToGround",
-      this.worldWind.navigator.range * 10,
+      this.worldWind.navigator.range / 10,
       bbox,
       modifiers,
       EMPWorldWind.constants.MultiPointRenderType.GEOJSON));

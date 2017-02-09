@@ -134,6 +134,7 @@ EMPWorldWind.map.prototype.initialize = function(map) {
   whiteContrastLayer.attributes.drawOutline = false;
 
   this.contrastLayer = new WorldWind.RenderableLayer('contrast layer');
+  this.contrastLayer.pickEnabled = false;
   this.worldWind.addLayer(this.contrastLayer);
 
   this.contrastLayer.addRenderable(whiteContrastLayer);
