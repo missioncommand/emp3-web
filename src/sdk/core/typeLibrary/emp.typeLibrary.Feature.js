@@ -213,6 +213,8 @@ emp.typeLibrary.Feature = function (args) {
 
   // Check if the iconUrl is a relative path and make an absolute path as some engine GE, WW need an absoplut path to load icons
   if (this.properties.hasOwnProperty("iconUrl")) {
+    // strip off all white space so regular expression in relToAbs does not fail.
+    this.properties.iconUrl = this.properties.iconUrl.trim();
     this.properties.iconUrl = emp.helpers.relToAbs(this.properties.iconUrl);
   }
 
