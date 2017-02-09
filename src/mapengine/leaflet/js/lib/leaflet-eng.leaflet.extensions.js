@@ -14,26 +14,26 @@ L.LatLng.prototype.distanceTo = function (oCoord) {
     var oThis = this.toEmpLatLon();
     var oThat = oCoord.toEmpLatLon();
 
-    return oThis.rhumbDistanceTo(oThat) * 1000.0;
+    return oThis.distanceTo(oThat) * 1000.0;
 };
 
 L.LatLng.prototype.bearingTo = function (oCoord) {
     var oThis = this.toEmpLatLon();
     var oThat = oCoord.toEmpLatLon();
 
-    return oThis.rhumbBearingTo(oThat);
+    return oThis.bearingTo(oThat);
 };
 
 L.LatLng.prototype.destinationPoint = function (brng, dist) {
     var oThis = this.toEmpLatLon();
-    var oThat = oThis.rhumbDestinationPoint(brng, dist / 1000.0);
+    var oThat = oThis.destinationPoint(brng, dist / 1000.0);
 
     return new L.LatLng(oThat._lat, oThat._lon, this.alt);
 };
 
 L.LatLng.prototype.moveCoordinate = function (brng, dist) {
     var oThis = this.toEmpLatLon();
-    var oThat = oThis.rhumbDestinationPoint(brng, dist / 1000.0);
+    var oThat = oThis.destinationPoint(brng, dist / 1000.0);
 
     this.lat = oThat._lat;
     this.lng = oThat._lon;

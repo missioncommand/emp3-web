@@ -35,19 +35,19 @@ emp3.api.events.MapViewChangeEvent = function(args) {
    * @type {emp3.api.enums.EventType.MAP_VIEW_CHANGE}
    * @name emp3.api.events.MapViewChangeEvent#type
    */
-  this.type;
+
   /**
    * The enumeration value that identifies the map view's state associated with this event.
    * @type {emp3.api.enums.MapViewEventEnum}
    * @name emp3.api.events.MapViewChangeEvent#event
    */
-  this.event;
+
   /**
    * The map on which this event was triggered.
    * @type {emp3.api.Map}
    * @name emp3.api.events.MapViewChangeEvent#target
    */
-  this.target;
+
   /**
    * The map's bounds after the event.
    * @type {Bounds}

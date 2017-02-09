@@ -898,7 +898,7 @@ emp.helpers.isUrl = function (s) {
   return regexp.test(s);
 };
 
-emp.helpers.oHiddenSpan = undefined;
+emp.helpers.oHiddenSpan = null;
 
 /**
  *
@@ -909,7 +909,10 @@ emp.helpers.oHiddenSpan = undefined;
  * @returns {{width, height}}
  */
 emp.helpers.getStringPixelDimensions = function (sText, sFontFamily, sFontSize, sFontWeight) {
-  if (emp.helpers.oHiddenSpan === undefined) {
+  var iWidth = 0;
+  var iHeight = 0;
+  
+  if (emp.helpers.oHiddenSpan === null) {
     var style = "position: absolute; visibility: hidden; white-space: nowrap; top: -100px; font-family: " +
       sFontFamily + "; " + "font-size: " + sFontSize + "; font-weight: " + sFontWeight + ";";
 
@@ -918,17 +921,19 @@ emp.helpers.getStringPixelDimensions = function (sText, sFontFamily, sFontSize, 
     textMeasuringSpan.setAttribute("style", style);
     document.body.insertBefore(textMeasuringSpan, null);
 
-    emp.helpers.oHiddenSpan = document.getElementById("#empTextMeasuringSpan");
+    emp.helpers.oHiddenSpan = document.getElementById("empTextMeasuringSpan");
   } else {
     emp.helpers.oHiddenSpan.style.fontFamily = sFontFamily;
     emp.helpers.oHiddenSpan.style.fontSize = sFontSize;
     emp.helpers.oHiddenSpan.style.fontWeight = sFontWeight;
   }
 
-  emp.helpers.oHiddenSpan.innerHTML = sText;
+  if (emp.helpers.oHiddenSpan !== null) {
+      emp.helpers.oHiddenSpan.innerHTML = sText;
 
-  var iWidth = emp.helpers.oHiddenSpan.width;
-  var iHeight = emp.helpers.oHiddenSpan.height;
+      iWidth = emp.helpers.oHiddenSpan.width;
+      iHeight = emp.helpers.oHiddenSpan.height;
+  }
 
   return {
     width: iWidth,
