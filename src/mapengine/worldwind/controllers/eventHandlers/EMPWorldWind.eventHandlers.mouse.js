@@ -6,6 +6,7 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  * @typedef {Object} MouseEvent
  */
 
+
 /**
  * {@link https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent}
  * @typedef {Object} WheelEvent
@@ -21,11 +22,9 @@ EMPWorldWind.eventHandlers.mouse = {
    */
   click: function (event) {
     var clickEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
-
     clickEvent.type = emp.typeLibrary.Pointer.EventType.SINGLE_CLICK;
 
     EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, clickEvent);
-
     this.empMapInstance.eventing.Pointer(clickEvent);
   },
   /**
@@ -58,18 +57,17 @@ EMPWorldWind.eventHandlers.mouse = {
    * @this EMPWorldWind.map
    */
   mouseup: function (event) {
-    var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
-    coords.type = emp.typeLibrary.Pointer.EventType.MOUSEUP;
-
+    var mouseupEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
+    mouseupEvent.type = emp.typeLibrary.Pointer.EventType.MOUSEUP;
+    EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, mouseupEvent);
+    
     if (this.state.dragging) {
       this.state.dragging = false;
       EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
     }
 
     this.state.autoPanning = EMPWorldWind.constants.NO_PANNING;
-    EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, coords);
-
-    this.empMapInstance.eventing.Pointer(coords);
+    this.empMapInstance.eventing.Pointer(mouseupEvent);
   },
   /**
    *
