@@ -81,7 +81,7 @@ emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
 
 emp.editors.Vertices.prototype.append = function(featureId, vertex) {
   var target = this.find(featureId);
-  console.log(this.toString());
+
   if (target) {
     vertex.next = target.next;
     vertex.before = target;
@@ -92,7 +92,7 @@ emp.editors.Vertices.prototype.append = function(featureId, vertex) {
 
     this.length++;
   }
-  console.log(this.toString());
+
 };
 
 /**

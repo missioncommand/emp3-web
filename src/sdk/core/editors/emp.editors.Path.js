@@ -43,7 +43,7 @@ emp.editors.Path.prototype.addControlPoints = function() {
           type: 'Point'
         },
         properties: {
-          iconUrl: "http://localhost:3000/src/sdk/assets/images/blueHandle32.png"
+          iconUrl: emp.ui.images.editPoint
         }
       });
 
@@ -73,7 +73,7 @@ emp.editors.Path.prototype.addControlPoints = function() {
             type: 'Point'
           },
           properties: {
-            iconUrl: "http://localhost:3000/src/sdk/assets/images/orangeHandle16.png"
+            iconUrl: emp.ui.images.addPoint
           }
         });
 
@@ -94,9 +94,6 @@ emp.editors.Path.prototype.addControlPoints = function() {
       data: {
         coordinates: this.vertices.getVerticesAsLineString(),
         type: 'LineString'
-      },
-      properties: {
-        iconUrl: "http://localhost:3000/src/sdk/assets/images/orangeHandle16.png"
       }
     });
 
@@ -171,7 +168,7 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
       currentFeature = currentVertex.feature;
 
       // Change the icon to be that of a vertex.
-      currentFeature.properties.iconUrl = "http://localhost:3000/src/sdk/assets/images/blueHandle32.png";
+      currentFeature.properties.iconUrl = emp.ui.images.editPoint;
 
       // get the midpoint between current point and previous point.
       backFeature = currentVertex.before.feature;
@@ -192,7 +189,7 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
           type: 'Point'
         },
         properties: {
-          iconUrl: "http://localhost:3000/src/sdk/assets/images/orangeHandle16.png"
+          iconUrl: emp.ui.images.addPoint
         }
       });
 
@@ -215,7 +212,7 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
           type: 'Point'
         },
         properties: {
-          iconUrl: "http://localhost:3000/src/sdk/assets/images/orangeHandle16.png"
+          iconUrl: emp.ui.images.addPoint
         }
       });
 
