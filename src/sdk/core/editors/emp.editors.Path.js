@@ -2,7 +2,7 @@
 emp.editors = emp.editors || {};
 
 emp.editors.Path = function(args) {
-
+  this.path = undefined;
   emp.editors.EditorBase.call(this, args);
 };
 
@@ -32,7 +32,6 @@ emp.editors.Path.prototype.addControlPoints = function() {
 
     // Create a feature on the map for each vertex.
     for (i = 0; i < length; i++) {
-
 
       // create a feature for each of these coordinates.
       controlPoint = new emp.typeLibrary.Feature({
@@ -84,9 +83,24 @@ emp.editors.Path.prototype.addControlPoints = function() {
       }
     }
 
-
     // Create a line graphic to replace the line that exists.  We do this for the
     // sake of MIL-STD symbols which may take a long time to draw.
+    // create a feature for each of these coordinates.  This
+    // will be our 'add point'
+    this.path = new emp.typeLibrary.Feature({
+      overlayId: "vertices",
+      featureId: emp3.api.createGUID(),
+      format: emp3.api.enums.FeatureTypeEnum.GEO_PATH,
+      data: {
+        coordinates: this.vertices.getVerticesAsLineString(),
+        type: 'LineString'
+      },
+      properties: {
+        iconUrl: "http://localhost:3000/src/sdk/assets/images/orangeHandle16.png"
+      }
+    });
+
+    items.push(this.path);
 
     // run the transaction and add all the symbols on the map.
     transaction = new emp.typeLibrary.Transaction({
@@ -185,8 +199,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
       // get the midpoint between current point and next point.
       frontFeature = currentVertex.next.feature;
 
-      pt1 = new LatLon(currentFeature.data.coordinates[0][1], currentFeature.data.coordinates[0][0]);
-      pt2 = new LatLon(frontFeature.data.coordinates[0][1], frontFeature.data.coordinates[0][0]);
+      pt1 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
+      pt2 = new LatLon(frontFeature.data.coordinates[1], frontFeature.data.coordinates[0][0]);
 
       // Get the mid point between this vertex and the next vertex.
       pt3 = pt1.midpointTo(pt2);
@@ -208,8 +222,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
       // update vertices with new items.
       front = new emp.editors.Vertex(newFrontFeature, "add");
       back = new emp.editors.Vertex(newBackFeature, "add");
-      this.vertices.insert(currentFeature.featureId, front);
-      this.vertices.append(currentFeature.featureId, back);
+      this.vertices.insert(currentFeature.featureId, back);
+      this.vertices.append(currentFeature.featureId, front);
 
       // Add the new features of items we want to send to the map.
       items.push(newFrontFeature);
@@ -222,6 +236,17 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
     items.push(currentFeature);
 
   } //end if (currentVertex)
+
+  // update the line with the current vertices.
+  // Create a line graphic to replace the line that exists.  We do this for the
+  // sake of MIL-STD symbols which may take a long time to draw.
+  // create a feature for each of these coordinates.  This
+  // will be our 'add point'
+  this.path.data.coordinates = this.vertices.getVerticesAsLineString();
+
+  items.push(this.path);
+
+
 
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
@@ -278,7 +303,7 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
     backFeature = back.feature;
     nextBackVertexFeature = back.before.feature;
 
-    // get the new location of the backFeature
+    // get the new location of the backFeature, the feature in before the current feature
     pt1 = new LatLon(nextBackVertexFeature.data.coordinates[1], nextBackVertexFeature.data.coordinates[0]);
     pt2 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
 
@@ -296,7 +321,7 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
   if (front !== null) {
     frontFeature = front.feature;
     nextFrontVertexFeature = front.next.feature;
-    // get the new location of the frontFeature.
+    // get the new location of the frontFeature. the feature after the current feature.
     pt1 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
     pt2 = new LatLon(nextFrontVertexFeature.data.coordinates[1], nextFrontVertexFeature.data.coordinates[0]);
 
@@ -308,6 +333,11 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
 
     items.push(frontFeature);
   }
+
+  // update the line with the current vertices.
+  this.path.data.coordinates = this.vertices.getVerticesAsLineString();
+
+  items.push(this.path);
 
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,

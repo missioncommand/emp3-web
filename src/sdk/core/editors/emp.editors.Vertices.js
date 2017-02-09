@@ -44,28 +44,55 @@ emp.editors.Vertices.prototype.push = function(vertex) {
   }
 };
 
+emp.editors.Vertices.prototype.toString = function() {
+  var result = "";
+  var current = this.head;
+
+  result = "[";
+
+  while(current !== null) {
+    result += current.feature.featureId;
+    current = current.next;
+
+    if (current !== null) {
+      result += " => ";
+    }
+  }
+
+  result += "]";
+
+  return result;
+};
+
 emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
   var target = this.find(featureId);
 
-  vertex.before = target.before;
-  vertex.next = target;
-  target.before = vertex;
+  if (target) {
+    vertex.before = target.before;
+    vertex.next = target;
+    target.before.next = vertex;
+    target.before = vertex;
 
-  this.list[vertex.feature.featureId] = vertex;
+    this.list[vertex.feature.featureId] = vertex;
 
-  this.length++;
+    this.length++;
+  }
 };
 
 emp.editors.Vertices.prototype.append = function(featureId, vertex) {
   var target = this.find(featureId);
+  console.log(this.toString());
+  if (target) {
+    vertex.next = target.next;
+    vertex.before = target;
+    target.next.before = vertex;
+    target.next = vertex;
 
-  vertex.next = target.next;
-  vertex.before = target;
-  target.next = vertex;
+    this.list[vertex.feature.featureId] = vertex;
 
-  this.list[vertex.feature.featureId] = vertex;
-
-  this.length++;
+    this.length++;
+  }
+  console.log(this.toString());
 };
 
 /**
@@ -96,4 +123,25 @@ emp.editors.Vertices.prototype.getFeatures = function() {
   }
 
   return result;
+};
+
+/**
+ * Return only the vertices of this object as a geojson lineString array.
+ */
+emp.editors.Vertices.prototype.getVerticesAsLineString = function() {
+
+  var coordinates = [];
+  var currentVertex;
+  currentVertex = this.head;
+
+  // loop through the coordinates starting at the beginning.
+  // only get the coordinates that are a vertex.
+  while(currentVertex !== null) {
+    if (currentVertex.type === "vertex") {
+      coordinates.push(currentVertex.feature.data.coordinates);
+    }
+    currentVertex = currentVertex.next;
+  }
+
+  return coordinates;
 };

@@ -294,7 +294,6 @@ emp.editingManager = function(args) {
         activeEditor.startMoveControlPoint(featureId, pointer);
       }
       else {
-        console.log("UNLOCK");
         mapLock = new emp.typeLibrary.Lock({
           lock: false
         });
@@ -346,7 +345,7 @@ emp.editingManager = function(args) {
       var lockMapTransaction;
       var mapLock;
 
-      if (originalFeature && featureId === originalFeature.featureId && activeEditor.isFeature(featureId)) {                
+      if (originalFeature && featureId === originalFeature.featureId && activeEditor.isFeature(featureId)) {
         updateData = activeEditor.moveFeature(startX, startY, pointer);
       }
       else if (activeEditor.isControlPoint(featureId)) {
