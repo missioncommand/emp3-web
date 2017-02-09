@@ -78,7 +78,7 @@ EMPWorldWind.editors.EditorController = (function() {
       selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
       highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
     } else {
-      highlightAttributes.outlineColor = WorldWind.Color.BLACK;
+      highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
     }
 
     if (selectionStyle.fillColor) {
@@ -220,34 +220,27 @@ EMPWorldWind.editors.EditorController = (function() {
    * @private
    */
   function _constructMultiPointMilStdFeature(feature, modifiers, selectionStyle) {
-    var imageInfo, bbox, componentFeature, lineCount, subGeoJSON,
+    var imageInfo, componentFeature, lineCount, subGeoJSON, bbox,
       i, j,
       positions = "",
       shapes = [];
 
     var featureCoords = feature.data.coordinates.join().split(",");
-
-    // Compute bounding box information
-    var lowerLeftX = feature.data.coordinates[0][0],
-      lowerLeftY = feature.data.coordinates[0][1],
-      upperRightX = feature.data.coordinates[0][0],
-      upperRightY = feature.data.coordinates[0][1];
+    var center = [0, 0];
 
     for (i = 0; i < featureCoords.length; i += 2) {
-      lowerLeftX = Math.min(feature.data.coordinates[i / 2][0], lowerLeftX);
-      lowerLeftY = Math.min(feature.data.coordinates[i / 2][1], lowerLeftY);
-      upperRightX = Math.max(feature.data.coordinates[i / 2][0], upperRightX);
-      upperRightY = Math.max(feature.data.coordinates[i / 2][1], upperRightY);
-
+      center[0] += feature.data.coordinates[i / 2][0];
+      center[1] += feature.data.coordinates[i / 2][1];
       positions += featureCoords[i] + "," + featureCoords[i + 1] + " ";
     }
+    center[0] /= feature.data.coordinates.length;
+    center[1] /= feature.data.coordinates.length;
+
+    // This is an estimate for the clipping bounds
+    bbox = Math.max(center[0] - 30, -180) + "," + Math.max(center[1] - 30, -90) + "," +
+      Math.min(center[0] + 30, 180) + "," +  Math.min(center[1] + 30, 90);
 
     positions = positions.trim();
-    bbox = 0.8 * lowerLeftX + "," + 0.8 * lowerLeftY + "," + 1.2 * upperRightX + "," + 1.2 * upperRightY;
-
-    // preserve the bounding box information
-    feature.positions = positions;
-    feature.bbox = bbox;
 
     // TODO get update to renderer to pass back raw JSON object
     imageInfo = JSON.parse(sec.web.renderer.SECWebRenderer.RenderSymbol(
@@ -281,7 +274,7 @@ EMPWorldWind.editors.EditorController = (function() {
           shapes.push(constructSurfacePolylineFromGeoJSON(componentFeature, selectionStyle));
           break;
         case "Point":
-          shapes.push(constructPlacemarkFromGeoJSON(componentFeature, selectionStyle));
+          shapes.push(constructTextFromGeoJSON(componentFeature, selectionStyle));
           break;
         case "Polygon":
           shapes.push(constructSurfacePolygonFromGeoJSON(componentFeature, selectionStyle));
@@ -471,46 +464,6 @@ EMPWorldWind.editors.EditorController = (function() {
     placemark = new WorldWind.Placemark(location, eyeDistanceScaling, attributes);
     placemark.label = feature.name;
     placemark.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
-    placemark.highlightAttributes = new WorldWind.PlacemarkAttributes(highlightAttributes);
-
-    return placemark;
-  }
-
-  /**
-   * @param {object} geoJSON
-   * @param {SelectionStyle} selectionStyle
-   * @returns {WorldWind.Placemark}
-   */
-  function constructPlacemarkFromGeoJSON(geoJSON, selectionStyle) {
-    var color, location, placemark, attributes, highlightAttributes, selectedTextColor,
-      eyeDistanceScaling = true;
-
-    attributes = new WorldWind.PlacemarkAttributes();
-    attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
-    attributes.labelAttributes.offset = new WorldWind.Offset(
-      WorldWind.OFFSET_FRACTION, -0.5,
-      WorldWind.OFFSET_FRACTION, 1.5
-    );
-
-    color = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.fontColor, null, true);
-    attributes.color = new WorldWind.Color(color.r, color.g, color.b, color.a);
-
-    location = new WorldWind.Location(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0], 0);
-
-    highlightAttributes = new WorldWind.TextAttributes();
-    if (selectionStyle.lineColor) {
-      selectedTextColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-      highlightAttributes.color = new WorldWind.Color(selectedTextColor.r, selectedTextColor.g, selectedTextColor.b, selectedTextColor.a);
-    } else {
-      highlightAttributes.color = WorldWind.Color.YELLOW;
-    }
-
-    highlightAttributes.labelAttributes.offset = attributes.labelAttributes.offset;
-    highlightAttributes.labelAttributes.color = highlightAttributes.imageColor;
-
-    placemark = new WorldWind.Placemark(location, eyeDistanceScaling, attributes);
-    //placemark.label = feature.name;
-    placemark.altitudeMode = WorldWind.CLAMP_TO_GROUND;
     placemark.highlightAttributes = new WorldWind.PlacemarkAttributes(highlightAttributes);
 
     return placemark;
@@ -747,6 +700,52 @@ EMPWorldWind.editors.EditorController = (function() {
 
     textPrimitive = new WorldWind.GeographicText(location, feature.name);
     textPrimitive.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
+    textPrimitive.highlightAttributes = highlightAttributes;
+
+    return textPrimitive;
+  }
+  /**
+    * @param {object} geoJSON
+    * @param {SelectionStyle} selectionStyle
+    * @returns {WorldWind.Text}
+    */
+  function constructTextFromGeoJSON(geoJSON, selectionStyle) {
+    var textPrimitive, attributes, highlightAttributes, color, selectedColor, location;
+
+    attributes = new WorldWind.TextAttributes(null);
+    attributes.depthTest = false;
+
+    if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.color) {
+      color = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.labelStyle.color);
+      attributes.color = new WorldWind.Color(color.r, color.g, color.b, color.a);
+    } else {
+      attributes.color = WorldWind.Color.BLACK;
+    }
+
+    if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.family) {
+      attributes.font.family = geoJSON.properties.labelStyle.family;
+    }
+
+    if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.justification) {
+      attributes.font.horizontalAlignment = geoJSON.properties.labelStyle.justification;
+    }
+
+    if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.size) {
+      attributes.font.size = geoJSON.properties.labelStyle.size;
+    }
+
+    highlightAttributes = new WorldWind.TextAttributes();
+    if (selectionStyle.lineColor) {
+      selectedColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.color = new WorldWind.Color(selectedColor.r, selectedColor.g, selectedColor.b, selectedColor.a);
+    } else {
+      highlightAttributes.color = WorldWind.Color.YELLOW;
+    }
+
+    location = new WorldWind.Location(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
+
+    textPrimitive = new WorldWind.GeographicText(location, geoJSON.properties.label);
+    textPrimitive.altitudeMode = geoJSON.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
     textPrimitive.highlightAttributes = highlightAttributes;
 
     return textPrimitive;
