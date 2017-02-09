@@ -1,55 +1,65 @@
 module.exports = {
   appToDist: {
-    expand: true,
-    cwd: 'src/app/',
-    src: ['**'],
-    dest: 'dist/emp3-map'
+    files:[{
+      expand: true,
+      cwd: 'src/app/',
+      src: ['**'],
+      dest: 'dist/emp3-map'
+    }, {
+      expand: true,
+      cwd: 'dist/emp3/',
+      src: ['**'],
+      dest: 'dist/emp3-map/emp3/'
+    }]
   },
   urlProxyToEMP: {
     expand: true,
     cwd: 'src/app/',
-    src: ['urlproxy.jsp', 'README.md'],
+    src: ['urlproxy.jsp'],
     dest: 'dist/emp3'
   },
-  leaflet: {
+  leafletSrc: {
     expand: true,
     cwd: 'src/mapengine/leaflet/',
     src: ['**'],
     dest: 'dist/emp3/emp3-leaflet'
   },
-  cesium: {
+  cesiumSrc: {
     expand: true,
     cwd: 'src/mapengine/cesium/',
     src: ['**'],
     dest: 'dist/emp3/emp3-cesium'
   },
-  worldwind: {
+  worldwindRequired: {
     expand: true,
     cwd: 'src/mapengine/worldwind/',
-    src: ['**'],
+    src: ['manifest.js', 'emp3-worldwind.min.js', 'emp3-worldwind.min.js.map', 'worldwindlib.js', 'images/**'],
     dest: 'dist/emp3/emp3-worldwind'
   },
   min: {
-    files: [
-      {
-        expand: true,
-        cwd: 'dist/emp3/',
-        src: ['**'],
-        dest: 'dist/emp3-map/'
-      }
-    ]
+    expand: true,
+    cwd: 'dist/emp3/',
+    src: ['**'],
+    dest: 'dist/emp3-map/'
   },
   vendorFilesToUnitTests: {
     expand: true,
     cwd: 'src/app/vendor/',
-    src: ['mil-sym/**', 'jquery*'],
+    src: ['mil-sym/**'],
     dest: 'test/vendor/'
   },
   vendorFilesToValidation: {
-    expand: true,
-    cwd: 'src/app/vendor',
-    src: ['**'],
-    dest: 'src/validation/vendor/'
+    files: [{
+      expand: true,
+      cwd: 'src/app/vendor',
+      src: ['mil-sym/**', 'jquery*'],
+      dest: 'src/validation/vendor/'
+    }, {
+      expand: true,
+      cwd: 'src/app/vendor',
+      src: ['mil-sym/**', 'jquery*'],
+      dest: 'dist/validation/vendor/'
+    }]
   },
   cesiumV2: {
     expand: true,
@@ -60,10 +70,12 @@ module.exports = {
     }
   },
   validationToDist: {
-    expand: true,
-    cwd: 'src/validation',
-    src: ['**'],
-    dest: 'dist/emp3-map/validation'
+    files: [{
+      expand: true,
+      cwd: 'src/validation',
+      src: ['config.json', 'images/**', 'resources/**'],
+      dest: 'dist/validation/'
+    }]
   },
   devguide: {
     files: [{
@@ -75,17 +87,25 @@ module.exports = {
       expand: true,
       cwd: 'dist/emp3/',
       src: ['**'],
-      dest: 'dist/devguide/emp3'
-    }, {
-      expand: true,
-      cwd: 'dist/emp3-map',
-      src: ['**'],
-      dest: 'dist/devguide/emp3'
+      dest: 'dist/devguide/emp3/'
     }, {
       expand: true,
       cwd: 'dist/docs/',
       src: ['**'],
       dest: 'dist/devguide/docs/web'
     }]
+  },
+  licenses: {
+    files: [{
+      expand: true,
+      src: ['LICENSE', 'LICENSE-3RD-PARTY'],
+      dest: 'dist/emp3'
+    }]
+  },
+  emp3ToValidation: {
+    expand: true,
+    cwd: 'dist/',
+    src: ['emp3/**'],
+    dest: 'dist/validation/'
   }
 };
