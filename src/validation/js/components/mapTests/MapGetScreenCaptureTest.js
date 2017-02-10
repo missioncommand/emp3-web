@@ -71,11 +71,6 @@ class MapGetScreenCaptureTest extends Component {
   render() {
     const {maps} = this.props;
 
-    let img = new Image();
-    if (this.state.preview) {
-      img.src = this.state.preview;
-    }
-
     return (
       <div className='mdl-grid'>
         <span className='mdl-layout-title'>Get Screen Capture</span>
@@ -91,6 +86,10 @@ class MapGetScreenCaptureTest extends Component {
 
           <div className="mdl-cell mdl-cell--12-col mdl-grid">
             <canvas ref="canvas" width={200} height={200}/>
+          </div>
+
+          <div>
+            {this.state.preview}
           </div>
 
           <RelatedTests relatedTests={[
