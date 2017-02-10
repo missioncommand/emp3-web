@@ -163,7 +163,14 @@ class PropertiesBox extends Component {
 
         this.setState(feature, () => {
           let values = [];
-          let stringArrayValues = this.state.modifiers[prop].split(" ");
+          let stringArrayValues;
+
+          if (this.state.modifiers[prop].indexOf(',') !== -1) {
+            stringArrayValues = this.state.modifiers[prop].split(",");
+          } else {
+            stringArrayValues = this.state.modifiers[prop].split(" ");
+          }
+
           for (i = 0; i < stringArrayValues.length; i++) {
             let tmpVal = isNaN(stringArrayValues[i]) ? 0 : parseFloat(stringArrayValues[i]);
             values.push(tmpVal);
