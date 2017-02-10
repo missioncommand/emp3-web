@@ -30,7 +30,8 @@ emp.editors.Vertices.prototype.push = function(vertex) {
     if (this.tail === null) {
       this.tail = vertex;
       vertex.next = null;
-    } else {
+    }
+    else {
       vertex.before = this.tail;
       this.tail.next = vertex;
       vertex.next = null;
@@ -53,7 +54,7 @@ emp.editors.Vertices.prototype.toString = function() {
 
   result = "[";
 
-  while(current !== null) {
+  while (current !== null) {
     result += current.feature.featureId;
     current = current.next;
 
@@ -145,7 +146,7 @@ emp.editors.Vertices.prototype.getVerticesAsLineString = function() {
 
   // loop through the coordinates starting at the beginning.
   // only get the coordinates that are a vertex.
-  while(currentVertex !== null) {
+  while (currentVertex !== null) {
     if (currentVertex.type === "vertex") {
       coordinates.push(currentVertex.feature.data.coordinates);
     }
@@ -163,4 +164,27 @@ emp.editors.Vertices.prototype.clear = function() {
   this.tail = null;
   this.list = [];
   this.length = 0;
+};
+
+emp.editors.Vertices.prototype.getIndex = function(featureId) {
+  var index = 0,
+    currentVertex = this.head;
+
+
+  // loop through the coordinates starting at the beginning.
+  // only get the coordinates that are a vertex.
+
+  while (currentVertex.feature.featureId !== featureId && currentVertex !== null) {
+    currentVertex = currentVertex.next;
+
+    if (currentVertex.type === "vertex") {
+      index++;
+    }
+  }
+
+  if (currentVertex === null) {
+    index = -1;
+  }
+
+  return index;
 };

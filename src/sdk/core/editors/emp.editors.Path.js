@@ -47,7 +47,8 @@ emp.editors.Path.prototype.addControlPoints = function() {
         properties: {
           iconUrl: emp.ui.images.editPoint,
           iconXOffset: 12,
-          iconYOffset: 12
+          iconYOffset: 12,
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
         }
       });
 
@@ -79,7 +80,8 @@ emp.editors.Path.prototype.addControlPoints = function() {
           properties: {
             iconUrl: emp.ui.images.addPoint,
             iconXOffset: 8,
-            iconYOffset: 8
+            iconYOffset: 8,
+            altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
           }
         });
 
@@ -233,7 +235,12 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
     pt1,
     pt2,
     pt3,
-    midpoint;
+    midpoint,
+    index,
+    coordinateUpdate,
+    updateData = {},
+    type = emp.typeLibrary.CoordinateUpdateType.UPDATE,
+    newCoordinates;
 
   currentVertex = this.vertices.find(featureId);
 
@@ -244,6 +251,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
 
     // If this is an add point we are moving, we need to create new vertices.
     if (currentVertex.type === 'add') {
+
+      type = emp.typeLibrary.CoordinateUpdateType.ADD;
       currentVertex.type = 'vertex';
 
       currentFeature = currentVertex.feature;
@@ -270,7 +279,10 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
           type: 'Point'
         },
         properties: {
-          iconUrl: emp.ui.images.addPoint
+          iconUrl: emp.ui.images.addPoint,
+          iconXOffset: 8,
+          iconYOffset: 8,
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
         }
       });
 
@@ -293,7 +305,10 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
           type: 'Point'
         },
         properties: {
-          iconUrl: emp.ui.images.addPoint
+          iconUrl: emp.ui.images.addPoint,
+          iconXOffset: 8,
+          iconYOffset: 8,
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
         }
       });
 
@@ -327,8 +342,6 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
 
   items.push(this.path);
 
-
-
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
       mapInstanceId: this.mapInstance.mapInstanceId,
@@ -342,6 +355,31 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
   });
 
   transaction.run();
+
+  // Now send back the information to the editingManager that will
+  // help with generating some events.
+  index = this.vertices.getIndex(featureId);
+  newCoordinates = [];
+
+  for (var i = 0; i < this.path.data.coordinates.length; i++) {
+    newCoordinates.push({
+      lat: this.path.data.coordinates[i][1],
+      lon: this.path.data.coordinates[i][0]
+    });
+  }
+
+  coordinateUpdate = {
+      type: type,
+      indices: [index],
+      coordinates: newCoordinates
+  };
+
+  updateData.coordinateUpdate = coordinateUpdate;
+  updateData.properties = this.featureCopy.properties;
+
+  return updateData;
+
+
 };
 
 /**
@@ -365,7 +403,8 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
     midpoint,
     newCoordinates,
     coordinateUpdate,
-    updateData = {};
+    updateData = {},
+    index;
 
   // First update the control point with new pointer info.
   currentVertex = this.vertices.find(featureId);
@@ -439,14 +478,19 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
 
   // Create the return object.  This will tell you which index was changed,
   // the locations of the new indeces, and the type of change it was.
-  newCoordinates = [{
-    lat: pointer.lat,
-    lon: pointer.lon
-  }];
+  newCoordinates = [];
+  for (var i = 0; i < this.path.data.coordinates.length; i++) {
+    newCoordinates.push({
+      lat: this.path.data.coordinates[i][1],
+      lon: this.path.data.coordinates[i][0]
+    });
+  }
+
+  index = this.vertices.getIndex(featureId);
 
   coordinateUpdate = {
       type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [0], //TODO: Get the correct index.
+      indices: [index], //TODO: Get the correct index.
       coordinates: newCoordinates
   };
 

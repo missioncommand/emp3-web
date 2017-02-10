@@ -267,6 +267,7 @@ emp.editingManager = function(args) {
       var transaction;
       var lockMapTransaction;
       var mapLock;
+      var updateData;
 
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.
@@ -291,7 +292,15 @@ emp.editingManager = function(args) {
       } // If we are dragging a control point, we don't want
       // any events going out, because it is not a feature.
       else if (activeEditor.isControlPoint(featureId)) {
-        activeEditor.startMoveControlPoint(featureId, pointer);
+        updateData = activeEditor.startMoveControlPoint(featureId, pointer);
+
+        editTransaction.items[0].update({
+          name: feature.name,
+          updates: updateData.coordinateUpdate,
+          properties: updateData.properties,
+          updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
+          mapInstanceId: mapInstance.mapInstanceId
+        });
       }
       else {
         mapLock = new emp.typeLibrary.Lock({
