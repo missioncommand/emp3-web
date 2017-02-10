@@ -304,22 +304,8 @@ emp.environment.browser.mediator = (function() {
               break;
             }
 
-            var lockState;
-            switch (args.message.lock) {
-              case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
-              case emp3.api.enums.MapMotionLockEnum.NO_PAN:
-              case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
-              case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
-                // TODO smartMotion support in cesium/leaflet/worldwind
-                lockState = true;
-                break;
-              case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
-              default:
-                lockState = false;
-            }
-
             var oItem = new emp.typeLibrary.Lock({
-              lock: lockState
+              lock: args.message.lock
             });
 
             items.push(oItem);

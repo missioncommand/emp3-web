@@ -470,7 +470,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
           instanceInterface.oGraphicsInViewingArea = [];
           var oMapBounds = instanceInterface.leafletInstance.getBounds();
           var oEmpMapBounds = new leafLet.typeLibrary.EmpBoundary(oMapBounds.getSouthWest(), oMapBounds.getNorthEast());
-          var oFeatureBounds;
+          var oFeatureBounds = undefined;
 
           for (sCoreID in instanceInterface.mapEngObjectList) {
             if (!instanceInterface.mapEngObjectList.hasOwnProperty(sCoreID)) {
@@ -760,13 +760,20 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
     function checkMapWidth() {
         var oMapBounds;
+        var center;
+        var angularWidth;
         var iZoom;
 
         oMapBounds = instanceInterface.leafletInstance.getBounds();
+        center = instanceInterface.leafletInstance.getCenter();
+        angularWidth = Math.abs(oMapBounds.getEast() - oMapBounds.getWest());
 
-        if ((oMapBounds.getEast() - oMapBounds.getWest() > 360.0)) {
+        //console.log("Deg Wide : " + angularWidth);
+        // We must make sure we don't zoom out beyond 180 deg width. The render has problems rendering
+        // graphics when the BBox is wider than 180.
+        if (angularWidth >= 180.0) {
             iZoom = instanceInterface.leafletInstance.getZoom() + 1;
-            instanceInterface.leafletInstance.setZoom(iZoom, {animate: false});
+            instanceInterface.leafletInstance.setView(center, iZoom, {animate: false});
         }
     };
 
@@ -816,21 +823,28 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onMoveEnd(e) {
+            var center;
+            var mapBounds;
+
+            checkMapCenter();
+            center = instanceInterface.leafletInstance.getCenter();
+
+            if ((center.lng < -180.0) || (center.lng > 180.0)) {
+                instanceInterface.leafletInstance.setView(center.wrap());
+                return;
+            }
           // The reason for calling refreshZone() is to reset the zoneChanged boolean to false after a
           // onZoomEnd event occurs which could cause the zoneChanged boolean to turn true.
           if (instanceInterface.renderingOptimization.enabled) {
             instanceInterface.renderingOptimization.refreshZone();
           }
-          var center = instanceInterface.leafletInstance.getCenter();
-          checkMapCenter();
-          if ((center.lng < -180.0) || (center.lng > 180.0)) {
-            instanceInterface.leafletInstance.setView(center.wrap());
-            return;
-          }
-          var view = instanceInterface.getView();
-          var lookAt = instanceInterface.viewToLookAt(view);
-          instanceInterface.scheduleRendering(view);
-          instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
+
+          //console.log("Center Lat: " + center.lat + " lng: " + center.lng);
+
+            var view = instanceInterface.getView();
+            var lookAt = instanceInterface.viewToLookAt(view);
+            instanceInterface.scheduleRendering(view);
+            instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
 
           instanceInterface.processViewSetTrans();
         }
@@ -851,24 +865,24 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onZoomEnd(oEvent) {
-          checkMapWidth();
-          var view = instanceInterface.getView();
-          var lookAt = instanceInterface.viewToLookAt(view);
-          instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-          instanceInterface.processViewSetTrans();
-          // If rendering optimization is enabled a determination of which altitude zone in which the the map view
+            checkMapWidth();
+            //var view = instanceInterface.getView();
+            // lookAt = instanceInterface.viewToLookAt(view);
+
+            //instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
+            //instanceInterface.processViewSetTrans();
           // currently resides needs to be made. The mil-std single point icons will display differently depending on
           // the zone in which the the map view currently resides. Set the zone to an arbitrary string value that can
           // be used during the rendering of each mil-std icon.
           if (instanceInterface.renderingOptimization.enabled) {
             instanceInterface.renderingOptimization.refreshZone();
           }
-          instanceInterface.scheduleRendering(view);
+          //instanceInterface.scheduleRendering(view);
         }
 
         function onViewReset(e) {
-          checkMapWidth();
-          instanceInterface.scheduleRendering();
+            //checkMapWidth();
+            //instanceInterface.scheduleRendering();
         }
 
         function onMouseUpDown(e) {
@@ -2340,6 +2354,9 @@ emp.engineDefs.leafletMapEngine = function (args) {
     try {
         var center;
         var level = 0;
+        var southWest = L.latLng(-90.0, -180.0);
+        var northEast = L.latLng(90.0, 180.0);
+        var maxBounds = L.latLngBounds(southWest, northEast);
 
         if (args.initialExtent !== undefined) {
             if (args.initialExtent.hasOwnProperty('centerLat')) {
@@ -2368,6 +2385,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             minZoom: 1,
             center: center,
             zoom: level,
+            //maxBounds : maxBounds,
             boxZoom: false,
             trackResize: false,
             attributionControl: false,

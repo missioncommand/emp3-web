@@ -135,12 +135,32 @@ emp.engineDefs.cesiumMapEngine = function (args)
         PULSE_SOFT_LIMIT: 250,
         PULSE_HARD_LIMIT: 300
     };
-    engineInterface.capture.screenshot = function (args)
+    engineInterface.capture.screenshot = function (transaction)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
         console.log("screenshot");
-        return empCesium.canvas.toDataURL();
+         for (var i = 0; i < transaction.items.length; i += 1)
+        {
+            var item = transaction.items[i];
+            if (empCesium.defined(item))
+            {
+                item.dataUrl = empCesium.canvas.toDataURL();
+            }
+        }
     };
+
+//    // Change the style of selected items , and change the size of
+//    // selected icons. You do not have to set both values when calling setSelectionStyle. 
+//    // You can change the color, the scale, or both.
+//    engineInterface.selectionStyle = function (transaction)
+//    {
+//        for (var i = 0; i < transaction.items.length; i += 1)
+//        {
+//            var item = transaction.items[i];
+//            //empCesium.setSelectionStyle(item); // item.color, item.scale
+//        }
+//    };
+
     engineInterface.status.get = function (transaction)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
@@ -690,7 +710,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
         var result = {}, standard = 1,
-        failList = [];
+                failList = [];
 
         try
         {
@@ -708,7 +728,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
         {
             result.success = false;
             result.jsError = e;
-             result.message = "Could not render  kmllayer.add.";
+            result.message = "Could not render  kmllayer.add.";
         }
         finally
         {
@@ -798,12 +818,12 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //                    }
 //                }
                 //if there is a parentId, use that. Otherwise, use the overlayId.
-                if (!emp.util.isEmptyString(item.parentId))
-                {
-                    //v2
-                    item.parentType = "feature";
-                }
-                 else if (!emp.util.isEmptyString(item.coreParent))
+//                if (!emp.util.isEmptyString(item.parentId) &&  !empCesium.isLayer(item.parentId) )
+//                {
+//                    //v2
+//                    item.parentType = "feature";
+//                }
+                if ((!emp.util.isEmptyString(item.coreParent) &&  !empCesium.isLayer(item.coreParent)) && (!emp.util.isEmptyString(item.overlayId) && item.overlayId !== item.coreParent  ) )
                 {
                     item.parentType = "feature";
                 }
@@ -1808,7 +1828,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     empCesium.drawCountryCode = false;
                     armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
                 }
-                
+
                 // Assign the class level variable.
                 empCesium.iconLabels = newIconLabelSettings;
                 //check altitude range mode before calling the throttlering. If icon label option is none 
@@ -1818,11 +1838,11 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 {
                     // do nothing. single points already with no labels and CC enabling not changed
                     //console.log(empCesium.iconLabelOption);
-                   // console.log(empCesium.singlePointAltitudeRangeMode);
+                    // console.log(empCesium.singlePointAltitudeRangeMode);
                 }
-                else if ((empCesium.iconLabelOption === "common" || empCesium.iconLabelOption === "all") && 
+                else if ((empCesium.iconLabelOption === "common" || empCesium.iconLabelOption === "all") &&
                         (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
-                        empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
+                                empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
                 {
                     // do nothing. single points are at a range with no labels and CC enabling not changed
                     //console.log(empCesium.iconLabelOption);
@@ -1839,7 +1859,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                             empCesium.throttleMil2525IconLabelSet(singlePointKey);
                         }
                     }
-               }
+                }
                 transaction.run();
             }
         }
@@ -1884,9 +1904,9 @@ emp.engineDefs.cesiumMapEngine = function (args)
         }
         //empCesium.entityCollection.resumeEvents();
     };
-    
-    
-    
+
+
+
 //    engineInterface.backgroundBrightness  = function (transaction)
 //    {
 //        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
@@ -1906,9 +1926,9 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //        }
 //        //empCesium.entityCollection.resumeEvents();
 //    };
-    
-    
-    
+
+
+
     engineInterface.navigation = engineInterface.navigation || {};
     engineInterface.navigation.enable = function (transaction)
     {
@@ -1961,7 +1981,8 @@ emp.engineDefs.cesiumMapEngine = function (args)
     {
         engineInterface.map.config = function (transaction)
         {
-            var bRangeChanged = false;
+            var bRangeChanged = false,
+                    bSelectionStyleChanged = false;
             try
             {
                 if (transaction && transaction.items)
@@ -1988,23 +2009,29 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     }
                     if (empCesium.defined(config.selectionColor))
                     {
-                        empCesium.selectionColor_hex = config.selectionColor;
+                        var selectionColorHex = config.selectionColor;
                         // add opacity FF to hex if not present
-                        empCesium.selectionColor_hex = (empCesium.selectionColor_hex.length === 6) ? "FF" + empCesium.selectionColor_hex : empCesium.selectionColor_hex;
-                        var rgbaSelectionColor = cesiumEngine.utils.hexToRGB(empCesium.selectionColor_hex);
+                        selectionColorHex = (selectionColorHex.length === 6) ? "FF" + selectionColorHex.toUpperCase() : selectionColorHex.toUpperCase();
+                        bSelectionStyleChanged = (empCesium.selectionColorHex.toUpperCase() !== selectionColorHex.toUpperCase()) ? true : bSelectionStyleChanged;
+                        empCesium.selectionColorHex = selectionColorHex;
+                        var rgbaSelectionColor = cesiumEngine.utils.hexToRGB(empCesium.selectionColorHex);
                         empCesium.selectionColor = new empCesium.Color(rgbaSelectionColor.r, rgbaSelectionColor.g, rgbaSelectionColor.b, rgbaSelectionColor.a);
                     }
                     if (empCesium.defined(config.selectionScale))
                     {
-                        empCesium.selectionScale = parseFloat(config.selectionScale);
+                        var scale = parseFloat(config.selectionScale);
+                        bSelectionStyleChanged = (empCesium.selectionScale !== parseFloat(scale)) ? true : bSelectionStyleChanged;
+                        empCesium.selectionScale = scale;
                     }
-                    else
+
+                    if (bSelectionStyleChanged)
                     {
-                        empCesium.selectionScale = 1;
+                         empCesium.updateSelections();
                     }
+
                     if (empCesium.defined(config.brightness))
                     {
-                         empCesium.setBackgroundBrightness(config.brightness);
+                        empCesium.setBackgroundBrightness(config.brightness);
                     }
 
 

@@ -65,9 +65,10 @@ leafLet.internalPrivateClass.Feature = function () {
             }
         },
         setLeafletObject: function (oObject) {
-            if (!oObject) {
-                return;
-            }
+            //if (!oObject) {
+            //    return;
+            //}
+            
             if (this.options.leafletObject && (this.options.leafletObject !== oObject)) {
                 //this.options.leafletObject.clearAllEventListeners();
                 this.removeLayer(this.options.leafletObject);
@@ -318,7 +319,6 @@ leafLet.internalPrivateClass.Feature = function () {
                 if (oLeafletObject.getLatLng()) {
                     oLatLngList = [oLeafletObject.getLatLng()];
                     bCoordWrapped = leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList, bCoordWrapped);
-                    //oNewLatLng = leafLet.utils.wrapLongitude(oMapBounds, oLeafletObject.getLatLng());
                     oLeafletObject.setLatLng(oLatLngList[0]);
                 }
             } else if (oLeafletObject instanceof L.Polygon) {

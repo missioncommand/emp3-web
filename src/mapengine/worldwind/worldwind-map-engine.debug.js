@@ -402,6 +402,24 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     }
   };
 
+  /**
+   *
+   * @param transaction
+   */
+  engineInterface.navigation.enable = function(transaction) {
+    empWorldWind.setLockState(transaction.items[0]);
+  };
+
+  /**
+   *
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.selection.set = function(transaction) {
+    var rc = empWorldWind.selectFeatures(transaction.items);
+    transaction.failures = rc.failed;
+  };
+
+
   // return the engineInterface object as a new engineTemplate instance
   return engineInterface;
 };

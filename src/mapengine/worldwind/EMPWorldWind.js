@@ -41,18 +41,41 @@ EMPWorldWind.map = function(wwd) {
      */
     editing: false,
     /**
-     * Whether the map is being dragged
+     * Whether we are dragging
      */
     dragging: false,
     /**
-     * Placeholder for the last detected mouse down/move/touch event
+     * Placeholder for the last detected mouse move/touch/pointer event
      */
-    lastMousePosition: undefined,
+    lastInteractionEvent: undefined,
+    /**
+     * Lock state
+     */
+    lockState: emp3.api.enums.MapMotionLockEnum.UNLOCKED,
     /**
      * Object for holding state to compute when MilStdSymbols should be re-rendered
      */
     lastRender: {
       altitude: 0
+    },
+    /**
+     * Default selection style
+     * @type SelectionStyle
+     */
+    selectionStyle: {
+      scale: 1,
+      lineColor: "#FFFF00",
+      fillColor: undefined
+    },
+    /**
+     * Object for describing autoPanning behavior
+     */
+    autoPanning: {
+      step: 0.5,
+      up: false,
+      down: false,
+      left: false,
+      right: false
     },
     /**
      * Label styles for the renderer
@@ -126,7 +149,7 @@ EMPWorldWind.map.prototype.initialize = function(map) {
     if (event.state in EMPWorldWind.eventHandlers.drag) {
       EMPWorldWind.eventHandlers.drag[event.state].call(this, event);
     }
-  });
+  }.bind(this));
 
   // Register DOM event handlers
   var eventClass, eventHandler;
@@ -135,7 +158,7 @@ EMPWorldWind.map.prototype.initialize = function(map) {
       eventClass = EMPWorldWind.eventHandlers[eventClass];
       for (eventHandler in eventClass) {
         if (eventClass.hasOwnProperty(eventHandler)) {
-          this.worldWind.addEventListener(eventHandler, EMPWorldWind.eventHandlers.throttle(eventClass[eventHandler].bind(this)));
+          this.worldWind.addEventListener(eventHandler, eventClass[eventHandler].bind(this));
         }
       }
     }
@@ -276,6 +299,11 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
  */
 EMPWorldWind.map.prototype.lookAt = function(args) {
   // substituting range for altitude for now
+
+  if (args.range !== 0) {
+    args.range = args.range || this.worldWind.navigator.range;
+  }
+
   var position = new WorldWind.Position(args.latitude, args.longitude, args.range);
 
   function _completeLookAtMotion() {
@@ -359,6 +387,32 @@ EMPWorldWind.map.prototype.unplotFeature = function(args) {
   }
 
   return rc;
+};
+
+/**
+ *
+ * @param {emp.typeLibrary.Selection[]} empSelections
+ */
+EMPWorldWind.map.prototype.selectFeatures = function(empSelections) {
+  var selected = [],
+    failed = [];
+  emp.util.each(empSelections, function(selectedFeature) {
+    var feature = this.features[selectedFeature.featureId];
+    if (feature) {
+      feature.selected = selectedFeature.select;
+      selected.push(feature);
+    } else {
+      failed.push(selectedFeature.featureId);
+    }
+  }.bind(this));
+
+  this.worldWind.redraw();
+
+  return {
+    success: selected.length !== 0,
+    selected: selected,
+    failed: failed
+  };
 };
 
 /**
@@ -865,3 +919,57 @@ EMPWorldWind.map.prototype.setContrast = function(contrast) {
 
   this.worldWind.redraw();
 };
+
+/**
+ *
+ * @param {emp.typeLibrary.Lock} lockState
+ */
+EMPWorldWind.map.prototype.setLockState = function(lockState) {
+  this.state.lockState = lockState.lock;
+};
+
+/**
+ * Spins the globe if autoPanning is enabled
+ */
+EMPWorldWind.map.prototype.spinGlobe = function () {
+  var vertical = 0,
+    horizontal = 0;
+
+  var step = this.worldWind.navigator.range / (WorldWind.EARTH_RADIUS);
+
+  if (this.state.autoPanning.up) {
+    vertical = step;
+  } else if (this.state.autoPanning.down) {
+    vertical = -step;
+  }
+
+  if (this.state.autoPanning.left) {
+    horizontal = -step;
+  } else if (this.state.autoPanning.right) {
+    horizontal = step;
+  }
+
+  var position = new WorldWind.Position(
+    this.worldWind.navigator.lookAtLocation.latitude + vertical,
+    this.worldWind.navigator.lookAtLocation.longitude + horizontal,
+    this.worldWind.navigator.range);
+  this.goToAnimator.travelTime = 500; // TODO smooth the transition if this is getting called too often
+
+  if (this.state.autoPanning.up ||
+    this.state.autoPanning.left ||
+    this.state.autoPanning.down ||
+    this.state.autoPanning.right) {
+    this.goToAnimator.goTo(position);
+    EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
+    setTimeout(this.spinGlobe.bind(this), 250);
+  } else {
+    EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
+  }
+};
+
+/**
+ * @typedef {object} SelectionStyle
+ * @property {number} scale
+ * @property {string|undefined} lineColor
+ * @property {string|undefined} fillColor
+ */

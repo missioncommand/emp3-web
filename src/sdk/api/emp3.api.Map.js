@@ -281,10 +281,7 @@ emp3.api.Map = function(args) {
   } else {
     this.renderingOptimization = true;
   }
-  args.engine.properties.renderingOptimization = {
-    enabled: this.renderingOptimization,
-    singlePointAltitudeRanges: {}
-  };
+  args.engine.properties.renderingOptimization = this.renderingOptimization;
 
   // set the default threshold values for MIL-STD-2525 warfighting symbols
   if (args.midDistanceThreshold !== undefined) {
@@ -292,14 +289,14 @@ emp3.api.Map = function(args) {
   } else {
     this.midDistanceThreshold = emp3.api.enums.defaultMidDistanceThreshold;
   }
-  args.engine.properties.renderingOptimization.singlePointAltitudeRanges.midDistanceThreshold = this.midDistanceThreshold;
+  args.engine.properties.midDistanceThreshold = this.midDistanceThreshold;
 
   if (args.farDistanceThreshold !== undefined) {
     this.farDistanceThreshold = args.farDistanceThreshold;
   } else {
     this.farDistanceThreshold = emp3.api.enums.defaultFarDistanceThreshold;
   }
-  args.engine.properties.renderingOptimization.singlePointAltitudeRanges.farDistanceThreshold = args.farDistanceThreshold;
+  args.engine.properties.farDistanceThreshold = args.farDistanceThreshold;
 
   // Set the default string for the manifestName property if needed.
   args.engine.manifestName = args.engine.manifestName || "manifest.js";
@@ -488,10 +485,24 @@ emp3.api.Map.prototype = new emp3.api.Container();
  * Details of tile layer format can be found at {@link http://doc.arcgis.com/EN/ARCGIS-ONLINE/REFERENCE/tile-layers.htm}.
  * @property {Number} [data.Minimum_Zoom_Level] Minimum zoom level of the map.
  * @property {Number} [data.Maximum_Zoom_Level] Maximum zoom level of the map.
- * @property {boolean} [Use_Proxy_For_Default_Map_Request = false] Determines
+ * @property {boolean} [data.Use_Proxy_For_Default_Map_Request = false] Determines
  * if the map's proxy will be used to request the map specified in Default_Tile_Map_Server_URL.
  * You would only use this if the map was not reachable because it is cross domain
  * and there isn't a viable proxy that can be used.
+ * @property {boolean} [renderingOptimization] Turns on or off rendering optimization
+ * for drawing MIL-STD-2525 single point graphics.  When rendering optimization is
+ * turned on, MIL-STD-2525 single points will render as dots when the camera goes
+ * higher than a specified altitude.  Below the far threshold, the single points
+ * will display in their correct appearance, but with no labels.  When they zoom
+ * past the midpoint threshold, they will display normal with labels.  This
+ * greatly increases the number of symbols and ability for the map to
+ * Rendering optimization
+ * @property {Number} [renderingOptimization.midDistanceThreshold] The
+ * altitude at which below single point MIL-STD-2525 symbols will display with
+ * labels, and above, they will display without labels.
+ * @property {Number} [renderingOptimization.farDistanceThreshold] The
+ * altitude at which above single point MIL-STD-2525 symbols will display as colored
+ * dots.
  * @property {boolean} [debug] Set to true to avoid using the minified version
  * of the Leaflet engine files.
  *
