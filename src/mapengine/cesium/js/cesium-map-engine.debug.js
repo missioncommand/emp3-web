@@ -798,12 +798,12 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //                    }
 //                }
                 //if there is a parentId, use that. Otherwise, use the overlayId.
-                if (!emp.util.isEmptyString(item.parentId) &&  !empCesium.isLayer(item.parentId) )
-                {
-                    //v2
-                    item.parentType = "feature";
-                }
-                 else if ((!emp.util.isEmptyString(item.coreParent) &&  !empCesium.isLayer(item.coreParent)) && (!emp.util.isEmptyString(item.overlayId) && item.overlayId !== item.coreParent  ) )
+//                if (!emp.util.isEmptyString(item.parentId) &&  !empCesium.isLayer(item.parentId) )
+//                {
+//                    //v2
+//                    item.parentType = "feature";
+//                }
+                if ((!emp.util.isEmptyString(item.coreParent) &&  !empCesium.isLayer(item.coreParent)) && (!emp.util.isEmptyString(item.overlayId) && item.overlayId !== item.coreParent  ) )
                 {
                     item.parentType = "feature";
                 }
