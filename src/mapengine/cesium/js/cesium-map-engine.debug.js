@@ -690,11 +690,11 @@ emp.engineDefs.cesiumMapEngine = function (args)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
         var result = {}, standard = 1,
-        failList = [];
+                failList = [];
 
         try
         {
-            if (!empCesium.mapLocked)
+           if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
             {
                 empCesium.entityCollection.suspendEvents();
             }
@@ -703,12 +703,16 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 var item = transaction.items[i];
                 result = empCesium.addKmlLayer(item);
             }
+            if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
+            {
+                empCesium.entityCollection.resumeEvents();
+            }
         }
         catch (e)
         {
             result.success = false;
             result.jsError = e;
-             result.message = "Could not render  kmllayer.add.";
+            result.message = "Could not render  kmllayer.add.";
         }
         finally
         {
@@ -773,7 +777,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
         //try to traverse the items and add features
         try
         {
-            if (!empCesium.mapLocked)
+            if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
             {
                 empCesium.entityCollection.suspendEvents();
             }
@@ -798,12 +802,12 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //                    }
 //                }
                 //if there is a parentId, use that. Otherwise, use the overlayId.
-                if (!emp.util.isEmptyString(item.parentId) &&  !empCesium.isLayer(item.parentId) )
+                if (!emp.util.isEmptyString(item.parentId) && !empCesium.isLayer(item.parentId))
                 {
                     //v2
                     item.parentType = "feature";
                 }
-                 else if ((!emp.util.isEmptyString(item.coreParent) &&  !empCesium.isLayer(item.coreParent)) && (!emp.util.isEmptyString(item.overlayId) && item.overlayId !== item.coreParent  ) )
+                else if ((!emp.util.isEmptyString(item.coreParent) && !empCesium.isLayer(item.coreParent)) && (!emp.util.isEmptyString(item.overlayId) && item.overlayId !== item.coreParent))
                 {
                     item.parentType = "feature";
                 }
@@ -957,7 +961,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 jsError: result.jsError
             }));
         }
-        if (!empCesium.mapLocked)
+       if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
         {
             empCesium.entityCollection.resumeEvents();
         }
@@ -1808,7 +1812,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     empCesium.drawCountryCode = false;
                     armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
                 }
-                
+
                 // Assign the class level variable.
                 empCesium.iconLabels = newIconLabelSettings;
                 //check altitude range mode before calling the throttlering. If icon label option is none 
@@ -1818,11 +1822,11 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 {
                     // do nothing. single points already with no labels and CC enabling not changed
                     //console.log(empCesium.iconLabelOption);
-                   // console.log(empCesium.singlePointAltitudeRangeMode);
+                    // console.log(empCesium.singlePointAltitudeRangeMode);
                 }
-                else if ((empCesium.iconLabelOption === "common" || empCesium.iconLabelOption === "all") && 
+                else if ((empCesium.iconLabelOption === "common" || empCesium.iconLabelOption === "all") &&
                         (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
-                        empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
+                                empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
                 {
                     // do nothing. single points are at a range with no labels and CC enabling not changed
                     //console.log(empCesium.iconLabelOption);
@@ -1839,7 +1843,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                             empCesium.throttleMil2525IconLabelSet(singlePointKey);
                         }
                     }
-               }
+                }
                 transaction.run();
             }
         }
@@ -1884,9 +1888,9 @@ emp.engineDefs.cesiumMapEngine = function (args)
         }
         //empCesium.entityCollection.resumeEvents();
     };
-    
-    
-    
+
+
+
 //    engineInterface.backgroundBrightness  = function (transaction)
 //    {
 //        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
@@ -1906,9 +1910,9 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //        }
 //        //empCesium.entityCollection.resumeEvents();
 //    };
-    
-    
-    
+
+
+
     engineInterface.navigation = engineInterface.navigation || {};
     engineInterface.navigation.enable = function (transaction)
     {
@@ -1918,42 +1922,47 @@ emp.engineDefs.cesiumMapEngine = function (args)
         if (transaction && transaction.items)
         {
             enabled = transaction.items[0];
-            if (enabled.lock)
+            switch (enabled.lock)
             {
-                empCesium.scene.screenSpaceCameraController.enableRotate = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableTranslate = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableZoom = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableTilt = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableLook = !enabled.lock;
-                empCesium.mapLocked = enabled.lock;
-                empCesium.viewer.cesiumNavigation.setNavigationLocked(empCesium.mapLocked);
-            }
-            else
-            {
-                if (enabled === false)
-                {
+                case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
                     empCesium.scene.screenSpaceCameraController.enableRotate = false;
                     empCesium.scene.screenSpaceCameraController.enableTranslate = false;
                     empCesium.scene.screenSpaceCameraController.enableZoom = false;
                     empCesium.scene.screenSpaceCameraController.enableTilt = false;
                     empCesium.scene.screenSpaceCameraController.enableLook = false;
-                    empCesium.mapLocked = true;
-                    empCesium.viewer.cesiumNavigation.setNavigationLocked(empCesium.mapLocked);
-                }
-                else
-                {
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.NO_MOTION;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
+                    empCesium.scene.screenSpaceCameraController.enableRotate = true;
+                    empCesium.scene.screenSpaceCameraController.enableTranslate = true;
+                    empCesium.scene.screenSpaceCameraController.enableZoom = true;
+                    empCesium.scene.screenSpaceCameraController.enableTilt = true;
+                    empCesium.scene.screenSpaceCameraController.enableLook = true;
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.NO_PAN:
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.NO_ZOOM:
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
+                    break;
+                default:
                     // Default to enabling mouse navigation to avoid an error state where user cannot interact with the map
                     empCesium.scene.screenSpaceCameraController.enableRotate = true;
                     empCesium.scene.screenSpaceCameraController.enableTranslate = true;
                     empCesium.scene.screenSpaceCameraController.enableZoom = true;
                     empCesium.scene.screenSpaceCameraController.enableTilt = true;
                     empCesium.scene.screenSpaceCameraController.enableLook = true;
-                    empCesium.mapLocked = false;
-                    empCesium.viewer.cesiumNavigation.setNavigationLocked(empCesium.mapLocked);
-                }
-            }
-        }
-        //transaction.run();
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
+                    break;
+
+                }//switch
+            }//  if (transaction && transaction.items)
     };
 
 
@@ -2004,7 +2013,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     }
                     if (empCesium.defined(config.brightness))
                     {
-                         empCesium.setBackgroundBrightness(config.brightness);
+                        empCesium.setBackgroundBrightness(config.brightness);
                     }
 
 

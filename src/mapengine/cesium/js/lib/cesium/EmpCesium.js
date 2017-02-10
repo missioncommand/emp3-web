@@ -132,7 +132,7 @@ function EmpCesium()
     this.secRendererWorker.B = undefined;
     //this.secRendererWorker.Selection = undefined;
     //this.secRendererWorker.DeSelection = undefined;
-    this.mapLocked = false;
+    this.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
     this.freeHandPositions = undefined;
     this.backgroundBrightnessAlpha = 0;
     this.stiBrightnessWhite;
@@ -1251,7 +1251,8 @@ function EmpCesium()
         this.oMouseMoveEventData = this.populateEvent(event);
         this.oMouseMoveEventData.type = "move";
         var delay = 100;
-        if (this.mapLocked)
+        //if (this.mapLocked)
+        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION)
         {
             this.empMapInstance.eventing.Pointer(this.oMouseMoveEventData);
             //delay = 50;
@@ -9649,7 +9650,8 @@ function EmpCesium()
                     }
                     if (entity.polyline && presentEntity.polyline)
                     {
-                        if (this.mapLocked)
+                       // if (this.mapLocked)
+                         if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION)
                         {
                             this.freeHandPositions = entity.polyline.positions.getValue();
                             presentEntity.polyline.positions = new this.CallbackProperty(function (time, result)
