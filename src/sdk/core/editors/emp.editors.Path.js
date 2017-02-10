@@ -45,7 +45,9 @@ emp.editors.Path.prototype.addControlPoints = function() {
           type: 'Point'
         },
         properties: {
-          iconUrl: emp.ui.images.editPoint
+          iconUrl: emp.ui.images.editPoint,
+          iconXOffset: 12,
+          iconYOffset: 12
         }
       });
 
@@ -75,7 +77,9 @@ emp.editors.Path.prototype.addControlPoints = function() {
             type: 'Point'
           },
           properties: {
-            iconUrl: emp.ui.images.addPoint
+            iconUrl: emp.ui.images.addPoint,
+            iconXOffset: 8,
+            iconYOffset: 8
           }
         });
 
@@ -106,8 +110,6 @@ emp.editors.Path.prototype.addControlPoints = function() {
     this.featureCopy.data.coordinates = this.path.data.coordinates;
     items.push(this.path);
 
-
-
     // Hide the existing graphic as to not confuse the users with two LineString
     // on the screen.
     hideItem = {
@@ -129,8 +131,6 @@ emp.editors.Path.prototype.addControlPoints = function() {
         items: [hideItem]
     });
 
-
-
     // run the transaction and add all the symbols on the map.
     transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
@@ -145,7 +145,7 @@ emp.editors.Path.prototype.addControlPoints = function() {
     });
 
     transaction.run();
-    //hideTransaction.queue();
+    hideTransaction.queue();
   } // end if
 
 };
