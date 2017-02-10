@@ -1,9 +1,8 @@
 /* global L, leafLet, emp, armyc2, sec */
 
-leafLet.internalPrivateClass.MilStdFeature = function(){
+leafLet.internalPrivateClass.MilStdFeature = function() {
     var publicInterface = {
-        initialize: function (args) 
-        {
+        initialize: function (args) {
             var options = {
                 oMilStdModifiers: {},
                 sBasicSymbolCode: undefined,
@@ -14,115 +13,102 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
 
             leafLet.typeLibrary.Feature.prototype.initialize.call(this, args);
         },
-        getMilStdModifiers: function()
-        {
+        getMilStdModifiers: function() {
             return this.options.oMilStdModifiers;
         },
-        getBasicSymbolCode: function()
-        {
+        getBasicSymbolCode: function() {
             return this.options.sBasicSymbolCode;
         },
-        getAzimuthUnits: function()
-        {
+        getAzimuthUnits: function() {
             var sUnits = leafLet.utils.AngleUnits.DEGREES;
             var RendererSettings = armyc2.c2sd.renderer.utilities.RendererSettings;
             var oBasicSymbolCode = leafLet.utils.milstd.basicSymbolCode;
-            
-            switch (this.getBasicSymbolCode())
-            {
-                case oBasicSymbolCode.RECTANGULAR_TARGET:
-                    switch (this.get2525Version())
-                    {
-                        case RendererSettings.Symbology_2525Bch2_USAS_13_14:
-                            sUnits = leafLet.utils.AngleUnits.MILS;
-                            break;
-                        case RendererSettings.Symbology_2525C:
-                            sUnits = leafLet.utils.AngleUnits.DEGREES;
-                            break;
-                    }
+
+            switch (this.getBasicSymbolCode()) {
+            case oBasicSymbolCode.RECTANGULAR_TARGET:
+                switch (this.get2525Version()) {
+                case RendererSettings.Symbology_2525Bch2_USAS_13_14:
+                    sUnits = leafLet.utils.AngleUnits.MILS;
                     break;
+                case RendererSettings.Symbology_2525C:
+                    sUnits = leafLet.utils.AngleUnits.DEGREES;
+                    break;
+                }
+                break;
             }
             return sUnits;
         },
-        getAltitudeUnits: function()
-        {
+        getAltitudeUnits: function() {
             var sRet = leafLet.utils.Units.FEET;
-            
+
             return sRet;
         },
-        getUnits: function()
-        {
+        getUnits: function() {
             var retValue = leafLet.utils.Units.METERS;
             var RendererSettings = armyc2.c2sd.renderer.utilities.RendererSettings;
             var oBasicSymbolCode = leafLet.utils.milstd.basicSymbolCode;
-            
-            switch (this.getBasicSymbolCode())
-            {
-                case oBasicSymbolCode.RECTANGULAR_TARGET:
-/*
-                    switch (this.get2525Version())
-                    {
-                        case RendererSettings.Symbology_2525Bch2_USAS_13_14:
-                        case RendererSettings.Symbology_2525C:
-                            retValue = leafLet.utils.Units.METERS;
-                            break;
-                    }
-*/
-                    break;
+
+            switch (this.getBasicSymbolCode()) {
+            case oBasicSymbolCode.RECTANGULAR_TARGET:
+                /*
+                                    switch (this.get2525Version())
+                                    {
+                                        case RendererSettings.Symbology_2525Bch2_USAS_13_14:
+                                        case RendererSettings.Symbology_2525C:
+                                            retValue = leafLet.utils.Units.METERS;
+                                            break;
+                                    }
+                */
+                break;
             }
-            
+
             return retValue;
         },
-        getPopupHeading: function()
-        {
+        getPopupHeading: function() {
             var sText = this.getName();
-            
-            if (!sText || (typeof (sText) !== 'string') || (sText === ""))
-            {
+
+            if (!sText || (typeof (sText) !== 'string') || (sText === "")) {
                 // There is no name, check for a unique identifier.
                 var cMilStdModifiers = leafLet.utils.milstd.Modifiers;
                 var oModifiers = this.getMilStdModifiers();
-                
-                if (oModifiers.hasOwnProperty(cMilStdModifiers.UNIQUE_DESIGNATOR_1))
-                {
+
+                if (oModifiers.hasOwnProperty(cMilStdModifiers.UNIQUE_DESIGNATOR_1)) {
                     sText = oModifiers[cMilStdModifiers.UNIQUE_DESIGNATOR_1];
-                }
-                else
-                {
+                } else {
                     sText = "";
                 }
             }
 
             return sText;
         },
-        getPopupText: function()
-        {
+        getPopupText: function() {
             var sPopupText = "";
-            if (this.options.leafletObject instanceof L.Marker)
-            {
+            if (this.options.leafletObject instanceof L.Marker) {
                 var oCoordList = this.getCoordinateList();
-                
+
                 sPopupText = "<b>Symbol Code</b>:&nbsp;" + this.options.data.symbolCode +
-                        "<br/>&nbsp;&nbsp;&nbsp;&nbsp;<b>Lat</b>:&nbsp;" + oCoordList[0].lat.toFixed(5) +
-                        "<br/>&nbsp;&nbsp;&nbsp;&nbsp;<b>Lon</b>:&nbsp;" + oCoordList[0].lng.toFixed(5) +
-                        (!isNaN(oCoordList[0].alt)? "<br/>&nbsp;&nbsp;&nbsp;&nbsp;<b>Alt</b>:&nbsp;" + oCoordList[0].alt + this._getAltUnitsAndModeText(): "") + 
-                        "<br/><br/>" + this._getPopupDescription();
-            }
-            else
-            {
+                             "<br/>&nbsp;&nbsp;&nbsp;&nbsp;<b>Lat</b>:&nbsp;" + oCoordList[0].lat.toFixed(5) +
+                             "<br/>&nbsp;&nbsp;&nbsp;&nbsp;<b>Lon</b>:&nbsp;" + oCoordList[0].lng.toFixed(5) +
+                             (!isNaN(oCoordList[0].alt)? "<br/>&nbsp;&nbsp;&nbsp;&nbsp;<b>Alt</b>:&nbsp;" + oCoordList[0].alt + this._getAltUnitsAndModeText(): "") +
+                             "<br/><br/>" + this._getPopupDescription();
+            } else {
                 sPopupText = "<b>Symbol Code</b>:&nbsp;" + this.options.data.symbolCode + "<br/><br/>" +
-                        this._getPopupDescription();
+                             this._getPopupDescription();
             }
-            
+
             return sPopupText;
         },
-        _createMultiPointFeature: function(args, oModifier, i2525Version)
-        {
+        _createMultiPointFeature: function(args, oModifier, i2525Version) {
+            var leafletObject;
+            var leafletObject2;
+            var leafletObjectTemp;
             var sDescription = args.properties.description || "";
+            var oMapBounds = this.getEngineInstanceInterface().leafletInstance.getBounds();
+            var oEmpMapBounds = new leafLet.typeLibrary.EmpBoundary(oMapBounds.getSouthWest(), oMapBounds.getNorthEast());
 
             leafLet.utils.milstd.applyRequiredModifiers(args.data.symbolCode, oModifier, i2525Version, this.getEngineInstanceInterface().getLeafletMap());
 
-            return leafLet.utils.milstd.renderMPGraphic({
+            leafletObject = leafLet.utils.milstd.renderMPGraphic({
                 instanceInterface: this.getEngineInstanceInterface(),
                 isSelected: args.selected,
                 sID: args.coreId,
@@ -132,11 +118,13 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
                 oCoordData: args.data,
                 oModifiers: oModifier,
                 i2525Version: i2525Version,
-                oFeature: this
+                oFeature: this,
+                empMapBounds: oEmpMapBounds
             });
+
+            return leafletObject;
         },
-        _createSinglePointFeature: function(oItem, oModifiers)
-        {
+        _createSinglePointFeature: function(oItem, oModifiers) {
             var oFeature;
             var oCoordinates = leafLet.utils.geoJson.convertCoordinatesToLatLng(oItem.data)[0];
             var oMilStdIcon = this._getSinglePointIcon(oItem, oModifiers);
@@ -145,65 +133,60 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
                 icon: oMilStdIcon,
                 oFeature: this
             });
-            
+
             return oFeature;
         },
-        _modifierOnList: function(sModifier)
-        {
+        _modifierOnList: function(sModifier) {
             return ((this.getEngineInstanceInterface().oLabelList.indexOf(sModifier) === -1)? false: true);
         },
-        _getSinglePointIcon: function(oItem, oMainModifiers)
-        {
+        _getSinglePointIcon: function(oItem, oMainModifiers) {
             var iconUrl;
             var sModifier;
             var oModifierArray = [];
             var oModifiers = {};
             var sClassName = '';
             var msa = armyc2.c2sd.renderer.utilities.MilStdAttributes;
-            
+
             if (!oMainModifiers.hasOwnProperty('T') ||
-                    (oMainModifiers.hasOwnProperty('T') && (oMainModifiers.T !== oItem.name)))
-            {
+                    (oMainModifiers.hasOwnProperty('T') && (oMainModifiers.T !== oItem.name))) {
                 // If there is no T or its diff than name.
                 oMainModifiers["CN"] = oItem.name;
             }
-            
-            for (sModifier in oMainModifiers)
-            {
+
+            for (sModifier in oMainModifiers) {
                 if (oMainModifiers.hasOwnProperty(sModifier)) {
                     switch (sModifier) {
-                        case leafLet.utils.milstd.longModifiers.FILL_COLOR:
-                            if (L.Browser.canvas) {
-                                oModifiers[msa.FillColor] = '#' + oMainModifiers[sModifier];
-                            } else {
-                                oModifiers['fillcolor'] = oMainModifiers[sModifier];
-                            }
-                            break;
-                        case leafLet.utils.milstd.longModifiers.LINE_COLOR:
-                            if (L.Browser.canvas) {
-                                oModifiers[msa.LineColor] = '#' + oMainModifiers[sModifier];
-                            } else {
-                                oModifiers['linecolor'] = oMainModifiers[sModifier];
-                            }
-                            break;
-                        case leafLet.utils.milstd.Modifiers.STANDARD:
+                    case leafLet.utils.milstd.longModifiers.FILL_COLOR:
+                        if (L.Browser.canvas) {
+                            oModifiers[msa.FillColor] = '#' + oMainModifiers[sModifier];
+                        } else {
+                            oModifiers['fillcolor'] = oMainModifiers[sModifier];
+                        }
+                        break;
+                    case leafLet.utils.milstd.longModifiers.LINE_COLOR:
+                        if (L.Browser.canvas) {
+                            oModifiers[msa.LineColor] = '#' + oMainModifiers[sModifier];
+                        } else {
+                            oModifiers['linecolor'] = oMainModifiers[sModifier];
+                        }
+                        break;
+                    case leafLet.utils.milstd.Modifiers.STANDARD:
+                        oModifiers[sModifier] = oMainModifiers[sModifier];
+                        break;
+                    default:
+                        if (this._modifierOnList(sModifier)) {
                             oModifiers[sModifier] = oMainModifiers[sModifier];
-                            break;
-                        default:
-                            if (this._modifierOnList(sModifier))
-                            {
-                                oModifiers[sModifier] = oMainModifiers[sModifier];
-                            }
-                            break;
+                        }
+                        break;
                     }
                 }
             }
-            
+
             oModifiers.SIZE = this.getEngineInstanceInterface().iMilStdIconSize;
             if (this.isSelected()) {
                 sClassName = 'icon-selected';
             }
-            
+
             if (L.Browser.canvas) {
                 var image;
 
@@ -213,7 +196,7 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
                 var oOffset = image.getCenterPoint();
                 var oImageBounds = image.getImageBounds();
                 var oMilStdIcon;
-                
+
                 oMilStdIcon = new L.Icon({
                     iconUrl:iconUrl,
                     iconAnchor: new L.Point(oOffset.x, oOffset.y),
@@ -228,15 +211,13 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
             var baseURL;
             var sModifiers = "";
 
-            for (sModifier in oModifiers)
-            {
+            for (sModifier in oModifiers) {
                 if (oModifiers.hasOwnProperty(sModifier)) {
                     oModifierArray.push(sModifier + "=" + oModifiers[sModifier]);
                 }
             }
 
-            if (oModifierArray.length > 0)
-            {
+            if (oModifierArray.length > 0) {
                 sModifiers = "?" + oModifierArray.join("&");
             }
 
@@ -256,26 +237,21 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
 
             return oMilStdIcon;
         },
-        _updateSinglePointFeature: function(oItem, oModifiers, bUpdateIcon)
-        {
+        _updateSinglePointFeature: function(oItem, oModifiers, bUpdateIcon) {
             var oCoordinates = leafLet.utils.geoJson.convertCoordinatesToLatLng(oItem.data)[0];
 
-            if (bUpdateIcon)
-            {
+            if (bUpdateIcon) {
                 var oIcon = this._getSinglePointIcon(oItem, oModifiers);
                 oItem.leafletObject.setLatLng(oCoordinates);
                 oItem.leafletObject.setIcon(oIcon);
-            }
-            else
-            {
+            } else {
                 oItem.leafletObject.setLatLng(oCoordinates);
             }
             oItem.leafletObject.update();
 
             return oItem.leafletObject;
         },
-        _createFeature: function(oOptions)
-        {
+        _createFeature: function(oOptions) {
             var oFeature = undefined;
             var sSymbolCode = oOptions.data.symbolCode;
             var oModifiers = leafLet.utils.milstd.convertModifiersTo2525(oOptions);
@@ -285,8 +261,7 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
             var oSymbolDef = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(sBasicSymbolCode, i2525Version);
             var oCoordList = leafLet.utils.geoJson.convertCoordinatesToLatLng(oOptions.data);
 
-            if (oSymbolDef && (oCoordList.length < oSymbolDef.minPoints))
-            {
+            if (oSymbolDef && (oCoordList.length < oSymbolDef.minPoints)) {
                 // We can't draw it yet.
                 this.options.oMilStdModifiers = new leafLet.typeLibrary.MilStdModifiers(this, oModifiers);
                 this.options.properties.modifiers = this.options.oMilStdModifiers.toLongModifiers();
@@ -295,19 +270,15 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
                 return undefined;
             }
 
-            if (isMultiPoint)
-            {
+            if (isMultiPoint) {
                 oFeature = this._createMultiPointFeature(oOptions, oModifiers, i2525Version);
                 oOptions.bIsMultiPointTG = true;
-            }
-            else if (oOptions.data.coordinates.length > 0)
-            {
+            } else if (oOptions.data.coordinates.length > 0) {
                 oFeature = this._createSinglePointFeature(oOptions, oModifiers);
                 oOptions.bIsMultiPointTG = false;
             }
 
-            if (oFeature)
-            {
+            if (oFeature) {
                 var oMapBoundry = this.getEngineInstanceInterface().leafletInstance.getBounds();
                 this._updateLeafletObject(oMapBoundry, oFeature, false);
             }
@@ -318,24 +289,19 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
             this.options.sBasicSymbolCode = sBasicSymbolCode;
             return oFeature;
         },
-        getCoordinateList: function()
-        {
+        getCoordinateList: function() {
             return leafLet.utils.geoJson.convertCoordinatesToLatLng(this.getData());
         },
-        setCoordinates: function(oLatLngList)
-        {
+        setCoordinates: function(oLatLngList) {
             leafLet.utils.geoJson.convertLatLngListToGeoJson(this.getData(), oLatLngList);
         },
-        isMultiPointTG: function()
-        {
+        isMultiPointTG: function() {
             return this.options.bIsMultiPointTG;
         },
-        getFeatureBounds: function()
-        {
+        getFeatureBounds: function() {
             var oEmpBoundary = leafLet.typeLibrary.Feature.prototype.getFeatureBounds.call(this);
-            
-            if (!oEmpBoundary || oEmpBoundary.isEmpty())
-            {
+
+            if (!oEmpBoundary || oEmpBoundary.isEmpty()) {
                 var oCoordList = leafLet.utils.geoJson.convertCoordinatesToLatLng(this.options.data);
 
                 oEmpBoundary = new leafLet.typeLibrary.EmpBoundary(oCoordList);
@@ -343,55 +309,44 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
 
             return oEmpBoundary;
         },
-        get2525Version: function()
-        {
+        get2525Version: function() {
             return this.options.i2525Version;
         },
-        render: function()
-        {
-            if (this.isVisible())
-            {
+        render: function() {
+            if (this.isVisible()) {
                 var oLeafletObject = this._createFeature(this.options);
 
                 this.setLeafletObject(oLeafletObject);
             }
         },
-        _updateMilStdFeature: function(args, oModifiers, bUpdateGraphic)
-        {
+        _updateMilStdFeature: function(args, oModifiers, bUpdateGraphic) {
             var oFeature = undefined;
             var sSymbolCode = args.data.symbolCode;
             var i2525Version = oModifiers[leafLet.utils.milstd.Modifiers.STANDARD];
             var isMultiPoint = armyc2.c2sd.renderer.utilities.SymbolUtilities.isMultiPoint(sSymbolCode, i2525Version);
 
-            if (isMultiPoint)
-            {
+            if (isMultiPoint) {
                 oFeature = this._createMultiPointFeature(args, oModifiers, i2525Version);
                 args.bIsMultiPointTG = true;
-            }
-            else
-            {
+            } else {
                 oFeature = this._updateSinglePointFeature(args, oModifiers, bUpdateGraphic);
             }
 
-            if (oFeature)
-            {
+            if (oFeature) {
                 var oMapBoundry = this.getEngineInstanceInterface().leafletInstance.getBounds();
                 this._updateLeafletObject(oMapBoundry, oFeature, false);
             }
 
             return oFeature;
         },
-        updateCoordinates: function(oMapBounds)
-        {
-            if (this.isVisible() && !this.isMultiPointTG())
-            {
+        updateCoordinates: function(oMapBounds) {
+            if (this.isVisible() && !this.isMultiPointTG()) {
                 // We only update coordinates to the visible NON tactical graphics.
                 // TG will get re-rendered.
                 this._updateLeafletObject(oMapBounds, this.getLeafletObject(), false);
             }
         },
-        _updateFeature: function(oArgs)
-        {
+        _updateFeature: function(oArgs) {
             var oNewFeafure;
             var sModifier;
             var bUpdateGraphic = (oArgs.bUpdateGraphic === true);
@@ -410,15 +365,12 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
                         if (!oModifiers.hasOwnProperty(sModifier)) {
                             continue;
                         }
-                        if (oMilStdModifiers.oModifiers[sModifier] === undefined)
-                        {
+                        if (oMilStdModifiers.oModifiers[sModifier] === undefined) {
                             // There is a new modifiers.
                             // We need to regenerate the graphic.
                             bUpdateGraphic = true;
                             break;
-                        }
-                        else if (!oMilStdUtil.areModifierValuesEqual(oMilStdModifiers.oModifiers[sModifier], oModifiers[sModifier]))
-                        {
+                        } else if (!oMilStdUtil.areModifierValuesEqual(oMilStdModifiers.oModifiers[sModifier], oModifiers[sModifier])) {
                             // The modifier changed.
                             // We need to regenerate the graphic.
                             bUpdateGraphic = true;
@@ -426,15 +378,12 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
                         }
                     }
 
-                    if (!bUpdateGraphic)
-                    {
-                        for (sModifier in oMilStdModifiers.oModifiers)
-                        {
+                    if (!bUpdateGraphic) {
+                        for (sModifier in oMilStdModifiers.oModifiers) {
                             if (!oMilStdModifiers.oModifiers.hasOwnProperty(sModifier)) {
                                 continue;
                             }
-                            if ((sModifier !== 'CN') && (oModifiers[sModifier] === undefined))
-                            {
+                            if ((sModifier !== 'CN') && (oModifiers[sModifier] === undefined)) {
                                 // A modifier was removed.
                                 // We need to regenerate the graphic.
                                 bUpdateGraphic = true;
@@ -452,23 +401,19 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
 
             return oNewFeafure;
         },
-        updateIconSize: function()
-        {
+        updateIconSize: function() {
             var sSymbolCode = this.options.data.symbolCode;
             var oModifiers = this.options.oMilStdModifiers.toModifiers();
             var i2525Version = oModifiers[leafLet.utils.milstd.Modifiers.STANDARD];
             var isMultiPoint = armyc2.c2sd.renderer.utilities.SymbolUtilities.isMultiPoint(sSymbolCode, i2525Version);
 
-            if (!isMultiPoint)
-            {
+            if (!isMultiPoint) {
                 this._updateSinglePointFeature(this.options, oModifiers, true);
             }
         },
-        resetEditMode: function()
-        {
+        resetEditMode: function() {
             this.options.isEditMode = false;
-            if (this.isSelected() && this.isMultiPointTG())
-            {
+            if (this.isSelected() && this.isMultiPointTG()) {
                 this.render();
             }
         }
