@@ -135,11 +135,18 @@ emp.engineDefs.cesiumMapEngine = function (args)
         PULSE_SOFT_LIMIT: 250,
         PULSE_HARD_LIMIT: 300
     };
-    engineInterface.capture.screenshot = function (args)
+    engineInterface.capture.screenshot = function (transaction)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
         console.log("screenshot");
-        return empCesium.canvas.toDataURL();
+         for (var i = 0; i < transaction.items.length; i += 1)
+        {
+            var item = transaction.items[i];
+            if (empCesium.defined(item))
+            {
+                item.dataUrl = empCesium.canvas.toDataURL();
+            }
+        }
     };
 
 //    // Change the style of selected items , and change the size of
@@ -811,12 +818,12 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //                    }
 //                }
                 //if there is a parentId, use that. Otherwise, use the overlayId.
-                if (!emp.util.isEmptyString(item.parentId))
-                {
-                    //v2
-                    item.parentType = "feature";
-                }
-                else if (!emp.util.isEmptyString(item.coreParent))
+//                if (!emp.util.isEmptyString(item.parentId) &&  !empCesium.isLayer(item.parentId) )
+//                {
+//                    //v2
+//                    item.parentType = "feature";
+//                }
+                if ((!emp.util.isEmptyString(item.coreParent) &&  !empCesium.isLayer(item.coreParent)) && (!emp.util.isEmptyString(item.overlayId) && item.overlayId !== item.coreParent  ) )
                 {
                     item.parentType = "feature";
                 }
