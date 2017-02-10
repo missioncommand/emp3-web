@@ -44,6 +44,9 @@ emp.editors.Vertices.prototype.push = function(vertex) {
   }
 };
 
+/**
+ * Displays a string representation of this linked list.
+ */
 emp.editors.Vertices.prototype.toString = function() {
   var result = "";
   var current = this.head;
@@ -64,6 +67,9 @@ emp.editors.Vertices.prototype.toString = function() {
   return result;
 };
 
+/**
+ * Inserts a vertex before the specified feature.
+ */
 emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
   var target = this.find(featureId);
 
@@ -79,6 +85,9 @@ emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
   }
 };
 
+/**
+ * Appends a vertex after the specified feature.
+ */
 emp.editors.Vertices.prototype.append = function(featureId, vertex) {
   var target = this.find(featureId);
 
@@ -144,4 +153,14 @@ emp.editors.Vertices.prototype.getVerticesAsLineString = function() {
   }
 
   return coordinates;
+};
+
+/**
+ * Removes all the control points out of vertices.
+ */
+emp.editors.Vertices.prototype.clear = function() {
+  this.head = null;
+  this.tail = null;
+  this.list = [];
+  this.length = 0;
 };

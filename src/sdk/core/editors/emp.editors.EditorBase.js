@@ -5,15 +5,14 @@ emp.editors = emp.editors || {};
  * of those graphics.
  *
  * @param {Object} args All parmaters are members of the args object.
- * @param {string} args.feature The featureId of the item we are editing.
+ * @param {string} args.feature The feature of the item we are editing.
  * @param {string} args.mapInstanceId The id of the mapInstance to which the
  * editing is occurring.
  */
 emp.editors.EditorBase = function(args) {
 
-  // A hash of the control points.  These are the existing points that
-  // control the vertices of the symbol.
-  this.controlPoints = [];
+  // A linked list of the control points.  These are the existing points that
+  // control the vertices of the symbol and control adding points to the symbol.
   this.vertices = new emp.editors.Vertices();
 
   // make a copy of feature as we do not want to change the feature passed in.
@@ -29,81 +28,13 @@ emp.editors.EditorBase = function(args) {
  * Adds the control points to the map for an edit or a draw.
  */
 emp.editors.EditorBase.prototype.addControlPoints = function() {
-  var i,
-    controlPoint,
-    transaction,
-    length,
-    coordinates,
-    controlPointFeatureId;
 
-  // normalize the geojson coordinates so we only have
-  // to write one for loop.
-  if (this.featureCopy.data.type === 'LineString') {
-    length = this.featureCopy.data.coordinates.length;
-    coordinates = this.featureCopy.data.coordinates;
-  }
-  else if (this.featureCopy.data.type === 'Polygon') {
-    length = this.featureCopy.data.coordinates[0].length;
-    coordinates = this.featureCopy.data.coordinates[0];
-  }
-  else if (this.featureCopy.data.type === 'Point') {
-    length = 1;
-    coordinates = [this.featureCopy.data.coordinates];
-  }
-
-  // default implementation: add a control point at every vertex.
-  for (i = 0; i < length; i++) {
-
-    controlPointFeatureId = emp3.api.createGUID();
-    // create a feature for each of these coordinates.
-    controlPoint = new emp.typeLibrary.Feature({
-      overlayId: "vertices",
-      featureId: controlPointFeatureId,
-      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-      data: {
-        coordinates: coordinates[i],
-        type: 'Point'
-      }
-    });
-
-    this.controlPoints[controlPointFeatureId] = controlPoint;
-  }
-
-  transaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.FEATURE_ADD,
-    mapInstanceId: this.mapInstance.mapInstanceId,
-    transactionId: null,
-    sender: this.mapInstance.mapInstanceId,
-    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-    source: emp.api.cmapi.SOURCE,
-    messageOriginator: this.mapInstance.mapInstanceId,
-    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-    items: this.controlPoints
-  });
-
-  transaction.run();
 
 };
 
 
 emp.editors.EditorBase.prototype.removeControlPoints = function() {
-  var transaction;
 
-  transaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
-    mapInstanceId: this.mapInstance.mapInstanceId,
-    transactionId: null,
-    sender: this.mapInstance.mapInstanceId,
-    originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-    source: emp.api.cmapi.SOURCE,
-    messageOriginator: this.mapInstance.mapInstanceId,
-    originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-    items: this.vertices.getFeatures()
-  });
-
-  transaction.run();
-
-  this.controlPoints = [];
 
 };
 
@@ -140,27 +71,8 @@ emp.editors.EditorBase.prototype.isFeature = function(featureId) {
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
  */
-emp.editors.EditorBase.prototype.moveControlPoint = function(featureId, pointer) {
+emp.editors.EditorBase.prototype.moveControlPoint = function() {
 
-  var controlPoint,
-    transaction;
-
-  controlPoint = this.controlPoints[featureId];
-  controlPoint.data.coordinates = [pointer.lon, pointer.lat];
-
-  transaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.FEATURE_ADD,
-    mapInstanceId: this.mapInstance.mapInstanceId,
-    transactionId: null,
-    sender: this.mapInstance.mapInstanceId,
-    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-    source: emp.api.cmapi.SOURCE,
-    messageOriginator: this.mapInstance.mapInstanceId,
-    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-    items: [controlPoint]
-  });
-
-  transaction.run();
 
 };
 

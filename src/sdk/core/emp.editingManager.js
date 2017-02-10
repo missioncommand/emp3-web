@@ -243,7 +243,7 @@ emp.editingManager = function(args) {
         activeEditor.isControlPoint(featureId)) {
 
         mapLock = new emp.typeLibrary.Lock({
-          lock: true
+          lock: emp3.api.enums.MapMotionLockEnum.NO_MOTION
         });
 
         // first lock the map in place so the map does not pan.
@@ -372,7 +372,7 @@ emp.editingManager = function(args) {
       });
 
       mapLock = new emp.typeLibrary.Lock({
-        lock: false
+        lock: emp3.api.enums.MapMotionLockEnum.UNLOCKED
       });
 
       lockMapTransaction = new emp.typeLibrary.Transaction({

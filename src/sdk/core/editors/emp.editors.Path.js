@@ -22,7 +22,9 @@ emp.editors.Path.prototype.addControlPoints = function() {
     midpoint,
     items = [],
     vertex,
-    addPoint;
+    addPoint,
+    hideItem,
+    hideTransaction;
 
   // All features entering into this method should be a LineString
   // otherwise this will not work.
@@ -94,10 +96,40 @@ emp.editors.Path.prototype.addControlPoints = function() {
       data: {
         coordinates: this.vertices.getVerticesAsLineString(),
         type: 'LineString'
+      },
+      properties: {
+        lineColor: 'FFFFFF00'
       }
     });
-
+    // copy the coordinates into our object, so we can eventually complete
+    // the edit.
+    this.featureCopy.data.coordinates = this.path.data.coordinates;
     items.push(this.path);
+
+
+
+    // Hide the existing graphic as to not confuse the users with two LineString
+    // on the screen.
+    hideItem = {
+        overlayId: emp.constant.parentIds.ALL_PARENTS,
+        featureId: this.featureCopy.featureId,
+        visible: false,
+        zoom: false
+    };
+
+    hideTransaction = new emp.typeLibrary.Transaction({
+        intent: emp.intents.control.VISIBILITY_SET,
+        mapInstanceId: this.mapInstance.mapInstanceId,
+        transactionId: null,
+        sender: this.mapInstance.mapInstanceId,
+        originChannel: cmapi.channel.names.MAP_FEATURE_HIDE,
+        source: emp.api.cmapi.SOURCE,
+        messageOriginator: this.mapInstance.mapInstanceId,
+        originalMessageType: cmapi.channel.names.MAP_FEATURE_HIDE,
+        items: [hideItem]
+    });
+
+
 
     // run the transaction and add all the symbols on the map.
     transaction = new emp.typeLibrary.Transaction({
@@ -113,13 +145,62 @@ emp.editors.Path.prototype.addControlPoints = function() {
     });
 
     transaction.run();
+    //hideTransaction.queue();
   } // end if
 
 };
 
-emp.editors.Path.prototype.removeControlPoints = function() {
-  // do nothing
 
+emp.editors.Path.prototype.removeControlPoints = function() {
+
+  // do nothing
+  var transaction;
+  var items;
+  var vertices = this.vertices.getFeatures();
+  var showItem;
+  var showTransaction;
+  items = vertices;
+
+  items.push(this.path);
+
+  transaction = new emp.typeLibrary.Transaction({
+    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+    items: items
+  });
+
+  transaction.run();
+
+  this.vertices.clear();
+
+  // Hide the existing graphic as to not confuse the users with two LineString
+  // on the screen.
+  showItem = {
+      overlayId: emp.constant.parentIds.ALL_PARENTS,
+      featureId: this.featureCopy.featureId,
+      visible: true,
+      zoom: false
+  };
+
+  showTransaction = new emp.typeLibrary.Transaction({
+      intent: emp.intents.control.VISIBILITY_SET,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_SHOW,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_SHOW,
+      items: [showItem]
+  });
+
+  //showTransaction.run();
 };
 
 /**
@@ -240,6 +321,9 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
   // create a feature for each of these coordinates.  This
   // will be our 'add point'
   this.path.data.coordinates = this.vertices.getVerticesAsLineString();
+  // copy the coordinates into our object, so we can eventually complete
+  // the edit.
+  this.featureCopy.data.coordinates = this.path.data.coordinates;
 
   items.push(this.path);
 
@@ -333,6 +417,9 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
 
   // update the line with the current vertices.
   this.path.data.coordinates = this.vertices.getVerticesAsLineString();
+  // copy the coordinates into our object, so we can eventually complete
+  // the edit.
+  this.featureCopy.data.coordinates = this.path.data.coordinates;
 
   items.push(this.path);
 
