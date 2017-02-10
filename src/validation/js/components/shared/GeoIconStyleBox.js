@@ -5,13 +5,36 @@ import {VText} from '../shared';
 class GeoIconStyleBox extends Component {
   constructor(props) {
     super(props);
+
+    let size, offSetX, offSetY;
+
+    if (props.feature && props.feature.geoIconStyle) {
+      size = props.feature.geoIconStyle.size;
+      offSetX =  props.feature.geoIconStyle.offSetX;
+      offSetY = props.feature.geoIconStyle.offSetY;
+    }
+
     this.state = {
-      size: '',
-      offSetX: '',
-      offSetY: ''
+      size: size,
+      offSetX: offSetX,
+      offSetY: offSetY
     };
 
     this.handleUpdate = this.handleUpdate.bind(this);
+  }
+
+  componentWillReceiveProps(props) {
+    if (props.feature && props.feature.geoIconStyle) {
+      let size = props.feature.geoIconStyle.size;
+      let offSetX =  props.feature.geoIconStyle.offSetX;
+      let offSetY = props.feature.geoIconStyle.offSetY;
+
+      this.setState({
+        size: size,
+        offSetX: offSetX,
+        offSetY: offSetY
+      });
+    }
   }
 
   handleUpdate(event) {
@@ -34,7 +57,7 @@ class GeoIconStyleBox extends Component {
         convertedProps.offSetX = parseInt(this.state.offSetX);
       }
 
-      if (this.state.offSetY && !isNaN(this.state.size)) {
+      if (this.state.offSetY && !isNaN(this.state.offSetY)) {
         convertedProps.offSetY = parseInt(this.state.offSetY);
       }
       callback('geoIconStyle', convertedProps);
@@ -70,16 +93,12 @@ class GeoIconStyleBox extends Component {
 }
 
 GeoIconStyleBox.propTypes = {
-  style: PropTypes.shape({
-    size: PropTypes.number,
-    offSetX: PropTypes.number,
-    offSetY: PropTypes.number
-  }),
+  feature: PropTypes.object,
   classNames: PropTypes.string,
   callback: PropTypes.func.isRequired
 };
 
-GeoIconStyleBox.defaultPropts = {
+GeoIconStyleBox.defaultProps = {
   classNames: ''
 };
 
