@@ -823,29 +823,22 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onMoveEnd(e) {
-            var center;
-            var mapBounds;
+          var center,
+              mapBounds;
 
-            checkMapCenter();
-            center = instanceInterface.leafletInstance.getCenter();
-
-            if ((center.lng < -180.0) || (center.lng > 180.0)) {
-                instanceInterface.leafletInstance.setView(center.wrap());
-                return;
-            }
-          // The reason for calling refreshZone() is to reset the zoneChanged boolean to false after a
-          // onZoomEnd event occurs which could cause the zoneChanged boolean to turn true.
+          checkMapCenter();
+          center = instanceInterface.leafletInstance.getCenter();
+          if ((center.lng < -180.0) || (center.lng > 180.0)) {
+            instanceInterface.leafletInstance.setView(center.wrap());
+            return;
+          }
           if (instanceInterface.renderingOptimization.enabled) {
             instanceInterface.renderingOptimization.refreshZone();
           }
-
-          //console.log("Center Lat: " + center.lat + " lng: " + center.lng);
-
-            var view = instanceInterface.getView();
-            var lookAt = instanceInterface.viewToLookAt(view);
-            instanceInterface.scheduleRendering(view);
-            instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-
+          var view = instanceInterface.getView();
+          var lookAt = instanceInterface.viewToLookAt(view);
+          instanceInterface.scheduleRendering(view);
+          instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
           instanceInterface.processViewSetTrans();
         }
 
@@ -865,24 +858,17 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onZoomEnd(oEvent) {
-            checkMapWidth();
-            //var view = instanceInterface.getView();
-            // lookAt = instanceInterface.viewToLookAt(view);
+          checkMapWidth();
+          //var view = instanceInterface.getView();
+          // lookAt = instanceInterface.viewToLookAt(view);
 
-            //instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-            //instanceInterface.processViewSetTrans();
-          // currently resides needs to be made. The mil-std single point icons will display differently depending on
-          // the zone in which the the map view currently resides. Set the zone to an arbitrary string value that can
-          // be used during the rendering of each mil-std icon.
-          if (instanceInterface.renderingOptimization.enabled) {
-            instanceInterface.renderingOptimization.refreshZone();
-          }
-          //instanceInterface.scheduleRendering(view);
+          //instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
+          //instanceInterface.processViewSetTrans();
         }
 
         function onViewReset(e) {
-            //checkMapWidth();
-            //instanceInterface.scheduleRendering();
+          //checkMapWidth();
+          //instanceInterface.scheduleRendering();
         }
 
         function onMouseUpDown(e) {
