@@ -168,7 +168,8 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
               renderingOptimization,
               baseURL,
               sModifiers,
-              size;
+              size,
+              svgColor;
 
           if (!oMainModifiers.hasOwnProperty('T') ||
             (oMainModifiers.hasOwnProperty('T') && (oMainModifiers.T !== oItem.name))) {
@@ -215,36 +216,35 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
             iconUrl = image.toDataUrl();
             oOffset = image.getCenterPoint();
             oImageBounds = image.getImageBounds();
+            renderingOptimization = this.getEngineInstanceInterface().renderingOptimization;
             oMilStdIcon;
-            if (this.getEngineInstanceInterface().renderingOptimization.viewInZone) {
-              renderingOptimization = this.getEngineInstanceInterface().renderingOptimization;
+            if (renderingOptimization.viewInZone) {
               switch (renderingOptimization.viewInZone) {
                 case "farDistanceZone":
                   switch (oItem.data.symbolCode.charAt(1)) {
                     case "H":
-                      image = renderingOptimization.farDistanceThreshold.dotImages.RED;
+                      svgColor = renderingOptimization.farDistanceThreshold.RED
                       break;
                     case "F":
-                      image = renderingOptimization.farDistanceThreshold.dotImages.BLUE;
+                      svgColor = renderingOptimization.farDistanceThreshold.BLUE
                       break;
                     case "N":
-                      image = renderingOptimization.farDistanceThreshold.dotImages.GREEN;
+                      svgColor = renderingOptimization.farDistanceThreshold.GREEN
                       break;
                     case "U":
-                      image = renderingOptimization.farDistanceThreshold.dotImages.YELLOW;
+                      svgColor = renderingOptimization.farDistanceThreshold.YELLOW
                       break;
                     default:
-                      image = renderingOptimization.farDistanceThreshold.dotImages.YELLOW;
+                      svgColor = renderingOptimization.farDistanceThreshold.YELLOW
                       break;
                   }
-                  iconUrl = 'data:image/svg+xml,' + image;
-                  oMilStdIcon = new L.Icon({
-                    iconUrl: iconUrl,
-                    iconAnchor: new L.Point(oOffset.x, oOffset.y),
-                    popupAnchor: new L.Point(oOffset.x, oOffset.y),
-                    className: sClassName
+                  image = renderingOptimization.farDistanceThreshold.getSVG({
+                    x: oOffset.x,
+                    y: oOffset.y,
+                    radius: 3,
+                    color: svgColor
                   });
-                  return oMilStdIcon;
+                  iconUrl = 'data:image/svg+xml,' + image;
                   break;
                 case "midDistanceZone":
                   strippedSymbolCode = oItem.data.symbolCode.slice(0, 10).concat("-----");
@@ -258,7 +258,7 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
             oMilStdIcon = new L.Icon({
               iconUrl: iconUrl,
               iconAnchor: new L.Point(oOffset.x, oOffset.y),
-              // iconSize: new L.Point(oImageBounds.width, oImageBounds.height),
+              iconSize: new L.Point(oImageBounds.width, oImageBounds.height),
               popupAnchor: new L.Point(oOffset.x, oOffset.y),
               className: sClassName
             });

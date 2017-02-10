@@ -47,13 +47,21 @@ emp.engineDefs.leafletMapEngine = function (args) {
           midDistanceThreshold: args.midDistanceThreshold,
           farDistanceThreshold: {
             value: args.farDistanceThreshold,
-            dotImages: {
-              RED: '<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12"  r="3" fill="red" stroke="red" stroke-width="1"  /></g></svg>',
-              BLUE: '<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle cx="12" cy="12"  r="3" fill="blue" stroke="blue" stroke-width="1"  /></g></svg>',
-              GREEN: '<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12" r="3" fill="green" stroke="green" stroke-width="1"  /></g></svg>',
-              YELLOW: '<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12" r="3" fill="yellow" stroke="yellow" stroke-width="1"  /></g></svg>'
+            RED: 'red',
+            BLUE: 'blue',
+            GREEN: 'green',
+            YELLOW: 'yellow',
+            getSVG: function (attributes) {
+              return '<svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" version="1.1">' +
+                       '<circle cx="' + attributes.x + '" cy="' + attributes.y + '" r="' + attributes.radius + '"' +
+                       ' fill="' + attributes.color + '" stroke="' + attributes.color + '" stroke-width="1"/>' +
+                     '</svg>';
             }
           },
+          // This is set to undefined instead of null to account for the case when the map starts at a very low altitude
+          // and a mil symbol icon plot occurs without any other event first. If this is already 'null' the zoneChanged
+          // boolean in the refreshZone() will not change to true which is needed if the afformentioned plot mil std icon
+          // is to be put on the render list in the scheduler.
           viewInZone: undefined,
           zoneChanged: false,
           renderList: {},
@@ -539,7 +547,6 @@ emp.engineDefs.leafletMapEngine = function (args) {
             removedGraphicId = currentGraphic[0].options.featureId;
             if (instanceInterface.renderingOptimization.isOnRenderList(removedGraphicId)) {
               instanceInterface.renderingOptimization.removeFromRenderList(removedGraphicId);
-              console.log("REMOVED FROM RENDER LIST");
             }
             iIndex++;
           }
@@ -809,9 +816,8 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onMoveEnd(e) {
-          console.log("onMoveEnd");
-          // The main reason for calling refreshZone() here is to reset the zoneChanged boolean to false after a
-          // onZoomEnd event occurs which caused a zone change to occur and zonechanged boolean to change to true.
+          // The reason for calling refreshZone() is to reset the zoneChanged boolean to false after a
+          // onZoomEnd event occurs which could cause the zoneChanged boolean to turn true.
           if (instanceInterface.renderingOptimization.enabled) {
             instanceInterface.renderingOptimization.refreshZone();
           }
@@ -845,7 +851,6 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onZoomEnd(oEvent) {
-          console.log("onZoomEnd");
           checkMapWidth();
           var view = instanceInterface.getView();
           var lookAt = instanceInterface.viewToLookAt(view);
@@ -862,7 +867,6 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onViewReset(e) {
-          console.log("onViewReset");
           checkMapWidth();
           instanceInterface.scheduleRendering();
         }
@@ -2117,7 +2121,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
     engineInterface.lookAt.set = function(transaction) {
         var iIndex;
 
-        for (iIndex = 0; iIndex < transaction.items.length;) {
+        for (iIndex = 0; iIndex < transaction.items.length; iIndex += 1) {
             if (instanceInterface.setLookAt(transaction.items[iIndex])) {
                 iIndex++;
             } else {
@@ -2130,6 +2134,80 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
     };
 
+    engineInterface.map.config = function (transaction) {
+      var iIndex,
+          prop,
+          previousRenderSettings = {
+            enabled: instanceInterface.renderingOptimization.enabled,
+            midDistanceThreshold: instanceInterface.renderingOptimization.midDistanceThreshold,
+            farDistanceThreshold: instanceInterface.renderingOptimization.farDistanceThreshold.value
+          },
+          newConfig;
+
+      for (iIndex = 0; iIndex < transaction.items.length; iIndex += 1) {
+        newConfig = transaction.items[0];
+        try {
+          for (prop in newConfig) {
+            switch (prop) {
+              case "renderingOptimization":
+                if (typeof newConfig[prop] !== 'boolean') {
+                  throw new Error("'renderingOptimization' property must be of Boolean type.");
+                }
+                instanceInterface.renderingOptimization.enabled = newConfig[prop];
+                break;
+              case "midDistanceThreshold":
+                if (typeof newConfig[prop] !== 'number') {
+                  throw new Error("'midDistanceThreshold' property must be of Number type.");
+                }
+                instanceInterface.renderingOptimization.midDistanceThreshold = newConfig[prop];
+                break;
+              case "farDistanceThreshold":
+                if (typeof newConfig[prop] !== 'number') {
+                  throw new Error("'farDistanceThreshold' property must be of Number type.");
+                }
+                instanceInterface.renderingOptimization.farDistanceThreshold.value = newConfig[prop];
+                break;
+              case "brightness":
+                break;
+            }
+          }
+          if (previousRenderSettings.enabled) {
+            // In both of these cases a change has occured from the previous state of the configuration attributes which
+            // must trigger a re-render of the graphics. If previous attributes haven't changed then no re-render should
+            // occur.
+            if (!instanceInterface.renderingOptimization.enabled) {
+              instanceInterface.renderingOptimization.viewInZone = undefined;
+              instanceInterface.renderingOptimization.zoneChanged = true;
+              instanceInterface.scheduleRendering();
+              instanceInterface.renderingOptimization.zoneChanged = false;
+            } else if (previousRenderSettings.midDistanceThreshold !== instanceInterface.renderingOptimization.midDistanceThreshold ||
+                       previousRenderSettings.farDistanceThreshold !== instanceInterface.renderingOptimization.farDistanceThreshold.value) {
+              instanceInterface.renderingOptimization.refreshZone();
+              instanceInterface.scheduleRendering();
+              instanceInterface.renderingOptimization.zoneChanged = false;
+            }
+          } else {
+            // If the previous enabled state is false and set to true a re-render must occur. Although the far and mid
+            // distance threshold values can change, a re-render is only necessary when the enabled property is set to
+            // true.
+            if (instanceInterface.renderingOptimization.enabled) {
+              instanceInterface.renderingOptimization.refreshZone();
+              instanceInterface.scheduleRendering();
+              instanceInterface.renderingOptimization.zoneChanged = false;
+            }
+          }
+          transaction.run();
+        } catch (e) {
+          transaction.fail(new emp.typeLibrary.Error({
+            coreId: item.coreId,
+            level: emp.typeLibrary.Error.level.MAJOR,
+            message: Ex.name + ": " + Ex.message,
+            jsError: Ex
+          }));
+          iIndex--;
+        }
+      }
+    };
 
     engineInterface.implementation.displayName = "Leaflet Map Engine";
     engineInterface.implementation.version = "34.0";
