@@ -2004,7 +2004,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     {
                         var selectionColorHex = config.selectionColor;
                         // add opacity FF to hex if not present
-                        selectionColorHex = (empCesium.selectionColorHex.length === 6) ? "FF" + selectionColorHex.toUpperCase() : selectionColorHex.toUpperCase();
+                        selectionColorHex = (selectionColorHex.length === 6) ? "FF" + selectionColorHex.toUpperCase() : selectionColorHex.toUpperCase();
                         bSelectionStyleChanged = (empCesium.selectionColorHex.toUpperCase() !== selectionColorHex.toUpperCase()) ? true : bSelectionStyleChanged;
                         empCesium.selectionColorHex = selectionColorHex;
                         var rgbaSelectionColor = cesiumEngine.utils.hexToRGB(empCesium.selectionColorHex);
