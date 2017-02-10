@@ -855,7 +855,7 @@ EMPWorldWind.editors.EditorController = (function() {
           //   empFeature.symbolCode !== wwFeature.userProperties.feature.symbolCode ||
           //   empFeature.symbolStandard !== wwFeature.userProperties.feature.symbolStandard;
 
-          wwFeature.addShapes(constructMilStdSymbol.call(this, empFeature));
+          wwFeature.addShapes(constructMilStdSymbol.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_ACM:
           wwFeature.addShapes(constructAirControlMeasure.call(this, empFeature, this.state.labelStyles));
