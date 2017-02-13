@@ -3020,6 +3020,8 @@ function EmpCesium()
                                     var entity = entityArray[index];
                                     if (entity.billboard)
                                     {
+                                          //entity.billboard.verticalOrigin  = this.VerticalOrigin .CENTER;
+                                          //entity.billboard.horizontalOrigin  = this.HorizontalOrigin .CENTER;
                                         //use default emp icon
                                         //if (emp.util.config.getUseProxySetting())
                                         //{
@@ -9258,6 +9260,10 @@ function EmpCesium()
 // workaround would be to replace billboard with new wbillboard and position
 // //Cesium.Ellipsoid.WGS84.cartesianToCartographic( position)
                     entity.billboard.heightReference = cesiumEngine.utils.convertEmpAltitudeTypeToCesium(args.data.properties.altitudeMode);
+//                    if (args.data.properties.altitudeMode === cesiumEngine.utils.AltitudeModeEnumType.ALTITUDE_CLAMP_TO_GROUND )
+//                    {
+//                        entity.billboard.height = 0;
+//                    }
                 }
                 entity.billboard.alignedAxis = this.Cartesian3.ZERO;
                 entity.billboard.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50);
@@ -13410,15 +13416,22 @@ var EmpLayer = function (name, id, type, empCesium)
                     feature.billboard.show = visibility;
                     this.updateFeature(feature); // the update removes and then adds the feature to the entity or primitive collection. The children are not remove and readded.
                 }
-                feature.billboard.show = visibility;
+                feature.billboard.show = new this.ConstantProperty(visibility);
             }
             if (feature.path !== undefined)
             {
-                feature.path.show = visibility;
+                feature.path.show = new this.ConstantProperty(visibility);
             }
             if (feature.polyline !== undefined)
             {
-                feature.polyline.show = visibility;
+                if (!this.empCesium.defined(feature.polyline.show))
+                {
+                    feature.polyline.show = new this.ConstantProperty(visibility);
+                }
+                else
+                {
+                    feature.polyline.show =  visibility;
+                }
 //                //use following workaround to hide entities
 //                if (visibility)
 //                {
@@ -13431,25 +13444,53 @@ var EmpLayer = function (name, id, type, empCesium)
             }
             if (feature.polygon !== undefined)
             {
-                feature.polygon.show = visibility;
+               if (!this.empCesium.defined(feature.polygon.show))
+                {
+                    feature.polygon.show = new this.ConstantProperty(visibility);
+                }
+                else
+                {
+                    feature.polygon.show =  visibility;
+                }
             }
             if (feature.label !== undefined)
             {
-                feature.label.show = visibility;
+                if (!this.empCesium.defined(feature.label.show))
+                {
+                    feature.label.show = new this.ConstantProperty(visibility);
+                }
+                else
+                {
+                    feature.label.show =  visibility;
+                }
             }
             if (feature.ellipse !== undefined)
             {
-                feature.ellipse.show = visibility;
+                if (!this.empCesium.defined(feature.ellipse.show))
+                {
+                    feature.ellipse.show = new this.ConstantProperty(visibility);
+                }
+                else
+                {
+                    feature.ellipse.show =  visibility;
+                }
             }
             if (feature.rectangle !== undefined)
             {
-                feature.show = visibility;
+               if (!this.empCesium.defined(feature.rectangle.show))
+                {
+                    feature.rectangle.show = new this.ConstantProperty(visibility);
+                }
+                else
+                {
+                    feature.rectangle.show =  visibility;
+                }
                 if (this.empCesium.isMultiPointPresent(id))
                 {
                     var oMultiPoint = this.empCesium.getMultiPoint(id);
                     if (oMultiPoint)
                     {
-                        oMultiPoint.visible = visibility;
+                        oMultiPoint.visible = new this.ConstantProperty(visibility);
                     }
                 }
             }
@@ -13470,7 +13511,7 @@ var EmpLayer = function (name, id, type, empCesium)
         }
         else if (feature.featureType === EmpCesiumConstants.featureType.COMPOUND_ENTITY)
         {
-            feature.show = visibility;
+            feature.show = new this.ConstantProperty(visibility);
             if (feature.childrenFeatureKeys !== undefined)
             {
                 for (var childrenFeatureId in feature.childrenFeatureKeys)
