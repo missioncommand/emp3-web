@@ -151,7 +151,7 @@ emp.editors.Path.prototype.addControlPoints = function() {
     });
 
     transaction.run();
-    hideTransaction.queue();
+    hideTransaction.run();
   } // end if
 
 };
