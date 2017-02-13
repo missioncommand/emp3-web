@@ -48,6 +48,8 @@ emp.editors.Path.prototype.addControlPoints = function() {
           iconUrl: emp.ui.images.editPoint,
           iconXOffset: 12,
           iconYOffset: 12,
+          xUnits: "pixels",
+          yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
         }
       });
@@ -81,6 +83,8 @@ emp.editors.Path.prototype.addControlPoints = function() {
             iconUrl: emp.ui.images.addPoint,
             iconXOffset: 8,
             iconYOffset: 8,
+            xUnits: "pixels",
+            yUnits: "pixels",
             altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
           }
         });
@@ -110,7 +114,7 @@ emp.editors.Path.prototype.addControlPoints = function() {
     // copy the coordinates into our object, so we can eventually complete
     // the edit.
     this.featureCopy.data.coordinates = this.path.data.coordinates;
-    items.push(this.path);
+    items.unshift(this.path);
 
     // Hide the existing graphic as to not confuse the users with two LineString
     // on the screen.
@@ -147,7 +151,7 @@ emp.editors.Path.prototype.addControlPoints = function() {
     });
 
     transaction.run();
-    //hideTransaction.queue();
+    hideTransaction.queue();
   } // end if
 
 };
@@ -202,7 +206,7 @@ emp.editors.Path.prototype.removeControlPoints = function() {
       items: [showItem]
   });
 
-  //showTransaction.run();
+  showTransaction.run();
 };
 
 /**
@@ -282,6 +286,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
           iconUrl: emp.ui.images.addPoint,
           iconXOffset: 8,
           iconYOffset: 8,
+          xUnits: "pixels",
+          yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
         }
       });
@@ -308,6 +314,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
           iconUrl: emp.ui.images.addPoint,
           iconXOffset: 8,
           iconYOffset: 8,
+          xUnits: "pixels",
+          yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
         }
       });
@@ -340,7 +348,7 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
   // the edit.
   this.featureCopy.data.coordinates = this.path.data.coordinates;
 
-  items.push(this.path);
+  items.unshift(this.path);
 
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
