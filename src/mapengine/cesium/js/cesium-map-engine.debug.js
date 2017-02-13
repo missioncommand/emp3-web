@@ -144,7 +144,8 @@ emp.engineDefs.cesiumMapEngine = function (args)
             var item = transaction.items[i];
             if (empCesium.defined(item))
             {
-                item.dataUrl = empCesium.canvas.toDataURL();
+                empCesium.viewer.render();
+                item.dataUrl = empCesium.viewer.canvas.toDataURL("image/png");
             }
         }
     };
