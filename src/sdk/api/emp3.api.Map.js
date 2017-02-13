@@ -451,7 +451,7 @@ emp3.api.Map.prototype = new emp3.api.Container();
  * "plus" and "minus" zoom out and zoom in buttons that zoom at a fixed distance.
  * @property {boolean} [cesiumNavigation.distanceLegend] Shows the distance legend
  * that estimates the measurements of the distance on the map for a fixed width
- * @property {Object} [renderingOptimization] Turns on or off rendering optimization
+ * @property {boolean} [renderingOptimization] Turns on or off rendering optimization
  * for drawing MIL-STD-2525 single point graphics.  When rendering optimization is
  * turned on, MIL-STD-2525 single points will render as dots when the camera goes
  * higher than a specified altitude.  Below the far threshold, the single points
@@ -459,18 +459,13 @@ emp3.api.Map.prototype = new emp3.api.Container();
  * past the midpoint threshold, they will display normal with labels.  This
  * greatly increases the number of symbols and ability for the map to
  * Rendering optimization
- * @property {boolean} [renderingOptimization.enabled=false] Set to true to
- * enable the MIL-STD-2525 point optimization.
- * @property {Object} [renderingOptimization.singlePointAltitudeRanges] An
- * object that specifies the default range for the MIL-STD-2525 single point
- * optimization.
- * @property {Object} [renderingOptimization.singlePointAltitudeRanges.mid] The
+ * @property {number} [midDistanceThreshold] The
  * altitude at which below single point MIL-STD-2525 symbols will display with
  * labels, and above, they will display without labels.
- * @property {Object} [renderingOptimization.singlePointAltitudeRanges.high] The
+ * @property {number} [farDistanceThreshold] The
  * altitude at which above single point MIL-STD-2525 symbols will display as colored
  * dots.
- * @property {boolean} debug Set to true to avoid using the minified version
+ * @property {boolean} [debug] Set to true to avoid using the minified version
  * of the Cesium engine files.
  */
 
@@ -483,8 +478,8 @@ emp3.api.Map.prototype = new emp3.api.Container();
  * @property {String} [data.Default_Tile_Map_Server_URL] A Tile Layer URL in the
  * format of a Leaflet URL template object ({@link http://leafletjs.com/reference.html#url-template}).
  * Details of tile layer format can be found at {@link http://doc.arcgis.com/EN/ARCGIS-ONLINE/REFERENCE/tile-layers.htm}.
- * @property {Number} [data.Minimum_Zoom_Level] Minimum zoom level of the map.
- * @property {Number} [data.Maximum_Zoom_Level] Maximum zoom level of the map.
+ * @property {number} [data.Minimum_Zoom_Level] Minimum zoom level of the map.
+ * @property {number} [data.Maximum_Zoom_Level] Maximum zoom level of the map.
  * @property {boolean} [data.Use_Proxy_For_Default_Map_Request = false] Determines
  * if the map's proxy will be used to request the map specified in Default_Tile_Map_Server_URL.
  * You would only use this if the map was not reachable because it is cross domain
@@ -497,10 +492,10 @@ emp3.api.Map.prototype = new emp3.api.Container();
  * past the midpoint threshold, they will display normal with labels.  This
  * greatly increases the number of symbols and ability for the map to
  * Rendering optimization
- * @property {Number} [renderingOptimization.midDistanceThreshold] The
+ * @property {number} [midDistanceThreshold] The
  * altitude at which below single point MIL-STD-2525 symbols will display with
  * labels, and above, they will display without labels.
- * @property {Number} [renderingOptimization.farDistanceThreshold] The
+ * @property {number} [farDistanceThreshold] The
  * altitude at which above single point MIL-STD-2525 symbols will display as colored
  * dots.
  * @property {boolean} [debug] Set to true to avoid using the minified version

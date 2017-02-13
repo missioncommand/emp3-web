@@ -225,13 +225,43 @@ leafLet.internalPrivateClass.MilStdFeature = function(){
                     case "H":
                       svgColor = renderingOptimization.farDistanceThreshold.RED
                       break;
+                    case "S":
+                      svgColor = renderingOptimization.farDistanceThreshold.RED
+                      break;
+                    case "J":
+                      svgColor = renderingOptimization.farDistanceThreshold.RED
+                      break;
+                    case "K":
+                      svgColor = renderingOptimization.farDistanceThreshold.RED
+                      break;
                     case "F":
+                      svgColor = renderingOptimization.farDistanceThreshold.BLUE
+                      break;
+                    case "D":
+                      svgColor = renderingOptimization.farDistanceThreshold.BLUE
+                      break;
+                    case "A":
+                      svgColor = renderingOptimization.farDistanceThreshold.BLUE
+                      break;
+                    case "M":
                       svgColor = renderingOptimization.farDistanceThreshold.BLUE
                       break;
                     case "N":
                       svgColor = renderingOptimization.farDistanceThreshold.GREEN
                       break;
+                    case "L":
+                      svgColor = renderingOptimization.farDistanceThreshold.GREEN
+                      break;
                     case "U":
+                      svgColor = renderingOptimization.farDistanceThreshold.YELLOW
+                      break;
+                    case "P":
+                      svgColor = renderingOptimization.farDistanceThreshold.YELLOW
+                      break;
+                    case "G":
+                      svgColor = renderingOptimization.farDistanceThreshold.YELLOW
+                      break;
+                    case "W":
                       svgColor = renderingOptimization.farDistanceThreshold.YELLOW
                       break;
                     default:
