@@ -181,7 +181,7 @@ emp.editors.Path.prototype.removeControlPoints = function() {
     items: items
   });
 
-  transaction.run();
+
 
   this.vertices.clear();
 
@@ -206,7 +206,10 @@ emp.editors.Path.prototype.removeControlPoints = function() {
       items: [showItem]
   });
 
+  // show the new graphic first, then hide the control points as to remove any
+  // type of flickering that could occur.
   showTransaction.run();
+  transaction.run();
 };
 
 /**
@@ -386,7 +389,6 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
   updateData.properties = this.featureCopy.properties;
 
   return updateData;
-
 
 };
 
