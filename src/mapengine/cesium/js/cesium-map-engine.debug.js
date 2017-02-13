@@ -135,6 +135,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
         PULSE_SOFT_LIMIT: 250,
         PULSE_HARD_LIMIT: 300
     };
+    
     engineInterface.capture.screenshot = function (transaction)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
@@ -144,7 +145,8 @@ emp.engineDefs.cesiumMapEngine = function (args)
             var item = transaction.items[i];
             if (empCesium.defined(item))
             {
-                item.dataUrl = empCesium.canvas.toDataURL();
+                empCesium.viewer.render();
+                item.dataUrl = empCesium.viewer.canvas.toDataURL("image/png");
             }
         }
     };
