@@ -50,7 +50,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
       lat: this.worldWind.navigator.lookAtLocation.latitude,
       lon: this.worldWind.navigator.lookAtLocation.longitude
     },
-    bounds: EMPWorldWind.eventHandlers.getBounds.call(this)
+    bounds: EMPWorldWind.utils.getBounds.call(this)
   };
 
   var lookAt = {
@@ -112,52 +112,4 @@ EMPWorldWind.eventHandlers.extractFeatureFromEvent = function(mouseEvent, empEve
       }
     }
   }
-};
-
-/**
- * Current bounds of the worldWindow
- * @returns {Bounds}
- */
-EMPWorldWind.eventHandlers.getBounds = function() {
-  var northPick, southPick, eastPick, westPick,
-    canvasBounds = this.worldWind.canvas.getBoundingClientRect(),
-    leftOffset = canvasBounds.left,
-    topOffset = canvasBounds.top,
-    middleX = Math.floor(this.worldWind.viewport.width / 2),
-    middleY = Math.floor(this.worldWind.viewport.height / 2);
-
-  northPick = this.worldWind.pick(new WorldWind.Vec2(leftOffset + middleX, topOffset)).terrainObject();
-  if (northPick) {
-    northPick = northPick.position.latitude;
-  } else {
-    northPick = 90; // TODO estimate northBound from lookAtLocation
-  }
-
-  southPick = this.worldWind.pick(new WorldWind.Vec2(leftOffset + middleX, topOffset + this.worldWind.viewport.height)).terrainObject();
-  if (southPick) {
-    southPick = southPick.position.latitude;
-  } else {
-    southPick = -90; // TODO estimate southBound from lookAtLocation
-  }
-
-  eastPick = this.worldWind.pick(new WorldWind.Vec2(leftOffset + this.worldWind.viewport.width, topOffset + middleY)).terrainObject();
-  if (eastPick) {
-    eastPick = eastPick.position.longitude;
-  } else {
-    eastPick = 90; // TODO estimate eastBound from lookAtLocation
-  }
-
-  westPick = this.worldWind.pick(new WorldWind.Vec2(leftOffset, topOffset + middleY)).terrainObject();
-  if (westPick) {
-    westPick = westPick.position.longitude;
-  } else {
-    westPick = 90; // TODO estimate westBound from lookAtLocation
-  }
-
-  return {
-    north: northPick,
-    south: southPick,
-    east: eastPick,
-    west: westPick
-  };
 };

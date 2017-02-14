@@ -172,6 +172,8 @@ EMPWorldWind.map.prototype.initialize = function(map) {
       }
     }
   }
+
+  EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
 };
 
 /**

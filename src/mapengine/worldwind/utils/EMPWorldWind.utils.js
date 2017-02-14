@@ -6,6 +6,14 @@ var EMPWorldWind = EMPWorldWind || {};
 EMPWorldWind.utils = {};
 
 /**
+ * @typedef {object} RGBAColor
+ * @property {number} r
+ * @property {number} g
+ * @property {number} b
+ * @property {number} a 0-1
+ */
+
+/**
  *
  * @param {MouseEvent} event
  * @returns {{lat: undefined, lon: undefined, clientX: *, clientY: *, screenX: *, screenY: *}}
@@ -789,10 +797,78 @@ EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
 };
 
 /**
- * @typedef {object} RGBAColor
- * @property {number} r
- * @property {number} g
- * @property {number} b
- * @property {number} a 0-1
+ * Calculate the current bounds of the WorldWindow
+ * @this {EMPWorldWind.map}
+ * @returns {Bounds}
  */
+EMPWorldWind.utils.getBounds = function() {
+  var north, south, east, west, center, topRight, bottomLeft, clientRect;
 
+  clientRect = this.worldWind.canvas.getBoundingClientRect();
+
+  topRight = this.worldWind.pick(this.worldWind.canvasCoordinates(clientRect.right - 70, clientRect.top + 20)).terrainObject();
+  bottomLeft = this.worldWind.pick(this.worldWind.canvasCoordinates(clientRect.left + 30, clientRect.bottom - 45)).terrainObject();
+
+  if (!topRight) {
+    topRight = {
+      position: {
+        latitude: 90,
+        longitude: 0
+      }
+    };
+  }
+  if (!bottomLeft) {
+    bottomLeft = {
+      position: {
+        latitude: -90,
+        longitude: 0
+      }
+    };
+  }
+
+  center = this.worldWind.navigator.lookAtLocation;
+
+  north = new WorldWind.Location(center.latitude, topRight.position.longitude);
+  south = new WorldWind.Location(center.latitude, bottomLeft.position.longitude);
+  east = new WorldWind.Location(topRight.position.latitude, center.longitude);
+  west = new WorldWind.Location(bottomLeft.position.latitude, center.longitude);
+
+  // DELETE ============================================================================================================
+  while (this.worldWind.layers.length >= 3) {
+    this.worldWind.removeLayer(this.worldWind.layers[2]);
+  }
+
+  var stupidLayer = new WorldWind.RenderableLayer();
+  this.worldWind.addLayer(stupidLayer);
+  var cp = new WorldWind.Placemark(center, false);
+  cp.altitudeMode = WorldWind.CLAMP_TO_GROUND;
+  cp.attributes.imageSource = WorldWind.configuration.baseUrl + "images/pushpins/castshadow-blue.png";
+  var np = new WorldWind.Placemark(north, false);
+  np.altitudeMode = WorldWind.CLAMP_TO_GROUND;
+  np.attributes.imageSource = WorldWind.configuration.baseUrl + "images/pushpins/castshadow-black.png";
+  var sp = new WorldWind.Placemark(south, false);
+  sp.altitudeMode = WorldWind.CLAMP_TO_GROUND;
+  sp.attributes.imageSource = WorldWind.configuration.baseUrl + "images/pushpins/castshadow-green.png";
+  var ep = new WorldWind.Placemark(east, false);
+  ep.altitudeMode = WorldWind.CLAMP_TO_GROUND;
+  ep.attributes.imageSource = WorldWind.configuration.baseUrl + "images/pushpins/castshadow-red.png";
+  var wp = new WorldWind.Placemark(west, false);
+  wp.altitudeMode = WorldWind.CLAMP_TO_GROUND;
+  wp.attributes.imageSource = WorldWind.configuration.baseUrl + "images/pushpins/castshadow-teal.png";
+
+  stupidLayer.addRenderable(cp);
+  stupidLayer.addRenderable(np);
+  stupidLayer.addRenderable(sp);
+  stupidLayer.addRenderable(ep);
+  stupidLayer.addRenderable(wp);
+
+  this.worldWind.redraw();
+  // DELETE ============================================================================================================
+
+  return {
+    north: north.latitude,
+    south: south.latitude,
+    east: east.longitude,
+    west: west.longitude
+  };
+};
