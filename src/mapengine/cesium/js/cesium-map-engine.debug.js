@@ -135,6 +135,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
         PULSE_SOFT_LIMIT: 250,
         PULSE_HARD_LIMIT: 300
     };
+    
     engineInterface.capture.screenshot = function (transaction)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
@@ -1991,17 +1992,22 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     // Retrieve the array of labels that are turned on from the
                     // transaction.
                     var config = transaction.items[0];
+                    if (empCesium.defined(config.renderingOptimization) && (config.renderingOptimization !== empCesium.enableRenderingOptimization))
+                    {
+                        bRangeChanged = true;
+                        empCesium.enableRenderingOptimization = config.renderingOptimization;
+                    }
                     if (empCesium.defined(config.midDistanceThreshold) && (config.midDistanceThreshold !== empCesium.singlePointAltitudeRanges.mid))
                     {
                         bRangeChanged = true;
                         empCesium.singlePointAltitudeRanges.mid = config.midDistanceThreshold;
                     }
-                    else if (empCesium.defined(config.farDistanceThreshold) && (config.midDistanceThreshold !== empCesium.singlePointAltitudeRanges.mid))
+                    if (empCesium.defined(config.farDistanceThreshold) && (config.farDistanceThreshold !== empCesium.singlePointAltitudeRanges.high))
                     {
                         bRangeChanged = true;
                         empCesium.singlePointAltitudeRanges.high = config.farDistanceThreshold;
-                        empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
-                        empCesium.processOnRangeChangeSinglePoints();
+                        //empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
+                        //empCesium.processOnRangeChangeSinglePoints();
                     }
                     if (bRangeChanged)
                     {
