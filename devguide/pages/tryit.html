@@ -49,6 +49,7 @@ function loadSample(src){
   <option value="examples/map-draw.js">Draw on the Map</option>
   <option value="examples/map-setExtent.js">Update the map extent</option>
   <option value="examples/map-addMapService.js">Add a WMS Service</option>
+  <option value="examples/map-addMapServiceWMTS.js">Add a WMTS Service</option>
   <option value="examples/map-addEventListener.js">Add an event listener to the map</option>
   <option value="examples/map-editFeature.js">Add a polygon to the map and edit it</option>
   <option value="examples/map-getVisibility.js">Get the visibility of an item on the map</option>
@@ -68,17 +69,8 @@ function loadSample(src){
         engineBasePath: "emp3/",
         mapEngines: [{
             "name": "Cesium",
-            "mapEngineId": 'cesiumMapEngine',
-            "engineBasePath":"emp3/emp3-cesium/",
-            "manifestName": "manifest.js",
-            "properties": {
-                "defaultImageryUrl": "http://localhost:8080/geoserver/wms",
-                "data": "[{'type' : 'osm','name' : 'Open Street Map','url' : '//a.tile.openstreetmap.org','disableProxy' : 'true','disable' : 'false','options' : '' },\n\
-                                     {'type' : 'bing','name' : 'Bing Aerial','url' : 'https://dev.virtualearth.net','disableProxy' : 'true','disable' : 'false','options' : 'Cesium.BingMapsStyle.AERIAL' },\n\
-                                     {'type' : 'arcgis93rest','name' : 'ESRI World Map','url' : 'https://services.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer','disableProxy' : 'true','disable' : 'false','options' : '0' },\n\
-                                     {'type' : 'arcgis93rest','name' : 'ESRI Street Map','url' : 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer','disableProxy' : 'true','disable' : 'false','options' : '0' }\n\
-                                     ]"
-            }
+            "mapEngineId": 'cesium',
+            "engineBasePath":"emp3/emp3-cesium/"
         }]
     };
 

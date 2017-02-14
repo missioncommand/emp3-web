@@ -1,62 +1,37 @@
 <div class="mdl-grid" style="max-width: 1024px">
     <div class="mdl-cell mdl-cell--12-col">
-        <H1>Quick start for EMP3 Web</h1>
-        <p>Below you will find a simple example to embed an use EMP3 in a web application.</a>
-        </p>
-
-        <h3>Quick start HTML file</h3>
-        <!--- Layout -->
-        <pre style="width: 100%; height: 1500px;" id="editor1">
-&lt;!doctype html&gt;
-&lt;html class=&quot;no-js&quot; lang=&quot;&quot;&gt;
-
-&lt;head&gt;
-    &lt;meta charset=&quot;utf-8&quot;&gt;
-    &lt;meta http-equiv=&quot;x-ua-compatible&quot; content=&quot;ie=edge&quot;&gt;
-    &lt;title&gt;&lt;/title&gt;
-    &lt;meta name=&quot;description&quot; content=&quot;&quot;&gt;
-    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1&quot;&gt;
-    &lt;link rel=&quot;apple-touch-icon&quot; href=&quot;apple-touch-icon.png&quot;&gt;
-    &lt;!-- Place favicon.ico in the root directory --&gt;
-    &lt;link href=&quot;vendor/mil-sym/renderer.css&quot; rel=&quot;stylesheet&quot; type=&quot;text/css&quot; /&gt;
-&lt;/head&gt;
-
-&lt;body&gt;
-  &lt;div style=&quot;position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px;&quot; id=&quot;empmap&quot;&gt;&lt;/div&gt;
-
-  &lt;script src='vendor/jquery-1.11.2.min.js' type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
-  &lt;script src='vendor/mil-sym/savm-bc.js' type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
-  &lt;script src='emp3.min.js' type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
-  &lt;script type=&quot;text/javascript&quot;&gt;
-    $(document).ready(function() {
-        var map1 = new emp3.api.Map({
-            container: "empmap",
-            engine: {
-    			engineBasePath: "emp3-cesium",
-    			mapEngineId: "cesium"
-    		},
-            onSuccess: function() {
-                console.log("Map creation success.");
-            },
-            onError: function(args) {
-                console.log("Map creation failed.");
-            }
-        });
-    });
-  &lt;/script&gt;
-&lt;/body&gt;
-&lt;/html&gt;
-</pre>
-
-        <script>
-        ;
-
-        var editor1 = ace.edit("editor1");
-        editor1.session.setMode("ace/mode/html");
-        editor1.setOption("wrap", true);
-        editor1.setReadOnly(true);
-
-
-        </script>
+        <h3>Create a simple HTML page with EMP</h3>
+        <p>Below is a bare minimum example of using EMP on a web page</p>
+                <pre style="width: 100%; height: 500px;" id="editor1">
+                    Loading...
+                </pre>
+            
+               <p> Below is the quickstart.html file from above loaded into an iframe.</p>
+                <iframe src="quickstart.html" style="width: 100%; height: 500px;"></iframe>
+        <p>At this point you are ready to start using the EMP API to interact with the map instance and do some magic like draw a MIL-STD-2525 Ambush</p>
+        <p>Take a look at the Examples and API Docs sections to learn more about the EMP API</p>
+      
     </div>
+
+<script>
+;
+(function(){
+var editor1 = ace.edit("editor1");
+editor1.session.setMode("ace/mode/html");
+editor1.setOption("wrap", true);
+editor1.setReadOnly(true);
+
+function loadSample(src) {
+    $.ajax({
+        url: src,
+        dataType: "text",
+        success: function(data) {
+            $(".text").html(data);
+            editor1.setValue(data);
+        }
+    });
+}
+loadSample('quickstart.html');
+}());
+</script>
 </div>
