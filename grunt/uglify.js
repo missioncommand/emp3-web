@@ -2,7 +2,7 @@ var manifest = require('../manifest');
 
 module.exports = {
   options: {
-    banner: '/*! <%= package.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
+    banner: '/*! <%= package.name %> <%= package.version %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
     sourceMap: true,
     compress: true,
     wrap: false,
@@ -23,7 +23,7 @@ module.exports = {
   },
   cesium: {
     options: {
-      banner: '/*! <%= package.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
+      banner: '/*! <%= package.name %> <%= package.version %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
       sourceMap: true,
       compress: false,
       wrap: false,
@@ -37,7 +37,7 @@ module.exports = {
   },
   worldwind: {
     options: {
-      banner: '/*! <%= package.name %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
+      banner: '/*! <%= package.name %> <%= package.version %> <%= grunt.template.today("dd-mm-yyyy") %> */\n',
       sourceMap: true,
       compress: false,
       wrap: false,
