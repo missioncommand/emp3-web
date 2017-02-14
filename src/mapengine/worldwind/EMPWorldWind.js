@@ -986,3 +986,43 @@ EMPWorldWind.map.prototype.spinGlobe = function() {
 EMPWorldWind.map.prototype.screenshot = function() {
   return this.worldWind.canvas.toDataURL();
 };
+
+/**
+ * Calculate the current bounds of the WorldWindow
+ * @returns {Bounds}
+ */
+EMPWorldWind.map.prototype.getBounds = function() {
+  var topRight, bottomLeft, clientRect;
+
+  clientRect = this.worldWind.canvas.getBoundingClientRect();
+
+  // TODO get rid of magic numbers, make this more bullet proof
+  topRight = this.worldWind.pick(this.worldWind.canvasCoordinates(clientRect.right - 70, clientRect.top + 20)).terrainObject();
+  bottomLeft = this.worldWind.pick(this.worldWind.canvasCoordinates(clientRect.left + 30, clientRect.bottom - 45)).terrainObject();
+
+  // TODO calculate corners from center in the case of full globe showing
+  if (!topRight) {
+    topRight = {
+      position: {
+        latitude: 90,
+        longitude: 0
+      }
+    };
+  }
+
+  if (!bottomLeft) {
+    bottomLeft = {
+      position: {
+        latitude: -90,
+        longitude: 0
+      }
+    };
+  }
+
+  return {
+    north: topRight.position.latitude,
+    south: bottomLeft.position.latitude,
+    east: topRight.position.longitude,
+    west: bottomLeft.position.longitude
+  };
+};
