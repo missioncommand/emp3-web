@@ -85,7 +85,10 @@ function initlializeLeaflet(args) {
             useProxy: bUseProxy,
             useProxyForDefault: bUseProxyForDefautMap,
             mapInstance: args.mapInstance,
-            initialExtent: args.extent
+            initialExtent: args.extent,
+            renderingOptimization: args.configProperties.renderingOptimization || false,
+            midDistanceThreshold: args.configProperties.midDistanceThreshold,
+            farDistanceThreshold: args.configProperties.farDistanceThreshold
         });
     }
 
