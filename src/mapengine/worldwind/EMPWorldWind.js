@@ -1005,18 +1005,25 @@ EMPWorldWind.map.prototype.getBounds = function() {
     topRight = {
       position: {
         latitude: 90,
-        longitude: 180
+        longitude: this.worldWind.navigator.lookAtLocation.longitude + 90
       }
     };
+    if (topRight.position.longitude > 180) {
+      topRight.position.longitude -= 360;
+    }
   }
 
   if (!bottomLeft) {
     bottomLeft = {
       position: {
         latitude: -90,
-        longitude: -180
+        longitude: this.worldWind.navigator.lookAtLocation.longitude - 90
       }
     };
+
+    if (bottomLeft.position.longitude < -180) {
+      bottomLeft.position.longitude += 360;
+    }
   }
 
   return {
