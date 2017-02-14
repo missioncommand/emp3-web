@@ -1000,7 +1000,6 @@ EMPWorldWind.map.prototype.getBounds = function() {
   topRight = this.worldWind.pick(this.worldWind.canvasCoordinates(clientRect.right - 70, clientRect.top + 20)).terrainObject();
   bottomLeft = this.worldWind.pick(this.worldWind.canvasCoordinates(clientRect.left + 30, clientRect.bottom - 45)).terrainObject();
 
-  // TODO calculate corners from center in the case of full globe showing
   if (!topRight) {
     topRight = {
       position: {
