@@ -5,8 +5,8 @@ var point = new emp3.api.Point({
   position: {
     latitude: lat,
     longitude: lon
-  }
-  // iconUrl:
+  },
+  iconURI: "https://cdn2.iconfinder.com/data/icons/starwars/icons/48/R2-D2.png"
 });
 
 var overlay1 = new emp3.api.Overlay({
