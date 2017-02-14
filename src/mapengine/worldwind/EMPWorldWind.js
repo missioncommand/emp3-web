@@ -1005,7 +1005,7 @@ EMPWorldWind.map.prototype.getBounds = function() {
     topRight = {
       position: {
         latitude: 90,
-        longitude: 0
+        longitude: 180
       }
     };
   }
@@ -1014,7 +1014,7 @@ EMPWorldWind.map.prototype.getBounds = function() {
     bottomLeft = {
       position: {
         latitude: -90,
-        longitude: 0
+        longitude: -180
       }
     };
   }
