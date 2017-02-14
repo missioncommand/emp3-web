@@ -419,6 +419,13 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     transaction.failures = rc.failed;
   };
 
+  /**
+   *
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.capture.screenshot = function(transaction) {
+    return transaction.items[0].dataUrl = empWorldWind.screenshot();
+  };
 
   // return the engineInterface object as a new engineTemplate instance
   return engineInterface;

@@ -113,6 +113,15 @@ EMPWorldWind.map = function(wwd) {
   this.layer = undefined;
 };
 
+// typedefs ============================================================================================================
+/**
+ * @typedef {object} SelectionStyle
+ * @property {number} scale
+ * @property {string|undefined} lineColor
+ * @property {string|undefined} fillColor
+ */
+//======================================================================================================================
+
 /**
  * Creates the initial layers
  * @param {emp.map} map
@@ -278,7 +287,8 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
 
   if (args.animate) {
     this.goToAnimator.travelTime = EMPWorldWind.constants.globeMoveTime;
-    this.goToAnimator.goTo(position, args.animateCB || function() { });
+    this.goToAnimator.goTo(position, args.animateCB || function() {
+      });
   } else {
     this.goToAnimator.travelTime = 0;
     this.goToAnimator.goTo(position);
@@ -931,7 +941,7 @@ EMPWorldWind.map.prototype.setLockState = function(lockState) {
 /**
  * Spins the globe if autoPanning is enabled
  */
-EMPWorldWind.map.prototype.spinGlobe = function () {
+EMPWorldWind.map.prototype.spinGlobe = function() {
   var vertical = 0,
     horizontal = 0;
 
@@ -968,8 +978,9 @@ EMPWorldWind.map.prototype.spinGlobe = function () {
 };
 
 /**
- * @typedef {object} SelectionStyle
- * @property {number} scale
- * @property {string|undefined} lineColor
- * @property {string|undefined} fillColor
+ * Returns a data URI of the current view of the canvas
+ * @returns {string}
  */
+EMPWorldWind.map.prototype.screenshot = function() {
+  return this.worldWind.canvas.toDataURL();
+};
