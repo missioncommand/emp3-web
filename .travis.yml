@@ -28,4 +28,4 @@ deploy:
   - provider: script
     script: scripts/deployGHPages.sh
     on:
-      tags: true
+      branch: master
