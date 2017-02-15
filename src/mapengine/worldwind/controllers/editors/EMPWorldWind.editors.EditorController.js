@@ -220,7 +220,7 @@ EMPWorldWind.editors.EditorController = (function() {
    * @private
    */
   function _constructMultiPointMilStdFeature(feature, modifiers, selectionStyle) {
-    var imageInfo, componentFeature, lineCount, subGeoJSON, bbox,
+    var imageInfo, componentFeature, lineCount, subGeoJSON, bbox, bounds,
       i, j,
       positions = "",
       shapes = [];
@@ -236,9 +236,8 @@ EMPWorldWind.editors.EditorController = (function() {
     center[0] /= feature.data.coordinates.length;
     center[1] /= feature.data.coordinates.length;
 
-    // This is an estimate for the clipping bounds
-    bbox = Math.max(center[0] - 30, -180) + "," + Math.max(center[1] - 30, -90) + "," +
-      Math.min(center[0] + 30, 180) + "," +  Math.min(center[1] + 30, 90);
+    bounds = this.getBounds();
+    bbox = bounds.west + "," + bounds.south + "," + bounds.east + "," + bounds.north;
 
     positions = positions.trim();
 
@@ -250,7 +249,7 @@ EMPWorldWind.editors.EditorController = (function() {
       feature.symbolCode,
       positions,
       "clampToGround",
-      this.worldWind.navigator.range,
+      this.worldWind.navigator.range * 10,
       bbox,
       modifiers,
       EMPWorldWind.constants.MultiPointRenderType.GEOJSON));
