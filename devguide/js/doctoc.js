@@ -14,9 +14,6 @@ var doctoc = [{
     title: "API Docs",
     external: true
 
-}   ,{key: "pages/README.MD",
-    title: "markdown"
-
 }, {
     title: "Examples",
     expanded: true,
