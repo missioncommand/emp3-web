@@ -8,18 +8,18 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  * @param {context} scope
  * @returns {Function}
  */
-EMPWorldWind.eventHandlers.throttle = function(fn, threshold, scope) {
+EMPWorldWind.eventHandlers.throttle = function (fn, threshold, scope) {
   threshold = threshold || 20; // 20 ms throttle
   var last, deferTimer;
 
-  return function() {
+  return function () {
     var context = scope || this;
 
     var now = +new Date,
       args = arguments;
     if (last && now < last + threshold) {
       clearTimeout(deferTimer);
-      deferTimer = setTimeout(function() {
+      deferTimer = setTimeout(function () {
         last = now;
         fn.apply(context, args);
       }, threshold);
@@ -64,16 +64,15 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
 
   this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
 
-  // TODO Throttle this call
   EMPWorldWind.eventHandlers.checkIfRenderRequired.call(this);
 };
 
 /**
  * Notify the that a re-render of the MilStd graphics is required based off of a delta from the last time the renderer
  * was called. This may trigger based on altitude delta or distance delta.
+ * @this EMPWorldWind.map
  */
 EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
-  // TODO see if this approach can be tuned to be more accurate
   var altitudeDeltaMin = this.state.lastRender.altitude - this.state.lastRender.altitude * 0.3;
   var altitudeDeltaMax = this.state.lastRender.altitude + this.state.lastRender.altitude * 0.3;
 
