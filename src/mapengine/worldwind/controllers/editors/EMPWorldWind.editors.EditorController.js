@@ -846,16 +846,7 @@ EMPWorldWind.editors.EditorController = (function() {
       wwFeature.clearShapes();
 
       switch (empFeature.format) {
-
         case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL:
-          //modifiers = processModifiers.call(this, empFeature);
-
-          // TODO see about checking if a re-render is necessary first once moving features is possible
-          // reRender = (JSON.stringify(modifiers) !== JSON.stringify(wwFeature.userProperties.modifiers)) ||
-          //   empFeature.name !== wwFeature.userProperties.feature.name ||
-          //   empFeature.symbolCode !== wwFeature.userProperties.feature.symbolCode ||
-          //   empFeature.symbolStandard !== wwFeature.userProperties.feature.symbolStandard;
-
           wwFeature.addShapes(constructMilStdSymbol.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_ACM:

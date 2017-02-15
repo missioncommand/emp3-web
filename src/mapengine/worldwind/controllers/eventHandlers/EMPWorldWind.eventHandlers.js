@@ -73,8 +73,9 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
  * @this EMPWorldWind.map
  */
 EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
-  var altitudeDeltaMin = this.state.lastRender.altitude - this.state.lastRender.altitude * 0.3;
-  var altitudeDeltaMax = this.state.lastRender.altitude + this.state.lastRender.altitude * 0.3;
+  var pctChange = 0.2; // 20% altitude change
+  var altitudeDeltaMin = this.state.lastRender.altitude - this.state.lastRender.altitude * pctChange;
+  var altitudeDeltaMax = this.state.lastRender.altitude + this.state.lastRender.altitude * pctChange;
 
   var reRender = this.worldWind.navigator.range < altitudeDeltaMin || this.worldWind.navigator.range > altitudeDeltaMax;
 
@@ -86,7 +87,7 @@ EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
 
     this.state.lastRender.altitude = this.worldWind.navigator.range;
 
-    // TODO re-render if visible, flag others that are not visible for re-render if performance is an issue
+    // TODO if performance is an issue check visibility status
     emp.util.each(Object.keys(this.features), function(featureId) {
       var feature = this.features[featureId];
 
