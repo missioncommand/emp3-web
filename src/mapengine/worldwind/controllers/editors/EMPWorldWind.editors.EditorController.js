@@ -444,7 +444,13 @@ EMPWorldWind.editors.EditorController = (function() {
       eyeDistanceScaling = true;
 
     attributes = new WorldWind.PlacemarkAttributes();
-    attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+
+    if (feature.properties.iconUrl) {
+      attributes.imageSource = feature.properties.iconUrl;
+    } else {
+      attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+    }
+
     attributes.labelAttributes = new WorldWind.TextAttributes();
     attributes.labelAttributes.offset = new WorldWind.Offset(
       WorldWind.OFFSET_FRACTION, -0.5,
@@ -486,7 +492,7 @@ EMPWorldWind.editors.EditorController = (function() {
       eyeDistanceScaling = true;
 
     attributes = new WorldWind.PlacemarkAttributes();
-    attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+    attributes.imageSource = geoJSON.properties.iconUrl || WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
     attributes.labelAttributes.offset = new WorldWind.Offset(
       WorldWind.OFFSET_FRACTION, -0.5,
       WorldWind.OFFSET_FRACTION, 1.5
