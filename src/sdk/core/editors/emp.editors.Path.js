@@ -2,7 +2,7 @@
 emp.editors = emp.editors || {};
 
 emp.editors.Path = function(args) {
-  this.path = undefined;
+  this.animation = undefined;
   emp.editors.EditorBase.call(this, args);
 };
 
@@ -22,9 +22,7 @@ emp.editors.Path.prototype.addControlPoints = function() {
     midpoint,
     items = [],
     vertex,
-    addPoint,
-    hideItem,
-    hideTransaction;
+    addPoint;
 
   // All features entering into this method should be a LineString
   // otherwise this will not work.
@@ -95,47 +93,9 @@ emp.editors.Path.prototype.addControlPoints = function() {
       }
     }
 
-    // Create a line graphic to replace the line that exists.  We do this for the
-    // sake of MIL-STD symbols which may take a long time to draw.
-    // create a feature for each of these coordinates.  This
-    // will be our 'add point'
-    this.path = new emp.typeLibrary.Feature({
-      overlayId: "vertices",
-      featureId: emp3.api.createGUID(),
-      format: emp3.api.enums.FeatureTypeEnum.GEO_PATH,
-      data: {
-        coordinates: this.vertices.getVerticesAsLineString(),
-        type: 'LineString'
-      },
-      properties: {
-        lineColor: 'FFFFFF00'
-      }
-    });
     // copy the coordinates into our object, so we can eventually complete
     // the edit.
-    this.featureCopy.data.coordinates = this.path.data.coordinates;
-    items.unshift(this.path);
-
-    // Hide the existing graphic as to not confuse the users with two LineString
-    // on the screen.
-    hideItem = {
-        overlayId: emp.constant.parentIds.ALL_PARENTS,
-        featureId: this.featureCopy.featureId,
-        visible: false,
-        zoom: false
-    };
-
-    hideTransaction = new emp.typeLibrary.Transaction({
-        intent: emp.intents.control.VISIBILITY_SET,
-        mapInstanceId: this.mapInstance.mapInstanceId,
-        transactionId: null,
-        sender: this.mapInstance.mapInstanceId,
-        originChannel: cmapi.channel.names.MAP_FEATURE_HIDE,
-        source: emp.api.cmapi.SOURCE,
-        messageOriginator: this.mapInstance.mapInstanceId,
-        originalMessageType: cmapi.channel.names.MAP_FEATURE_HIDE,
-        items: [hideItem]
-    });
+    this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
 
     // run the transaction and add all the symbols on the map.
     transaction = new emp.typeLibrary.Transaction({
@@ -151,7 +111,6 @@ emp.editors.Path.prototype.addControlPoints = function() {
     });
 
     transaction.run();
-    hideTransaction.run();
   } // end if
 
 };
@@ -163,11 +122,7 @@ emp.editors.Path.prototype.removeControlPoints = function() {
   var transaction;
   var items;
   var vertices = this.vertices.getFeatures();
-  var showItem;
-  var showTransaction;
   items = vertices;
-
-  items.push(this.path);
 
   transaction = new emp.typeLibrary.Transaction({
     intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
@@ -181,34 +136,9 @@ emp.editors.Path.prototype.removeControlPoints = function() {
     items: items
   });
 
-
-
   this.vertices.clear();
 
-  // Hide the existing graphic as to not confuse the users with two LineString
-  // on the screen.
-  showItem = {
-      overlayId: emp.constant.parentIds.ALL_PARENTS,
-      featureId: this.featureCopy.featureId,
-      visible: true,
-      zoom: false
-  };
-
-  showTransaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.VISIBILITY_SET,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_SHOW,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_SHOW,
-      items: [showItem]
-  });
-
-  // show the new graphic first, then hide the control points as to remove any
-  // type of flickering that could occur.
-  showTransaction.run();
+  // Hide the control points
   transaction.run();
 };
 
@@ -247,7 +177,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
     coordinateUpdate,
     updateData = {},
     type = emp.typeLibrary.CoordinateUpdateType.UPDATE,
-    newCoordinates;
+    newCoordinates,
+    animationCoordinates = [];
 
   currentVertex = this.vertices.find(featureId);
 
@@ -333,6 +264,7 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
       items.push(newFrontFeature);
       items.push(newBackFeature);
 
+
     } // end if (currentVertex.type === add);
 
     // Add our updated feature onto the items we will be updating in our
@@ -341,17 +273,34 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
 
   } //end if (currentVertex)
 
-  // update the line with the current vertices.
-  // Create a line graphic to replace the line that exists.  We do this for the
-  // sake of MIL-STD symbols which may take a long time to draw.
-  // create a feature for each of these coordinates.  This
-  // will be our 'add point'
-  this.path.data.coordinates = this.vertices.getVerticesAsLineString();
+  if (currentVertex.before !== null) {
+    animationCoordinates.push(currentVertex.before.before.feature.data.coordinates);
+  }
+  animationCoordinates.push(currentFeature.data.coordinates);
+  if (currentVertex.next !== null) {
+    animationCoordinates.push(currentVertex.next.next.feature.data.coordinates);
+  }
+
+  // create a line going from the previous point, to the current point
+  // to the next point.  This will be the animation.
+  this.animation = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_PATH,
+    data: {
+      coordinates: animationCoordinates,
+      type: 'LineString'
+    },
+    properties: {
+      lineColor: "FFFFFF00"
+    }
+  });
+
+  items.push(this.animation);
+
   // copy the coordinates into our object, so we can eventually complete
   // the edit.
-  this.featureCopy.data.coordinates = this.path.data.coordinates;
-
-  items.unshift(this.path);
+  //this.featureCopy.data.coordinates =  this.vertices.getVerticesAsLineString();
 
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
@@ -372,10 +321,10 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
   index = this.vertices.getIndex(featureId);
   newCoordinates = [];
 
-  for (var i = 0; i < this.path.data.coordinates.length; i++) {
+  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
     newCoordinates.push({
-      lat: this.path.data.coordinates[i][1],
-      lon: this.path.data.coordinates[i][0]
+      lat: this.featureCopy.data.coordinates[i][1],
+      lon: this.featureCopy.data.coordinates[i][0]
     });
   }
 
@@ -414,6 +363,7 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
     newCoordinates,
     coordinateUpdate,
     updateData = {},
+    animationCoordinates = [],
     index;
 
   // First update the control point with new pointer info.
@@ -464,13 +414,20 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
     items.push(frontFeature);
   }
 
-  // update the line with the current vertices.
-  this.path.data.coordinates = this.vertices.getVerticesAsLineString();
   // copy the coordinates into our object, so we can eventually complete
   // the edit.
-  this.featureCopy.data.coordinates = this.path.data.coordinates;
+  this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
 
-  items.push(this.path);
+  if (currentVertex.before !== null) {
+    animationCoordinates.push(currentVertex.before.before.feature.data.coordinates);
+  }
+  animationCoordinates.push(currentFeature.data.coordinates);
+  if (currentVertex.next !== null) {
+    animationCoordinates.push(currentVertex.next.next.feature.data.coordinates);
+  }
+  this.animation.data.coordinates = animationCoordinates;
+
+  items.push(this.animation);
 
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
@@ -489,10 +446,10 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
   // Create the return object.  This will tell you which index was changed,
   // the locations of the new indeces, and the type of change it was.
   newCoordinates = [];
-  for (var i = 0; i < this.path.data.coordinates.length; i++) {
+  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
     newCoordinates.push({
-      lat: this.path.data.coordinates[i][1],
-      lon: this.path.data.coordinates[i][0]
+      lat: this.featureCopy.data.coordinates[i][1],
+      lon: this.featureCopy.data.coordinates[i][0]
     });
   }
 
@@ -506,6 +463,83 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
 
   updateData.coordinateUpdate = coordinateUpdate;
   updateData.properties = this.featureCopy.properties;
+
+  return updateData;
+};
+
+/**
+ * Moves control point passed in to the new location provided.
+ * Also updates the control point and the feature with the change.
+ */
+emp.editors.Path.prototype.endMoveControlPoint = function(featureId) {
+
+  var items =[],
+    newCoordinates,
+    coordinateUpdate,
+    updateData = {},
+    index,
+    addTransaction,
+    removeTransaction;
+
+
+  // copy the coordinates into our object, so we can eventually complete
+  // the edit.
+  this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
+  items.push(this.featureCopy);
+
+  addTransaction = new emp.typeLibrary.Transaction({
+      intent: emp.intents.control.FEATURE_ADD,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+      items: items
+  });
+
+  // Remove the line animation.
+  removeTransaction = new emp.typeLibrary.Transaction({
+    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+    items: [this.animation]
+  });
+
+  removeTransaction.run();
+  addTransaction.run();
+
+  // reset the animated path.
+  this.animation = undefined;
+
+  // Create the return object.  This will tell you which index was changed,
+  // the locations of the new indeces, and the type of change it was.
+  newCoordinates = [];
+  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+    newCoordinates.push({
+      lat: this.featureCopy.data.coordinates[i][1],
+      lon: this.featureCopy.data.coordinates[i][0]
+    });
+  }
+
+  index = this.vertices.getIndex(featureId);
+
+  coordinateUpdate = {
+      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+      indices: [index], //TODO: Get the correct index.
+      coordinates: newCoordinates
+  };
+
+  updateData.coordinateUpdate = coordinateUpdate;
+  updateData.properties = this.featureCopy.properties;
+
+
 
   return updateData;
 };

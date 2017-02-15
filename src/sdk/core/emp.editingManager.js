@@ -358,7 +358,7 @@ emp.editingManager = function(args) {
         updateData = activeEditor.moveFeature(startX, startY, pointer);
       }
       else if (activeEditor.isControlPoint(featureId)) {
-        updateData = activeEditor.moveControlPoint(featureId, pointer);
+        updateData = activeEditor.endMoveControlPoint(featureId);
       }
 
       // send out a feature drag complete event.
@@ -372,13 +372,15 @@ emp.editingManager = function(args) {
       });
       transaction.run();
 
-      editTransaction.items[0].update({
-        name: feature.name,
-        updates: updateData.coordinateUpdate,
-        properties: updateData.properties,
-        updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
-        mapInstanceId: mapInstance.mapInstanceId
-      });
+      if (updateData) {
+        editTransaction.items[0].update({
+          name: feature.name,
+          updates: updateData.coordinateUpdate,
+          properties: updateData.properties,
+          updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
+          mapInstanceId: mapInstance.mapInstanceId
+        });
+      }
 
       mapLock = new emp.typeLibrary.Lock({
         lock: emp3.api.enums.MapMotionLockEnum.UNLOCKED
