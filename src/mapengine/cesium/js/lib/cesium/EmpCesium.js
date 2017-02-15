@@ -125,11 +125,11 @@ function EmpCesium()
     this.enableRenderingOptimization = false;
     this.editorFeatureDraggingEnable = false;
     this.selectionColor = EmpCesiumConstants.selectionProperties.COLOR;// YELLOW BY DEFAULT
-    this.selectionColor_hex = EmpCesiumConstants.selectionProperties.COLOR_HEX;// YELLOW BY DEFAULT
+    this.selectionColorHex = EmpCesiumConstants.selectionProperties.COLOR_HEX;// YELLOW BY DEFAULT
     this.selectionScale = 1;// 1 BY DEFAULT / only applies to single points.
     this.secRendererWorker = {};
     this.secRendererWorker.A = undefined;
-    //this.secRendererWorker.B = undefined;
+    this.secRendererWorker.B = undefined;
     //this.secRendererWorker.Selection = undefined;
     //this.secRendererWorker.DeSelection = undefined;
     this.mapLocked = false;
@@ -504,148 +504,148 @@ function EmpCesium()
         }.bind(this);
 
 
-//        this.secRendererWorker.B = new Worker(this.relativeBaseURL + 'js/lib/renderer/MPCWorker.js');
+        this.secRendererWorker.B = new Worker(this.relativeBaseURL + 'js/lib/renderer/MPCWorker.js');
 //        // this.secRendererWorker.A = new Worker( '../../vendor/ mil-sym/MPWorker.js');
-//        this.secRendererWorker.B.onerror = function (error)
-//        {
-//            //logs error to console
-//            armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker B", "postMessage", error);
-//        };
-//        this.secRendererWorker.B.onmessage = function (e)
-//        {
-////             if (this.isMapMoving())
-////             {
-////                 return;
-////             }
-//            //console.log("on message A");
-//            var batchCall = false;
-//            var rendererData = [];
-//            if (e.data.id)//not a batch call
-//            {
-//                rendererData.push = e.data.result;
-//            }
-//            else
-//            {
-//                batchCall = true;
-//                rendererData = e.data.result;
-//            }
-//            if (e.data.format === "ERROR")
-//            {
-//                console.log("Render error: " + rendererData);
-//                return;
-//            }
-//
-//            if (rendererData && rendererData !== null && typeof rendererData === 'string')
-//            {
-//                console.log("Render error: " + rendererData);
-//                return;
-//            }
-//
-//            for (var index = 0; index < rendererData.length; index++)
-//            {
-//                if (!this.defined(rendererData[index]))
-//                {
-//                    console.log("Render error: renderer data is undefined");
-//                    return;
-//                }
-//                if (typeof rendererDataValue === 'string')
-//                {
-//                    console.log("Render error: " + rendererData);
-//                    return;
-//                }
-//                var multiPointObject = this.getMultiPoint(rendererData[index].id);
-//                if (this.defined(multiPointObject))
-//                {
-//                    if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] === 'string')
-//                    {
-//                        console.log("Render error: " + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
-//                        result.success = false;
-//                        result.message = rendererData[index];
-//                        result.jsError = "function: addSymbolMulti(args)  -  EmpCesiumConstants.MultiPointRenderType.SVG";
-//                        return;
-//                    }
-//                    else if (rendererData[index] && rendererData[index] !== null && (!this.defined(rendererData[index].west) || !this.defined(rendererData[index].south) || !this.defined(rendererData[index].east) || !this.defined(rendererData[index].north)))
-//                    {
-//                        console.log("Render returning  undefined west south east north " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
-//                        // result.success = false;
-//                        //result.message = rendererData;
-//                        //result.jsError = "function: addSymbolMulti(args)  -  EmpCesiumConstants.MultiPointRenderType.SVG";
-////                        rendererData[index].geoBR = {};
-////                        rendererData[index].geoBR.x = 0;
-////                        rendererData[index].geoBR.y = 0;
-////                        rendererData[index].geoTL = {};
-////                        rendererData[index].geoTL.x = 0;
-////                        rendererData[index].geoTL.y = 0;
-//
-//                        rendererData[index].west = {};
-//                        rendererData[index].west.x = 0;
-//                        rendererData[index].west.y = 0;
-//                        rendererData[index].south = {};
-//                        rendererData[index].south.x = 0;
-//                        rendererData[index].south.y = 0;
-//                        rendererData[index].east = {};
-//                        rendererData[index].east.x = 0;
-//                        rendererData[index].east.y = 0;
-//                        rendererData[index].north = {};
-//                        rendererData[index].north.x = 0;
-//                        rendererData[index].north.y = 0;
-//                        // rendererData[index].svg = 'data:image/svg+xml,' + this.highScaleImage.blankMultipoint;
-//                    }
-//                    if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] !== 'string')
-//                    {
-//
-//                        if (Math.abs(rendererData[index].north.y) > 90 || Math.abs(rendererData[index].south.y > 90))
-//                        {
-//                            //console.log("Render error:  bad bound returned by renderer" + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
-//                            result.success = false;
-//                            result.message = 'bad bound returned by renderer.. latitudes bigger than 90 degrees';
-//                            result.jsError = "function: secRendererWorker.A.onmessage(args) - bad bound.. latitudes bigger than 90 degrees";
-//                            return;
-//                        }
-//
-//                        if (Math.abs(rendererData[index].west.x) > 180 || Math.abs(rendererData[index].east.x > 180))
-//                        {
-//                            //console.log("Render error: bad bound returned by renderer " + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
-//                            result.success = false;
-//                            result.message = 'bad bound returned by renderer.. longitutes bigger than 180 degrees';
-//                            result.jsError = "function: secRendererWorker.A.onmessage(args) - bad bound.. longitutes bigger than 180 degrees";
-//                            return;
-//                        }
-//
-//                        // console.log("bounds from renderer: w s e n" + rendererData[index].west.x + " " + rendererData[index].south.y + rendererData[index].east.x + " " + rendererData[index].north.y );
-//                        var addCanvasToOverlayParams = {
-//                            symbolCode: multiPointObject.symbolCode,
-//                            parentCoreId: multiPointObject.parentCoreId,
-//                            overlayId: multiPointObject.overlayId,
-//                            id: multiPointObject.coreId || multiPointObject.id,
-//                            data: rendererData[index],
-//                            properties: multiPointObject.properties,
-//                            name: multiPointObject.name,
-//                            description: multiPointObject.description || multiPointObject.properties.description,
-//                            visible: multiPointObject.visible,
-//                            feature: multiPointObject,
-//                            extrudedHeight: multiPointObject.extrudedHeight
-//                        };
-//                        result = this.addCanvasToOverlay(addCanvasToOverlayParams);
-//                        if (rendererData[index].hasOwnProperty("wasClipped"))
-//                        {
-//                            multiPointObject.wasClipped = rendererData[index].wasClipped;
-//                            multiPointObject.forceRedraw = rendererData[index].forceRedraw;
-//                        }
-//                        else
-//                        {
-//                            multiPointObject.wasClipped = false;
-//                            multiPointObject.forceRedraw = false;
-//                        }
-//                    }
-//                    rendererData[index] = undefined;
-//                    // console.log("on message A finish");
-//                    // this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
-//                    //this.cesiumRenderOptimizer.boundNotifyRepaintRequired();
-//                }//  if (this.defined(multiPointObject))
-//            }// for loop
-//            this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
-//        }.bind(this);
+        this.secRendererWorker.B.onerror = function (error)
+        {
+            //logs error to console
+            armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker B", "postMessage", error);
+        };
+        this.secRendererWorker.B.onmessage = function (e)
+        {
+//             if (this.isMapMoving())
+//             {
+//                 return;
+//             }
+            //console.log("on message A");
+            var batchCall = false;
+            var rendererData = [];
+            if (e.data.id)//not a batch call
+            {
+                rendererData.push = e.data.result;
+            }
+            else
+            {
+                batchCall = true;
+                rendererData = e.data.result;
+            }
+            if (e.data.format === "ERROR")
+            {
+                console.log("Render error: " + rendererData);
+                return;
+            }
+
+            if (rendererData && rendererData !== null && typeof rendererData === 'string')
+            {
+                console.log("Render error: " + rendererData);
+                return;
+            }
+
+            for (var index = 0; index < rendererData.length; index++)
+            {
+                if (!this.defined(rendererData[index]))
+                {
+                    console.log("Render error: renderer data is undefined");
+                    return;
+                }
+                if (typeof rendererDataValue === 'string')
+                {
+                    console.log("Render error: " + rendererData);
+                    return;
+                }
+                var multiPointObject = this.getMultiPoint(rendererData[index].id);
+                if (this.defined(multiPointObject))
+                {
+                    if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] === 'string')
+                    {
+                        console.log("Render error: " + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
+                        result.success = false;
+                        result.message = rendererData[index];
+                        result.jsError = "function: addSymbolMulti(args)  -  EmpCesiumConstants.MultiPointRenderType.SVG";
+                        return;
+                    }
+                    else if (rendererData[index] && rendererData[index] !== null && (!this.defined(rendererData[index].west) || !this.defined(rendererData[index].south) || !this.defined(rendererData[index].east) || !this.defined(rendererData[index].north)))
+                    {
+                        console.log("Render returning  undefined west south east north " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
+                        // result.success = false;
+                        //result.message = rendererData;
+                        //result.jsError = "function: addSymbolMulti(args)  -  EmpCesiumConstants.MultiPointRenderType.SVG";
+//                        rendererData[index].geoBR = {};
+//                        rendererData[index].geoBR.x = 0;
+//                        rendererData[index].geoBR.y = 0;
+//                        rendererData[index].geoTL = {};
+//                        rendererData[index].geoTL.x = 0;
+//                        rendererData[index].geoTL.y = 0;
+
+                        rendererData[index].west = {};
+                        rendererData[index].west.x = 0;
+                        rendererData[index].west.y = 0;
+                        rendererData[index].south = {};
+                        rendererData[index].south.x = 0;
+                        rendererData[index].south.y = 0;
+                        rendererData[index].east = {};
+                        rendererData[index].east.x = 0;
+                        rendererData[index].east.y = 0;
+                        rendererData[index].north = {};
+                        rendererData[index].north.x = 0;
+                        rendererData[index].north.y = 0;
+                        // rendererData[index].svg = 'data:image/svg+xml,' + this.highScaleImage.blankMultipoint;
+                    }
+                    if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] !== 'string')
+                    {
+
+                        if (Math.abs(rendererData[index].north.y) > 90 || Math.abs(rendererData[index].south.y > 90))
+                        {
+                            //console.log("Render error:  bad bound returned by renderer" + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
+                            result.success = false;
+                            result.message = 'bad bound returned by renderer.. latitudes bigger than 90 degrees';
+                            result.jsError = "function: secRendererWorker.A.onmessage(args) - bad bound.. latitudes bigger than 90 degrees";
+                            return;
+                        }
+
+                        if (Math.abs(rendererData[index].west.x) > 180 || Math.abs(rendererData[index].east.x > 180))
+                        {
+                            //console.log("Render error: bad bound returned by renderer " + rendererData[index] + "\n data sent: " + multiPointObject.name + " (" + multiPointObject.symbolCode + ") Extents: " + multiPointObject.dataSentToSecRendererWorker.bbox + "\n      Coord string:" + multiPointObject.dataSentToSecRendererWorker.points + "  canvas.width = " + multiPointObject.dataSentToSecRendererWorker.pixelWidth + "  canvas.height = " + multiPointObject.dataSentToSecRendererWorker.pixelHeight + "  modifiers = " + JSON.stringify(multiPointObject.dataSentToSecRendererWorker.modifiers) + "scale =" + multiPointObject.dataSentToSecRendererWorker.scale);
+                            result.success = false;
+                            result.message = 'bad bound returned by renderer.. longitutes bigger than 180 degrees';
+                            result.jsError = "function: secRendererWorker.A.onmessage(args) - bad bound.. longitutes bigger than 180 degrees";
+                            return;
+                        }
+
+                        // console.log("bounds from renderer: w s e n" + rendererData[index].west.x + " " + rendererData[index].south.y + rendererData[index].east.x + " " + rendererData[index].north.y );
+                        var addCanvasToOverlayParams = {
+                            symbolCode: multiPointObject.symbolCode,
+                            parentCoreId: multiPointObject.parentCoreId,
+                            overlayId: multiPointObject.overlayId,
+                            id: multiPointObject.coreId || multiPointObject.id,
+                            data: rendererData[index],
+                            properties: multiPointObject.properties,
+                            name: multiPointObject.name,
+                            description: multiPointObject.description || multiPointObject.properties.description,
+                            visible: multiPointObject.visible,
+                            feature: multiPointObject,
+                            extrudedHeight: multiPointObject.extrudedHeight
+                        };
+                        result = this.addCanvasToOverlay(addCanvasToOverlayParams);
+                        if (rendererData[index].hasOwnProperty("wasClipped"))
+                        {
+                            multiPointObject.wasClipped = rendererData[index].wasClipped;
+                            multiPointObject.forceRedraw = rendererData[index].forceRedraw;
+                        }
+                        else
+                        {
+                            multiPointObject.wasClipped = false;
+                            multiPointObject.forceRedraw = false;
+                        }
+                    }
+                    rendererData[index] = undefined;
+                    // console.log("on message A finish");
+                    // this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
+                    //this.cesiumRenderOptimizer.boundNotifyRepaintRequired();
+                }//  if (this.defined(multiPointObject))
+            }// for loop
+            this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
+        }.bind(this);
 //
 //        this.secRendererWorker.Selection = new Worker(this.relativeBaseURL + 'js/lib/renderer/MPCWorker.js');
 //        // this.secRendererWorker.A = new Worker( '../../vendor/ mil-sym/MPWorker.js');
@@ -2647,6 +2647,23 @@ function EmpCesium()
                                     url = url.replace(/&/g, "%26");
                                     entity.billboard.image = url;
                                 }
+
+                                if (args.feature.properties.iconUrl && args.feature.properties.iconUrl.length > 0)
+                                {
+                                    if (useProxy)
+                                    {
+                                        entity.billboard.image = new this.ConstantProperty(this.getProxyUrl() + "?url=" + args.feature.properties.iconUrl);
+                                    }
+                                    else
+                                    {
+                                        entity.billboard.image = new this.ConstantProperty(args.feature.properties.iconUrl);
+                                    }
+                                }
+//                                else
+//                                {
+//                                    //use default emp icon. Local icon not requiring proxy.
+//                                    entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
+//                                }
 //                                entity.billboard.image = url;
 //                                var defaultIconName = emp.utilities.getDefaultIcon().iconUrl.split("/");
 //                                if (defaultIconName && defaultIconName.length > 0)
@@ -2908,10 +2925,17 @@ function EmpCesium()
         var result = {
             success: true
         },
-        options = {},
+        options = {}, useProxy = true,
+                useProxy = true, // proxy active by default
                 layer;
         try
         {
+            if (args.feature && args.feature.useProxy)
+            {
+                useProxy = args.feature.useProxy;
+            }
+
+
             options.stroke = EmpCesiumConstants.propertyDefaults.LINE_COLOR;
             options.fill = EmpCesiumConstants.propertyDefaults.FILL_COLOR;
             var geoJsonDataSource = new this.GeoJsonDataSource();
@@ -3002,7 +3026,28 @@ function EmpCesium()
                                         //}
                                         //else
                                         //{
-                                        entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
+                                        if (args.feature.properties && args.feature.properties.iconUrl && args.feature.properties.iconUrl.length > 0)
+                                        {
+                                            if (args.feature.properties.iconUrl.indexOf("data:image") > -1)
+                                            {
+                                                // no proxy needed for dataUrl
+                                                entity.billboard.image = args.feature.properties.iconUrl;// Cesium.loadImage(base)
+                                            }
+                                            else if (useProxy)
+                                            {
+                                                entity.billboard.image = new this.ConstantProperty(this.getProxyUrl() + "?url=" + args.feature.properties.iconUrl);
+                                            }
+                                            else
+                                            {
+                                                entity.billboard.image = new this.ConstantProperty(args.feature.properties.iconUrl);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
+                                        }
+
+
                                         if (!this.defined(entity.label))
                                         {
                                             var label = new this.LabelGraphics({"text": args.name});
@@ -4454,6 +4499,8 @@ function EmpCesium()
                                     name: item.name,
                                     properties: emp.helpers.copyObject(item.properties)
                                 };
+                                this.storeFeatureSelection(selectionProperties[item.id].id, selectionProperties);
+                                var itemSelected = emp.helpers.copyObject(item);
                                 basicSymbolID = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(selectionProperties[item.id].symbolCode);
                                 switch (basicSymbolID)
                                 {
@@ -4462,17 +4509,16 @@ function EmpCesium()
                                     case "S*U*WDM---*****":
                                     case "S*U*ND----*****":
                                     case "S*U*X-----*****":
-                                        selectionProperties[item.id].properties.fillColor = this.selectionColor_hex;
+                                        itemSelected.properties.fillColor = this.selectionColorHex;
                                         //selectionProperties[item.id].properties.fillColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                                         break;
                                     default:
-                                        selectionProperties[item.id].properties.lineColor = this.selectionColor_hex;
-                                        ;
+                                        itemSelected.properties.lineColor = this.selectionColorHex;
                                         //selectionProperties[item.id].properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                                         break;
                                 }
-                                this.storeFeatureSelection(selectionProperties[item.id].id, selectionProperties);
                             }
+
                             billboardCollection = layer.getFeature(item.id);
                             //check if only the coordinates changed. If only the coordinates there is no need to call the renderer.
                             if ((billboardCollection._billboards[0].name !== args.name) && (this.iconLabelOption !== 'none'))
@@ -4573,7 +4619,7 @@ function EmpCesium()
 
                             if (callRenderer)
                             {
-                                billboard = selectionProperties !== undefined ? this.getSinglePointBillboardPrimitive([selectionProperties[item.id]])[0] : this.getSinglePointBillboardPrimitive([item])[0];
+                                billboard = selectionProperties !== undefined ? this.getSinglePointBillboardPrimitive([itemSelected])[0] : this.getSinglePointBillboardPrimitive([item])[0];
                                 billboardCollection.updateCount += 1;
 
                             }
@@ -4653,7 +4699,7 @@ function EmpCesium()
                                     azimuth = this.Math.toRadians(item.properties.heading);
                                     billboard.rotation = -azimuth;
                                 }
-                                else if (this.defined(item.properties) && this.defined(item.properties.modifiers) && this.defined(item.properties.modifiers.azimuth) && Array.isArray(item.properties.modifiers.azimuth) && item.properties.modifiers.azimuth.length > 0  )
+                                else if (this.defined(item.properties) && this.defined(item.properties.modifiers) && this.defined(item.properties.modifiers.azimuth) && Array.isArray(item.properties.modifiers.azimuth) && item.properties.modifiers.azimuth.length > 0)
                                 {
                                     azimuth = this.Math.toRadians(item.properties.modifiers.azimuth[0]);
                                     billboard.rotation = -azimuth;
@@ -4681,12 +4727,12 @@ function EmpCesium()
                                     billboardCollection._billboards[0].alignedAxis = billboard.alignedAxis;
                                     billboardCollection._billboards[0].scaleByDistance = (callClusterIcon) ? undefined : billboard.scaleByDistance;
                                 }
-                                if (this.defined(item.properties) && this.defined(item.properties.heading) && this.isV2Core )
+                                if (this.defined(item.properties) && this.defined(item.properties.heading) && this.isV2Core)
                                 {
                                     azimuth = this.Math.toRadians(item.properties.heading);
                                     billboardCollection._billboards[0].rotation = -azimuth;
                                 }
-                               else if (this.defined(item.properties) && this.defined(item.properties.modifiers) && this.defined(item.properties.modifiers.azimuth) && Array.isArray(item.properties.modifiers.azimuth) && item.properties.modifiers.azimuth.length > 0  )
+                                else if (this.defined(item.properties) && this.defined(item.properties.modifiers) && this.defined(item.properties.modifiers.azimuth) && Array.isArray(item.properties.modifiers.azimuth) && item.properties.modifiers.azimuth.length > 0)
                                 {
                                     azimuth = this.Math.toRadians(item.properties.modifiers.azimuth[0]);
                                     billboardCollection._billboards[0].rotation = -azimuth;
@@ -4772,7 +4818,7 @@ function EmpCesium()
                                 azimuth = this.Math.toRadians(item.properties.heading);
                                 billboard.rotation = -azimuth;
                             }
-                           else if (this.defined(item.properties) && this.defined(item.properties.modifiers) && this.defined(item.properties.modifiers.azimuth) && Array.isArray(item.properties.modifiers.azimuth) && item.properties.modifiers.azimuth.length > 0  )
+                            else if (this.defined(item.properties) && this.defined(item.properties.modifiers) && this.defined(item.properties.modifiers.azimuth) && Array.isArray(item.properties.modifiers.azimuth) && item.properties.modifiers.azimuth.length > 0)
                             {
                                 azimuth = this.Math.toRadians(item.properties.modifiers.azimuth[0]);
                                 billboard.rotation = -azimuth;
@@ -6222,7 +6268,7 @@ function EmpCesium()
             alpha = alpha / 100;
             if (alpha > .5)
             {
-                 this.stiBrightnessWhite.alpha =  Math.abs(alpha*2 -1 ) ;
+                this.stiBrightnessWhite.alpha = Math.abs(alpha * 2 - 1);
                 this.stiBrightnessBlack.alpha = 0;
             }
             else if (alpha < .5)
@@ -7913,50 +7959,50 @@ function EmpCesium()
                     if (feature.symbolCode)
                     {
                         // Create a yellow MIL-STD-2525 single point.
-                        if (feature.billboard)
-                        {
-                            selectionProperties.symbolCode = feature.symbolCode;
-                            selectionProperties.lat = feature.coordinates[0];
-                            selectionProperties.lon = feature.coordinates[1];
-                            selectionProperties.name = feature.name;
-                            //selectionProperties.scale = feature.billboard.scale;
-                            selectionProperties.properties = emp.helpers.copyObject(feature.properties);
-                            var basicSymbolID = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(selectionProperties.symbolCode);
-                            switch (basicSymbolID)
-                            {
-                                case "S*U*WDMG--*****":
-                                case "S*U*WDMM--*****":
-                                case "S*U*WDM---*****":
-                                case "S*U*ND----*****":
-                                case "S*U*X-----*****":
-                                    selectionProperties.properties.fillColor = 'FF' + this.selectionColor_hex;
-                                    //selectionProperties.properties.fillColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
-                                    break;
-                                default:
-                                    selectionProperties.properties.lineColor = 'FF' + this.selectionColor_hex;
-                                    // selectionProperties.properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
-                                    break;
-                            }
-                            feature.billboard = this.getSinglePointBillboard([selectionProperties])[0];
-                            //feature.billboard.scale = this.selectionScale;
-                            delete selectionProperties.properties.lineColor;
-                            delete selectionProperties.properties.fillColor;
-                            if (feature.properties.modifiers)
-                            {
-                                delete feature.properties.modifiers.LINECOLOR;
-                                delete feature.properties.modifiers.FILLCOLOR;
-                            }
-                            else
-                            {
-                                feature.properties.modifiers = {};
-                            }
-                        }
-                        if (rendererData !== undefined && rendererData !== null)
-                        {
-                            feature.rectangle.material.image = rendererData.image;
-                            //feature.rectangle.material.image.setValue(rendererData.image);
-                        }
-                        this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
+//                        if (feature.billboard)
+//                        {
+//                            selectionProperties.symbolCode = feature.symbolCode;
+//                            selectionProperties.lat = feature.coordinates[0];
+//                            selectionProperties.lon = feature.coordinates[1];
+//                            selectionProperties.name = feature.name;
+//                            //selectionProperties.scale = feature.billboard.scale;
+//                            selectionProperties.properties = emp.helpers.copyObject(feature.properties);
+//                            var basicSymbolID = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(selectionProperties.symbolCode);
+//                            switch (basicSymbolID)
+//                            {
+//                                case "S*U*WDMG--*****":
+//                                case "S*U*WDMM--*****":
+//                                case "S*U*WDM---*****":
+//                                case "S*U*ND----*****":
+//                                case "S*U*X-----*****":
+//                                    selectionProperties.properties.fillColor = 'FF' + this.selectionColorHex;
+//                                    //selectionProperties.properties.fillColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
+//                                    break;
+//                                default:
+//                                    selectionProperties.properties.lineColor = 'FF' + this.selectionColorHex;
+//                                    // selectionProperties.properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
+//                                    break;
+//                            }
+//                            feature.billboard = this.getSinglePointBillboard([selectionProperties])[0];
+//                            //feature.billboard.scale = this.selectionScale;
+//                            delete selectionProperties.properties.lineColor;
+//                            delete selectionProperties.properties.fillColor;
+//                            if (feature.properties.modifiers)
+//                            {
+//                                delete feature.properties.modifiers.LINECOLOR;
+//                                delete feature.properties.modifiers.FILLCOLOR;
+//                            }
+//                            else
+//                            {
+//                                feature.properties.modifiers = {};
+//                            }
+//                        }
+//                        if (rendererData !== undefined && rendererData !== null)
+//                        {
+//                            feature.rectangle.material.image = rendererData.image;
+//                            //feature.rectangle.material.image.setValue(rendererData.image);
+//                        }
+//                        this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
                     }
                     else
                     {
@@ -7968,11 +8014,16 @@ function EmpCesium()
                         {
                             selectionProperties.pointColor = undefined;
                         }
-                        selectionProperties.pointScale = (this.defined(feature.billboard.scale)) ? feature.billboard.scale.getValue() : 1;
+                        if (!this.defined(feature.billboard.scale))
+                        {
+                            feature.billboard.scale = 1;
+                        }
+                        selectionProperties.pointScale = feature.billboard.scale.getValue();
                         feature.billboard.color = this.selectionColor;
                         //feature.billboard.color = EmpCesiumConstants.selectionProperties.COLOR;
-                        //changing the scale is affecting the calculations in the starburst.
-                        //feature.billboard.scale = feature.billboard.scale.getValue() + EmpCesiumConstants.selectionProperties.SCALE;
+
+                        //changing the scale is affecting the calculations in the starburst.  OJO
+                        feature.billboard.scale = feature.billboard.scale.getValue() * this.selectionScale;
                     }
                 }
                 if (feature.polyline && !feature.polyline.isPedestal)
@@ -8071,7 +8122,7 @@ function EmpCesium()
                     };
                     selectionProperties.properties = emp.helpers.copyObject(multipoint.properties);
                     selectionProperties.properties.modifiers = emp.typeLibrary.utils.milstd.convertModifierStringTo2525(selectionProperties.properties.modifiers, this.showLabels && showlabelsAtCurrentCameraAltitude);
-                    selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = this.selectionColor_hex;
+                    selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = this.selectionColorHex;
                     //selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = EmpCesiumConstants.selectionProperties.COLOR_HEX;
 
 //                     if ( selectionProperties.properties.modifiers.hasOwnProperty(emp.typeLibrary.utils.milstd.Modifiers.UNIQUE_DESIGNATOR_1) &&
@@ -8096,7 +8147,7 @@ function EmpCesium()
                                 var segmentColor = segmentColorArray[index].split(":");
                                 if (index !== segmentColorArray.length - 1)
                                 {
-                                    selectedAdditionalInfo = segmentColor[0] + ":" + this.selectionColor_hex + ",";
+                                    selectedAdditionalInfo = segmentColor[0] + ":" + this.selectionColorHex + ",";
                                     //selectedAdditionalInfo = segmentColor[0] + ":" + EmpCesiumConstants.selectionProperties.COLOR_HEX + ",";
                                 }
                             }
@@ -8210,7 +8261,7 @@ function EmpCesium()
                     };
                     selectionProperties.properties = emp.helpers.copyObject(multipoint.properties);
                     selectionProperties.properties.modifiers = emp.typeLibrary.utils.milstd.convertModifierStringTo2525(selectionProperties.properties.modifiers, this.showLabels && showlabelsAtCurrentCameraAltitude);
-                    selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = this.selectionColor_hex;
+                    selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = this.selectionColorHex;
                     //selectionProperties.properties.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = EmpCesiumConstants.selectionProperties.COLOR_HEX;
                     selectionProperties.coordinates = cesiumEngine.utils.convertMilStdMultiPointCoordsToString({type: multipoint.data.type, coordinates: multipoint.coordinates});
                     selectionProperties.extent = this.getExtent();
@@ -8327,11 +8378,11 @@ function EmpCesium()
                             case "S*U*WDM---*****":
                             case "S*U*ND----*****":
                             case "S*U*X-----*****":
-                                selectionProperties.properties.fillColor = this.selectionColor_hex;
+                                selectionProperties.properties.fillColor = this.selectionColorHex;
                                 //selectionProperties.properties.fillColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                                 break;
                             default:
-                                selectionProperties.properties.lineColor = this.selectionColor_hex;
+                                selectionProperties.properties.lineColor = this.selectionColorHex;
                                 //selectionProperties.properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                                 break;
                         }
@@ -8350,6 +8401,7 @@ function EmpCesium()
                         billboard.rotation = feature.get(0).rotation;
                         billboard.position = this.Cartesian3.fromDegrees(selectionProperties.lon, selectionProperties.lat, selectionProperties.altitude);
                         //feature.updateCount += 1;
+                        //save unselected style colors after calling the renderer
                         selectionProperties.properties.lineColor = feature.properties.lineColor;
                         selectionProperties.properties.fillColor = feature.properties.fillColor;
                         if (feature.properties.modifiers)
@@ -8371,7 +8423,7 @@ function EmpCesium()
                         billboardCollection.image = billboard.image;
                         billboardCollection.get(0).image = billboard.image;
                         billboardCollection.get(0).pixelOffset = billboard.pixelOffset;
-                        billboardCollection.get(0).scale = this.selectionScale;
+                        // scale already sent to renderer ...  setting scale here shift the pivot point     billboardCollection.get(0).scale = (!this.defined(billboardCollection.get(0).scale) || billboardCollection.get(0).scale === 0)?this.selectionScale:billboardCollection.get(0).scale * this.selectionScale;
                         billboardCollection.updateCount = billboardCollection.updateCount + 1;
                         this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
 
@@ -8501,7 +8553,7 @@ function EmpCesium()
                     {
                         if (this.isFeatureSelected(billboardCollection.id))
                         {
-                            singlePointBatch.properties.lineColor = this.selectionColor_hex;
+                            singlePointBatch.properties.lineColor = this.selectionColorHex;
                             //singlePointBatch.properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                         }
                         if (layer.isFeaturePresentById(billboardCollection.id))
@@ -8584,7 +8636,7 @@ function EmpCesium()
                 {
                     if (this.isFeatureSelected(billboardCollection.id))
                     {
-                        singlePointBatch.properties.lineColor = this.selectionColor_hex;
+                        singlePointBatch.properties.lineColor = this.selectionColorHex;
                         //singlePointBatch.properties.lineColor = 'FF' + EmpCesiumConstants.selectionProperties.COLOR_HEX;
                     }
                     if (this.isFeaturePresent(billboardCollection.id))
@@ -8645,6 +8697,37 @@ function EmpCesium()
 
         }
     };
+
+
+    this.updateSelections = function ()
+    {
+        var id;
+        try
+        {
+            var selections = this.getSelections();
+            for (id in selections)
+            {
+                var feature = this.getFeature(id);
+                if (this.defined(feature))
+                {
+                    var selectionArgs = {
+                        featureId: feature.featureId,
+                        coreId: feature.id,
+                        overlayId: feature.overlayId,
+                        sendEvent: false,
+                        isApiInitiatedSelection : true
+                    };
+                    this.manageDeselect(selectionArgs);
+                    this.manageSelect(selectionArgs);
+                }
+            }
+        }
+        catch (e)
+        {
+
+        }
+    };
+
     /**
      * @desc Adds a mil std 2525 multi point symbol
      *
@@ -8964,16 +9047,16 @@ function EmpCesium()
                     // if (false)
                     {
                         // use worker
-                        // if (this.secRendererWorker.lastSelected === EmpCesiumConstants.RendererWorker.B)
-                        //  {
-                        this.secRendererWorker.A.postMessage(data);
-                        //       this.secRendererWorker.lastSelected = EmpCesiumConstants.RendererWorker.A;
-                        //     }
-                        //     else
-                        //     {
-                        //         this.secRendererWorker.B.postMessage(data);
-                        //         this.secRendererWorker.lastSelected = EmpCesiumConstants.RendererWorker.B;
-                        //     }
+                        if (this.secRendererWorker.lastSelected === EmpCesiumConstants.RendererWorker.B)
+                        {
+                            this.secRendererWorker.A.postMessage(data);
+                            this.secRendererWorker.lastSelected = EmpCesiumConstants.RendererWorker.A;
+                        }
+                        else
+                        {
+                            this.secRendererWorker.B.postMessage(data);
+                            this.secRendererWorker.lastSelected = EmpCesiumConstants.RendererWorker.B;
+                        }
                     }
             else if (data.batch.length === 1)
                     //else 
@@ -10457,6 +10540,17 @@ function EmpCesium()
         else
         {
             return undefined;
+        }
+    };
+    this.isLayer = function (id)
+    {
+        if (this.empLayers.hasOwnProperty(id))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     };
 //    this.removeImageryServiceFromDropDown = function (layer)
@@ -12803,7 +12897,7 @@ var CesiumRenderOptimizer = function (empCesium)
             }
             //empCesium.viewer._cesiumWidget._renderLoopRunning = true;
             // this.viewer._cesiumWidget.useDefaultRenderLoop = false;
-            empCesium.viewer._cesiumWidget.useDefaultRenderLoop = true;
+            //empCesium.viewer._cesiumWidget.useDefaultRenderLoop = true;
             empCesium.lastCameraMoveTime = empCesium.getTimestamp();
         }
     };
@@ -12823,98 +12917,114 @@ var CesiumRenderOptimizer = function (empCesium)
 
     // Hacky way to force a repaint when an async load request completes
     var that = this;
-    empCesium.loadWithXhr.load = function (url, responseType, method, data, headers, deferred, overrideMimeType, preferText, timeout)
-    {
-        deferred.promise.always(that.boundNotifyRepaintRequired);
-        that.originalLoadWithXhr(url, responseType, method, data, headers, deferred, overrideMimeType, preferText, timeout);
-    };
+//    empCesium.loadWithXhr.load = function (url, responseType, method, data, headers, deferred, overrideMimeType, preferText, timeout)
+//    {
+//        //deferred.promise.always(that.boundNotifyRepaintRequired);
+//        //that.originalLoadWithXhr(url, responseType, method, data, headers, deferred, overrideMimeType, preferText, timeout);
+//    };
     // Hacky way to force a repaint when a web worker sends something back.
-    this._originalScheduleTask = empCesium.TaskProcessor.prototype.scheduleTask;
-    empCesium.TaskProcessor.prototype.scheduleTask = function (parameters, transferableObjects)
-    {
-        var result = that._originalScheduleTask.call(this, parameters, transferableObjects);
-        if (!empCesium.defined(this._originalWorkerMessageSinkRepaint))
-        {
-            this._originalWorkerMessageSinkRepaint = this._worker.onmessage;
-            var taskProcessor = this;
-            this._worker.onmessage = function (event)
-            {
-                taskProcessor._originalWorkerMessageSinkRepaint(event);
-                if (that.isDestroyed())
-                {
-                    taskProcessor._worker.onmessage = taskProcessor._originalWorkerMessageSinkRepaint;
-                    taskProcessor._originalWorkerMessageSinkRepaint = undefined;
-                }
-                else
-                {
-                    that.boundNotifyRepaintRequired();
-                    //empCesium.entityCollection.resumeEvents();
-                    // empCesium.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
-                }
-            };
-        }
-
-        return result;
-    };
+//    this._originalScheduleTask = empCesium.TaskProcessor.prototype.scheduleTask;
+//    empCesium.TaskProcessor.prototype.scheduleTask = function (parameters, transferableObjects)
+//    {
+//        var result = that._originalScheduleTask.call(this, parameters, transferableObjects);
+//        if (!empCesium.defined(this._originalWorkerMessageSinkRepaint))
+//        {
+//            this._originalWorkerMessageSinkRepaint = this._worker.onmessage;
+//            var taskProcessor = this;
+//            this._worker.onmessage = function (event)
+//            {
+//                taskProcessor._originalWorkerMessageSinkRepaint(event);
+//                if (that.isDestroyed())
+//                {
+//                    taskProcessor._worker.onmessage = taskProcessor._originalWorkerMessageSinkRepaint;
+//                    taskProcessor._originalWorkerMessageSinkRepaint = undefined;
+//                }
+//                else
+//                {
+//                    that.boundNotifyRepaintRequired();
+//                    //empCesium.entityCollection.resumeEvents();
+//                    // empCesium.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
+//                }
+//            };
+//        }
+//
+//        return result;
+//    };
     this.preRenderListener = function (scene)
     {
-        var position = empCesium.viewer.scene.camera.position;
-        //var orientation =
-        if (empCesium.isMapMoving())
+        try
         {
-            empCesium.currentExtent = undefined; // force a recalculation of extent in next call to empCesium.getExtent()
-            empCesium.getExtent(); // this call calcultaes the current extent
-            empCesium.isSkyVisible = undefined;
-            // when camera is at the horizon or near the terrain do not redraw the multipoints.
-            //if (empCesium.scene.camera.getMagnitude() < 25000000 && empCesium.Math.toDegrees(Math.abs(empCesium.scene.camera.pitch)) > 30)
-            //{
-            //empCesium.entityCollection.suspendEvents();
-            // if (empCesium.Math.toDegrees(Math.abs(empCesium.scene.camera.pitch)) > 15)
-            if (empCesium.getScale() > 1000 && empCesium.Math.toDegrees(Math.abs(empCesium.scene.camera.pitch)) > 15)
+            //console.log("inside preRenderListener" );
+            var position = empCesium.viewer.scene.camera.position;
+            //var orientation =
+            if (empCesium.isMapMoving())
             {
-                //redraw at higher scales where the momentary dissapearing when redrawing won't be so pronounced. At lower scales
-                // do the redraw after the map stop moving so the disappearing won't be too noticeable.
-                //    empCesium.redrawGraphics();
+                empCesium.currentExtent = undefined; // force a recalculation of extent in next call to empCesium.getExtent()
+                empCesium.getExtent(); // this call calcultaes the current extent
+                empCesium.isSkyVisible = undefined;
+                // when camera is at the horizon or near the terrain do not redraw the multipoints.
+                //if (empCesium.scene.camera.getMagnitude() < 25000000 && empCesium.Math.toDegrees(Math.abs(empCesium.scene.camera.pitch)) > 30)
+                //{
+                //empCesium.entityCollection.suspendEvents();
+                // if (empCesium.Math.toDegrees(Math.abs(empCesium.scene.camera.pitch)) > 15)
+                if (empCesium.getScale() > 1000 && empCesium.Math.toDegrees(Math.abs(empCesium.scene.camera.pitch)) > 15)
+                {
+                    //redraw at higher scales where the momentary dissapearing when redrawing won't be so pronounced. At lower scales
+                    // do the redraw after the map stop moving so the disappearing won't be too noticeable.
+                    //    empCesium.redrawGraphics();
+                }
+                //empCesium.entityCollection.resumeEvents();
+                empCesium.lastPosition = position.clone();
+                //}
+                empCesium.viewChange(empCesium.currentExtent, emp3.api.enums.MapViewEventEnum.VIEW_IN_MOTION);
+                empCesium.prevExtent = empCesium.currentExtent;
             }
-            //empCesium.entityCollection.resumeEvents();
-            empCesium.lastPosition = position.clone();
-            //}
-            empCesium.viewChange(empCesium.currentExtent, emp3.api.enums.MapViewEventEnum.VIEW_IN_MOTION);
-            empCesium.prevExtent = empCesium.currentExtent;
+            empCesium.processOnDelayHoldSinglePoints();
         }
-        empCesium.processOnDelayHoldSinglePoints();
+        catch (e)
+        {
+            console.log("preRenderListener : " + e);
+        }
         //console.log("prerender called");
     };
     this.removePreRenderListener = empCesium.viewer.scene.preRender.addEventListener(this.preRenderListener.bind(this));
     this.postRenderListener = function (cesium, date)
     {
+        //console.log("inside postRenderListener" );
         // We can safely stop rendering when:
         //  - the camera position hasn't changed in over a second,
         //  - there are no tiles waiting to load, and
         //  - the clock is not animating
         //  - there are no tweens in progress
         //  - there is no  viewTransaction
-        var now = empCesium.getTimestamp();
-        var scene = empCesium.scene;
-        if (!empCesium.Matrix4.equalsEpsilon(empCesium.lastCameraViewMatrix, scene.camera.viewMatrix, 1e-5))
+        try
         {
-            this.lastCameraMoveTime = now;
-        }
-        var cameraMovedInLastSecond = now - empCesium.lastCameraMoveTime < 1000;
-        var surface = scene.globe._surface;
-        var tilesWaiting = !surface._tileProvider.ready || surface._tileLoadQueue.length > 0 || surface._debug.tilesWaitingForChildren > 0;
-        if (!cameraMovedInLastSecond && !tilesWaiting && empCesium.scene.tweens.length === 0 && !Cesium.defined(this.viewTransaction) && !Cesium.defined(empCesium.drawHelper) && empCesium.getSinglePointsIdOnHoldCount() === 0)
-        {
+            var now = empCesium.getTimestamp();
+            var scene = empCesium.scene;
+            if (!empCesium.Matrix4.equalsEpsilon(empCesium.lastCameraViewMatrix, scene.camera.viewMatrix, 1e-5))
+            {
+                this.lastCameraMoveTime = now;
+            }
+            //var cameraMovedInLastSecond = now - empCesium.lastCameraMoveTime < 1000;
+            //var surface = scene.globe._surface;
+            //var tilesWaiting = !surface._tileProvider.ready || surface._tileLoadQueue.length > 0 || surface._debug.tilesWaitingForChildren > 0;
+            // if (!cameraMovedInLastSecond && !tilesWaiting && empCesium.scene.tweens.length === 0 && !Cesium.defined(this.viewTransaction) && !Cesium.defined(empCesium.drawHelper) && empCesium.getSinglePointsIdOnHoldCount() === 0)
+            //{
             //  go to sleep mode is the editors are not active, nothing is on hold,
             //if (!cameraMovedInLastSecond && !tilesWaiting && !empCesium.viewer.clock.shouldAnimate && empCesium.scene.tweens.length === 0) {
-            if (this.verboseRendering)
-            {
-                console.log('stopping rendering @ ' + empCesium.getTimestamp());
-            }
+            // if (this.verboseRendering)
+            //  {
+            //       console.log('stopping rendering @ ' + empCesium.getTimestamp());
+            //   }
             //empCesium.viewer._cesiumWidget.useDefaultRenderLoop = false;
             //this.stoppedRendering = true;
+            //}
+            // empCesium.Matrix4.clone(scene.camera.viewMatrix, this.lastCameraViewMatrix);
         }
-        empCesium.Matrix4.clone(scene.camera.viewMatrix, this.lastCameraViewMatrix);
+        catch (e)
+        {
+            console.log("postRenderListener : " + e);
+        }
     };
 
     this.removeRenderErrorListener = empCesium.viewer.scene.renderError.addEventListener(this.preRenderListener.bind(this));
@@ -12955,8 +13065,8 @@ var CesiumRenderOptimizer = function (empCesium)
         empCesium.viewer.canvas.removeEventListener('touchend', empCesium.boundNotifyRepaintRequired, false);
         empCesium.viewer.canvas.removeEventListener('touchmove', empCesium.boundNotifyRepaintRequired, false);
         empCesium.viewer.canvas.removeEventListener(this.wheelEvent, this.boundNotifyRepaintRequired, false);
-        empCesium.loadWithXhr.load = this.originalLoadWithXhr;
-        empCesium.TaskProcessor.prototype.scheduleTask = this.originalScheduleTask;
+        //empCesium.loadWithXhr.load = this.originalLoadWithXhr;
+        //empCesium.TaskProcessor.prototype.scheduleTask = this.originalScheduleTask;
     };
 };
 // This class is basically an entity wrapper. This wrapper

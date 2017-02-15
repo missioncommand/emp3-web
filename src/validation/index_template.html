@@ -6,15 +6,12 @@
     <script src='vendor/jquery-1.11.2.min.js' type="text/javascript"></script>
     <script src='vendor/mil-sym/savm-bc.min.js' type="text/javascript"></script>
 
-    <script src='vendor/geotrans.min.js' type="text/javascript"></script>
-    <script type="text/javascript" src="../../vendor/iwc/js/ozpIwc-client.min.js"></script>
-
     <!-- injector:js -->
     <!-- endinjector -->
 
     <script>
         var empConfig = window.empConfig || {};
-        $.getJSON('config.json', function(response) {
+        $.getJSON('./config.json', function(response) {
             empConfig = response;
         });
     </script>

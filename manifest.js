@@ -18,7 +18,6 @@ var manifest = {
     'src/sdk/core/emp.geojsonParser.js',
     'src/sdk/core/emp.errorHandler.js',
     'src/sdk/core/emp.transactionQueue.js',
-    'src/sdk/core/editors/emp.editors.EditorBase.js',
     'src/sdk/core/emp.editingManager.js',
     'src/sdk/core/typeLibrary/emp.typeLibrary.js',
     'src/sdk/core/typeLibrary/utils/emp.typeLibrary.utils.js',
@@ -65,6 +64,8 @@ var manifest = {
     'src/sdk/core/storage/emp.storage.query.js',
     'src/sdk/core/storage/emp.storage.get.js',
     'src/sdk/core/storage/emp.storage.repopulate.js',
+    'src/sdk/core/editors/emp.editors.EditorBase.js',
+    'src/sdk/core/editors/emp.editors.Point.js',    
     'src/sdk/core/environment/owf/emp.environment.owf.js',
     'src/sdk/core/environment/browser/emp.environment.browser.js',
     'src/sdk/core/environment/browser/emp.environment.browser.mediator.js',
@@ -350,6 +351,7 @@ var manifest = {
     "src/mapengine/leaflet/js/utils/leaflet-eng.utils.kml.js",
     "src/mapengine/leaflet/js/utils/leaflet-eng.utils.airspace.js",
     "src/mapengine/leaflet/js/utils/leaflet-eng.utils.oval.js",
+    "src/mapengine/leaflet/js/utils/leaflet-eng-renderer-PointConverter.js",
 
     "src/mapengine/leaflet/js/editor/leaflet-eng.editor.controlpoint.js",
     "src/mapengine/leaflet/js/editor/leaflet-eng.editor.AbstractEditor.js",
@@ -452,7 +454,8 @@ var manifest = {
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.touch.js",
-    "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.drag.js"
+    "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.drag.js",
+    "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js"
   ]
 };
 

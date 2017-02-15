@@ -1,15 +1,16 @@
 module.exports = {
   dist: {
     files: {
-      'dist/': 'dist/emp3-map/validation/config.json'
+      'dist/': 'dist/validation/config.json'
     },
     options: {
-      replacements: [
-        {
-          pattern: /mapengine\//g,
-          replacement: '../emp3-'
-        }
-      ]
+      replacements: [{
+        pattern: /\.\.\/mapengine\//g,
+        replacement: 'emp3/emp3-'
+      }, {
+        pattern: /"debug": true/g,
+        replacement: '"debug": false'
+      }]
     }
   }
 };

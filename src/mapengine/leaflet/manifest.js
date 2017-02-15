@@ -85,7 +85,10 @@ function initlializeLeaflet(args) {
             useProxy: bUseProxy,
             useProxyForDefault: bUseProxyForDefautMap,
             mapInstance: args.mapInstance,
-            initialExtent: args.extent
+            initialExtent: args.extent,
+            renderingOptimization: args.configProperties.renderingOptimization || false,
+            midDistanceThreshold: args.configProperties.midDistanceThreshold,
+            farDistanceThreshold: args.configProperties.farDistanceThreshold
         });
     }
 
@@ -131,6 +134,7 @@ function initlializeLeaflet(args) {
       "js/utils/leaflet-eng.utils.kml.js",
       "js/utils/leaflet-eng.utils.airspace.js",
       "js/utils/leaflet-eng.utils.oval.js",
+      "js/utils/leaflet-eng-renderer-PointConverter.js",
 
       "js/typeLibrary/airspace/leaflet-eng.typeLibrary.airspace.attributes.js",
       "js/typeLibrary/airspace/leaflet-eng.typeLibrary.airspace.cylinder.js",
@@ -173,8 +177,8 @@ function initlializeLeaflet(args) {
     ];
 
     if (args.engine.properties && args.engine.properties.hasOwnProperty("debug") && args.engine.properties.debug === true) {
-        if (!$) {
-          resourceList.push("js/lib/cesium/ThirdParty/jquery-1.11.2.min.js");
+        if (!window.$) {
+          resourceList.push("js/lib/leaflet/ThirdParty/jquery-1.11.2.min.js");
         }
         oRetObject = {
             resourceList: resourceList,
@@ -186,8 +190,8 @@ function initlializeLeaflet(args) {
           "emp3-leaflet.min.js"
         ];
 
-        if (!$) {
-          resourceList.push("js/lib/cesium/ThirdParty/jquery-1.11.2.min.js");
+        if (!window.$) {
+          resourceList.push("js/lib/leaflet/ThirdParty/jquery-1.11.2.min.js");
         }
         oRetObject = {
             resourceList: resourceList,

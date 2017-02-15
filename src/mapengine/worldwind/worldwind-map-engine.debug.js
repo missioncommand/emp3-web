@@ -167,7 +167,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
         };
         break;
       default:
-        window.console.debug(transaction.items[0].globalType);
+        transaction.failures.push(transaction.items[0]);
     }
 
     if (transaction.items[0].animate === true) {
@@ -176,9 +176,12 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       args.animate = true;
       args.animateCB = function() {
         transaction.run();
+        // Notify movement ended
+        EMPWorldWind.eventHandlers.notifyViewChange.call(empWorldWind, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
       };
     }
-
+    // Notify start of movement
+    EMPWorldWind.eventHandlers.notifyViewChange.call(empWorldWind, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
     empWorldWind.centerOnLocation(args);
   };
 
@@ -194,6 +197,18 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       tilt: transaction.items[0].tilt,
       heading: transaction.items[0].heading
     };
+
+    if (transaction.items[0].animate === true) {
+      transaction.pause();
+
+      args.animate = true;
+      args.animateCB = function() {
+        transaction.run();
+        // Notify movement ended
+        EMPWorldWind.eventHandlers.notifyViewChange.call(empWorldWind, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
+      };
+    }
+    EMPWorldWind.eventHandlers.notifyViewChange.call(empWorldWind, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
 
     empWorldWind.lookAt(args);
   };
@@ -386,6 +401,24 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       empWorldWind.setContrast(config.brightness);
     }
   };
+
+  /**
+   *
+   * @param transaction
+   */
+  engineInterface.navigation.enable = function(transaction) {
+    empWorldWind.setLockState(transaction.items[0]);
+  };
+
+  /**
+   *
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.selection.set = function(transaction) {
+    var rc = empWorldWind.selectFeatures(transaction.items);
+    transaction.failures = rc.failed;
+  };
+
 
   // return the engineInterface object as a new engineTemplate instance
   return engineInterface;

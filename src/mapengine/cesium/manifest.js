@@ -560,11 +560,11 @@ function initializeCesium(args)
             empCesium = new EmpCesium(); //.initialize(viewer);
             empCesium.relativeBaseURL = relativeBaseURLEmpCesium;
             empCesium.debugExtent = false;//args.configProperties.debugExtent;
-            if (empCesium.defined(args.configProperties) && empCesium.defined(args.configProperties.renderingOptimization) )
+            if (empCesium.defined(args.configProperties) )
             {
-                empCesium.enableRenderingOptimization = (empCesium.defined(args.configProperties.renderingOptimization.enabled))?args.configProperties.renderingOptimization.enabled:false;
-                empCesium.singlePointAltitudeRanges.mid = (empCesium.defined(args.configProperties.renderingOptimization.mid))?args.configProperties.renderingOptimization.mid:600000;
-                empCesium.singlePointAltitudeRanges.high = (empCesium.defined(args.configProperties.renderingOptimization.high))?args.configProperties.renderingOptimization.high:1200000;
+                empCesium.enableRenderingOptimization = (empCesium.defined(args.configProperties.renderingOptimization))?args.configProperties.renderingOptimization:false;
+                empCesium.singlePointAltitudeRanges.mid = (empCesium.defined(args.configProperties.midDistanceThreshold))?args.configProperties.midDistanceThreshold:600000;
+                empCesium.singlePointAltitudeRanges.high = (empCesium.defined(args.configProperties.farDistanceThreshold))?args.configProperties.farDistanceThreshold:1200000;
             }
             empCesium.initialize(viewer);
             empCesium.globe.show = false;
@@ -663,7 +663,7 @@ function initializeCesium(args)
             layerBrightnessBlack.isTopLayer = true;
             empCesium.enableLayer(layerBrightnessBlack, true);
             empCesium.stiBrightnessBlack =  layerBrightnessBlack.providers[0].imageryLayer;
-            empCesium.setBackgroundBrightness ((args.configProperties.brightness)?args.configProperties.brightness:0);
+            empCesium.setBackgroundBrightness ((args.configProperties.brightness)?args.configProperties.brightness:50);
             //   brightness tile imagery end
             
             
@@ -828,7 +828,7 @@ function initializeCesium(args)
           // "emp3-cesium/js/lib/renderer/MPWorker.js"
         ];
 
-        if (!$) {
+        if (!window.$) {
             resourceList.push("js/lib/cesium/ThirdParty/jquery-1.11.2.min.js");
         }
 
@@ -844,7 +844,7 @@ function initializeCesium(args)
           "emp3-cesium.min.js"
         ];
 
-        if (!$) {
+        if (!window.$) {
             resourceList.push("js/lib/cesium/ThirdParty/jquery-1.11.2.min.js");
         }
 

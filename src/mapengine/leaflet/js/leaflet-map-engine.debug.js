@@ -42,6 +42,70 @@ emp.engineDefs.leafletMapEngine = function (args) {
         leafletInstance: undefined,
         bUseProxy: args.useProxy,
         useProxyForDefault: args.useProxyForDefault,
+        renderingOptimization: {
+          enabled: args.renderingOptimization,
+          midDistanceThreshold: args.midDistanceThreshold,
+          farDistanceThreshold: {
+            value: args.farDistanceThreshold,
+            RED: 'red',
+            BLUE: 'blue',
+            GREEN: 'green',
+            YELLOW: 'yellow',
+            getSVG: function (attributes) {
+              return '<svg preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" version="1.1">' +
+                       '<circle cx="' + attributes.x + '" cy="' + attributes.y + '" r="' + attributes.radius + '"' +
+                       ' fill="' + attributes.color + '" stroke="' + attributes.color + '" stroke-width="1"/>' +
+                     '</svg>';
+            }
+          },
+          // This is set to undefined instead of null to account for the case when the map starts at a very low altitude
+          // and a mil symbol icon plot occurs without any other event first. If this is already 'null' the zoneChanged
+          // boolean in the refreshZone() will not change to true which is needed if the afformentioned plot mil std icon
+          // is to be put on the render list in the scheduler.
+          viewInZone: undefined,
+          zoneChanged: false,
+          renderList: {},
+          removeFromRenderList: function (key) {
+            delete this.renderList[key];
+          },
+          addToRenderList: function (key, value) {
+            return this.renderList[key] = value;
+          },
+          isOnRenderList: function (key) {
+            return this.renderList.hasOwnProperty(key);
+          },
+          isRenderListEmpty: function () {
+            return Object.keys(this.renderList).length === 0;
+          },
+          getRenderList: function () {
+            return this.renderList;
+          },
+          refreshZone: function () {
+            var view = instanceInterface.getView();
+
+            this.zoneChanged = false;
+            if (view.altitude >= this.farDistanceThreshold.value) {
+              // Mil-std single point icons are shown as an ellipses colored with the corresponding affiliation and
+              // labels are turned off.
+              if (this.viewInZone !== "farDistanceZone") {
+                this.zoneChanged = true;
+                this.viewInZone = "farDistanceZone";
+              }
+            } else if (view.altitude >= this.midDistanceThreshold) {
+              // Mil-std single point icons are displayed in normal fashion and labels are turned off.
+              if (this.viewInZone !== "midDistanceZone") {
+                this.zoneChanged = true;
+                this.viewInZone = "midDistanceZone";
+              }
+            } else {
+              // Mil-std single point icons are displayed in normal fashion and the current label setting state is used.
+              if (this.viewInZone !== null) {
+                this.zoneChanged = true;
+                this.viewInZone = null;
+              }
+            }
+          }
+        },
         engineParameters: args,
         selectAttributes: {
             color: 'F0F000',
@@ -394,69 +458,98 @@ emp.engineDefs.leafletMapEngine = function (args) {
             }
         },
         scheduleRendering: function () {
-            var sCoreID;
+          var sCoreID,
+              i,
+              renderList;
 
-            if (instanceInterface.hTGRenderingTimer) {
-                clearTimeout(instanceInterface.hTGRenderingTimer);
-                instanceInterface.hTGRenderingTimer = undefined;
+          if (instanceInterface.hTGRenderingTimer) {
+            clearTimeout(instanceInterface.hTGRenderingTimer);
+            instanceInterface.hTGRenderingTimer = undefined;
+          }
+
+          instanceInterface.oGraphicsInViewingArea = [];
+          var oMapBounds = instanceInterface.leafletInstance.getBounds();
+          var oEmpMapBounds = new leafLet.typeLibrary.EmpBoundary(oMapBounds.getSouthWest(), oMapBounds.getNorthEast());
+          var oFeatureBounds = undefined;
+
+          for (sCoreID in instanceInterface.mapEngObjectList) {
+            if (!instanceInterface.mapEngObjectList.hasOwnProperty(sCoreID)) {
+              continue;
             }
-
-            instanceInterface.oGraphicsInViewingArea = [];
-            var oMapBounds = instanceInterface.leafletInstance.getBounds();
-            var oEmpMapBounds = new leafLet.typeLibrary.EmpBoundary(oMapBounds.getSouthWest(), oMapBounds.getNorthEast());
-            var oFeatureBounds;
-
-            for (sCoreID in instanceInterface.mapEngObjectList) {
-                if (!instanceInterface.mapEngObjectList.hasOwnProperty(sCoreID)) {
-                    continue;
-                }
-                var oEmpObject = instanceInterface.mapEngObjectList[sCoreID];
-
-                if (oEmpObject.getObjectType() === leafLet.typeLibrary.objectType.FEATURE) {
-                    if (oEmpObject.isVisible()) {
-                        try {
-                            if (oEmpObject.isMilStd() && oEmpObject.isMultiPointTG()) {
-                                // Put it on the list only if its a TG, its visible and the scale changed.
-                                oFeatureBounds = oEmpObject.getFeatureBounds();
-                                if (oFeatureBounds && oFeatureBounds.intersects(oEmpMapBounds)) {
-                                    instanceInterface.oGraphicsInViewingArea.push(oEmpObject);
-                                }
-                            } else if (oEmpObject.isAirspace() || oEmpObject.isAOI() || oEmpObject.isGeoEllipse()) {
-                                // Put it on the list.
-                                oFeatureBounds = oEmpObject.getFeatureBounds();
-                                if (oFeatureBounds && oFeatureBounds.intersects(oEmpMapBounds)) {
-                                    instanceInterface.oGraphicsInViewingArea.push(oEmpObject);
-                                }
-                            } else {
-                                oEmpObject.updateCoordinates(oMapBounds);
-                            }
-                        } catch (Ex) {
-                        }
+            var oEmpObject = instanceInterface.mapEngObjectList[sCoreID];
+            if (oEmpObject.getObjectType() === leafLet.typeLibrary.objectType.FEATURE) {
+              // Put it on the list only if it's visible
+              if (oEmpObject.isVisible()) {
+                try {
+                  oFeatureBounds = oEmpObject.getFeatureBounds();
+                  if (oEmpObject.isMilStd()) {
+                    if (oEmpObject.isMultiPointTG()) {
+                      // EMP feature object is a TG. Put it on the list only if it's within the bounds.
+                      if (oFeatureBounds && oFeatureBounds.intersects(oEmpMapBounds)) {
+                        instanceInterface.oGraphicsInViewingArea.push(oEmpObject);
+                      }
+                    } else {
+                      // EMP feature object is a single point icon. Check to see if the view has entered a new zone. If
+                      // it has we want to add the feature to the list. If it hasn't then there is no need to redraw and
+                      // all that needs to occur is a potential update of the positions.
+                      if (instanceInterface.renderingOptimization.zoneChanged &&
+                         !instanceInterface.renderingOptimization.isOnRenderList(sCoreID)) {
+                          instanceInterface.renderingOptimization.addToRenderList(sCoreID, oEmpObject);
+                          instanceInterface.oGraphicsInViewingArea.push(oEmpObject);
+                      } else {
+                        oEmpObject.updateCoordinates(oMapBounds);
+                      }
                     }
+                  } else if (oEmpObject.isAirspace() || oEmpObject.isAOI() || oEmpObject.isGeoEllipse()) {
+                    // Put it on the list only if it's within the bounds.
+                    if (oFeatureBounds && oFeatureBounds.intersects(oEmpMapBounds)) {
+                      instanceInterface.oGraphicsInViewingArea.push(oEmpObject);
+                    }
+                  } else {
+                    oEmpObject.updateCoordinates(oMapBounds);
+                  }
+                } catch (Ex) {
                 }
+              }
             }
-
-            if (instanceInterface.oGraphicsInViewingArea.length > 0) {
-                instanceInterface.hTGRenderingTimer = setTimeout(instanceInterface.RerenderingTimerHdlr, 500);
+          }
+          // Need to check the renderList hash to see if there are any pending items available to re-render.
+          // This condition and course of actions must occur because an event which causes a re-render scheduling can
+          // generate after the onZoomEnd event and potentially cause the previous rendering execution to abort.
+          if (!instanceInterface.renderingOptimization.zoneChanged &&
+              !instanceInterface.renderingOptimization.isRenderListEmpty()) {
+            renderList = instanceInterface.renderingOptimization.getRenderList();
+            for (i in renderList) {
+              instanceInterface.oGraphicsInViewingArea.push(renderList[i]);
             }
+          }
+          if (instanceInterface.oGraphicsInViewingArea.length > 0) {
+            instanceInterface.hTGRenderingTimer = setTimeout(instanceInterface.RerenderingTimerHdlr, 500);
+          }
         },
         RerenderingTimerHdlr: function () {
-            var iIndex = 0;
+          var iIndex = 0,
+              currentGraphic,
+              removedGraphicId;
 
-            while (instanceInterface.oGraphicsInViewingArea.length > 0) {
-                if (iIndex === 100) {
-                    instanceInterface.hTGRenderingTimer = setTimeout(instanceInterface.RerenderingTimerHdlr, 100);
-                    return;
-                }
-
-                if (instanceInterface.oGraphicsInViewingArea[0].isInEditMode()) {
-                    instanceInterface.oCurrentEditor.render();
-                } else {
-                    instanceInterface.oGraphicsInViewingArea[0].render();
-                }
-                instanceInterface.oGraphicsInViewingArea.splice(0, 1);
-                iIndex++;
+          while (instanceInterface.oGraphicsInViewingArea.length > 0) {
+            if (iIndex === 100) {
+              instanceInterface.hTGRenderingTimer = setTimeout(instanceInterface.RerenderingTimerHdlr, 100);
+              return;
             }
+
+            if (instanceInterface.oGraphicsInViewingArea[0].isInEditMode()) {
+              instanceInterface.oCurrentEditor.render();
+            } else {
+              instanceInterface.oGraphicsInViewingArea[0].render();
+            }
+            currentGraphic = instanceInterface.oGraphicsInViewingArea.splice(0, 1);
+            removedGraphicId = currentGraphic[0].options.featureId;
+            if (instanceInterface.renderingOptimization.isOnRenderList(removedGraphicId)) {
+              instanceInterface.renderingOptimization.removeFromRenderList(removedGraphicId);
+            }
+            iIndex++;
+          }
         },
         processViewSetTrans: function () {
             var oTrans;
@@ -480,17 +573,17 @@ emp.engineDefs.leafletMapEngine = function (args) {
             var tilt;
             var oMap = instanceInterface.getLeafletMap();
             var level = oMap.getZoom();
-            
+
             if (lookAt) {
                 // We project the range on to the vertical so the camera is at the correct altitude but looking down.
                 range = lookAt.altitude + (lookAt.range * Math.cos(lookAt.tilt));
-                
+
                 if (range < instanceInterface.zoomScaleMap[instanceInterface.zoomScaleMap.length - 1]) {
                     range = instanceInterface.zoomScaleMap[instanceInterface.zoomScaleMap.length - 1];
                 }
-                
+
                 // Leaflet is a 2D map, so we do not need to deal with the altitude.
-                
+
                 try {
                     oMap.setView(new L.LatLng(lookAt.latitude, lookAt.longitude), level, {animate: false});
                     if (range && !isNaN(range)) {
@@ -652,7 +745,9 @@ emp.engineDefs.leafletMapEngine = function (args) {
         instanceInterface.iMilStdIconSize = 24;
 
         checkMapWidth();
-
+        if (instanceInterface.renderingOptimization.enabled) {
+            instanceInterface.renderingOptimization.refreshZone();
+        }
         //notify application that the map is ready to recieve data
         instanceInterface.empMapInstance.eventing.StatusChange({status: emp.map.states.READY});
     };
@@ -665,16 +760,22 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
     function checkMapWidth() {
         var oMapBounds;
+        var center;
+        var angularWidth;
         var iZoom;
 
         oMapBounds = instanceInterface.leafletInstance.getBounds();
+        center = instanceInterface.leafletInstance.getCenter();
+        angularWidth = Math.abs(oMapBounds.getEast() - oMapBounds.getWest());
 
-        if ((oMapBounds.getEast() - oMapBounds.getWest() > 360.0)) {
+        //console.log("Deg Wide : " + angularWidth);
+        // We must make sure we don't zoom out beyond 180 deg width. The render has problems rendering
+        // graphics when the BBox is wider than 180.
+        if (angularWidth >= 180.0) {
             iZoom = instanceInterface.leafletInstance.getZoom() + 1;
-            instanceInterface.leafletInstance.setZoom(iZoom, {animate: false});
+            instanceInterface.leafletInstance.setView(center, iZoom, {animate: false});
         }
-    }
-    ;
+    };
 
     function checkMapCenter() {
         // Leaflet allows the map to be moved out of view north or south.
@@ -713,7 +814,6 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
     function setupEventListeners() {
         function onMouseMove(e) {
-
             var eventData = {};
             eventData.lat = e.latlng.lat;
             eventData.lon = leafLet.utils.normilizeLongitude(e.latlng.lng);
@@ -723,19 +823,23 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onMoveEnd(e) {
-            var center = instanceInterface.leafletInstance.getCenter();
+          var center,
+              mapBounds;
 
-            checkMapCenter();
-            if ((center.lng < -180.0) || (center.lng > 180.0)) {
-                instanceInterface.leafletInstance.setView(center.wrap());
-                return;
-            }
-            var view = instanceInterface.getView();
-            var lookAt = instanceInterface.viewToLookAt(view);
-            instanceInterface.scheduleRendering(view);
-            instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-
-            instanceInterface.processViewSetTrans();
+          checkMapCenter();
+          center = instanceInterface.leafletInstance.getCenter();
+          if ((center.lng < -180.0) || (center.lng > 180.0)) {
+            instanceInterface.leafletInstance.setView(center.wrap());
+            return;
+          }
+          if (instanceInterface.renderingOptimization.enabled) {
+            instanceInterface.renderingOptimization.refreshZone();
+          }
+          var view = instanceInterface.getView();
+          var lookAt = instanceInterface.viewToLookAt(view);
+          instanceInterface.scheduleRendering(view);
+          instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
+          instanceInterface.processViewSetTrans();
         }
 
         function onMapClick(e) {
@@ -754,18 +858,17 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onZoomEnd(oEvent) {
-            checkMapWidth();
-            var view = instanceInterface.getView();
-            var lookAt = instanceInterface.viewToLookAt(view);
+          checkMapWidth();
+          //var view = instanceInterface.getView();
+          // lookAt = instanceInterface.viewToLookAt(view);
 
-            instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-            instanceInterface.processViewSetTrans();
-            instanceInterface.scheduleRendering(view);
+          //instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
+          //instanceInterface.processViewSetTrans();
         }
 
         function onViewReset(e) {
-            checkMapWidth();
-            instanceInterface.scheduleRendering();
+          //checkMapWidth();
+          //instanceInterface.scheduleRendering();
         }
 
         function onMouseUpDown(e) {
@@ -1814,7 +1917,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             } else if (!enabled.lock && (instanceInterface.oZoomControl._map === null)){
                 instanceInterface.oZoomControl.addTo(instanceInterface.leafletInstance);
                 instanceInterface.leafletInstance.scrollWheelZoom.enable();
-                // Default to enableing mouse navigation to avoid an error state where user cannot interact with the map
+                // Default to enabling mouse navigation to avoid an error state where user cannot interact with the map
                 instanceInterface.leafletInstance.dragging.enable();
             }
         }
@@ -2018,7 +2121,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
     engineInterface.lookAt.set = function(transaction) {
         var iIndex;
 
-        for (iIndex = 0; iIndex < transaction.items.length;) {
+        for (iIndex = 0; iIndex < transaction.items.length; iIndex += 1) {
             if (instanceInterface.setLookAt(transaction.items[iIndex])) {
                 iIndex++;
             } else {
@@ -2031,6 +2134,80 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
     };
 
+    engineInterface.map.config = function (transaction) {
+      var iIndex,
+          prop,
+          previousRenderSettings = {
+            enabled: instanceInterface.renderingOptimization.enabled,
+            midDistanceThreshold: instanceInterface.renderingOptimization.midDistanceThreshold,
+            farDistanceThreshold: instanceInterface.renderingOptimization.farDistanceThreshold.value
+          },
+          newConfig;
+
+      for (iIndex = 0; iIndex < transaction.items.length; iIndex += 1) {
+        newConfig = transaction.items[0];
+        try {
+          for (prop in newConfig) {
+            switch (prop) {
+              case "renderingOptimization":
+                if (typeof newConfig[prop] !== 'boolean') {
+                  throw new Error("'renderingOptimization' property must be of Boolean type.");
+                }
+                instanceInterface.renderingOptimization.enabled = newConfig[prop];
+                break;
+              case "midDistanceThreshold":
+                if (typeof newConfig[prop] !== 'number') {
+                  throw new Error("'midDistanceThreshold' property must be of Number type.");
+                }
+                instanceInterface.renderingOptimization.midDistanceThreshold = newConfig[prop];
+                break;
+              case "farDistanceThreshold":
+                if (typeof newConfig[prop] !== 'number') {
+                  throw new Error("'farDistanceThreshold' property must be of Number type.");
+                }
+                instanceInterface.renderingOptimization.farDistanceThreshold.value = newConfig[prop];
+                break;
+              case "brightness":
+                break;
+            }
+          }
+          if (previousRenderSettings.enabled) {
+            // In both of these cases a change has occured from the previous state of the configuration attributes which
+            // must trigger a re-render of the graphics. If previous attributes haven't changed then no re-render should
+            // occur.
+            if (!instanceInterface.renderingOptimization.enabled) {
+              instanceInterface.renderingOptimization.viewInZone = undefined;
+              instanceInterface.renderingOptimization.zoneChanged = true;
+              instanceInterface.scheduleRendering();
+              instanceInterface.renderingOptimization.zoneChanged = false;
+            } else if (previousRenderSettings.midDistanceThreshold !== instanceInterface.renderingOptimization.midDistanceThreshold ||
+                       previousRenderSettings.farDistanceThreshold !== instanceInterface.renderingOptimization.farDistanceThreshold.value) {
+              instanceInterface.renderingOptimization.refreshZone();
+              instanceInterface.scheduleRendering();
+              instanceInterface.renderingOptimization.zoneChanged = false;
+            }
+          } else {
+            // If the previous enabled state is false and set to true a re-render must occur. Although the far and mid
+            // distance threshold values can change, a re-render is only necessary when the enabled property is set to
+            // true.
+            if (instanceInterface.renderingOptimization.enabled) {
+              instanceInterface.renderingOptimization.refreshZone();
+              instanceInterface.scheduleRendering();
+              instanceInterface.renderingOptimization.zoneChanged = false;
+            }
+          }
+          transaction.run();
+        } catch (e) {
+          transaction.fail(new emp.typeLibrary.Error({
+            coreId: item.coreId,
+            level: emp.typeLibrary.Error.level.MAJOR,
+            message: Ex.name + ": " + Ex.message,
+            jsError: Ex
+          }));
+          iIndex--;
+        }
+      }
+    };
 
     engineInterface.implementation.displayName = "Leaflet Map Engine";
     engineInterface.implementation.version = "34.0";
@@ -2163,6 +2340,9 @@ emp.engineDefs.leafletMapEngine = function (args) {
     try {
         var center;
         var level = 0;
+        var southWest = L.latLng(-90.0, -180.0);
+        var northEast = L.latLng(90.0, 180.0);
+        var maxBounds = L.latLngBounds(southWest, northEast);
 
         if (args.initialExtent !== undefined) {
             if (args.initialExtent.hasOwnProperty('centerLat')) {
@@ -2191,6 +2371,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             minZoom: 1,
             center: center,
             zoom: level,
+            //maxBounds : maxBounds,
             boxZoom: false,
             trackResize: false,
             attributionControl: false,
