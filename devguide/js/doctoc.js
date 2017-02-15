@@ -43,11 +43,7 @@ var doctoc = [{
         },
         {
             key: "pages/example.html?example=examples/map-draw.js",
-            title: "Draw on the Map"
-        },
-        {
-            key: "pages/example.html?example=examples/map-setExtent.js",
-            title: "Update the map extent"
+            title: "Draw and Edit a Line"
         },
         {
             key: "pages/example.html?example=examples/map-addMapService.js",
@@ -60,14 +56,6 @@ var doctoc = [{
         {
             key: "pages/example.html?example=examples/map-addEventListener.js",
             title: "Add an event listener to the map"
-        },
-        {
-            key: "pages/example.html?example=examples/examples/map-editFeature.js",
-            title: "Add a polygon to the map and edit it"
-        },
-        {
-            key: "pages/example.html?example=examples/examples/map-getVisibility.js",
-            title: "Get the visibility of an item on the map"
         },
         {
             key: "pages/example.html?example=examples/map-zoomTo.js",
