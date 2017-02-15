@@ -50,7 +50,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
       lat: this.worldWind.navigator.lookAtLocation.latitude,
       lon: this.worldWind.navigator.lookAtLocation.longitude
     },
-    bounds: this.worldWind.viewport
+    bounds: this.getBounds()
   };
 
   var lookAt = {
