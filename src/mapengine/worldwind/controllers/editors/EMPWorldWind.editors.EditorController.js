@@ -257,7 +257,7 @@ EMPWorldWind.editors.EditorController = (function() {
       feature.symbolCode,
       positions,
       "clampToGround",
-      this.worldWind.navigator.range * 10,
+      this.worldWind.navigator.range,
       bbox,
       modifiers,
       EMPWorldWind.constants.MultiPointRenderType.GEOJSON));
@@ -422,8 +422,7 @@ EMPWorldWind.editors.EditorController = (function() {
       selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
       highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
     } else {
-      // TODO see above, is this color correct for default polyline highlight
-      attributes.outlineColor = WorldWind.Color.YELLOW;
+      highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
     }
 
     polylinePrimitive = new WorldWind.SurfacePolyline(locations, attributes);

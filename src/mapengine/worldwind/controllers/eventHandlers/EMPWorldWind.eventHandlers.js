@@ -8,18 +8,18 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  * @param {context} scope
  * @returns {Function}
  */
-EMPWorldWind.eventHandlers.throttle = function (fn, threshold, scope) {
+EMPWorldWind.eventHandlers.throttle = function(fn, threshold, scope) {
   threshold = threshold || 20; // 20 ms throttle
   var last, deferTimer;
 
-  return function () {
+  return function() {
     var context = scope || this;
 
     var now = +new Date,
       args = arguments;
     if (last && now < last + threshold) {
       clearTimeout(deferTimer);
-      deferTimer = setTimeout(function () {
+      deferTimer = setTimeout(function() {
         last = now;
         fn.apply(context, args);
       }, threshold);
@@ -65,7 +65,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
   this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
 
   // TODO Throttle this call
-  //EMPWorldWind.eventHandlers.checkIfRenderRequired.call(this);
+  EMPWorldWind.eventHandlers.checkIfRenderRequired.call(this);
 };
 
 /**
@@ -87,8 +87,15 @@ EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
 
     this.state.lastRender.altitude = this.worldWind.navigator.range;
 
-    // TODO trigger re-render
-    // this.refresh();
+    // TODO re-render if visible, flag others that are not visible for re-render if performance is an issue
+    emp.util.each(Object.keys(this.features), function(featureId) {
+      var feature = this.features[featureId];
+
+      if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
+        feature.feature.data.type === "LineString") {
+        this.plotFeature(feature.feature);
+      }
+    }.bind(this));
   }
 };
 
