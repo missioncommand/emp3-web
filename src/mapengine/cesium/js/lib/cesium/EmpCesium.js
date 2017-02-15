@@ -76,6 +76,10 @@ function EmpCesium()
     // Constant; the default pixel size of all the MIL-STD-2552 imagery
     this.multiPointRenderType = EmpCesiumConstants.MultiPointRenderType.SVG;
     this.iconPixelSize = 32;
+    this.iconPixelSizeTiny = 16;
+    this.iconPixelSizeSmall = 24;
+    this.iconPixelSizeMedium = 32;
+    this.iconPixelSizeLarge = 48;
     this.lastMouseClick = new Date().getTime();
     this.oMouseMoveEventData = undefined;
     this.dynamicOverlayHash = {}; // For Cesium dynamic data (czml)
@@ -8715,7 +8719,7 @@ function EmpCesium()
                         coreId: feature.id,
                         overlayId: feature.overlayId,
                         sendEvent: false,
-                        isApiInitiatedSelection : true
+                        isApiInitiatedSelection: true
                     };
                     this.manageDeselect(selectionArgs);
                     this.manageSelect(selectionArgs);

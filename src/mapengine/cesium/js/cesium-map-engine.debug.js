@@ -1780,132 +1780,133 @@ emp.engineDefs.cesiumMapEngine = function (args)
             empCesium.projectionEnableFlat(enable);
         }
     };
-    engineInterface.settings.mil2525.icon.labels.set = function (transaction)
-    {
-        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
-        var iconLabelArray,
-                newIconLabelSettings = [],
-                singlePointKey, drawCountryCodeChanged = false,
-                i;
-
-        try
-        {
-            //empCesium.entityCollection.suspendEvents();
-            // Check to make sure the transaction is good.
-            if (transaction && transaction.items)
-            {
-                // Retrieve the array of labels that are turned on from the
-                // transaction.
-                iconLabelArray = transaction.items[0];
-                if (iconLabelArray && iconLabelArray.length <= 6)
-                {
-                    empCesium.iconLabelOption = "none";
-                }
-                else if (iconLabelArray && iconLabelArray.length <= 12)
-                {
-                    empCesium.iconLabelOption = "common";
-                }
-                else if (iconLabelArray && iconLabelArray.length > 12)
-                {
-                    empCesium.iconLabelOption = "all";
-                }
-                // Loop through the array of labels, and store in an
-                // array.  Index it by the value of the label, so we can
-                // do an easy lookup later.  Just set the value to true
-                // so it equals something.
-                for (i = 0; i < iconLabelArray.length; i += 1)
-                {
-                    newIconLabelSettings[iconLabelArray[i]] = true;
-                }
-
-                if (newIconLabelSettings && newIconLabelSettings.hasOwnProperty("CC"))
-                {
-                    drawCountryCodeChanged = empCesium.drawCountryCode === false;
-                    empCesium.drawCountryCode = true;
-                    armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
-                }
-                else
-                {
-                    drawCountryCodeChanged = empCesium.drawCountryCode === true;
-                    empCesium.drawCountryCode = false;
-                    armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
-                }
-
-                // Assign the class level variable.
-                empCesium.iconLabels = newIconLabelSettings;
-                //check altitude range mode before calling the throttlering. If icon label option is none 
-                //and the range mode is mid or high then there is no need to render because teh icons are already with no labels.
-                if (empCesium.iconLabelOption === "none" && (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
-                        empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
-                {
-                    // do nothing. single points already with no labels and CC enabling not changed
-                    //console.log(empCesium.iconLabelOption);
-                    // console.log(empCesium.singlePointAltitudeRangeMode);
-                }
-                else if ((empCesium.iconLabelOption === "common" || empCesium.iconLabelOption === "all") &&
-                        (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
-                                empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
-                {
-                    // do nothing. single points are at a range with no labels and CC enabling not changed
-                    //console.log(empCesium.iconLabelOption);
-                    //console.log(empCesium.singlePointAltitudeRangeMode);
-                }
-                else
-                {
-                    // Redraw all the symbols affected.
-                    for (singlePointKey in empCesium.singlePointCollection)
-                    {
-                        if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
-                        {
-                            //empCesium.throttleMil2525IconLabelSet(empCesium.getSinglePoint(singlePointKey));
-                            empCesium.throttleMil2525IconLabelSet(singlePointKey);
-                        }
-                    }
-                }
-                transaction.run();
-            }
-        }
-        catch (e)
-        {
-        }
-        //empCesium.entityCollection.resumeEvents();
-    };
-    engineInterface.settings.mil2525.icon.size.set = function (transaction)
-    {
-        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
-        var iconPixelSizeArray, singlePointKey;
-
-        //empCesium.entityCollection.suspendEvents();
-        try
-        {
-            // Make sure the transaction is good first.
-            if (transaction && transaction.items)
-            {
-                // Retrieve the icon size from the transaction.
-                // This will always come in an array.
-                iconPixelSizeArray = transaction.items;
-                // Make sure there is at least one item in the array.
-                if (iconPixelSizeArray.length > 0)
-                {
-                    empCesium.iconPixelSize = iconPixelSizeArray[0];
-                    // Now we need to change the size of all the exiting graphics.
-                    // Redraw all the symbols affected.
-                    for (singlePointKey in empCesium.singlePointCollection)
-                    {
-                        if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
-                        {
-                            empCesium.throttleMil2525IconSizeSet(singlePointKey);
-                        }
-                    }
-                }
-                transaction.run();
-            }
-        }
-        catch (e)
-        {
-        }
-        //empCesium.entityCollection.resumeEvents();
-    };
+    
+//    engineInterface.settings.mil2525.icon.labels.set = function (transaction)
+//    {
+//        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
+//        var iconLabelArray,
+//                newIconLabelSettings = [],
+//                singlePointKey, drawCountryCodeChanged = false,
+//                i;
+//
+//        try
+//        {
+//            //empCesium.entityCollection.suspendEvents();
+//            // Check to make sure the transaction is good.
+//            if (transaction && transaction.items)
+//            {
+//                // Retrieve the array of labels that are turned on from the
+//                // transaction.
+//                iconLabelArray = transaction.items[0];
+//                if (iconLabelArray && iconLabelArray.length <= 6)
+//                {
+//                    empCesium.iconLabelOption = "none";
+//                }
+//                else if (iconLabelArray && iconLabelArray.length <= 12)
+//                {
+//                    empCesium.iconLabelOption = "common";
+//                }
+//                else if (iconLabelArray && iconLabelArray.length > 12)
+//                {
+//                    empCesium.iconLabelOption = "all";
+//                }
+//                // Loop through the array of labels, and store in an
+//                // array.  Index it by the value of the label, so we can
+//                // do an easy lookup later.  Just set the value to true
+//                // so it equals something.
+//                for (i = 0; i < iconLabelArray.length; i += 1)
+//                {
+//                    newIconLabelSettings[iconLabelArray[i]] = true;
+//                }
+//
+//                if (newIconLabelSettings && newIconLabelSettings.hasOwnProperty("CC"))
+//                {
+//                    drawCountryCodeChanged = empCesium.drawCountryCode === false;
+//                    empCesium.drawCountryCode = true;
+//                    armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
+//                }
+//                else
+//                {
+//                    drawCountryCodeChanged = empCesium.drawCountryCode === true;
+//                    empCesium.drawCountryCode = false;
+//                    armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
+//                }
+//
+//                // Assign the class level variable.
+//                empCesium.iconLabels = newIconLabelSettings;
+//                //check altitude range mode before calling the throttlering. If icon label option is none 
+//                //and the range mode is mid or high then there is no need to render because teh icons are already with no labels.
+//                if (empCesium.iconLabelOption === "none" && (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
+//                        empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
+//                {
+//                    // do nothing. single points already with no labels and CC enabling not changed
+//                    //console.log(empCesium.iconLabelOption);
+//                    // console.log(empCesium.singlePointAltitudeRangeMode);
+//                }
+//                else if ((empCesium.iconLabelOption === "common" || empCesium.iconLabelOption === "all") &&
+//                        (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
+//                                empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
+//                {
+//                    // do nothing. single points are at a range with no labels and CC enabling not changed
+//                    //console.log(empCesium.iconLabelOption);
+//                    //console.log(empCesium.singlePointAltitudeRangeMode);
+//                }
+//                else
+//                {
+//                    // Redraw all the symbols affected.
+//                    for (singlePointKey in empCesium.singlePointCollection)
+//                    {
+//                        if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
+//                        {
+//                            //empCesium.throttleMil2525IconLabelSet(empCesium.getSinglePoint(singlePointKey));
+//                            empCesium.throttleMil2525IconLabelSet(singlePointKey);
+//                        }
+//                    }
+//                }
+//                transaction.run();
+//            }
+//        }
+//        catch (e)
+//        {
+//        }
+//        //empCesium.entityCollection.resumeEvents();
+//    };
+//    engineInterface.settings.mil2525.icon.size.set = function (transaction)
+//    {
+//        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
+//        var iconPixelSizeArray, singlePointKey;
+//
+//        //empCesium.entityCollection.suspendEvents();
+//        try
+//        {
+//            // Make sure the transaction is good first.
+//            if (transaction && transaction.items)
+//            {
+//                // Retrieve the icon size from the transaction.
+//                // This will always come in an array.
+//                iconPixelSizeArray = transaction.items;
+//                // Make sure there is at least one item in the array.
+//                if (iconPixelSizeArray.length > 0)
+//                {
+//                    empCesium.iconPixelSize = iconPixelSizeArray[0];
+//                    // Now we need to change the size of all the exiting graphics.
+//                    // Redraw all the symbols affected.
+//                    for (singlePointKey in empCesium.singlePointCollection)
+//                    {
+//                        if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
+//                        {
+//                            empCesium.throttleMil2525IconSizeSet(singlePointKey);
+//                        }
+//                    }
+//                }
+//                transaction.run();
+//            }
+//        }
+//        catch (e)
+//        {
+//        }
+//        //empCesium.entityCollection.resumeEvents();
+//    };
 
 
 
