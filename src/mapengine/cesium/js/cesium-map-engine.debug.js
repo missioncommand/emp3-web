@@ -1983,7 +1983,9 @@ emp.engineDefs.cesiumMapEngine = function (args)
     {
         engineInterface.map.config = function (transaction)
         {
-            var bRangeChanged = false,
+            var singlePointKey,
+                    bRangeChanged = false,
+                    iconSizeChanged = false,
                     bSelectionStyleChanged = false;
             try
             {
@@ -2033,7 +2035,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 
                     if (bSelectionStyleChanged)
                     {
-                         empCesium.updateSelections();
+                        empCesium.updateSelections();
                     }
 
                     if (empCesium.defined(config.brightness))
@@ -2041,6 +2043,43 @@ emp.engineDefs.cesiumMapEngine = function (args)
                         empCesium.setBackgroundBrightness(config.brightness);
                     }
 
+                    if (empCesium.defined(config.iconSize))
+                    {
+                        if (empCesium.iconPixelSize !== config.iconSize)
+                        {
+                            iconSizeChanged = true;
+                        }
+                        switch (config.iconSize)
+                        {
+                            case emp3.api.enums.IconSizeEnum.TINY:
+                                empCesium.iconPixelSize = empCesium.iconPixelSizeTiny;
+                                break;
+                            case emp3.api.enums.IconSizeEnum.SMALL:
+                                empCesium.iconPixelSize = empCesium.iconPixelSizeSmall;
+                                break;
+                            case emp3.api.enums.IconSizeEnum.MEDIUM:
+                                empCesium.iconPixelSize = empCesium.iconPixelSizeMedium;
+                                break;
+                            case emp3.api.enums.IconSizeEnum.LARGE:
+                                empCesium.iconPixelSize = empCesium.iconPixelSizeLarge;
+                                break;
+                            default:
+                                empCesium.iconPixelSize = empCesium.iconPixelSizeMedium;
+                                break;
+                        }
+                        // Now we need to change the size of all the exiting graphics.
+                        // Redraw all the symbols affected.
+                        if (iconSizeChanged)
+                        {
+                            for (singlePointKey in empCesium.singlePointCollection)
+                            {
+                                if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
+                                {
+                                    empCesium.throttleMil2525IconSizeSet(singlePointKey);
+                                }
+                            }
+                        }
+                    }
 
 
                     transaction.run();
