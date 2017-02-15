@@ -32,7 +32,7 @@ leafLet.utils.renderer.PointConverter = function(leafletMap, pixelWidth, pixelHe
         */
         PixelsToGeo: function(pixel) {
             var leafletPoint = new L.Point(pixel.getX(), pixel.getY());
-            var point2D = new armyc2.c2sd.graphics2d.Point2D ();
+            var point2D = new armyc2.c2sd.graphics2d.Point2D();
             var latlng = privateInterface.leafletMap.containerPointToLatLng(leafletPoint).wrap();
             
             //console.log("PixeltoGeo: x:" + pixel.getX() + " y:" + pixel.getY() + " => " + latlng.lat + "/" + latlng.lng);
@@ -55,7 +55,7 @@ leafLet.utils.renderer.PointConverter = function(leafletMap, pixelWidth, pixelHe
             var coordLatLng = new L.LatLng(coord.y, coord.x);
             var leafletLatLng = coordLatLng.wrap();
             var leafletPoint = new L.Point(0,0);
-            var point2D = new armyc2.c2sd.graphics2d.Point2D ();
+            var point2D = new armyc2.c2sd.graphics2d.Point2D();
             
             //inBoundingBox = privateInterface.empMapBounds.containsCoordiante(leafletLatLng);
             
@@ -80,7 +80,7 @@ leafLet.utils.renderer.PointConverter = function(leafletMap, pixelWidth, pixelHe
                 }
             } else {
                 // the IDL is NOT in the viewing area.
-                inBoundingBox = privateInterface.empMapBounds.containsCoordiante(privateInterface.leafletLatLng);
+                inBoundingBox = privateInterface.empMapBounds.containsCoordiante(leafletLatLng);
 
                 if (!inBoundingBox) {
                     // The coordinate is NOT in the viewing area.
