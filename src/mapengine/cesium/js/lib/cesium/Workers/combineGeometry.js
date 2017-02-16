@@ -18384,7 +18384,11 @@ define('Scene/PrimitivePipeline',[
             for (var geometryIndex = 0; geometryIndex < geometriesLength; geometryIndex++) {
                 var geometry = geometries[geometryIndex];
                 var instance = instances[instanceIndex];
-                instance.geometry = geometry;
+                //acevedo  - instance is undefined sometimes
+                if (instance)
+                {
+                  instance.geometry = geometry;
+                }
                 ++instanceIndex;
             }
         }

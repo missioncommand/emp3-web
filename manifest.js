@@ -351,6 +351,7 @@ var manifest = {
     "src/mapengine/leaflet/js/utils/leaflet-eng.utils.kml.js",
     "src/mapengine/leaflet/js/utils/leaflet-eng.utils.airspace.js",
     "src/mapengine/leaflet/js/utils/leaflet-eng.utils.oval.js",
+    "src/mapengine/leaflet/js/utils/leaflet-eng-renderer-PointConverter.js",
 
     "src/mapengine/leaflet/js/editor/leaflet-eng.editor.controlpoint.js",
     "src/mapengine/leaflet/js/editor/leaflet-eng.editor.AbstractEditor.js",
