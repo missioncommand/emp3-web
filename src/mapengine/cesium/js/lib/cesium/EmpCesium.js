@@ -3020,8 +3020,12 @@ function EmpCesium()
                                     var entity = entityArray[index];
                                     if (entity.billboard)
                                     {
-                                        //entity.billboard.verticalOrigin  = this.VerticalOrigin .CENTER;
-                                        //entity.billboard.horizontalOrigin  = this.HorizontalOrigin .CENTER;
+                                        // the datasource is setting the verticalorigin to bottom...why?? the default is center.
+                                        if (this.defined(args.overlayId) && args.overlayId === "vertices")
+                                        {
+                                            entity.billboard.verticalOrigin  = this.VerticalOrigin.BOTTOM;
+                                            entity.billboard.horizontalOrigin  = this.HorizontalOrigin.RIGHT;
+                                        }
                                         //use default emp icon
                                         //if (emp.util.config.getUseProxySetting())
                                         //{
