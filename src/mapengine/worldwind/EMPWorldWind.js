@@ -899,7 +899,7 @@ EMPWorldWind.map.prototype.refresh = function() {
   //   if (this.features.hasOwnProperty(featureId)) {
   //     feature = this.features[featureId];
   //
-  //     // TODO check if it is visible first1
+  //     // TODO check if it is visible first
   //     //EMPWorldWind.editors.EditorController.updateRender.call(this, feature);
   //   }
   // }
