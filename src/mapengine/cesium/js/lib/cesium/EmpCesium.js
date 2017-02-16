@@ -3020,8 +3020,8 @@ function EmpCesium()
                                     var entity = entityArray[index];
                                     if (entity.billboard)
                                     {
-                                          //entity.billboard.verticalOrigin  = this.VerticalOrigin .CENTER;
-                                          //entity.billboard.horizontalOrigin  = this.HorizontalOrigin .CENTER;
+                                        //entity.billboard.verticalOrigin  = this.VerticalOrigin .CENTER;
+                                        //entity.billboard.horizontalOrigin  = this.HorizontalOrigin .CENTER;
                                         //use default emp icon
                                         //if (emp.util.config.getUseProxySetting())
                                         //{
@@ -8718,7 +8718,7 @@ function EmpCesium()
                         coreId: feature.id,
                         overlayId: feature.overlayId,
                         sendEvent: false,
-                        isApiInitiatedSelection : true
+                        isApiInitiatedSelection: true
                     };
                     this.manageDeselect(selectionArgs);
                     this.manageSelect(selectionArgs);
@@ -9694,8 +9694,8 @@ function EmpCesium()
                     }
                     if (entity.polyline && presentEntity.polyline)
                     {
-                       // if (this.mapLocked)
-                         if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION)
+                        // if (this.mapLocked)
+                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION &&  presentEntity.overlayId === "vertices" )
                         {
                             this.freeHandPositions = entity.polyline.positions.getValue();
                             presentEntity.polyline.positions = new this.CallbackProperty(function (time, result)
@@ -13430,7 +13430,7 @@ var EmpLayer = function (name, id, type, empCesium)
                 }
                 else
                 {
-                    feature.polyline.show =  visibility;
+                    feature.polyline.show = visibility;
                 }
 //                //use following workaround to hide entities
 //                if (visibility)
@@ -13444,13 +13444,13 @@ var EmpLayer = function (name, id, type, empCesium)
             }
             if (feature.polygon !== undefined)
             {
-               if (!this.empCesium.defined(feature.polygon.show))
+                if (!this.empCesium.defined(feature.polygon.show))
                 {
                     feature.polygon.show = new this.ConstantProperty(visibility);
                 }
                 else
                 {
-                    feature.polygon.show =  visibility;
+                    feature.polygon.show = visibility;
                 }
             }
             if (feature.label !== undefined)
@@ -13461,7 +13461,7 @@ var EmpLayer = function (name, id, type, empCesium)
                 }
                 else
                 {
-                    feature.label.show =  visibility;
+                    feature.label.show = visibility;
                 }
             }
             if (feature.ellipse !== undefined)
@@ -13472,18 +13472,18 @@ var EmpLayer = function (name, id, type, empCesium)
                 }
                 else
                 {
-                    feature.ellipse.show =  visibility;
+                    feature.ellipse.show = visibility;
                 }
             }
             if (feature.rectangle !== undefined)
             {
-               if (!this.empCesium.defined(feature.rectangle.show))
+                if (!this.empCesium.defined(feature.rectangle.show))
                 {
                     feature.rectangle.show = new this.ConstantProperty(visibility);
                 }
                 else
                 {
-                    feature.rectangle.show =  visibility;
+                    feature.rectangle.show = visibility;
                 }
                 if (this.empCesium.isMultiPointPresent(id))
                 {
