@@ -1358,7 +1358,8 @@ function EmpCesium()
 
     this.prePopulateEvent = function (evt, findFeatures)
     {
-        var featureIds = []
+        var featureIds = [],
+                evts = [];
         if (!this.empMapInstance)
         {
             //map instance not ready. ignore events
@@ -1395,7 +1396,7 @@ function EmpCesium()
             {
                 for (var x = 0; x < features.length; x++)
                 {
-                    var feature;
+                    var feature, tempEvt;
                     if (features[x] !== undefined && features[x] !== "")
                     {
                         if (features[x].id)
@@ -1415,32 +1416,42 @@ function EmpCesium()
                         {
                             break;
                         }
-                        evt.feature = feature; //only provide 1 feature for now
+                        tempEvt = {};
+                        tempEvt.feature = feature; //provide the top feature
                         if (this.drawData && this.drawData.editingFeature && evt.feature.coreId)
                         {
                             // This case is used when clicking on the feature that is currently being edited.
                             // If evt.feature.coreId is populated it means that the currently edited feature
                             // has been clicked on. The evt.feature.coreId pertains to the actual
                             // feature. The evt.feature.id field is populated with a "drawing + coreId" drawing id.
-                            evt.coreId = evt.feature.coreId;
+                            tempEvt.coreId = tempEvt.feature.coreId;
                             // We need to point to the actual feature instead of the temp drawing feature
                             // or else two identical feature click events will issue from the core.
-                            evt.feature = this.getFeature(evt.coreId);
+                            tempEvt.feature = this.getFeature(tempEvt.coreId);
                         }
                         else if (feature.parentFeature && feature.parentFeature.featureType && feature.parentFeature.featureType === EmpCesiumConstants.featureType.COMPOUND_ENTITY)
                         {
                             // the core does not know about the id assigned to the children features (KML, geojson). Use
                             // the parent id
-                            evt.coreId = feature.parentFeature.id;
+                            tempEvt.coreId = feature.parentFeature.id;
                         }
                         else
                         {
-                            evt.coreId = evt.feature.id;
+                            tempEvt.coreId = tempEvt.feature.id;
                         }
-                        evt.featureId = feature.featureId;
-                        evt.overlayId = feature.overlayId;
-                        featureIds.push(evt.coreId);
+                        tempEvt.featureId = feature.featureId;
+                        tempEvt.overlayId = feature.overlayId;
+                        featureIds.push(tempEvt.coreId);
+                        evts.push(tempEvt);
                     }
+                }//for
+                if (evts && evts.length > 0)
+                {
+                    // set top feature only
+                    evt.coreId = evts[0].coreId;
+                    evt.feature = evts[0].feature;
+                    evt.featureId = evts[0].featureId;
+                    evt.overlayId = evts[0].overlayId;
                 }
                 evt.featureIds = featureIds;
             }
@@ -3023,8 +3034,10 @@ function EmpCesium()
                                         // the datasource is setting the verticalorigin to bottom...why?? the default is center.
                                         if (this.defined(args.overlayId) && args.overlayId === "vertices")
                                         {
-                                            entity.billboard.verticalOrigin  = this.VerticalOrigin.BOTTOM;
-                                            entity.billboard.horizontalOrigin  = this.HorizontalOrigin.RIGHT;
+                                            // the pixel offset sent by the core has 12, 12 but the default vertical and horizontal origins is center and therefore the
+                                            // the control points are not centered at the position to edit.
+                                            entity.billboard.verticalOrigin = this.VerticalOrigin.BOTTOM;
+                                            entity.billboard.horizontalOrigin = this.HorizontalOrigin.RIGHT;
                                         }
                                         //use default emp icon
                                         //if (emp.util.config.getUseProxySetting())
