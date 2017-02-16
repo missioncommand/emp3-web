@@ -9266,7 +9266,7 @@ function EmpCesium()
 //                    }
                 }
                 entity.billboard.alignedAxis = this.Cartesian3.ZERO;
-                entity.billboard.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50);
+                entity.billboard.eyeOffset = cesiumEngine.utils.getEyeOffsetControlPoint(this.viewer.camera.positionCartographic.height, this.cameraAltitude);
                 //;  //cesiumEngine.utils.getEyeOffsetControlPoint(this.viewer.camera.positionCartographic.height,  this.cameraAltitude);
                 // entity.billboard.scaleByDistance = new this.NearFarScalar(2414016, 1.0, 16093000, 0.1);
                 //ojo @@ need to add the verticalOrigin... center of bottom.
@@ -9695,7 +9695,7 @@ function EmpCesium()
                     if (entity.polyline && presentEntity.polyline)
                     {
                         // if (this.mapLocked)
-                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION &&  presentEntity.overlayId === "vertices" )
+                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION && presentEntity.overlayId === "vertices")
                         {
                             this.freeHandPositions = entity.polyline.positions.getValue();
                             presentEntity.polyline.positions = new this.CallbackProperty(function (time, result)
