@@ -38,11 +38,17 @@ function processAdd() {
     onDrawComplete: function(args) {
       // this is what actually adds the feature to the map.
       overlay1.addFeature({
+        feature: args.feature,
+        onSuccess: function(){
+          map1.editFeature({
         feature: args.feature
+      });
+        }
       });
     }
   });
 }
+
 
 function processError(error) {
     alert(JSON.stringify(error));

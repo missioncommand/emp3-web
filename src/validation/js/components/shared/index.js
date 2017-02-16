@@ -3,6 +3,7 @@ export FeatureSelect from './FeatureSelect';
 export GeoFillStyleBox from './GeoFillStyleBox';
 export GeoLabelStyleBox from './GeoLabelStyleBox';
 export GeoStrokeStyleBox from './GeoStrokeStyleBox';
+export GeoIconStyleBox from './GeoIconStyleBox';
 
 export Instructions from './Instructions';
 export MapSelect from './MapSelect';
