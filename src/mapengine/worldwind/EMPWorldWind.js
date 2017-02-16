@@ -56,6 +56,12 @@ EMPWorldWind.map = function(wwd) {
      * Object for holding state to compute when MilStdSymbols should be re-rendered
      */
     lastRender: {
+      bounds: {
+        north: 0,
+        south: 0,
+        east: 0,
+        west: 0
+      },
       altitude: 0
     },
     /**

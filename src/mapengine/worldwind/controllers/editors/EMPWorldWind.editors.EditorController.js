@@ -220,26 +220,24 @@ EMPWorldWind.editors.EditorController = (function() {
    * @private
    */
   function _constructMultiPointMilStdFeature(feature, modifiers, selectionStyle) {
-    var imageInfo, componentFeature, lineCount, subGeoJSON, bbox, bounds,
+    var imageInfo, componentFeature, lineCount, subGeoJSON, bbox, bounds, scale,
       i, j,
       positions = "",
       shapes = [];
 
     var featureCoords = feature.data.coordinates.join().split(",");
-    var center = [0, 0];
 
     for (i = 0; i < featureCoords.length; i += 2) {
-      center[0] += feature.data.coordinates[i / 2][0];
-      center[1] += feature.data.coordinates[i / 2][1];
       positions += featureCoords[i] + "," + featureCoords[i + 1] + " ";
     }
-    center[0] /= feature.data.coordinates.length;
-    center[1] /= feature.data.coordinates.length;
+    positions = positions.trim();
 
     bounds = this.getBounds();
     bbox = bounds.west + "," + bounds.south + "," + bounds.east + "," + bounds.north;
 
-    positions = positions.trim();
+    scale = WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
+        new WorldWind.Location(bounds.south, bounds.west),
+        new WorldWind.Location(bounds.north, bounds.east));
 
     // TODO get update to renderer to pass back raw JSON object
     imageInfo = JSON.parse(sec.web.renderer.SECWebRenderer.RenderSymbol(
@@ -249,7 +247,7 @@ EMPWorldWind.editors.EditorController = (function() {
       feature.symbolCode,
       positions,
       "clampToGround",
-      this.worldWind.navigator.range * 10,
+      scale,
       bbox,
       modifiers,
       EMPWorldWind.constants.MultiPointRenderType.GEOJSON));
@@ -403,6 +401,7 @@ EMPWorldWind.editors.EditorController = (function() {
       attributes.outlineColor = WorldWind.Color.BLACK;
     }
 
+    //attributes.outlineWidth = 1; // TODO Hard code this when debugging
     attributes.outlineWidth = geoJSON.properties.strokeWidth || attributes.outlineWidth;
 
     for (i = 0; i < len; i++) {
@@ -705,11 +704,12 @@ EMPWorldWind.editors.EditorController = (function() {
 
     return textPrimitive;
   }
+
   /**
-    * @param {object} geoJSON
-    * @param {SelectionStyle} selectionStyle
-    * @returns {WorldWind.Text}
-    */
+   * @param {object} geoJSON
+   * @param {SelectionStyle} selectionStyle
+   * @returns {WorldWind.Text}
+   */
   function constructTextFromGeoJSON(geoJSON, selectionStyle) {
     var textPrimitive, attributes, highlightAttributes, color, selectedColor, location;
 
@@ -911,7 +911,7 @@ EMPWorldWind.editors.EditorController = (function() {
         case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
         case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
         default:
-          // do nothing
+        // do nothing
       }
     }
   };

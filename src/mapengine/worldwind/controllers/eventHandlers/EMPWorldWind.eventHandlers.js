@@ -8,18 +8,18 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  * @param {context} scope
  * @returns {Function}
  */
-EMPWorldWind.eventHandlers.throttle = function (fn, threshold, scope) {
+EMPWorldWind.eventHandlers.throttle = function(fn, threshold, scope) {
   threshold = threshold || 20; // 20 ms throttle
   var last, deferTimer;
 
-  return function () {
+  return function() {
     var context = scope || this;
 
     var now = +new Date,
       args = arguments;
     if (last && now < last + threshold) {
       clearTimeout(deferTimer);
-      deferTimer = setTimeout(function () {
+      deferTimer = setTimeout(function() {
         last = now;
         fn.apply(context, args);
       }, threshold);
@@ -73,30 +73,27 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
  * @this EMPWorldWind.map
  */
 EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
-  var pctChange = 0.2; // 20% altitude change
-  var altitudeDeltaMin = this.state.lastRender.altitude - this.state.lastRender.altitude * pctChange;
-  var altitudeDeltaMax = this.state.lastRender.altitude + this.state.lastRender.altitude * pctChange;
+  //var pctChange = 0.2; // 20% altitude change
+  // var altitudeDeltaMin = this.state.lastRender.altitude - this.state.lastRender.altitude * pctChange;
+  // var altitudeDeltaMax = this.state.lastRender.altitude + this.state.lastRender.altitude * pctChange;
+  //var currentBounds = this.getBounds();
 
-  var reRender = this.worldWind.navigator.range < altitudeDeltaMin || this.worldWind.navigator.range > altitudeDeltaMax;
+  //var reRender = this.worldWind.navigator.range < altitudeDeltaMin || this.worldWind.navigator.range > altitudeDeltaMax;
 
-  if (reRender) {
-    // Update the last render location
-    this.state.lastRender.location = new WorldWind.Location(
-      this.worldWind.navigator.lookAtLocation.latitude,
-      this.worldWind.navigator.lookAtLocation.longitude);
+  //if (true) {
+  // Update the last render location
+  this.state.lastRender.bounds = this.getBounds();
+  this.state.lastRender.altitude = this.worldWind.navigator.range;
 
-    this.state.lastRender.altitude = this.worldWind.navigator.range;
+  emp.util.each(Object.keys(this.features), function(featureId) {
+    var feature = this.features[featureId];
 
-    // TODO if performance is an issue check visibility status
-    emp.util.each(Object.keys(this.features), function(featureId) {
-      var feature = this.features[featureId];
-
-      if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
-        feature.feature.data.type === "LineString") {
-        this.plotFeature(feature.feature);
-      }
-    }.bind(this));
-  }
+    if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
+      feature.feature.data.type === "LineString") {
+      this.plotFeature(feature.feature);
+    }
+  }.bind(this));
+  //}
 };
 
 /**
