@@ -92,6 +92,7 @@ import MapSetVisibilityTest from './components/mapTests/MapSetVisibilityTest';
 import MapZoomToTest from './components/mapTests/MapZoomToTest';
 import MapGetInstanceVisibilityTest from './components/mapTests/MapGetInstanceVisibilityTest';
 import MapSetMotionLockModeTest from './components/mapTests/MapSetMotionLockModeTest';
+import MapGetScreenCaptureTest from './components/mapTests/MapGetScreenCaptureTest';
 
 // Map Conversion Tests
 import MapConvertContainerToGeoTest from './components/mapTests/conversion/MapConvertContainerToGeoTest';
@@ -240,7 +241,8 @@ export const TestManifest = [
     {id: 'mapSetSelectionStyleTest', key: 'setSelectionStyle', panel:MapSetSelectionStyleTest, tags: ['select']},
     {id: 'mapSetVisibilityTest', key: 'setVisibility', panel: MapSetVisibilityTest},
     {id: 'mapSwapMapEngineTest', key: 'swapMapEngine', panel: SwapMapEngineTest},
-    {id: 'mapZoomToTest', key: 'zoomTo', panel: MapZoomToTest, tags: ['view']}
+    {id: 'mapZoomToTest', key: 'zoomTo', panel: MapZoomToTest, tags: ['view']},
+    {id: 'mapGetScreenCaptureTest', key: 'capture screenshot', panel: MapGetScreenCaptureTest, tags: ['capture', 'screenshot']}
   ]
   },
   {
