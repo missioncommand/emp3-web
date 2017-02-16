@@ -1039,3 +1039,11 @@ EMPWorldWind.map.prototype.getBounds = function() {
     west: bottomLeft.position.longitude
   };
 };
+
+/**
+ * Returns the center of focus of the map
+ * @returns {{latitude: number, longitude:number}}
+ */
+EMPWorldWind.map.prototype.getCenter = function() {
+  return this.worldWind.navigator.lookAtLocation;
+};
