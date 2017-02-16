@@ -86,10 +86,10 @@ class MapEditFeatureTest extends Component {
               'feature: ' + JSON.stringify(args.feature));
           },
           onEditUpdate: (args) => {
-            toastr.success('Map.editFeature onEditUpdate called: \n ' +
-              'map instance: ' + args.map.geoId + '\n' +
-              'updateList: ' + JSON.stringify(args.updateList) + '\n' +
-              'feature: ' + JSON.stringify(args.feature));
+            //toastr.success('Map.editFeature onEditUpdate called: \n ' +
+            //  'map instance: ' + args.map.geoId + '\n' +
+            //  'updateList: ' + JSON.stringify(args.updateList) + '\n' +
+            //  'feature: ' + JSON.stringify(args.feature));
           },
           onEditComplete: (args) => {
             toastr.success('Map.editFeature onEditComplete called: \n ' +
