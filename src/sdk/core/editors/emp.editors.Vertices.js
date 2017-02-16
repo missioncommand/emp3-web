@@ -74,11 +74,21 @@ emp.editors.Vertices.prototype.toString = function() {
 emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
   var target = this.find(featureId);
 
+  // make sure target is found, if not ignore.
   if (target) {
+
+    // set the new vertex's pointers.
     vertex.before = target.before;
     vertex.next = target;
-    target.before.next = vertex;
-    target.before = vertex;
+
+    // If we are at the head, don't bother setting the item previous to
+    // the target's next property.  It will be null.
+    if (target.before === null) {
+      target.before = vertex;
+    } else {
+      target.before.next = vertex;
+      target.before = vertex;
+    }
 
     this.list[vertex.feature.featureId] = vertex;
 
@@ -92,11 +102,17 @@ emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
 emp.editors.Vertices.prototype.append = function(featureId, vertex) {
   var target = this.find(featureId);
 
+  // make sure target is found, if not ignore.
   if (target) {
     vertex.next = target.next;
     vertex.before = target;
-    target.next.before = vertex;
-    target.next = vertex;
+
+    if (target.next === null) {
+      target.next = vertex;
+    } else {
+      target.next.before = vertex;
+      target.next = vertex;
+    }
 
     this.list[vertex.feature.featureId] = vertex;
 
