@@ -28,6 +28,7 @@ EMPWorldWind.editors.EditorController = (function() {
     imageCenter = imageInfo.getCenterPoint();
     imageBounds = imageInfo.getImageBounds();
 
+    // Calculate offset
     imageOffset = new WorldWind.Offset(
       WorldWind.OFFSET_FRACTION, imageCenter.x / imageBounds.width,
       WorldWind.OFFSET_FRACTION, 1 - (imageCenter.y / imageBounds.height)
@@ -117,17 +118,17 @@ EMPWorldWind.editors.EditorController = (function() {
               coordinates: componentFeature.geometry.coordinates[j]
             };
 
-            shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON.call(this, subGeoJSON, selectionStyle));
+            shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON(subGeoJSON, selectionStyle));
           }
           break;
         case "LineString":
-          shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON.call(componentFeature, selectionStyle));
+          shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON(componentFeature, selectionStyle));
           break;
         case "Point":
-          shapes.push(EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON.call(this, componentFeature, selectionStyle));
+          shapes.push(EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON(componentFeature, selectionStyle));
           break;
         case "Polygon":
-          shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygonFromGeoJSON.call(this, componentFeature, selectionStyle));
+          shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygonFromGeoJSON(componentFeature, selectionStyle));
           break;
         default:
           window.console.error("Unable to render symbol with type " + componentFeature.geometry.type);
@@ -208,32 +209,32 @@ EMPWorldWind.editors.EditorController = (function() {
 
       switch (empFeature.format) {
         case emp3.api.enums.FeatureTypeEnum.GEO_ACM:
-          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructAirControlMeasure.bind(this);
+          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructAirControlMeasure;
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
-          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructSurfaceCircle.bind(this);
+          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructSurfaceCircle;
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
-          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructSurfaceEllipse.bind(this);
+          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructSurfaceEllipse;
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL:
           buildShapes = constructMilStdSymbol.bind(this);
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_PATH:
-          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructSurfacePolyline.bind(this);
+          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructSurfacePolyline;
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
-          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructPlacemark.bind(this);
+          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructPlacemark;
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_POLYGON:
-          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygon.bind(this);
+          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygon;
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
         case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
-          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructSurfaceRectangle.bind(this);
+          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructSurfaceRectangle;
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
-          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructText.bind(this);
+          buildShapes = EMPWorldWind.editors.primitiveBuilders.constructText;
           break;
         default:
           rc.success = false;
@@ -283,32 +284,32 @@ EMPWorldWind.editors.EditorController = (function() {
 
       switch (empFeature.format) {
         case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructMilStdSymbol.call(this, empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructMilStdSymbol(empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_ACM:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructAirControlMeasure.call(this, empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructAirControlMeasure(empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfaceCircle.call(this, empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfaceCircle(empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfaceEllipse.call(this, empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfaceEllipse(empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_PATH:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolyline.call(this, empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolyline(empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructPlacemark.call(this, empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructPlacemark(empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_POLYGON:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygon.call(this, empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygon(empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
         case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfaceRectangle.call(this, empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfaceRectangle(empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructText.call(this, empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructText(empFeature, this.state.labelStyles));
           break;
         default:
           rc.success = false;

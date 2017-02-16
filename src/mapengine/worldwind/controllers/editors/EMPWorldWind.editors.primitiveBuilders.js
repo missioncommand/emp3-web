@@ -2,6 +2,7 @@ var EMPWorldWind = window.EMPWorldWind || {};
 EMPWorldWind.editors = EMPWorldWind.editors || {};
 
 /**
+ * Set of builder functions that produce singular WorldWind primitive shapes and renderables.
  * @namespace
  */
 EMPWorldWind.editors.primitiveBuilders = EMPWorldWind.editors.primitiveBuilders || {};
