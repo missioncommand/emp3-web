@@ -449,6 +449,7 @@ var manifest = {
     "src/mapengine/worldwind/data/EMPWorldWind.data.EmpFeature.js",
     "src/mapengine/worldwind/utils/EMPWorldWind.constants.js",
     "src/mapengine/worldwind/utils/EMPWorldWind.utils.js",
+    "src/mapengine/worldwind/controllers/editors/EMPWorldWind.editors.primitiveBuilders.js",
     "src/mapengine/worldwind/controllers/editors/EMPWorldWind.editors.EditorController.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
