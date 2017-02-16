@@ -795,3 +795,14 @@ EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
 
   return newHex;
 };
+
+/**
+ * Diagonal distance from corner to corner
+ * @param {Bounds} bounds
+ * @returns {number} Distance in meters of the bounds diagonal
+ */
+EMPWorldWind.utils.boundsSize = function(bounds) {
+  return WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
+      new WorldWind.Location(bounds.south, bounds.west),
+      new WorldWind.Location(bounds.north, bounds.east));
+};
