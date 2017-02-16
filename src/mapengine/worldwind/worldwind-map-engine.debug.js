@@ -10,8 +10,9 @@ emp.engineDefs = emp.engineDefs || {};
  */
 emp.engineDefs.worldWindMapEngine = function(args) {
 
-  var empMapInstance = args.mapInstance,
-    empWorldWind;
+  var empMapInstance = args.mapInstance;
+  /** @type EMPWorldWind.map */
+  var empWorldWind;
 
   var engineInterface = emp.map.createEngineTemplate(),
     mapEngineExposed = engineInterface;
@@ -133,7 +134,6 @@ emp.engineDefs.worldWindMapEngine = function(args) {
         }
         break;
       case "feature":
-
         bufferScale = 2.25; // Assume conic view from the camera
         feature = transaction.items[0];
         switch (feature.format) {
@@ -146,7 +146,6 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
             altitude = Math.max(feature.properties.semiMajor, feature.properties.semiMinor) * bufferScale;
             break;
-
           case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
             altitude = Math.max(feature.properties.width, feature.properties.height) * bufferScale;
             break;
@@ -170,19 +169,36 @@ emp.engineDefs.worldWindMapEngine = function(args) {
         transaction.failures.push(transaction.items[0]);
     }
 
+    // Check if we are animating
     if (transaction.items[0].animate === true) {
       transaction.pause();
 
       args.animate = true;
       args.animateCB = function() {
+
+        // If we animated update the returned values
+        transaction.items[0].location = {
+          lat: empWorldWind.getCenter().latitude,
+          lon: empWorldWind.getCenter().longitude
+        };
+        transaction.items[0].bounds = empWorldWind.getBounds();
+
         transaction.run();
         // Notify movement ended
         EMPWorldWind.eventHandlers.notifyViewChange.call(empWorldWind, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
       };
     }
+
     // Notify start of movement
     EMPWorldWind.eventHandlers.notifyViewChange.call(empWorldWind, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
     empWorldWind.centerOnLocation(args);
+
+    // Set initial transaction return values, to be overwritten if the moved is animated
+    transaction.items[0].location = {
+      lat: empWorldWind.getCenter().latitude,
+      lon: empWorldWind.getCenter().longitude
+    };
+    transaction.items[0].bounds = empWorldWind.getBounds();
   };
 
   /**
