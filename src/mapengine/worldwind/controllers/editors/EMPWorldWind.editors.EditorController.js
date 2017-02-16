@@ -83,14 +83,12 @@ EMPWorldWind.editors.EditorController = (function() {
     }
     positions = positions.trim();
 
-    // Calculate the bounds
+    // Convert bounds to bbox
     bounds = this.getBounds();
     bbox = bounds.west + "," + bounds.south + "," + bounds.east + "," + bounds.north;
 
     // Calculate the approximate scale
-    scale = WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
-        new WorldWind.Location(bounds.south, bounds.west),
-        new WorldWind.Location(bounds.north, bounds.east));
+    scale = EMPWorldWind.utils.boundsSize(bounds) >> 3;
 
     // TODO get update to renderer to pass back raw JSON object
     imageInfo = JSON.parse(sec.web.renderer.SECWebRenderer.RenderSymbol(
@@ -284,7 +282,7 @@ EMPWorldWind.editors.EditorController = (function() {
 
       switch (empFeature.format) {
         case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructMilStdSymbol(empFeature, this.state.labelStyles));
+          wwFeature.addShapes(constructMilStdSymbol.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_ACM:
           wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructAirControlMeasure(empFeature, this.state.labelStyles));

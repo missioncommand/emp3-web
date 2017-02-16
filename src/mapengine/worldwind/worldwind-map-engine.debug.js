@@ -70,7 +70,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       });
     }
     catch (err) {
-      console.error("Error initializing World Wind ", err);
+      window.console.error("Error initializing World Wind ", err);
     }
   };
 
@@ -84,6 +84,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   };
 
   /**
+   * @todo drop this functionality into the map itself and expose a simpler call
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.view.set = function(transaction) {
@@ -93,8 +94,8 @@ emp.engineDefs.worldWindMapEngine = function(args) {
 
     switch (transaction.items[0].globalType) {
       case "view":
-        // Set camera
         if (transaction.items[0].location) {
+          // Set camera
           args = {
             latitude: transaction.items[0].location.lat,
             longitude: transaction.items[0].location.lon,
@@ -121,6 +122,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           t2 = Math.pow(Math.sin((topRight.lon - bottomLeft.lon) / 2), 2);
 
           // Haversine formula
+          // TODO see if we can replace this with WorldWind functionality
           altitude = 2 * WorldWind.EARTH_RADIUS * Math.asin(Math.sqrt(t1 + Math.cos(topRight.lat) * Math.cos(bottomLeft.lat) * t2));
 
           args = {
@@ -436,7 +438,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   };
 
   /**
-   *
+   * @todo Need to get content of WorldWind renderer
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.capture.screenshot = function(transaction) {

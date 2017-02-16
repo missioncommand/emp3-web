@@ -803,6 +803,6 @@ EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
  */
 EMPWorldWind.utils.boundsSize = function(bounds) {
   return WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
-      new WorldWind.Location(bounds.south, bounds.west),
-      new WorldWind.Location(bounds.north, bounds.east));
+      new WorldWind.Location(bounds.west, bounds.south),
+      new WorldWind.Location(bounds.east, bounds.west));
 };

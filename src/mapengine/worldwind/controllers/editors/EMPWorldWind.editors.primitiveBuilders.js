@@ -226,7 +226,6 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON = fun
     attributes.outlineColor = WorldWind.Color.BLACK;
   }
 
-  //attributes.outlineWidth = 1; // TODO Hard code this when debugging
   attributes.outlineWidth = geoJSON.properties.strokeWidth || attributes.outlineWidth;
 
   for (i = 0; i < len; i++) {

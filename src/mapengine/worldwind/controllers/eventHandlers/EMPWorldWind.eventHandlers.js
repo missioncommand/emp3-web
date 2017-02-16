@@ -73,26 +73,31 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
  * @this EMPWorldWind.map
  */
 EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
-  //var pctChange = 0.2; // 20% altitude change
+  // var pctChange = 0.2; // 20% altitude change
   // var altitudeDeltaMin = this.state.lastRender.altitude - this.state.lastRender.altitude * pctChange;
   // var altitudeDeltaMax = this.state.lastRender.altitude + this.state.lastRender.altitude * pctChange;
-  //var currentBounds = this.getBounds();
 
-  //var reRender = this.worldWind.navigator.range < altitudeDeltaMin || this.worldWind.navigator.range > altitudeDeltaMax;
+  /* Re-render if
+   * - the zoom scale has changed beyond 20%
+   * - the current bounds are larger than the last bounds
+   * - (not done yet) the bounds are at least 5% different from the previous bounds
+   */
+  //var reRender = (this.worldWind.navigator.range < altitudeDeltaMin || this.worldWind.navigator.range > altitudeDeltaMax);
 
-  //if (true) {
-  // Update the last render location
-  this.state.lastRender.bounds = this.getBounds();
-  this.state.lastRender.altitude = this.worldWind.navigator.range;
+  //if (reRender) {
+    // Update the last render location
+    this.state.lastRender.bounds = this.getBounds();
+    this.state.lastRender.altitude = this.worldWind.navigator.range;
 
-  emp.util.each(Object.keys(this.features), function(featureId) {
-    var feature = this.features[featureId];
+    emp.util.each(Object.keys(this.features), function(featureId) {
+      var feature = this.features[featureId];
 
-    if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
-      feature.feature.data.type === "LineString") {
-      this.plotFeature(feature.feature);
-    }
-  }.bind(this));
+      if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
+        feature.feature.data.type === "LineString") {
+        this.plotFeature(feature.feature);
+      }
+    }.bind(this));
+    this.worldWind.redraw();
   //}
 };
 
