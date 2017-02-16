@@ -4,6 +4,10 @@ emp.editors = emp.editors || {};
 emp.editors.Path = function(args) {
   this.animation = undefined;
   emp.editors.EditorBase.call(this, args);
+
+  this.calculateAddPoints = function() {
+
+  };
 };
 
 emp.editors.Path.prototype = Object.create(emp.editors.EditorBase.prototype);
@@ -160,6 +164,7 @@ emp.editors.Path.prototype.isControlPoint = function(featureId) {
 };
 
 emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) {
+
   var currentFeature,
     currentVertex,
     items = [],
@@ -230,7 +235,7 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
       frontFeature = currentVertex.next.feature;
 
       pt1 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
-      pt2 = new LatLon(frontFeature.data.coordinates[1], frontFeature.data.coordinates[0][0]);
+      pt2 = new LatLon(frontFeature.data.coordinates[1], frontFeature.data.coordinates[0]);
 
       // Get the mid point between this vertex and the next vertex.
       pt3 = pt1.midpointTo(pt2);
@@ -346,7 +351,6 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
  * Also updates the control point and the feature with the change.
  */
 emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
-
   var currentFeature,
     currentVertex,
     back,
@@ -471,21 +475,77 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
  */
-emp.editors.Path.prototype.endMoveControlPoint = function(featureId) {
-
+emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
   var items =[],
     newCoordinates,
     coordinateUpdate,
     updateData = {},
     index,
     addTransaction,
-    removeTransaction;
+    removeTransaction,
+    currentVertex,
+    currentFeature,
+    back,
+    front,
+    backFeature,
+    nextBackVertexFeature,
+    frontFeature,
+    nextFrontVertexFeature,
+    pt1,
+    pt2,
+    pt3,
+    midpoint;
 
+  // First update the control point with new pointer info.
+  currentVertex = this.vertices.find(featureId);
+  currentFeature = currentVertex.feature;
+  currentFeature.data.coordinates = [pointer.lon, pointer.lat];
 
   // copy the coordinates into our object, so we can eventually complete
   // the edit.
   this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
   items.push(this.featureCopy);
+
+  // now that this point moved, we need to update the points directly to the leaflet
+  // and right of this feature.
+  back = currentVertex.before;
+  front = currentVertex.next;
+
+  // Make sure that we are not moving the head.  If we are, skip.
+  if (back !== null) {
+    backFeature = back.feature;
+    nextBackVertexFeature = back.before.feature;
+
+    // get the new location of the backFeature, the feature in before the current feature
+    pt1 = new LatLon(nextBackVertexFeature.data.coordinates[1], nextBackVertexFeature.data.coordinates[0]);
+    pt2 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
+
+    // Get the mid point between this vertex and the next vertex.
+    pt3 = pt1.midpointTo(pt2);
+    midpoint = [pt3.lon(), pt3.lat()];
+
+    backFeature.data.coordinates = midpoint;
+
+    items.push(backFeature);
+
+  }
+
+  // Make sure that we are not moving the tail.  If we are skip.
+  if (front !== null) {
+    frontFeature = front.feature;
+    nextFrontVertexFeature = front.next.feature;
+    // get the new location of the frontFeature. the feature after the current feature.
+    pt1 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
+    pt2 = new LatLon(nextFrontVertexFeature.data.coordinates[1], nextFrontVertexFeature.data.coordinates[0]);
+
+    // Get the mid point between this vertex and the next vertex.
+    pt3 = pt1.midpointTo(pt2);
+    midpoint = [pt3.lon(), pt3.lat()];
+
+    frontFeature.data.coordinates = midpoint;
+
+    items.push(frontFeature);
+  }
 
   addTransaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
@@ -512,8 +572,8 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId) {
     items: [this.animation]
   });
 
-  removeTransaction.run();
   addTransaction.run();
+  removeTransaction.run();
 
   // reset the animated path.
   this.animation = undefined;

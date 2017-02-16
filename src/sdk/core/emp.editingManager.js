@@ -291,16 +291,18 @@ emp.editingManager = function(args) {
 
       } // If we are dragging a control point, we don't want
       // any events going out, because it is not a feature.
-      else if (activeEditor.isControlPoint(featureId)) {
+      else if (activeEditor.isControlPoint(featureId)) {        
         updateData = activeEditor.startMoveControlPoint(featureId, pointer);
 
-        editTransaction.items[0].update({
-          name: feature.name,
-          updates: updateData.coordinateUpdate,
-          properties: updateData.properties,
-          updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
-          mapInstanceId: mapInstance.mapInstanceId
-        });
+        if (updateData) {
+          editTransaction.items[0].update({
+            name: feature.name,
+            updates: updateData.coordinateUpdate,
+            properties: updateData.properties,
+            updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
+            mapInstanceId: mapInstance.mapInstanceId
+          });
+        }
       }
       else {
         mapLock = new emp.typeLibrary.Lock({
@@ -328,24 +330,30 @@ emp.editingManager = function(args) {
 
         updateData = activeEditor.moveFeature(startX, startY, pointer);
 
-        editTransaction.items[0].update({
-          name: feature.name,
-          updates: updateData.coordinateUpdate,
-          properties: updateData.properties,
-          updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
-          mapInstanceId: mapInstance.mapInstanceId
-        });
+        if (updateData) {
+
+          editTransaction.items[0].update({
+            name: feature.name,
+            updates: updateData.coordinateUpdate,
+            properties: updateData.properties,
+            updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
+            mapInstanceId: mapInstance.mapInstanceId
+          });
+        }
       }
       else if (activeEditor.isControlPoint(featureId)) {
         updateData = activeEditor.moveControlPoint(featureId, pointer);
 
-        editTransaction.items[0].update({
-          name: feature.name,
-          updates: updateData.coordinateUpdate,
-          properties: updateData.properties,
-          updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
-          mapInstanceId: mapInstance.mapInstanceId
-        });
+        if (updateData) {
+
+          editTransaction.items[0].update({
+            name: feature.name,
+            updates: updateData.coordinateUpdate,
+            properties: updateData.properties,
+            updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
+            mapInstanceId: mapInstance.mapInstanceId
+          });
+        }
       }
     },
 
@@ -358,7 +366,7 @@ emp.editingManager = function(args) {
         updateData = activeEditor.moveFeature(startX, startY, pointer);
       }
       else if (activeEditor.isControlPoint(featureId)) {
-        updateData = activeEditor.endMoveControlPoint(featureId);
+        updateData = activeEditor.endMoveControlPoint(featureId, pointer);
       }
 
       // send out a feature drag complete event.
