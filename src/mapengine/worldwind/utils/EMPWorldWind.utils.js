@@ -6,6 +6,14 @@ var EMPWorldWind = EMPWorldWind || {};
 EMPWorldWind.utils = {};
 
 /**
+ * @typedef {object} RGBAColor
+ * @property {number} r
+ * @property {number} g
+ * @property {number} b
+ * @property {number} a 0-1
+ */
+
+/**
  *
  * @param {MouseEvent} event
  * @returns {{lat: undefined, lon: undefined, clientX: *, clientY: *, screenX: *, screenY: *}}
@@ -787,12 +795,3 @@ EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
 
   return newHex;
 };
-
-/**
- * @typedef {object} RGBAColor
- * @property {number} r
- * @property {number} g
- * @property {number} b
- * @property {number} a 0-1
- */
-

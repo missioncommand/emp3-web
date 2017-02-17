@@ -10,6 +10,10 @@ emp.ui.consts = {
   IFRAME_SHIM: '<iframe class="emp_iframeshim" frameborder="0" scrolling="no"><html><head></head><body></body></html></iframe>'
 };
 
+emp.ui.images = emp.ui.images || {};
+emp.ui.images.addPoint = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABO0lEQVQ4jd2SMS8DcRjGf70Wxw1KXGmCxFYnFhUxNRFJvwEz30JiELOBwZeQiG8gpJGQMJhaHYjh0tJrqR531//17iwGrqXm/pJ3efO+T573yQs9j/xVvxLp1JxVZW17dXJnekTOWJbL+X0jt3/5tNv0gnxXgdSYrB1vpM7m5kcTDPeD4dDUPzi4KFe2TvUV4IdINCywl506zC4mllhOwIIKwkN6thmWJOX2yVL1hjj+Pi+Fbx5X+jL4AQgfrBYIH8/1EZ6POhTLhDOJhR2UTIGoOvRfG1Co4xs2xkuTkulSs1tteYUFnNMHM5dOKusTposkRXizWzzWBTcli2LVyQHOnxncVe285QZrQYCiN1yKtSZX+jsnhdeKbopNwGiz0QFtJj5wlE4q5dmxwXJcjh4B2n8Ww3R9pB7gE7HRfjsJdfStAAAAAElFTkSuQmCC";
+emp.ui.images.editPoint = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAACD0lEQVRIie2UvU4UURiGnznDTGZnQZefsBHMYgwYCiUh8QIIBUEgVDZ7AYaCizCxtLMwFLZGCgsNBYV3YEg0mqCFKyFZdU1k3ew4szPnzMwZi1ELdRTQSnmrU5w8z/n5vg9O8s/HOMJeAdhf1grQf0vg1mprq9Xqct2yTp9LU+h2XzaazY3NIHi2DfSOLSiVzp+dmbl9Z2xsfsG2bQGQJCAldLsfdaNxY6vVurUOvCtimL86+ezsvbu12uLiwIBpVCrQ3w9C5BLDKBmuOzfd672aCsPdLSD+GUQU0cfH11ar1fkF24ahIZiYgFoNhoehVMpFluUwOnptxTDspSJOkUCMjCzXTdMWppkDXRfKZXCcHP41jjMlXPdSvYjVVyCwhcg/NI7B96HTgSwDzwOl8mdK0wytI0zz1CR5hUWHFRDHCUpBGMLBAURRLgiCXKgUKCWJ4xZJ8qkIUyhQnrfTGBycm8ky8e0WuTiXSZkg5Rt6vRdIudcg740fUlRFWRTt6XJ57qphjBhpKlAqL08pM6SUhGET339Ku31fh+Hz68DuUQSkaWdfqbcXLWtiWus+4jhFqR5SfiCKXuP7T+h0tvG8Rw+yTN2koEx/18lj5fLljUrlyorjXBCGIUgSDyn38f3HOgh2HmodrAPviwCHGhUglizrTF2I0mSWpSRJu6G1twn82aj4Lscadif5D/IZExLkwq8MOJIAAAAASUVORK5CYII=";
+
 /**
  * Renders the map background prior to the map loading, also setting the div default style for the map.
  *
@@ -129,19 +133,19 @@ emp.ui.renderContainer = function (args) {
     recordButton.onclick = emp.ui.record;
     recordButton.style.backgroundColor = "green";
     recordButton.appendChild(document.createTextNode("RECORD"));
-    
+
     var stopButton = document.createElement("button");
     stopButton.id = "emp_stop";
     stopButton.onclick = emp.ui.stop;
     stopButton.style.backgroundColor = "red";
     stopButton.appendChild(document.createTextNode("STOP"));
-    
+
     var saveButton = document.createElement("button");
     saveButton.id = "emp_save";
     saveButton.onclick = emp.ui.save;
     saveButton.style.backgroundColor = "blue";
     saveButton.appendChild(document.createTextNode("SAVE"));
-    
+
     var clearButton = document.createElement("button");
     clearButton.id = "emp_clear";
     clearButton.onclick = emp.ui.clear;
