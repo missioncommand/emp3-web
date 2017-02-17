@@ -4,7 +4,7 @@ set -o errexit
 
 # Config the git user
 git config --global user.email "nobody@nobody.org"
-git config --global user.name "Travis CI"
+git config --global user.name "${GH_PAGES_USER}"
 
 # Clone existing gh-pages to dist
 cd dist
