@@ -363,6 +363,9 @@ emp.intents.control.useNewEditing = function(args) {
   if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
     (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT)) {
     result = true;
+  } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
+    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
+    result = true;
   }
 
   return result;

@@ -152,7 +152,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
     };
 
 //    // Change the style of selected items , and change the size of
-//    // selected icons. You do not have to set both values when calling setSelectionStyle. 
+//    // selected icons. You do not have to set both values when calling setSelectionStyle.
 //    // You can change the color, the scale, or both.
 //    engineInterface.selectionStyle = function (transaction)
 //    {
@@ -716,7 +716,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 
         try
         {
-            if (!empCesium.mapLocked)
+           if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
             {
                 empCesium.entityCollection.suspendEvents();
             }
@@ -724,6 +724,10 @@ emp.engineDefs.cesiumMapEngine = function (args)
             {
                 var item = transaction.items[i];
                 result = empCesium.addKmlLayer(item);
+            }
+            if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
+            {
+                empCesium.entityCollection.resumeEvents();
             }
         }
         catch (e)
@@ -795,7 +799,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
         //try to traverse the items and add features
         try
         {
-            if (!empCesium.mapLocked)
+            if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
             {
                 empCesium.entityCollection.suspendEvents();
             }
@@ -979,7 +983,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 jsError: result.jsError
             }));
         }
-        if (!empCesium.mapLocked)
+       if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
         {
             empCesium.entityCollection.resumeEvents();
         }
@@ -1833,7 +1837,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 
                 // Assign the class level variable.
                 empCesium.iconLabels = newIconLabelSettings;
-                //check altitude range mode before calling the throttlering. If icon label option is none 
+                //check altitude range mode before calling the throttlering. If icon label option is none
                 //and the range mode is mid or high then there is no need to render because teh icons are already with no labels.
                 if (empCesium.iconLabelOption === "none" && (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
                         empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
@@ -1912,13 +1916,13 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //    engineInterface.backgroundBrightness  = function (transaction)
 //    {
 //        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
-//         
+//
 //        try
 //        {
 //            // Make sure the transaction is good first.
 //            if (transaction && transaction.items)
 //            {
-//                
+//
 //               empCesium.setBackgroundBrightness(50);
 //                transaction.run();
 //            }
@@ -1940,42 +1944,47 @@ emp.engineDefs.cesiumMapEngine = function (args)
         if (transaction && transaction.items)
         {
             enabled = transaction.items[0];
-            if (enabled.lock)
+            switch (enabled.lock)
             {
-                empCesium.scene.screenSpaceCameraController.enableRotate = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableTranslate = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableZoom = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableTilt = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableLook = !enabled.lock;
-                empCesium.mapLocked = enabled.lock;
-                empCesium.viewer.cesiumNavigation.setNavigationLocked(empCesium.mapLocked);
-            }
-            else
-            {
-                if (enabled === false)
-                {
+                case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
                     empCesium.scene.screenSpaceCameraController.enableRotate = false;
                     empCesium.scene.screenSpaceCameraController.enableTranslate = false;
                     empCesium.scene.screenSpaceCameraController.enableZoom = false;
                     empCesium.scene.screenSpaceCameraController.enableTilt = false;
                     empCesium.scene.screenSpaceCameraController.enableLook = false;
-                    empCesium.mapLocked = true;
-                    empCesium.viewer.cesiumNavigation.setNavigationLocked(empCesium.mapLocked);
-                }
-                else
-                {
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.NO_MOTION;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
+                    empCesium.scene.screenSpaceCameraController.enableRotate = true;
+                    empCesium.scene.screenSpaceCameraController.enableTranslate = true;
+                    empCesium.scene.screenSpaceCameraController.enableZoom = true;
+                    empCesium.scene.screenSpaceCameraController.enableTilt = true;
+                    empCesium.scene.screenSpaceCameraController.enableLook = true;
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.NO_PAN:
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.NO_ZOOM:
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
+                    break;
+                default:
                     // Default to enabling mouse navigation to avoid an error state where user cannot interact with the map
                     empCesium.scene.screenSpaceCameraController.enableRotate = true;
                     empCesium.scene.screenSpaceCameraController.enableTranslate = true;
                     empCesium.scene.screenSpaceCameraController.enableZoom = true;
                     empCesium.scene.screenSpaceCameraController.enableTilt = true;
                     empCesium.scene.screenSpaceCameraController.enableLook = true;
-                    empCesium.mapLocked = false;
-                    empCesium.viewer.cesiumNavigation.setNavigationLocked(empCesium.mapLocked);
-                }
-            }
-        }
-        //transaction.run();
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
+                    break;
+
+                }//switch
+            }//  if (transaction && transaction.items)
     };
 
 
