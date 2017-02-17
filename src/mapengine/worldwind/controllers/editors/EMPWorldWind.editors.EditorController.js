@@ -97,8 +97,7 @@ EMPWorldWind.editors.EditorController = (function() {
       feature.description,
       feature.symbolCode,
       positions,
-      "clampToGround",
-
+      WorldWind.CLAMP_TO_GROUND,
       scale,
       bbox,
       modifiers,
