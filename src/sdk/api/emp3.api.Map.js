@@ -213,9 +213,16 @@ emp3.api.Map = function(args) {
   // instantiated.
   this.geoId = undefined;
 
-  // The current map bounds. This is set by the getBounds call.  Do not set
-  // the bounds by changing this field.
-  this.bounds = {};
+  /**
+   * The current map bounds. Do not set the bounds by changing this field.
+   * @member {Bounds}
+   */
+  this.bounds = {
+    north: undefined,
+    south: undefined,
+    east: undefined,
+    west:undefined
+  };
 
   // Stores the engine information to be used with this map instance.
   this.engine = args.engine;
@@ -2481,8 +2488,7 @@ emp3.api.Map.prototype.getCamera = function() {
  *
  * @param {onGetScreenshotSuccessCallback} [args.onSuccess] Function to call
  * when a screenshot of the current view displayed on the map has been captured.
- * @param {ErrorCallback} [args.onError]
- * Function to call when an error occurs.
+ * @param {ErrorCallback} [args.onError] Function to call when an error occurs.
  */
 emp3.api.Map.prototype.getScreenCapture = function(args) {
   var cmd;
@@ -2534,7 +2540,7 @@ emp3.api.Map.prototype.getScreenCapture = function(args) {
  * should no longer be used.
  * <p>If you are using a map engine and want to swap engines while running, the
  * map will go from MAP_READY to MAP_SWAP_IN_PROGRESS while it releases the resources
- * of the old map engine, and readys the resources for the new map engine.  Again,
+ * of the old map engine, and readies the resources for the new map engine.  Again,
  * after this occurs the map goes back into the MAP_READY state.
  *
  *
@@ -2698,20 +2704,15 @@ emp3.api.Map.prototype.setBounds = function(args) {
   // Validate the bounds
   if (args.north > 90.0 || args.north < -90.0) {
     throw new Error('Invalid bounds: north must be between 90.0 and -90.0');
-  }
-  else if (args.south > 90.0 || args.south < -90.0) {
+  } else if (args.south > 90.0 || args.south < -90.0) {
     throw new Error('Invalid bounds: south must be between 90.0 and  -90.0');
-  }
-  else if (args.south > args.north) {
+  } else if (args.south > args.north) {
     throw new Error('Invalid bounds: southern bounds must be below northern bounds');
-  }
-  else if (args.east > 180.0 || args.east < -180.0) {
+  } else if (args.east > 180.0 || args.east < -180.0) {
     throw new Error('Invalid bounds: east must be be between -180.0 and 180.0');
-  }
-  else if (args.west > 180.0 || args.west < -180.0) {
+  } else if (args.west > 180.0 || args.west < -180.0) {
     throw new Error('Invalid bounds: west must be be between -180.0 and 180.0');
-  }
-  else if (args.east < args.west) {
+  } else if (args.east < args.west) {
     // Possibly on the IDL, ignore
   }
 
@@ -2922,8 +2923,7 @@ emp3.api.Map.prototype.removeOverlays = function(args) {
  * @param {emp3.api.MapService} args.mapService The map service to be removed.
  * @param {onSuccessMapServiceCallback} [args.onSuccess] Called after the MapService
  * is removed from the map.
- * @param {ErrorCallback} [args.onError] Function to call when an error
- * occurs.
+ * @param {ErrorCallback} [args.onError] Function to call when an error occurs.
  */
 emp3.api.Map.prototype.removeMapService = function(args) {
   args = args || {};
@@ -3014,7 +3014,7 @@ emp3.api.Map.prototype.zoomTo = function(args) {
       // verify that each item is a feature, and make an array of ids.
       for (var i = 0, j = args.featureList.length; i < j; i += 1) {
         if (!emp3.api.isFeature(args.featureList[i])) {
-          console.error("Type error: args.featureList contains an object that is not a feature.");
+          window.console.error("Type error: args.featureList contains an object that is not a feature.");
         }
         featureIds.push(args.featureList[i].geoId);
       }
@@ -3033,7 +3033,7 @@ emp3.api.Map.prototype.zoomTo = function(args) {
       };
     }
     else {
-      console.error("Type error: args.featureList contains an object that is not an overlay.");
+      window.console.error("Type error: args.featureList contains an object that is not an overlay.");
     }
   }
   else if (args.feature) {

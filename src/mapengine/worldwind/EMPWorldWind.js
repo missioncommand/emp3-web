@@ -143,6 +143,7 @@ EMPWorldWind.map.prototype.initialize = function(map) {
   whiteContrastLayer.attributes.drawOutline = false;
 
   this.contrastLayer = new WorldWind.RenderableLayer('contrast layer');
+  this.contrastLayer.pickEnabled = false;
   this.worldWind.addLayer(this.contrastLayer);
 
   this.contrastLayer.addRenderable(whiteContrastLayer);
@@ -172,6 +173,8 @@ EMPWorldWind.map.prototype.initialize = function(map) {
       }
     }
   }
+
+  EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
 };
 
 /**
@@ -899,7 +902,7 @@ EMPWorldWind.map.prototype.refresh = function() {
   //   if (this.features.hasOwnProperty(featureId)) {
   //     feature = this.features[featureId];
   //
-  //     // TODO check if it is visible first1
+  //     // TODO check if it is visible first
   //     //EMPWorldWind.editors.EditorController.updateRender.call(this, feature);
   //   }
   // }
@@ -983,4 +986,50 @@ EMPWorldWind.map.prototype.spinGlobe = function() {
  */
 EMPWorldWind.map.prototype.screenshot = function() {
   return this.worldWind.canvas.toDataURL();
+};
+
+/**
+ * Calculate the current bounds of the WorldWindow
+ * @returns {Bounds}
+ */
+EMPWorldWind.map.prototype.getBounds = function() {
+  var topRight, bottomLeft, clientRect;
+
+  clientRect = this.worldWind.canvas.getBoundingClientRect();
+
+  // TODO get rid of magic numbers, make this more bullet proof
+  topRight = this.worldWind.pick(this.worldWind.canvasCoordinates(clientRect.right - 70, clientRect.top + 20)).terrainObject();
+  bottomLeft = this.worldWind.pick(this.worldWind.canvasCoordinates(clientRect.left + 30, clientRect.bottom - 45)).terrainObject();
+
+  if (!topRight) {
+    topRight = {
+      position: {
+        latitude: 90,
+        longitude: this.worldWind.navigator.lookAtLocation.longitude + 90
+      }
+    };
+    if (topRight.position.longitude > 180) {
+      topRight.position.longitude -= 360;
+    }
+  }
+
+  if (!bottomLeft) {
+    bottomLeft = {
+      position: {
+        latitude: -90,
+        longitude: this.worldWind.navigator.lookAtLocation.longitude - 90
+      }
+    };
+
+    if (bottomLeft.position.longitude < -180) {
+      bottomLeft.position.longitude += 360;
+    }
+  }
+
+  return {
+    north: topRight.position.latitude,
+    south: bottomLeft.position.latitude,
+    east: topRight.position.longitude,
+    west: bottomLeft.position.longitude
+  };
 };

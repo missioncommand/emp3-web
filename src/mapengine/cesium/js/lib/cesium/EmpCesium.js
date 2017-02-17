@@ -132,7 +132,7 @@ function EmpCesium()
     this.secRendererWorker.B = undefined;
     //this.secRendererWorker.Selection = undefined;
     //this.secRendererWorker.DeSelection = undefined;
-    this.mapLocked = false;
+    this.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
     this.freeHandPositions = undefined;
     this.backgroundBrightnessAlpha = 0;
     this.stiBrightnessWhite;
@@ -1251,7 +1251,8 @@ function EmpCesium()
         this.oMouseMoveEventData = this.populateEvent(event);
         this.oMouseMoveEventData.type = "move";
         var delay = 100;
-        if (this.mapLocked)
+        //if (this.mapLocked)
+        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION)
         {
             this.empMapInstance.eventing.Pointer(this.oMouseMoveEventData);
             //delay = 50;
@@ -1357,7 +1358,8 @@ function EmpCesium()
 
     this.prePopulateEvent = function (evt, findFeatures)
     {
-        var featureIds = []
+        var featureIds = [],
+                evts = [];
         if (!this.empMapInstance)
         {
             //map instance not ready. ignore events
@@ -1394,7 +1396,7 @@ function EmpCesium()
             {
                 for (var x = 0; x < features.length; x++)
                 {
-                    var feature;
+                    var feature, tempEvt;
                     if (features[x] !== undefined && features[x] !== "")
                     {
                         if (features[x].id)
@@ -1414,32 +1416,42 @@ function EmpCesium()
                         {
                             break;
                         }
-                        evt.feature = feature; //only provide 1 feature for now
+                        tempEvt = {};
+                        tempEvt.feature = feature; //provide the top feature
                         if (this.drawData && this.drawData.editingFeature && evt.feature.coreId)
                         {
                             // This case is used when clicking on the feature that is currently being edited.
                             // If evt.feature.coreId is populated it means that the currently edited feature
                             // has been clicked on. The evt.feature.coreId pertains to the actual
                             // feature. The evt.feature.id field is populated with a "drawing + coreId" drawing id.
-                            evt.coreId = evt.feature.coreId;
+                            tempEvt.coreId = tempEvt.feature.coreId;
                             // We need to point to the actual feature instead of the temp drawing feature
                             // or else two identical feature click events will issue from the core.
-                            evt.feature = this.getFeature(evt.coreId);
+                            tempEvt.feature = this.getFeature(tempEvt.coreId);
                         }
                         else if (feature.parentFeature && feature.parentFeature.featureType && feature.parentFeature.featureType === EmpCesiumConstants.featureType.COMPOUND_ENTITY)
                         {
                             // the core does not know about the id assigned to the children features (KML, geojson). Use
                             // the parent id
-                            evt.coreId = feature.parentFeature.id;
+                            tempEvt.coreId = feature.parentFeature.id;
                         }
                         else
                         {
-                            evt.coreId = evt.feature.id;
+                            tempEvt.coreId = tempEvt.feature.id;
                         }
-                        evt.featureId = feature.featureId;
-                        evt.overlayId = feature.overlayId;
-                        featureIds.push(evt.coreId);
+                        tempEvt.featureId = feature.featureId;
+                        tempEvt.overlayId = feature.overlayId;
+                        featureIds.push(tempEvt.coreId);
+                        evts.push(tempEvt);
                     }
+                }//for
+                if (evts && evts.length > 0)
+                {
+                    // set top feature only
+                    evt.coreId = evts[0].coreId;
+                    evt.feature = evts[0].feature;
+                    evt.featureId = evts[0].featureId;
+                    evt.overlayId = evts[0].overlayId;
                 }
                 evt.featureIds = featureIds;
             }
@@ -2884,12 +2896,12 @@ function EmpCesium()
      * @param {string} args.id - The id of the kml object to be added.
      * @param {string} args.overlayId - The id of the overlay the kml is to be added to.
      * @param {string} args.kmlString - The kml string to be added to the overlay.
-     * @param {objcet} args.properties - Properties to modify the kml to be added.
+     * @param {object} args.properties - Properties to modify the kml to be added.
      * @param {@link Feature} args.feature - The original {@link Feature} passed in.
      *
      * @returns {object} result - The resulting object to be returned.
      * @returns {boolean} result.success - Describes if the kml was added or not.
-     * @returns {string} result.message - Description of error that occured.
+     * @returns {string} result.message - Description of error that occurred.
      * @returns {object} result.jsError - Object returned from a caught javascript exception.
      */
     this.addKmlToOverlay = function (args)
@@ -3019,6 +3031,14 @@ function EmpCesium()
                                     var entity = entityArray[index];
                                     if (entity.billboard)
                                     {
+                                        // the datasource is setting the verticalorigin to bottom...why?? the default is center.
+                                        if (this.defined(args.overlayId) && args.overlayId === "vertices")
+                                        {
+                                            // the pixel offset sent by the core has 12, 12 but the default vertical and horizontal origins is center and therefore the
+                                            // the control points are not centered at the position to edit.
+                                            entity.billboard.verticalOrigin = this.VerticalOrigin.BOTTOM;
+                                            entity.billboard.horizontalOrigin = this.HorizontalOrigin.RIGHT;
+                                        }
                                         //use default emp icon
                                         //if (emp.util.config.getUseProxySetting())
                                         //{
@@ -5658,7 +5678,7 @@ function EmpCesium()
      * @returns {object} result - The resulting object.
      * @returns {string} result.message - A description of why the function failed.
      * @returns {object} result.jsError - A caught javascript exception.
-     * @returns {string} result.error - A description of the error that occured
+     * @returns {string} result.error - A description of the error that occurred
      */
     this.zoomToBounds = function (item)
     {
@@ -8715,7 +8735,7 @@ function EmpCesium()
                         coreId: feature.id,
                         overlayId: feature.overlayId,
                         sendEvent: false,
-                        isApiInitiatedSelection : true
+                        isApiInitiatedSelection: true
                     };
                     this.manageDeselect(selectionArgs);
                     this.manageSelect(selectionArgs);
@@ -9257,9 +9277,13 @@ function EmpCesium()
 // workaround would be to replace billboard with new wbillboard and position
 // //Cesium.Ellipsoid.WGS84.cartesianToCartographic( position)
                     entity.billboard.heightReference = cesiumEngine.utils.convertEmpAltitudeTypeToCesium(args.data.properties.altitudeMode);
+//                    if (args.data.properties.altitudeMode === cesiumEngine.utils.AltitudeModeEnumType.ALTITUDE_CLAMP_TO_GROUND )
+//                    {
+//                        entity.billboard.height = 0;
+//                    }
                 }
                 entity.billboard.alignedAxis = this.Cartesian3.ZERO;
-                entity.billboard.eyeOffset = new Cesium.Cartesian3(0.0, 0.0, -50);
+                entity.billboard.eyeOffset = cesiumEngine.utils.getEyeOffsetControlPoint(this.viewer.camera.positionCartographic.height, this.cameraAltitude);
                 //;  //cesiumEngine.utils.getEyeOffsetControlPoint(this.viewer.camera.positionCartographic.height,  this.cameraAltitude);
                 // entity.billboard.scaleByDistance = new this.NearFarScalar(2414016, 1.0, 16093000, 0.1);
                 //ojo @@ need to add the verticalOrigin... center of bottom.
@@ -9687,7 +9711,8 @@ function EmpCesium()
                     }
                     if (entity.polyline && presentEntity.polyline)
                     {
-                        if (this.mapLocked)
+                        // if (this.mapLocked)
+                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION && presentEntity.overlayId === "vertices")
                         {
                             this.freeHandPositions = entity.polyline.positions.getValue();
                             presentEntity.polyline.positions = new this.CallbackProperty(function (time, result)
@@ -13408,15 +13433,22 @@ var EmpLayer = function (name, id, type, empCesium)
                     feature.billboard.show = visibility;
                     this.updateFeature(feature); // the update removes and then adds the feature to the entity or primitive collection. The children are not remove and readded.
                 }
-                feature.billboard.show = visibility;
+                feature.billboard.show = new this.ConstantProperty(visibility);
             }
             if (feature.path !== undefined)
             {
-                feature.path.show = visibility;
+                feature.path.show = new this.ConstantProperty(visibility);
             }
             if (feature.polyline !== undefined)
             {
-                feature.polyline.show = visibility;
+                if (!this.empCesium.defined(feature.polyline.show))
+                {
+                    feature.polyline.show = new this.ConstantProperty(visibility);
+                }
+                else
+                {
+                    feature.polyline.show = visibility;
+                }
 //                //use following workaround to hide entities
 //                if (visibility)
 //                {
@@ -13429,25 +13461,53 @@ var EmpLayer = function (name, id, type, empCesium)
             }
             if (feature.polygon !== undefined)
             {
-                feature.polygon.show = visibility;
+                if (!this.empCesium.defined(feature.polygon.show))
+                {
+                    feature.polygon.show = new this.ConstantProperty(visibility);
+                }
+                else
+                {
+                    feature.polygon.show = visibility;
+                }
             }
             if (feature.label !== undefined)
             {
-                feature.label.show = visibility;
+                if (!this.empCesium.defined(feature.label.show))
+                {
+                    feature.label.show = new this.ConstantProperty(visibility);
+                }
+                else
+                {
+                    feature.label.show = visibility;
+                }
             }
             if (feature.ellipse !== undefined)
             {
-                feature.ellipse.show = visibility;
+                if (!this.empCesium.defined(feature.ellipse.show))
+                {
+                    feature.ellipse.show = new this.ConstantProperty(visibility);
+                }
+                else
+                {
+                    feature.ellipse.show = visibility;
+                }
             }
             if (feature.rectangle !== undefined)
             {
-                feature.show = visibility;
+                if (!this.empCesium.defined(feature.rectangle.show))
+                {
+                    feature.rectangle.show = new this.ConstantProperty(visibility);
+                }
+                else
+                {
+                    feature.rectangle.show = visibility;
+                }
                 if (this.empCesium.isMultiPointPresent(id))
                 {
                     var oMultiPoint = this.empCesium.getMultiPoint(id);
                     if (oMultiPoint)
                     {
-                        oMultiPoint.visible = visibility;
+                        oMultiPoint.visible = new this.ConstantProperty(visibility);
                     }
                 }
             }
@@ -13468,7 +13528,7 @@ var EmpLayer = function (name, id, type, empCesium)
         }
         else if (feature.featureType === EmpCesiumConstants.featureType.COMPOUND_ENTITY)
         {
-            feature.show = visibility;
+            feature.show = new this.ConstantProperty(visibility);
             if (feature.childrenFeatureKeys !== undefined)
             {
                 for (var childrenFeatureId in feature.childrenFeatureKeys)
