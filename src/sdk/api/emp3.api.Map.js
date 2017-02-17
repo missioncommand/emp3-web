@@ -159,7 +159,10 @@ emp3.api.Map = function(args) {
   var callInfo,
     mhInstance,
     urlEnv;
-
+    
+  /* eslint-disable no-console*/
+  console.log("EMP3 web %s", emp3.api.global.version);
+  /*eslint-enable no-console*/
   args = args || {};
 
   // Use args parameter or if it is not present set it to browser

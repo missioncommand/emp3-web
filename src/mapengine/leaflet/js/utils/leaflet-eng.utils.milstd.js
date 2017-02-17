@@ -507,7 +507,7 @@ leafLet.utils.milstd = (function() {
             //console.log("      size x: " + oDimension.x + " y:" + oDimension.y);
 
             try {
-                var sGeoJsonData = oRenderer.RenderSymbol2D(oArgs.sID, oArgs.sName, oArgs.sDescription, oArgs.sSymbolCode, sCoordinateStr, oDimension.x, oDimension.y, sBBox, oArgs.oModifiers, iOutputFormat, oArgs.i2525Version, null, pointConverter);
+                var sGeoJsonData = oRenderer.RenderSymbol2D(oArgs.sID, oArgs.sName, oArgs.sDescription, oArgs.sSymbolCode, sCoordinateStr, oDimension.x, oDimension.y, sBBox, oArgs.oModifiers, iOutputFormat, oArgs.i2525Version, undefined, pointConverter);
                 var oGeoJson = JSON.parse(sGeoJsonData);
 /*
                 console.log("Call to RenderSymbol2D:\n" +
