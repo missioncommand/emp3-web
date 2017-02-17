@@ -437,7 +437,9 @@ EMPWorldWind.editors.EditorController = (function() {
       eyeDistanceScaling = true;
 
     attributes = new WorldWind.PlacemarkAttributes();
-    attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+
+    attributes.imageSource = feature.properties.iconUrl || WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+
     attributes.labelAttributes = new WorldWind.TextAttributes();
     attributes.labelAttributes.offset = new WorldWind.Offset(
       WorldWind.OFFSET_FRACTION, -0.5,
@@ -447,6 +449,7 @@ EMPWorldWind.editors.EditorController = (function() {
     location = new WorldWind.Location(feature.data.coordinates[1], feature.data.coordinates[0]);
 
     highlightAttributes = new WorldWind.PlacemarkAttributes();
+
     if (selectionStyle.scale) {
       highlightAttributes.imageScale = selectionStyle.scale;
     }
