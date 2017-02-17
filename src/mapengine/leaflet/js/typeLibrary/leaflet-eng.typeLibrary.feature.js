@@ -306,7 +306,6 @@ leafLet.internalPrivateClass.Feature = function () {
         },
         _updateLeafletObject: function (oMapBounds, oLeafletObject, bWrappedAlready, iLevel) {
             var oLatLngList;
-            var oNewLatLngList;
             var bCoordWrapped = bWrappedAlready;
             var iCurrentLevel = iLevel || 0;
 
@@ -336,7 +335,6 @@ leafLet.internalPrivateClass.Feature = function () {
                     oLeafletObject.setLatLngs(oLatLngList);
                 }
             } else if (oLeafletObject instanceof L.Polyline) {
-                oNewLatLngList = [];
                 oLatLngList = oLeafletObject.getLatLngs();
 
                 if (oLatLngList.length > 0) {
@@ -360,7 +358,6 @@ leafLet.internalPrivateClass.Feature = function () {
                         } else {
                             // We need to break out so the top iteration starts over.
                             break;
-                            ;
                         }
                     }
                 }

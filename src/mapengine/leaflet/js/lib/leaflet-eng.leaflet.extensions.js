@@ -2,14 +2,17 @@
 L.LEAFLET_DEFAULT_LINE_COLOR = '#0033ff';
 L.LEAFLET_DEFAULT_LINE_WEIGHT = 5;
 
+// Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
 L.LatLng.fromEmpLatLon = function (oEmpLatLon) {
     return new L.LatLng(oEmpLatLon._lat, oEmpLatLon._lon);
 };
 
+// Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
 L.LatLng.prototype.toEmpLatLon = function () {
     return new LatLon(this.lat, this.lng);
 };
 
+// Overrides
 L.LatLng.prototype.distanceTo = function (oCoord) {
     var oThis = this.toEmpLatLon();
     var oThat = oCoord.toEmpLatLon();
@@ -17,6 +20,7 @@ L.LatLng.prototype.distanceTo = function (oCoord) {
     return oThis.distanceTo(oThat) * 1000.0;
 };
 
+// Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
 L.LatLng.prototype.bearingTo = function (oCoord) {
     var oThis = this.toEmpLatLon();
     var oThat = oCoord.toEmpLatLon();
@@ -24,6 +28,7 @@ L.LatLng.prototype.bearingTo = function (oCoord) {
     return oThis.bearingTo(oThat);
 };
 
+// Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
 L.LatLng.prototype.destinationPoint = function (brng, dist) {
     var oThis = this.toEmpLatLon();
     var oThat = oThis.destinationPoint(brng, dist / 1000.0);
@@ -31,6 +36,7 @@ L.LatLng.prototype.destinationPoint = function (brng, dist) {
     return new L.LatLng(oThat._lat, oThat._lon, this.alt);
 };
 
+// Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
 L.LatLng.prototype.moveCoordinate = function (brng, dist) {
     var oThis = this.toEmpLatLon();
     var oThat = oThis.destinationPoint(brng, dist / 1000.0);
@@ -39,6 +45,7 @@ L.LatLng.prototype.moveCoordinate = function (brng, dist) {
     this.lng = oThat._lon;
 };
 
+// Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
 L.LatLng.prototype.intersectLines = function (dBrng1, oCoord2, dBrng2) {
     var oThis = this.toEmpLatLon();
     var oThat = oCoord2.toEmpLatLon();
@@ -56,6 +63,7 @@ L.LatLng.prototype.intersectLines = function (dBrng1, oCoord2, dBrng2) {
     return oResult;
 };
 
+// Overrides
 L.LatLng.prototype.wrap = function (a, b) { // (Number, Number) -> LatLng
     var lng = this.lng;
 
@@ -67,6 +75,7 @@ L.LatLng.prototype.wrap = function (a, b) { // (Number, Number) -> LatLng
     return new L.LatLng(this.lat, lng, this.alt);
 };
 
+// Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
 L.LatLng.prototype.midPointTo = function (oCoord) {
     var dBrng = this.bearingTo(oCoord);
     var dDist = this.distanceTo(oCoord) / 2.0;
@@ -74,6 +83,7 @@ L.LatLng.prototype.midPointTo = function (oCoord) {
     return this.destinationPoint(dBrng, dDist);
 };
 
+// Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
 L.LatLng.prototype.pointAtFractionOfDistanceTo = function (oCoord, dFraction) {
     var dBrng = this.bearingTo(oCoord);
     var dDist = this.distanceTo(oCoord) * dFraction;
@@ -81,6 +91,7 @@ L.LatLng.prototype.pointAtFractionOfDistanceTo = function (oCoord, dFraction) {
     return this.destinationPoint(dBrng, dDist);
 };
 
+// Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
 L.LatLng.prototype.pointAt3QtrDistanceTo = function (oCoord) {
     var dBrng = this.bearingTo(oCoord);
     var dDist = this.distanceTo(oCoord) * 0.75;
@@ -88,6 +99,7 @@ L.LatLng.prototype.pointAt3QtrDistanceTo = function (oCoord) {
     return this.destinationPoint(dBrng, dDist);
 };
 
+// Not sure why this isn't its own separate type library class file.
 leafLet.internalPrivateClass.EmpIcon = function () {
     var publicInterface = {
         createIcon: function (oldIcon) {
@@ -157,6 +169,7 @@ L.Icon.Default = L.Icon.Default.extend({
         iconSize: [25, 41],
         iconAnchor: [12, 41]
     },
+    // Overrides
     _getIconUrl: function (name) {
         if (name === 'shadow') {
             return undefined;
@@ -176,6 +189,7 @@ L.Marker = L.Marker.extend({
     options: {
         icon: new L.Icon.Default()
     },
+    // Overrides
     _initInteraction: function () {
         if (!this.options.clickable) {
             return;
@@ -202,6 +216,8 @@ L.Marker = L.Marker.extend({
             }
         }
     },
+    // Overrides in Leaflet 0.7.3. Adds the additional mouseup in conditional.
+    // Function is not present in 1.0.3 unless it is inherited somehow.
     _fireMouseEvent: function (e) {
 
         this.fire(e.type, {
@@ -220,6 +236,7 @@ L.Marker = L.Marker.extend({
             L.DomEvent.preventDefault(e);
         }
     },
+    // Overrides. Leaflet 0.7.3 and 1.0.3 contain identical functions, no change.
     _setPos: function (pos) {
         var oImg;
         var sTemp;
@@ -247,6 +264,7 @@ L.Marker = L.Marker.extend({
 
         oImg.style[L.DomUtil.TRANSFORM] = sTemp;
     },
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     empSelect: function () {
         var labelStyle = this.options.oFeature.getEngineInstanceInterface().selectLabelStyle;
 
@@ -264,6 +282,7 @@ L.Marker = L.Marker.extend({
             emp.$(this._icon).addClass('icon-selected');
         }
     },
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     empDeselect: function () {
         var labelStyle = this.options.oFeature.getLabelStyle();
 
@@ -284,6 +303,7 @@ L.Marker = L.Marker.extend({
 });
 
 L.Path = L.Path.extend({
+    // Overrides in Leaflet 0.7.3. Function is not present in 1.0.3 unless it is inherited somehow.
     _initEvents: function () {
         if (this.options.clickable) {
             if (L.Browser.svg || !L.Browser.vml) {
@@ -299,6 +319,7 @@ L.Path = L.Path.extend({
             }
         }
     },
+    // Overrides in Leaflet 0.7.3. Function is not present in 1.0.3 unless it is inherited somehow.
     _updateStyle: function () {
         if (this.options.stroke) {
             this._path.setAttribute('stroke', this.options.color);
@@ -328,6 +349,7 @@ L.Path = L.Path.extend({
 });
 
 L.Polyline = L.Polyline.extend({
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     empSelect: function () {
         var oSelectAttributes = this.options.oFeature.options.instanceInterface.selectAttributes;
         this.options.tempColor = this.options.color;
@@ -340,6 +362,7 @@ L.Polyline = L.Polyline.extend({
             weight: oSelectAttributes.width
         });
     },
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     empDeselect: function () {
         var oStyle = {};
 
@@ -363,6 +386,7 @@ L.Polyline = L.Polyline.extend({
 });
 
 L.Polygon = L.Polygon.extend({
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     empSelect: function () {
         var oSelectAttributes = this.options.oFeature.options.instanceInterface.selectAttributes;
         this.options.tempColor = this.options.color;
@@ -375,6 +399,7 @@ L.Polygon = L.Polygon.extend({
             weight: oSelectAttributes.width
         });
     },
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     empDeselect: function () {
         //this.options.color = this.options.tempColor;
         //this.options.weight = this.options.tempWeight;
@@ -386,6 +411,7 @@ L.Polygon = L.Polygon.extend({
 });
 
 L.Circle = L.Circle.extend({
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     empSelect: function () {
         var oSelectAttributes = this.options.oFeature.options.instanceInterface.selectAttributes;
         this.options.tempColor = this.options.color;
@@ -398,6 +424,7 @@ L.Circle = L.Circle.extend({
             weight: oSelectAttributes.width
         });
     },
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     empDeselect: function () {
         //this.options.color = this.options.tempColor;
         //this.options.weight = this.options.tempWeight;
@@ -408,12 +435,16 @@ L.Circle = L.Circle.extend({
     }
 });
 
+// Leaflet 1.0.3 may provide support for this class's purpose in L.Polyline because L.MultiPolyline
+// no longer exists.
 L.MultiPolyline = L.FeatureGroup.extend({
+    // Overrides. Leaflet 0.7.3 contain identical function, no change.
     initialize: function (latlngs, options) {
         this._layers = {};
         this._options = options;
         this.setLatLngs(latlngs);
     },
+    // Overrides. Adds 'L.Polyline' in while statement.
     setLatLngs: function (latlngs) {
         var i = 0,
                 len = latlngs.length;
@@ -432,6 +463,7 @@ L.MultiPolyline = L.FeatureGroup.extend({
 
         return this;
     },
+    // Overrides. Leaflet 0.7.3 contain identical function, no change.
     getLatLngs: function () {
         var latlngs = [];
 
@@ -443,12 +475,16 @@ L.MultiPolyline = L.FeatureGroup.extend({
     }
 });
 
+// Leaflet 1.0.3 may provide support for this class's purpose in L.Polygon because L.MultiPolygon
+// no longer exists.
 L.MultiPolygon = L.FeatureGroup.extend({
+    // Overrides. Leaflet 0.7.3 contain identical function, no change.
     initialize: function (latlngs, options) {
         this._layers = {};
         this._options = options;
         this.setLatLngs(latlngs);
     },
+    // Overrides. Adds 'L.Polygon' in while statement.
     setLatLngs: function (latlngs) {
         var i = 0,
                 len = latlngs.length;
@@ -467,6 +503,7 @@ L.MultiPolygon = L.FeatureGroup.extend({
 
         return this;
     },
+    // Overrides. Leaflet 0.7.3 contain identical function, no change.
     getLatLngs: function () {
         var latlngs = [];
 
@@ -478,16 +515,21 @@ L.MultiPolygon = L.FeatureGroup.extend({
     }
 });
 
+// Leaflet 1.0.3 may provide support for this class's purpose in L.Polygon because L.MultiPolyline
+// no longer exists.
 L.multiPolyline = function (latlngs, options) {
     return new L.MultiPolyline(latlngs, options);
 };
 
+// Leaflet 1.0.3 may provide support for this class's purpose in L.Polygon because L.MultiPolygon
+// no longer exists.
 L.multiPolygon = function (latlngs, options) {
     return new L.MultiPolygon(latlngs, options);
 };
 
 
 L.TileLayer = L.TileLayer.extend({
+    // Overrides
     getTileUrl: function (tilePoint) {
         var sURL = L.Util.template(this._url, L.extend({
             s: this._getSubdomain(tilePoint),
@@ -511,6 +553,7 @@ L.TileLayer = L.TileLayer.extend({
 });
 
 L.TileLayer.WMS = L.TileLayer.WMS.extend({
+    // Overrides
     getTileUrl: function (tilePoint) { // (Point, Number) -> String
 
         var sURL;
@@ -536,27 +579,33 @@ L.TileLayer.WMS = L.TileLayer.WMS.extend({
 });
 
 L.Control.Zoom = L.Control.Zoom.extend({
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     getCoreId: function () {
         return this.options.coreId;
     },
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     getObjectType: function () {
         return this.options.objectType;
     }
 });
 
 L.Control.Scale = L.Control.Scale.extend({
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     getCoreId: function () {
         return this.options.coreId;
     },
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     getObjectType: function () {
         return this.options.objectType;
     }
 });
 
 L.TileLayer = L.TileLayer.extend({
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     getCoreId: function () {
         return this.options.coreId;
     },
+    // Utility function. Doesn't override in Leaflet 0.7.3 or 1.0.3.
     getObjectType: function () {
         return this.options.objectType;
     }
