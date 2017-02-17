@@ -64,7 +64,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
 
   this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
 
-  EMPWorldWind.eventHandlers.checkIfRenderRequired.call(this);
+  EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
 };
 
 /**
@@ -72,33 +72,21 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
  * was called. This may trigger based on altitude delta or distance delta.
  * @this EMPWorldWind.map
  */
-EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
-  // var pctChange = 0.2; // 20% altitude change
-  // var altitudeDeltaMin = this.state.lastRender.altitude - this.state.lastRender.altitude * pctChange;
-  // var altitudeDeltaMax = this.state.lastRender.altitude + this.state.lastRender.altitude * pctChange;
+EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
+  // TODO trigger this less often or on a timer
+  this.state.lastRender.bounds = this.getBounds();
+  this.state.lastRender.altitude = this.worldWind.navigator.range;
 
-  /* Re-render if
-   * - the zoom scale has changed beyond 20%
-   * - the current bounds are larger than the last bounds
-   * - (not done yet) the bounds are at least 5% different from the previous bounds
-   */
-  //var reRender = (this.worldWind.navigator.range < altitudeDeltaMin || this.worldWind.navigator.range > altitudeDeltaMax);
+  emp.util.each(Object.keys(this.features), function(featureId) {
+    var feature = this.features[featureId];
 
-  //if (reRender) {
-    // Update the last render location
-    this.state.lastRender.bounds = this.getBounds();
-    this.state.lastRender.altitude = this.worldWind.navigator.range;
-
-    emp.util.each(Object.keys(this.features), function(featureId) {
-      var feature = this.features[featureId];
-
-      if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
-        feature.feature.data.type === "LineString") {
-        this.plotFeature(feature.feature);
-      }
-    }.bind(this));
-    this.worldWind.redraw();
-  //}
+    // TODO check if the symbol is visible first
+    if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
+      feature.feature.data.type === "LineString") {
+      this.plotFeature(feature.feature);
+    }
+  }.bind(this));
+  this.worldWind.redraw();
 };
 
 /**

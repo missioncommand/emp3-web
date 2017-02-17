@@ -797,12 +797,23 @@ EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
 };
 
 /**
- * Diagonal distance from corner to corner
+ * Returns the east-west distance of the bounds
  * @param {Bounds} bounds
- * @returns {number} Distance in meters of the bounds diagonal
+ * @returns {number}
  */
-EMPWorldWind.utils.boundsSize = function(bounds) {
+EMPWorldWind.utils.boundsWidth = function(bounds) {
   return WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
-      new WorldWind.Location(bounds.west, bounds.south),
-      new WorldWind.Location(bounds.east, bounds.west));
+      new WorldWind.Location(0, bounds.west),
+      new WorldWind.Location(0, bounds.east));
+};
+
+/**
+ * Returns the north-south distance of the bounds
+ * @param {Bounds} bounds
+ * @returns {number}
+ */
+EMPWorldWind.utils.boundsHeight = function(bounds) {
+  return WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
+      new WorldWind.Location(bounds.south, 0),
+      new WorldWind.Location(bounds.north, 0));
 };

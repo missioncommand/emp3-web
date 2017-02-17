@@ -999,37 +999,31 @@ EMPWorldWind.map.prototype.screenshot = function() {
  * @returns {Bounds}
  */
 EMPWorldWind.map.prototype.getBounds = function() {
-  var topRight, bottomLeft, clientRect;
+  var topRight, bottomLeft;
 
-  clientRect = this.worldWind.canvas.getBoundingClientRect();
+  // Check the viewport corners
+  topRight = this.worldWind.pickTerrain(new WorldWind.Vec2(this.worldWind.viewport.width - 1, 1)).terrainObject();
+  bottomLeft = this.worldWind.pickTerrain(new WorldWind.Vec2(1, this.worldWind.viewport.height -1)).terrainObject();
 
-  // TODO get rid of magic numbers, make this more bullet proof
-  topRight = this.worldWind.pick(this.worldWind.canvasCoordinates(clientRect.right - 70, clientRect.top + 20)).terrainObject();
-  bottomLeft = this.worldWind.pick(this.worldWind.canvasCoordinates(clientRect.left + 30, clientRect.bottom - 45)).terrainObject();
-
+  // If the corners don't contain the globe assume we are zoomed very far out, estimate an arbitrary rectangle
   if (!topRight) {
     topRight = {
-      position: {
-        latitude: 90,
-        longitude: this.worldWind.navigator.lookAtLocation.longitude + 90
-      }
+      position: WorldWind.Location.linearLocation(
+        this.worldWind.navigator.lookAtLocation,
+        this.worldWind.navigator.heading + 45,
+        Math.PI / 3,
+        new WorldWind.Location())
     };
-    if (topRight.position.longitude > 180) {
-      topRight.position.longitude -= 360;
-    }
   }
 
   if (!bottomLeft) {
     bottomLeft = {
-      position: {
-        latitude: -90,
-        longitude: this.worldWind.navigator.lookAtLocation.longitude - 90
-      }
+      position: WorldWind.Location.linearLocation(
+        this.worldWind.navigator.lookAtLocation,
+        this.worldWind.navigator.heading + 45,
+        -Math.PI / 3,
+        new WorldWind.Location())
     };
-
-    if (bottomLeft.position.longitude < -180) {
-      bottomLeft.position.longitude += 360;
-    }
   }
 
   return {

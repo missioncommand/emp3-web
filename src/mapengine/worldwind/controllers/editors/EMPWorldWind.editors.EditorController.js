@@ -88,7 +88,7 @@ EMPWorldWind.editors.EditorController = (function() {
     bbox = bounds.west + "," + bounds.south + "," + bounds.east + "," + bounds.north;
 
     // Calculate the approximate scale
-    scale = EMPWorldWind.utils.boundsSize(bounds) >> 3;
+    scale = EMPWorldWind.utils.boundsWidth(bounds) >> 2;
 
     // TODO get update to renderer to pass back raw JSON object
     imageInfo = JSON.parse(sec.web.renderer.SECWebRenderer.RenderSymbol(
@@ -98,6 +98,7 @@ EMPWorldWind.editors.EditorController = (function() {
       feature.symbolCode,
       positions,
       "clampToGround",
+
       scale,
       bbox,
       modifiers,
