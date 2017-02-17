@@ -1377,7 +1377,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
         {
             failList.push(new emp.typeLibrary.Error({
                 coreId: transaction.coreId,
-                message: "An error occured when attempting to stop the drawing.",
+                message: "An error occurred when attempting to stop the drawing.",
                 level: emp.typeLibrary.Error.level.MINOR,
                 jsError: err
             }));

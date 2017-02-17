@@ -17,13 +17,13 @@ emp.typeLibrary.SelectionBox = function (args) {
     /**
      * @field
      * @type {emp.typeLibrary.BoundingBoxType}
-     * @description This field contains the dragstart/dragend coordinates when the event occured.
+     * @description This field contains the dragstart/dragend coordinates when the event occurred.
      */
     this.bounds = args.bounds || null;
 
     /**
      * @field
-     * @type {emp.typeLibrary.Pointer.ButtonType=}
+     * @type {emp.typeLibrary.Pointer.ButtonType}
      * @description This field identifies the mouse button that generated or was active when the event was generated.
      */
     this.button = args.button;
@@ -38,14 +38,14 @@ emp.typeLibrary.SelectionBox = function (args) {
     /**
      * @field
      * @type {number}
-     * @description This field contains the map scale when the event occured.
+     * @description This field contains the map scale when the event occurred.
      */
     this.scale = args.scale || null;
 
     /**
      * @field
      * @type {number}
-     * @description This field contains the map zoom when the event occured.
+     * @description This field contains the map zoom when the event occurred.
      */
     this.zoom = args.zoom || null;
 
