@@ -1,16 +1,15 @@
 #!/bin/bash
 
-#set -o errexit
+set -e errexit
 
 # Config the git user
-#git config --global user.email "nobody@nobody.org"
 git config --global user.name "${GH_PAGES_USER}"
 
 # Clone existing gh-pages to dist
 echo "Cloning Existing Repo"
 cd dist
 rm -rf ghpages
-git clone "https://${GITHUB_API_KEY}@github.com/${GH_PAGES_REPO}.git" ghpages
+git clone "https://github.com/${GH_PAGES_REPO}.git" ghpages
 
 ## Remove the old devguide and replace it
 echo ""
@@ -29,6 +28,6 @@ git status
 # Deploy
 echo ""
 echo "Pushing changes"
-git push master:gh-pages
+git push "https://${GITHUB_API_KEY}@github.com/${GH_PAGES_REPO}.git" master:gh-pages
 
 echo "Devguide Deployed"
