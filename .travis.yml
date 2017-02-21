@@ -2,6 +2,11 @@ language: node_js
 node_js:
   - "6"
 
+env:
+  global:
+    GITHUB_API_KEY:
+      secure: WfcUXUYu9OT5oPxaLAADiOIMvHnrC4mv8KpV7QFnmUSrAkmD1BtOh935NlRqaTCIQ0dNIAh7cn7B5I6r830kCJdROEU+pz8rjX6V26sSfK4m6Tgg5W7KHrsW2qxmHSFA8PebuQ7N33q0PDu+huJGamNNrfQwjuVh+JsY7dzGosrmQJEzrx+/MVKXvPVz8uwbEQvAxbQfByM52yl+JQfKXLRP87gQr700OanBDy1LrQat4sC77Gn85GJRrDdqqGky0u+WD4oa1SxeFbW9+AfZ+ufV6lvY0KAwqLuVRZXcU48vYWpwYCCOI16zfulPN3BZmeqYZ4JD1lxZnVXnZGJ+8zDefHX1lu2NgPW4Qiy2MWjSyaxWhZBA+AZlOqlpMkQlr1NeK/HN8ZA+/XFWbHsmmICvjLNTrzyRwFT6x2LQ2O/rARjKHNa4bMmJVkghFrmq/30DPGtyH+650zSJklayzyn5ht+q8guVZRkttJ+mzCzWHtuJPyzAJvFM43QSwLaLAqaja+wv3sSfwoUTUjkrlB/b++2j/emfqEC4hkqpQG/zGRB94f2RcfErMML9EVf+pMwenXDFw9k9BUC1s5rRA/1Pq3ugVWDqw16B+A4vEzXyKgWTDEQUqF+/+ekZ1qdliCPPTDMlCMthrRvpDF1VfpCOg/EnBgC0dtnXVkXxeYw=
+
 before_script:
   - npm install -g grunt-cli
 
