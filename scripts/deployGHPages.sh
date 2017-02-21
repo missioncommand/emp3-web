@@ -19,6 +19,7 @@ cp -a devguide/ ghpages/docs/emp/web
 cd ghpages
 git add -A docs/emp/web
 git commit -m "Deploying updated GitHub Pages"
+git status
 
 # Deploy
 git push --quiet "https://${GITHUB_TOKEN}@$github.com/${GH_PAGES_REPO}.git" master:gh-pages > /dev/null 2>&1
