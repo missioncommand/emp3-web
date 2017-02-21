@@ -27,7 +27,9 @@ deploy:
 
   - provider: script
     skip_cleanup: true
-    script: ./scripts/deployGHPages.sh
+    script:
+      - chmod +X ./scropts/deployGHPages.sh
+      - . ./scripts/deployGHPages.sh
     on:
       branch:
         - master
