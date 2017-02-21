@@ -3,7 +3,8 @@
 set -o errexit -o nounset
 
 # Config the git user
-git config --global user.name "${GH_PAGES_USER}"
+git config --global user.name "missioncommandbot"
+git config --global user.email "missioncommandbot@missioncommandbot.org"
 
 # Clone existing gh-pages to dist
 echo "Cloning Existing Repo"
