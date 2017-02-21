@@ -2,9 +2,6 @@
 
 set -o errexit -o nounset
 
-GITHUB_API_KEY=$1
-GH_PAGES_REPO=$2
-
 # Config the git user
 git config --global user.name "missioncommandbot"
 git config --global user.email "missioncommandbot@missioncommandbot.org"
