@@ -6,21 +6,21 @@ default:
   - 'copy:urlProxyToEMP'
   - 'concurrent:copyEnginesToEMP'
 
-  - 'concurrent:prepUnitTestsRelease'
-  - 'runUnitTests'
+  #- 'concurrent:prepUnitTestsRelease'
+  #- 'runUnitTests'
 
-  - 'concurrent:prepValidationRelease'
-  - 'concurrent:build'
-  - 'injector:validationRelease'
-  - 'string-replace'
+  #- 'concurrent:prepValidationRelease'
+  #- 'concurrent:build'
+  #- 'injector:validationRelease'
+  #- 'string-replace'
 
   - 'copy:appToDist'
   - 'copy:devguide'
 
 release:
   - 'default'
-  - 'war'
-  - 'concurrent:compress'
+  #- 'war'
+  #- 'concurrent:compress'
 
 quick:
   - 'clean'
