@@ -27,9 +27,7 @@ deploy:
 
   - provider: script
     skip_cleanup: true
-    script:
-      - chmod +X ./scropts/deployGHPages.sh
-      - . ./scripts/deployGHPages.sh
+    script: GITHUB_API_KEY=$GITHUB_API_KEY GH_PAGES_REPO=$GH_PAGES_REPO sh ./scripts/deployGHPages.sh
     on:
       branch:
         - master
