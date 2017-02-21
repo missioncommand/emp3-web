@@ -10,7 +10,7 @@ git config --global user.email "missioncommandbot@missioncommandbot.org"
 echo "Cloning Existing Repo"
 cd dist
 rm -rf ghpages
-git clone "https://github.com/${GH_PAGES_REPO}.git" ghpages
+git clone "https://github.com/missioncommand/missioncommand.github.io.git" ghpages
 
 ## Remove the old devguide and replace it
 echo ""
@@ -25,7 +25,7 @@ cd ghpages
 git add -A docs/emp/web
 git commit -m "Deploying updated GitHub Pages"
 
-git remote add upstream "https://${GITHUB_API_KEY}@github.com/${GH_PAGES_REPO}.git"
+git remote add upstream "https://${GH_PAGES_REPO}@github.com/missioncommand/missioncommand.github.io.git"
 
 # Deploy
 echo ""
