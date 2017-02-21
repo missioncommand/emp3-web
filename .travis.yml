@@ -2,10 +2,6 @@ language: node_js
 node_js:
   - "6"
 
-env:
-  global:
-    - secure: svrLl3tj2rqow7vwBDbwaaBqBb8bp+Ba+clfZuVWDDmubzrMCqM64C+3JjCfgZt8v2WYGKV2zcHEWCiraTvv6mzAsij1/DYgGkjbarKL+nv2MR39SzNYAlxmrKzFlrZ5CBbxYZOUOgmci4EBQTu+/IdCnRwrrwJD6TKI84ITKufw13B+tN2Xr6DP79DmI+Y0SldTbk3ZSboSKZkztTWIccpME/o07nFVAsgXZXEN7YhxI8M6GuVQd/dcd83sqZov+E6qGBTSFEf068qAgJpROcfrVBjo5OlZqEd18NLEGu5ciZYdTT1j6yLZb+tJg4pDY9Ivvs550be3h6P02A+DMVCig47U7b9Qi+6UTfYxFGXt1w9hu+fk43sSWZ6KhkUJ4ATKU+BA/Xv7hUoGTtHUzjRMI09ssVIkxGaHmB0qM5E21thPRqAmYuywt693m16BY/NvfVT1sQKHVn5QTe0pRThEKxM1ryJ6cJC+/F01AO9oNAMs1o1GJrZoYYL3O9YzdHGaFbQEstnJynUdUqtVNWlrfmZTN4BccCz8LUDfHr8cIxj22DdJR/ixgPEro6AbPL9Ku9UjWHHxOeKwQiZqXbQcMyczXFhvOXe6K7josVND0icUoDak/FSR6yapGzYU51hGVCbTb4xW9IsGHwIfEBxAmZvByPbixSaPzIxwTyI=
-
 before_script:
   - npm install -g grunt-cli
 
@@ -17,7 +13,7 @@ deploy:
     skip_cleanup: true
     file_glob: true
     api_key:
-      secure: svrLl3tj2rqow7vwBDbwaaBqBb8bp+Ba+clfZuVWDDmubzrMCqM64C+3JjCfgZt8v2WYGKV2zcHEWCiraTvv6mzAsij1/DYgGkjbarKL+nv2MR39SzNYAlxmrKzFlrZ5CBbxYZOUOgmci4EBQTu+/IdCnRwrrwJD6TKI84ITKufw13B+tN2Xr6DP79DmI+Y0SldTbk3ZSboSKZkztTWIccpME/o07nFVAsgXZXEN7YhxI8M6GuVQd/dcd83sqZov+E6qGBTSFEf068qAgJpROcfrVBjo5OlZqEd18NLEGu5ciZYdTT1j6yLZb+tJg4pDY9Ivvs550be3h6P02A+DMVCig47U7b9Qi+6UTfYxFGXt1w9hu+fk43sSWZ6KhkUJ4ATKU+BA/Xv7hUoGTtHUzjRMI09ssVIkxGaHmB0qM5E21thPRqAmYuywt693m16BY/NvfVT1sQKHVn5QTe0pRThEKxM1ryJ6cJC+/F01AO9oNAMs1o1GJrZoYYL3O9YzdHGaFbQEstnJynUdUqtVNWlrfmZTN4BccCz8LUDfHr8cIxj22DdJR/ixgPEro6AbPL9Ku9UjWHHxOeKwQiZqXbQcMyczXFhvOXe6K7josVND0icUoDak/FSR6yapGzYU51hGVCbTb4xW9IsGHwIfEBxAmZvByPbixSaPzIxwTyI=
+      secure: EKBFCMw+YJdWYpzLatsWPCFViqfaVpKMv+QPx918Fyl6eO2hUfXOPVPMmC0rz8d5kEE+DYI1dNFsKA/JiXcL6k8aWHihGz6wFJORcrvvBiX5Q5pSOJV/k3UNqMurTzo9D20i1WmMc2Z/NDk+PVFOw07W7zZLEBlVQKE7G5Sz4dQ718CTmK40gVjxlGgdaQrsKVgyKOug4Xn16Izvc2p7e1JtVOLSgZLjgr1XmLGShUJK6abQc68s5VjVTNmNlUIzw2jePX9m+aZe6Pj45oW3NuxN8O8U7ZV/VsRHdeLPBzb3epimkKTjhiRizH2AEGQYF/pNNgkPs08NPVCzjWJcAqCBYkSTgohs0ZI19v795wWNM7yuvYkApULTTmruT2rA44mZPd5lbHxc6Xdn6pV7dLj+U0ORolskkXph5qNA+wOtC9DhpbhBMni6J120FnWRpdhLa4qLazIzMBFagd0/KMuU70TR+U3sePZCTLwzL9Z4oywUh1/LMMIz3oAD4/fCD4MHLoWR64wV4SDCUao+dNwVsrpP6E/GgqklmegYsIAyYKm2q4wUgR+44IvCxBuqM3o4Yr3pNrgTMBI9HN/LOO0UZ4f7+pyFsFrhhG8dxGRLyyXhcD8Wp0F8Z7ZdBOQFlXE9TfU755W08Aw5ClZSDm6D3DZ8ndhKlDDJQEdzxnI=
     file:
       - "dist/zips/EMP3 Developer Guide.zip"
       - "dist/zips/emp3-map.zip"
@@ -28,4 +24,6 @@ deploy:
   - provider: script
     script: scripts/deployGHPages.sh
     on:
-      branch: master
+      branch:
+        - master
+        - feature/emp3-web#90-deploy-devguide

@@ -21,4 +21,4 @@ git add -A docs/emp/web
 git commit -m "Deploying updated GitHub Pages"
 
 # Deploy
-#git push --quiet "https://${GITHUB_TOKEN}@$github.com/${GH_PAGES_REPO}.git" master:gh-pages > /dev/null 2>&1
+git push --quiet "https://${GITHUB_TOKEN}@$github.com/${GH_PAGES_REPO}.git" master:gh-pages > /dev/null 2>&1
