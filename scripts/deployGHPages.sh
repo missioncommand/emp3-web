@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o errexit
+#set -o errexit
 
 # Config the git user
 git config --global user.email "nobody@nobody.org"
@@ -29,4 +29,4 @@ git status
 # Deploy
 echo ""
 echo "Pushing changes"
-#git push --quiet "https://${GITHUB_TOKEN}@$github.com/${GH_PAGES_REPO}.git" master:gh-pages > /dev/null 2>&1
+git push --quiet "https://${GITHUB_TOKEN}@$github.com/${GH_PAGES_REPO}.git" master:gh-pages > /dev/null 2>&1
