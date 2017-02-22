@@ -4,6 +4,8 @@ echo "kiss kiss"
 echo $@
 echo "bang bang"
 
+printenv
+
 set -o errexit -o nounset
 #
 ## Config the git user
