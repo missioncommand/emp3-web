@@ -1,8 +1,16 @@
 #!/bin/bash
 
 echo "kiss kiss"
-echo $@
+for i; do
+    echo $i
+done
 echo "bang bang"
+
+echo ${GITHUB_API_KEY}
+echo $GITHUB_API_KEY
+
+echo ${GH_PAGES_REPO}
+echo $GH_PAGES_REPO
 
 printenv
 
