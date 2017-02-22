@@ -1,9 +1,10 @@
 #!/bin/bash
 
+echo "kiss kiss"
 echo $@
+echo "bang bang"
 
-#
-#set -o errexit -o nounset
+set -o errexit -o nounset
 #
 ## Config the git user
 #git config --global user.name "missioncommandbot"
@@ -34,3 +35,5 @@ echo $@
 #echo ""
 #echo "Pushing changes"
 #git push -q upstream HEAD:gh-pages
+
+echo "this is where I would commit things, if I had any"
