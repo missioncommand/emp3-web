@@ -1,18 +1,11 @@
 #!/bin/bash
 
 echo "kiss kiss"
-for i; do
-    echo $i
-done
+echo '$0 = ' $0
+echo 'KEY = ' $GITHUB_API_KEY
+echo 'REPO' $GH_PAGES_REPO
+echo 'THE_COW_SAYS' $THE_COW_SAYS
 echo "bang bang"
-
-echo ${GITHUB_API_KEY}
-echo $GITHUB_API_KEY
-
-echo ${GH_PAGES_REPO}
-echo $GH_PAGES_REPO
-
-printenv
 
 set -o errexit -o nounset
 #
