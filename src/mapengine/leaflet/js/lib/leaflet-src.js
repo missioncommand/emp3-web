@@ -12277,13 +12277,12 @@ L.Handler.MarkerDrag = L.Handler.extend({
 });
 
 
+
 /*
  * @class Control
  * @aka L.Control
  * @inherits Class
  *
-
-/*
  * L.Control is a base class for implementing map controls. Handles positioning.
  * All other controls extend from this class.
  */
@@ -12875,11 +12874,10 @@ L.control.scale = function (options) {
  * ```
  */
 
+
 L.Control.Layers = L.Control.extend({
 	// @section
 	// @aka Control.Layers options
-
-L.Control.Layers = L.Control.extend({
 	options: {
 		// @option collapsed: Boolean = true
 		// If `true`, the control will be collapsed into an icon and expanded on mouse hover or touch.
