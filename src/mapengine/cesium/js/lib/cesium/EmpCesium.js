@@ -3850,8 +3850,10 @@ function EmpCesium()
                 });
             }
         }
-        else if (item.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
-                item.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE)
+        else if ((item.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+                item.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) ||
+                (item.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+                        item.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE))
         {
             //new primitives. call renderer
             var empPrimitiveItem = cesiumEngine.utils.convertEmpPrimitiveItemToMilStandardItem(item, item.format);
@@ -3946,57 +3948,154 @@ function EmpCesium()
             empPrimitiveItem.id = empPrimitiveItem.coreId;
             this.processEntities({layer: layer, entityArray: [entity], data: empPrimitiveItem});
         }
-        else if (item.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
-                item.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE)
-        {
-            // text or labels
-            var empPrimitiveItem = emp.helpers.copyObject(item);
-            var ellipse = new this.EllipseGraphics();
-            ellipse.outline = true;
-            //ellipse.style = this.LabelStyle.FILL_AND_OUTLINE;
-            if (empPrimitiveItem.properties && empPrimitiveItem.properties.lineWidth)
-            {
-                empPrimitiveItem.properties.lineWidth = parseFloat(empPrimitiveItem.properties.lineWidth);
-                ellipse.outlineWidth = empPrimitiveItem.properties.lineWidth;
-            }
-            else
-            {
-                ellipse.outlineWidth = 3;
-            }
-            if (item.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE)
-            {
-                ellipse.semiMajorAxis = empPrimitiveItem.properties.semiMajor;
-                ellipse.semiMinorAxis = empPrimitiveItem.properties.semiMinor;
-            }
-            else
-            {
-                ellipse.semiMajorAxis = empPrimitiveItem.properties.radius;
-                ellipse.semiMinorAxis = empPrimitiveItem.properties.radius;
-            }
-            if (empPrimitiveItem.properties.fillColor)
-            {
-                ellipse.fill = true;
-            }
-            else
-            {
-                ellipse.fill = false;
-            }
-
-            var cartesian = this.Cartesian3.fromDegrees(empPrimitiveItem.coordinates[0], empPrimitiveItem.coordinates[1]);
-            var entity = new this.Entity();
-            entity.featureType = EmpCesiumConstants.featureType.ENTITY;
-            entity.overlayId = layer.id;
-            entity._id = empPrimitiveItem.coreId || empPrimitiveItem.id;
-            entity.featureId = empPrimitiveItem.featureId;
-            entity.ellipse = ellipse;
-            entity.position = cartesian;
-            entity.show = (this.defined(empPrimitiveItem.visible)) ? empPrimitiveItem.visible : true;
-            empPrimitiveItem.feature = {};
-            empPrimitiveItem.feature.format = empPrimitiveItem.format;
-            empPrimitiveItem.feature.coreParent = empPrimitiveItem.coreParent;
-            empPrimitiveItem.id = empPrimitiveItem.coreId;
-            this.processEntities({layer: layer, entityArray: [entity], data: empPrimitiveItem});
-        }
+//        else if (item.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+//                item.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE)
+//        {
+//            // text or labels
+//            var empPrimitiveItem = emp.helpers.copyObject(item);
+//            var ellipse = new this.EllipseGraphics();
+//            ellipse.outline = true;
+//            ellipse.height =  1000;
+//            //ellipse.style = this.LabelStyle.FILL_AND_OUTLINE;
+//            if (empPrimitiveItem.properties && empPrimitiveItem.properties.lineWidth)
+//            {
+//                empPrimitiveItem.properties.lineWidth = parseFloat(empPrimitiveItem.properties.lineWidth);
+//                ellipse.outlineWidth = parseFloat(empPrimitiveItem.properties.lineWidth);
+//            }
+//            else
+//            {
+//                ellipse.outlineWidth = 3;
+//            }
+//            if (item.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE)
+//            {
+//                ellipse.semiMajorAxis = parseFloat(empPrimitiveItem.properties.semiMajor);
+//                ellipse.semiMinorAxis = parseFloat(empPrimitiveItem.properties.semiMinor);
+//            }
+//            else
+//            {
+//                ellipse.semiMajorAxis = parseFloat(empPrimitiveItem.properties.radius);
+//                ellipse.semiMinorAxis = parseFloat(empPrimitiveItem.properties.radius);
+//            }
+//            if (empPrimitiveItem.properties.fillColor)
+//            {
+//                ellipse.fill = true;
+//            }
+//            else
+//            {
+//                ellipse.fill = false;
+//            }
+//
+//            var cartesian = this.Cartesian3.fromDegrees(empPrimitiveItem.coordinates[0], empPrimitiveItem.coordinates[1]);
+//            var entities = [];
+//            if (this.defined(empPrimitiveItem.properties.buffer))
+//            {
+//                //compound entity used for case of buffer
+//                var compoundEntity = new this.Entity();
+//                compoundEntity.hasBuffer = true;
+//                compoundEntity.featureType = EmpCesiumConstants.featureType.COMPOUND_ENTITY;
+//                compoundEntity.overlayId = layer.id;
+//                compoundEntity._id = empPrimitiveItem.coreId || empPrimitiveItem.id;
+//                compoundEntity.featureId = empPrimitiveItem.featureId;
+//                compoundEntity.show = (this.defined(empPrimitiveItem.visible)) ? empPrimitiveItem.visible : true;
+//                empPrimitiveItem.feature = {};
+//                empPrimitiveItem.feature.format = empPrimitiveItem.format;
+//                empPrimitiveItem.feature.coreParent = empPrimitiveItem.coreParent;
+//                empPrimitiveItem.id = empPrimitiveItem.coreId;
+//                entities.push(compoundEntity);
+//
+////                var circleComputed = Cesium.EllipseGeometryLibrary.computeEllipsePositions({
+////                    semiMajorAxis: ellipse.semiMajorAxis.getValue() + empPrimitiveItem.properties.buffer,
+////                    semiMinorAxis: ellipse.semiMinorAxis.getValue() + empPrimitiveItem.properties.buffer,
+////                    rotation: 0,
+////                    center: viewer.scene.globe.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(45.0, 45.0)),
+////                    granularity: 0.02
+////                }, false, true);
+////
+////                var circlePositions = circleComputed.outerPositions;
+////                console.log(circlePositions.length);
+////                var circleCartesians = [];
+////                for (var i = 0; i < circlePositions.length; i += 3)
+////                {
+////                    circleCartesians.push(new Cesium.Cartesian3(circlePositions[i], circlePositions[i + 1], circlePositions[i + 2]));
+////                }
+//
+////                var circleComputedBuffer = Cesium.EllipseGeometryLibrary.computeEllipsePositions({
+////                    semiMajorAxis: 700000,
+////                    semiMinorAxis: 700000,
+////                    rotation: 0,
+////                    center: viewer.scene.globe.ellipsoid.cartographicToCartesian(Cesium.Cartographic.fromDegrees(45.0, 45.0)),
+////                    granularity: 0.02
+////                }, false, true);
+//
+////                var circlePositionsBuffer = circleComputedBuffer.outerPositions;
+////
+////                var circleCartesiansBuffer = [];
+////                for (var j = 0; j < circlePositionsBuffer.length; j += 3)
+////                {
+////                    circleCartesiansBuffer.push(new Cesium.Cartesian3(circlePositionsBuffer[j], circlePositionsBuffer[j + 1], circlePositionsBuffer[j + 2]));
+////                }
+//
+//                var ellipseBuffer = new this.EllipseGraphics();
+//                ellipseBuffer.outline = false;
+//                //ellipse.style = this.LabelStyle.FILL_AND_OUTLINE;
+//                if (empPrimitiveItem.properties && empPrimitiveItem.properties.lineWidth)
+//                {
+//                    empPrimitiveItem.properties.lineWidth = parseFloat(empPrimitiveItem.properties.lineWidth);
+//                    ellipseBuffer.outlineWidth = parseFloat(empPrimitiveItem.properties.lineWidth);
+//                }
+//                else
+//                {
+//                    ellipseBuffer.outlineWidth = 3;
+//                }
+//                if (item.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE)
+//                {
+//                    ellipseBuffer.semiMajorAxis = ellipse.semiMajorAxis.getValue() + parseFloat(empPrimitiveItem.properties.buffer);
+//                    ellipseBuffer.semiMinorAxis = ellipse.semiMinorAxis.getValue() + parseFloat(empPrimitiveItem.properties.buffer);
+//                }
+//                else
+//                {
+//                    ellipseBuffer.semiMajorAxis = parseFloat(empPrimitiveItem.properties.radius) + parseFloat(empPrimitiveItem.properties.buffer);
+//                    ellipseBuffer.semiMinorAxis = parseFloat(empPrimitiveItem.properties.radius) + parseFloat(empPrimitiveItem.properties.buffer);
+//                }
+//               // if (empPrimitiveItem.properties.fillColor)
+//                //{
+//                    ellipseBuffer.fill = true;
+//               // }
+//                //else
+//               // {
+//                 //   ellipseBuffer.fill = false;
+//               // }
+//                var entityBuffer = new this.Entity();
+//                entityBuffer.featureType = EmpCesiumConstants.featureType.ENTITY;
+//                entityBuffer.overlayId = layer.id;
+//                entityBuffer._id = empPrimitiveItem.coreId || empPrimitiveItem.id ;
+//                entityBuffer._id +=  "_0";
+//                entityBuffer.featureId = empPrimitiveItem.featureId;
+//                entityBuffer.ellipse = ellipseBuffer;
+//                entityBuffer.position = cartesian;
+//                entityBuffer.show = (this.defined(empPrimitiveItem.visible)) ? empPrimitiveItem.visible : true;
+//                entityBuffer.description = "buffer";
+//                entities.push(entityBuffer);
+//            }
+//
+//
+//
+//            var entity = new this.Entity();
+//            entity.featureType = EmpCesiumConstants.featureType.ENTITY;
+//            entity.overlayId = layer.id;
+//            entity._id = empPrimitiveItem.coreId || empPrimitiveItem.id;
+//            entity._id +=  "_1";
+//            entity.featureId = empPrimitiveItem.featureId;
+//            entity.ellipse = ellipse;
+//            entity.position = cartesian;
+//            entity.show = (this.defined(empPrimitiveItem.visible)) ? empPrimitiveItem.visible : true;
+//            empPrimitiveItem.feature = {};
+//            empPrimitiveItem.feature.format = empPrimitiveItem.format;
+//            empPrimitiveItem.feature.coreParent = empPrimitiveItem.coreParent;
+//            empPrimitiveItem.id = empPrimitiveItem.coreId;
+//            entities.push(entity);
+//            this.processEntities({layer: layer, entityArray: entities, data: empPrimitiveItem});
+//        }
         else if (item.format === "czml")
         {
             this.dynamicOverlayHash[item.parentCoreId] = hashFromCzmlIds(item.data);
@@ -8849,7 +8948,8 @@ function EmpCesium()
                     renderingCameraScale: scale,
                     multiPointRenderType: args[index].multiPointRenderType,
                     extrudedHeight: args[index].extrudedHeight,
-                    intent: args[index].intent
+                    intent: args[index].intent,
+                    hasBuffer: args[index].hasBuffer
                 });
 
 
@@ -8882,26 +8982,32 @@ function EmpCesium()
                     {
                         mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineWidth] = EmpCesiumConstants.propertyDefaults.LINE_WIDTH;
                     }
-                    if (oProperties.azimuth && Array.isArray(oProperties.azimuth))
-                    {
-                        mods.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = oProperties.azimuth;
-                    }
-                    else if (oProperties.azimuth && !isNaN(parseFloat(oProperties.azimuth)))
-                    {
-                        mods.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = [parseFloat(oProperties.azimuth)];
-                        //make sure the azimuth is a number in tge object sent by the api
-                    }
-                    else
-                    {
-                        mods.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = [0];
-                    }
 
-                    /////mil.symbology.renderer.modifierLookup.AZIMUTH
+                    if (mods.modifiers && !mods.modifiers.hasOwnProperty("azimuth"))
+                    {
+                        // check the properties for azimuth
+                        if (oProperties.azimuth && Array.isArray(oProperties.azimuth))
+                        {
+                            mods.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = oProperties.azimuth;
+                        }
+                        else if (oProperties.azimuth && !isNaN(parseFloat(oProperties.azimuth)))
+                        {
+                            mods.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = [parseFloat(oProperties.azimuth)];
+                            //make sure the azimuth is a number in tge object sent by the api
+                        }
+                        else
+                        {
+                            mods.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = [0];
+                        }
+                    }
                 }
                 else
                 {
                     mods.modifiers = {};
                 }
+
+                var basicSymbolId = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(args[index].symbolCode);
+                var symbolDefTable = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(basicSymbolId, standard);
                 // convert the map view into distance in meters from left to right.
                 // We use this calculation to determine how many meters the map currently
                 // shows on screen.  When we draw the symbol, some symbols require a width.
@@ -8925,6 +9031,21 @@ function EmpCesium()
                 //{
 //                standard = cesiumEngine.utils.checkSymbolStandard(modstring);
                 args[index].coordinates = cesiumEngine.utils.convertMilStdMultiPointCoordsToString(args[index].data.geometry || args[index].data);
+//                
+//                 if (symbolDefTable && symbolDefTable.maxPoints === 1)
+//                {
+//                    //var geoData =  emp.helpers.copyObject(args[index].data.geometry || args[index].data);
+//                    var geoData =  args[index].data.geometry || args[index].data;
+//                    // the core is sending a bad type for this case of just one position. Fix it here so it can convert from geojson to object coordinates and then to string
+//                    geoData.type = "Point";
+//                }
+//                else
+//                {
+                //var geoData =  emp.helpers.copyObject(args[index].data.geometry || args[index].data);
+                var geoData = args[index].data.geometry || args[index].data;
+                //geoData.type = "LineString";
+                // }
+                args[index].coordinates = cesiumEngine.utils.convertMilStdMultiPointCoordsToString(geoData);
                 var controlPoints = args[index].coordinates;
 //                if (!(this.scene.mode === this.SceneMode.SCENE2D) && this.isSkyWithinMapVisibleArea)
 //                {
@@ -8996,8 +9117,6 @@ function EmpCesium()
                         }
                     }
                 }
-                var basicSymbolId = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(args[index].symbolCode);
-                var symbolDefTable = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(basicSymbolId, standard);
 //            if (symbolDefTable.drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)
 //            {
 //                // reverse order of AM from [width, height] to [height, width] to be compatible to renderer.
@@ -9518,13 +9637,13 @@ function EmpCesium()
 
                 var rgbaLineColor = undefined;
 
-                if (args.data.properties.lineColor)
+                if (args.data.properties.lineColor && entity.descrption !== "buffer")
                 {
                     rgbaLineColor = cesiumEngine.utils.hexToRGB(args.data.properties.lineColor);
                     entity.ellipse.outline = new this.ConstantProperty(true);
                     entity.ellipse.outlineColor = new this.Color(rgbaLineColor.r, rgbaLineColor.g, rgbaLineColor.b, rgbaLineColor.a);
                 }
-                else if (!this.defined(entity.ellipse.outlineColor))
+                else if (!this.defined(entity.ellipse.outlineColor) && entity.descrption !== "buffer")
                 {
                     entity.ellipse.outline = new this.ConstantProperty(true);
                     entity.ellipse.outlineColor = EmpCesiumConstants.propertyDefaults.LINE_COLOR;
@@ -9848,6 +9967,7 @@ function EmpCesium()
                         presentChildEntity.billboard = entity.billboard;
                         presentChildEntity.point = entity.point;
                         presentChildEntity.position = entity.position;
+                        presentChildEntity.ellipse = entity.ellipse;
                         presentChildEntity.description = entity.description;
                     }
                 }
@@ -12789,7 +12909,8 @@ function EmpCesium()
                                         altitudeMode: multipoint.altitudeMode,
                                         data: multipoint.data,
                                         multiPointRenderType: multipoint.multiPointRenderType,
-                                        extrudedHeight: multipoint.extrudedHeight
+                                        extrudedHeight: multipoint.extrudedHeight,
+                                        hasBuffer: multipoint.hasBuffer
                                     };
                                     args.bounds = {"west": this.Math.toDegrees(mapExtent.west),
                                         "south": this.Math.toDegrees(mapExtent.south),
