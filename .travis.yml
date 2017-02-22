@@ -27,6 +27,7 @@ deploy:
     skip_cleanup: true
     script: chmod +X ./scripts/deployGHPages.sh && ./scripts/deployGHPages.sh
     on:
+      repo: missioncommand/missioncommand.github.io
       branch:
-      - master
-      - feature/emp3-web#90-deploy-devguide
+        - master
+        - feature/emp3-web#90-deploy-devguide
