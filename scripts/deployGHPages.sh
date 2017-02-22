@@ -2,9 +2,11 @@
 
 echo "kiss kiss"
 echo '$0 = ' $0
+echo '$1 = ' $1
 echo 'KEY = ' $GITHUB_API_KEY
-echo 'REPO' $GH_PAGES_REPO
+echo 'REPO = ' $GH_PAGES_REPO
 echo 'THE_COW_SAYS' $THE_COW_SAYS
+echo 'THE_DOG_SAYS' $THE_DOG_SAYS
 echo "bang bang"
 
 set -o errexit -o nounset
