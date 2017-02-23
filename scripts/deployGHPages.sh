@@ -30,4 +30,4 @@ git remote add upstream "https://${MCIO_GITHUB_API_KEY}@github.com/${GH_PAGES_RE
 # Deploy
 echo ""
 echo "Pushing changes"
-git push -q upstream HEAD:gh-pages
+git push -q upstream HEAD:master
