@@ -10,6 +10,7 @@ env:
 
 before_script:
   - npm install -g grunt-cli
+
 script:
   - grunt release
 
@@ -19,15 +20,16 @@ deploy:
     skip_cleanup: true
     file_glob: true
     file:
-    - dist/zips/EMP3 Developer Guide.zip
-    - dist/zips/emp3-map.zip
-    - dist/zips/emp3-jsdocs.zip
+      - dist/zips/EMP3 Developer Guide.zip
+      - dist/zips/emp3-map.zip
+      - dist/zips/emp3-jsdocs.zip
     on:
       tags: true
+
   # GH Pages Deployment
   - provider: script
     skip_cleanup: true
-    script: chmod +X ./scripts/deployGHPages.sh && ./scripts/deployGHPages.sh
+    script: chmod +X ./scripts/deployGHPages.sh && . ./scripts/deployGHPages.sh
     on:
       branch:
         - master
