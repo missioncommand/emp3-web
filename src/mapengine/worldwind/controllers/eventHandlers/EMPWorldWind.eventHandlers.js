@@ -8,18 +8,18 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  * @param {context} scope
  * @returns {Function}
  */
-EMPWorldWind.eventHandlers.throttle = function (fn, threshold, scope) {
+EMPWorldWind.eventHandlers.throttle = function(fn, threshold, scope) {
   threshold = threshold || 20; // 20 ms throttle
   var last, deferTimer;
 
-  return function () {
+  return function() {
     var context = scope || this;
 
     var now = +new Date,
       args = arguments;
     if (last && now < last + threshold) {
       clearTimeout(deferTimer);
-      deferTimer = setTimeout(function () {
+      deferTimer = setTimeout(function() {
         last = now;
         fn.apply(context, args);
       }, threshold);
@@ -50,7 +50,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
       lat: this.worldWind.navigator.lookAtLocation.latitude,
       lon: this.worldWind.navigator.lookAtLocation.longitude
     },
-    bounds: this.worldWind.viewport
+    bounds: this.getBounds()
   };
 
   var lookAt = {
@@ -64,32 +64,29 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
 
   this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
 
-  // TODO Throttle this call
-  //EMPWorldWind.eventHandlers.checkIfRenderRequired.call(this);
+  EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
 };
 
 /**
  * Notify the that a re-render of the MilStd graphics is required based off of a delta from the last time the renderer
  * was called. This may trigger based on altitude delta or distance delta.
+ * @this EMPWorldWind.map
  */
-EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
-  // TODO see if this approach can be tuned to be more accurate
-  var altitudeDeltaMin = this.state.lastRender.altitude - this.state.lastRender.altitude * 0.3;
-  var altitudeDeltaMax = this.state.lastRender.altitude + this.state.lastRender.altitude * 0.3;
+EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
+  // TODO trigger this less often or on a timer
+  this.state.lastRender.bounds = this.getBounds();
+  this.state.lastRender.altitude = this.worldWind.navigator.range;
 
-  var reRender = this.worldWind.navigator.range < altitudeDeltaMin || this.worldWind.navigator.range > altitudeDeltaMax;
+  emp.util.each(Object.keys(this.features), function(featureId) {
+    var feature = this.features[featureId];
 
-  if (reRender) {
-    // Update the last render location
-    this.state.lastRender.location = new WorldWind.Location(
-      this.worldWind.navigator.lookAtLocation.latitude,
-      this.worldWind.navigator.lookAtLocation.longitude);
-
-    this.state.lastRender.altitude = this.worldWind.navigator.range;
-
-    // TODO trigger re-render
-    // this.refresh();
-  }
+    // TODO check if the symbol is visible first
+    if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
+      feature.feature.data.type === "LineString") {
+      this.plotFeature(feature.feature);
+    }
+  }.bind(this));
+  this.worldWind.redraw();
 };
 
 /**

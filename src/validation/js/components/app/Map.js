@@ -33,16 +33,40 @@ const spec = {
 
     featureArgs.positions = [origin];
 
+    let nextPoint, finalPoint;
+
     if (symbolDef && symbolDef.maxPoints) {
-      for (let i = 1; i < Math.min(symbolDef.maxPoints, 5); i++) {
-        let nextPoint = _.clone(origin);
+      switch (Math.min(symbolDef.maxPoints, 5)) {
+        case 5:
+          for (let i = 1; i < 4; i++) {
+            nextPoint = _.clone(origin);
 
-        if (i%2 !== 0) {
-          nextPoint.latitude += step;
-        }
+            if (i%2 !== 0) {
+              nextPoint.latitude += step;
+            }
 
-        nextPoint.longitude += i * step;
-        featureArgs.positions.push(nextPoint);
+            nextPoint.longitude += i * step;
+            featureArgs.positions.push(nextPoint);
+          }
+          finalPoint = _.clone(nextPoint);
+          finalPoint.latitude -= 2 * step;
+          featureArgs.positions.push(finalPoint);
+          break;
+        case 4:
+        case 3:
+        case 2:
+        case 1:
+        default:
+          for (let i = 1; i < Math.min(symbolDef.maxPoints, 5); i++) {
+            nextPoint = _.clone(origin);
+
+            if (i%2 !== 0) {
+              nextPoint.latitude += step;
+            }
+
+            nextPoint.longitude += i * step;
+            featureArgs.positions.push(nextPoint);
+          }
       }
     }
 
