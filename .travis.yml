@@ -13,9 +13,6 @@ before_script:
 script:
   - grunt release
 
-before_deploy:
-  - chmod +X ./scripts/deployGHPages.sh
-
 deploy:
   # GitHub Releases Deployment
   - provider: releases
@@ -30,7 +27,7 @@ deploy:
   # GH Pages Deployment
   - provider: script
     skip_cleanup: true
-    script: ./scripts/deployGHPages.sh
+    script: chmod +X ./scripts/deployGHPages.sh && ./scripts/deployGHPages.sh
     on:
       branch:
         - master
