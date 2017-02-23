@@ -33,4 +33,3 @@ deploy:
     on:
       branch:
         - master
-        - feature/emp3-web#90-deploy-devguide
