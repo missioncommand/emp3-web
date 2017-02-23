@@ -2937,8 +2937,7 @@ function EmpCesium()
         var result = {
             success: true
         },
-        options = {}, useProxy = true,
-                useProxy = true, // proxy active by default
+        options = {}, useProxy = false,
                 layer;
         try
         {
@@ -10890,6 +10889,31 @@ function EmpCesium()
         if (this.currentExtent && (!isNaN(parseFloat(this.currentExtent.west)) && !isNaN(parseFloat(this.currentExtent.south)) && !isNaN(parseFloat(this.currentExtent.east)) && !isNaN(parseFloat(this.currentExtent.north))))
         {
             return this.currentExtent;
+        }
+        rect = this.scene.camera.computeViewRectangle(this.scene.globe.ellipsoid);
+        if (!rect)
+        {
+            rect = this.getExtentApproximation();
+        }
+        else if (rect.equals(this.Rectangle.MAX_VALUE))
+        {
+            // sec renderer throw errors when using max value for rectangle.
+            // Get an approximation that is going to be smaller
+            rect = this.getExtentApproximation();
+        }
+
+        this.currentExtent = rect;
+        return  this.currentExtent;
+    };
+    
+    
+    
+    this.getSmartMoveExtent = function ()
+    {
+        var rect;
+        if (this.currentSmartMoveExtent && (!isNaN(parseFloat(this.currentSmartMoveExtent.west)) && !isNaN(parseFloat(this.currentSmartMoveExtent.south)) && !isNaN(parseFloat(this.currentSmartMoveExtent.east)) && !isNaN(parseFloat(this.currentSmartMoveExtent.north))))
+        {
+            return this.currentSmartMoveExtent;
         }
         rect = this.scene.camera.computeViewRectangle(this.scene.globe.ellipsoid);
         if (!rect)
