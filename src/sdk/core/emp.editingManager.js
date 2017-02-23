@@ -50,7 +50,6 @@ emp.editingManager = function(args) {
       feature = emp.storage.get.id({
         id: editTransaction.items[0].originFeature.coreId
       });
-      //feature = emp.storage.findFeature(null, editTransaction.items[0].featureId);
 
       // copy the feature.  we do not want to modify the original feature in
       // the transaction.  This feature will track the current state.
@@ -59,6 +58,11 @@ emp.editingManager = function(args) {
         feature = emp.helpers.copyObject(feature);
         // The feature prior to any changes occurring.
         originalFeature = emp.helpers.copyObject(feature);
+        // set the coreParent to undefined and overlayId to be ALL_PARENTS.
+        // By doing this we indicate
+        // that this typeLibrary.Feature is intended to be an update.
+        originalFeature.coreParent = undefined;
+        originalFeature.overlayId = emp.constant.parentIds.ALL_PARENTS;
       }
 
       // Determine if this is a MIL Symbol.  The mil symbol categories can greatly
@@ -291,7 +295,7 @@ emp.editingManager = function(args) {
 
       } // If we are dragging a control point, we don't want
       // any events going out, because it is not a feature.
-      else if (activeEditor.isControlPoint(featureId)) {        
+      else if (activeEditor.isControlPoint(featureId)) {
         updateData = activeEditor.startMoveControlPoint(featureId, pointer);
 
         if (updateData) {
