@@ -12,6 +12,10 @@ before_script:
   - npm install -g grunt-cli
 script:
   - grunt release
+
+before_deploy:
+  - chmod +X ./scripts/deployGHPages.sh
+
 deploy:
   # GitHub Releases Deployment
   - provider: releases
@@ -26,9 +30,8 @@ deploy:
   # GH Pages Deployment
   - provider: script
     skip_cleanup: true
-    script: chmod +X ./scripts/deployGHPages.sh && ./scripts/deployGHPages.sh
+    script: ./scripts/deployGHPages.sh
     on:
-      repo: missioncommand/emp3-web
       branch:
         - master
         - feature/emp3-web#90-deploy-devguide

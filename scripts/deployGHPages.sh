@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -o errexit -o nounset
+set -o errexit
 
 # Config the git user
 git config --global user.name "missioncommandbot"
