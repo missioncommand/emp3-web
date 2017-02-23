@@ -71,7 +71,7 @@ EMPWorldWind.data.EmpFeature.prototype.shapesCount = function() {
 
 /**
  *
- * @param {WorldWind.SurfaceShape|WorldWind.SurfaceShape[]|*} primitives
+ * @param {WorldWind.SurfaceShape|WorldWind.SurfaceShape[]} primitives
  */
 EMPWorldWind.data.EmpFeature.prototype.addShapes = function(primitives) {
   if (!Array.isArray(primitives)) {

@@ -135,7 +135,6 @@ emp.engineDefs.cesiumMapEngine = function (args)
         PULSE_SOFT_LIMIT: 250,
         PULSE_HARD_LIMIT: 300
     };
-    
     engineInterface.capture.screenshot = function (transaction)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
@@ -1377,7 +1376,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
         {
             failList.push(new emp.typeLibrary.Error({
                 coreId: transaction.coreId,
-                message: "An error occurred when attempting to stop the drawing.",
+                message: "An error occured when attempting to stop the drawing.",
                 level: emp.typeLibrary.Error.level.MINOR,
                 jsError: err
             }));

@@ -56,12 +56,6 @@ EMPWorldWind.map = function(wwd) {
      * Object for holding state to compute when MilStdSymbols should be re-rendered
      */
     lastRender: {
-      bounds: {
-        north: 0,
-        south: 0,
-        east: 0,
-        west: 0
-      },
       altitude: 0
     },
     /**
@@ -119,15 +113,6 @@ EMPWorldWind.map = function(wwd) {
   this.layer = undefined;
 };
 
-// typedefs ============================================================================================================
-/**
- * @typedef {object} SelectionStyle
- * @property {number} scale
- * @property {string|undefined} lineColor
- * @property {string|undefined} fillColor
- */
-//======================================================================================================================
-
 /**
  * Creates the initial layers
  * @param {emp.map} map
@@ -149,7 +134,6 @@ EMPWorldWind.map.prototype.initialize = function(map) {
   whiteContrastLayer.attributes.drawOutline = false;
 
   this.contrastLayer = new WorldWind.RenderableLayer('contrast layer');
-  this.contrastLayer.pickEnabled = false;
   this.worldWind.addLayer(this.contrastLayer);
 
   this.contrastLayer.addRenderable(whiteContrastLayer);
@@ -179,8 +163,6 @@ EMPWorldWind.map.prototype.initialize = function(map) {
       }
     }
   }
-
-  EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
 };
 
 /**
@@ -296,8 +278,7 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
 
   if (args.animate) {
     this.goToAnimator.travelTime = EMPWorldWind.constants.globeMoveTime;
-    this.goToAnimator.goTo(position, args.animateCB || function() {
-      });
+    this.goToAnimator.goTo(position, args.animateCB || function() { });
   } else {
     this.goToAnimator.travelTime = 0;
     this.goToAnimator.goTo(position);
@@ -908,7 +889,7 @@ EMPWorldWind.map.prototype.refresh = function() {
   //   if (this.features.hasOwnProperty(featureId)) {
   //     feature = this.features[featureId];
   //
-  //     // TODO check if it is visible first
+  //     // TODO check if it is visible first1
   //     //EMPWorldWind.editors.EditorController.updateRender.call(this, feature);
   //   }
   // }
@@ -950,7 +931,7 @@ EMPWorldWind.map.prototype.setLockState = function(lockState) {
 /**
  * Spins the globe if autoPanning is enabled
  */
-EMPWorldWind.map.prototype.spinGlobe = function() {
+EMPWorldWind.map.prototype.spinGlobe = function () {
   var vertical = 0,
     horizontal = 0;
 
@@ -987,57 +968,8 @@ EMPWorldWind.map.prototype.spinGlobe = function() {
 };
 
 /**
- * Returns a data URI of the current view of the canvas
- * @returns {string}
+ * @typedef {object} SelectionStyle
+ * @property {number} scale
+ * @property {string|undefined} lineColor
+ * @property {string|undefined} fillColor
  */
-EMPWorldWind.map.prototype.screenshot = function() {
-  return this.worldWind.canvas.toDataURL();
-};
-
-/**
- * Calculate the current bounds of the WorldWindow
- * @returns {Bounds}
- */
-EMPWorldWind.map.prototype.getBounds = function() {
-  var topRight, bottomLeft;
-
-  // Check the viewport corners
-  topRight = this.worldWind.pickTerrain(new WorldWind.Vec2(this.worldWind.viewport.width - 1, 1)).terrainObject();
-  bottomLeft = this.worldWind.pickTerrain(new WorldWind.Vec2(1, this.worldWind.viewport.height -1)).terrainObject();
-
-  // If the corners don't contain the globe assume we are zoomed very far out, estimate an arbitrary rectangle
-  if (!topRight) {
-    topRight = {
-      position: WorldWind.Location.linearLocation(
-        this.worldWind.navigator.lookAtLocation,
-        this.worldWind.navigator.heading + 45,
-        Math.PI / 3,
-        new WorldWind.Location())
-    };
-  }
-
-  if (!bottomLeft) {
-    bottomLeft = {
-      position: WorldWind.Location.linearLocation(
-        this.worldWind.navigator.lookAtLocation,
-        this.worldWind.navigator.heading + 45,
-        -Math.PI / 3,
-        new WorldWind.Location())
-    };
-  }
-
-  return {
-    north: topRight.position.latitude,
-    south: bottomLeft.position.latitude,
-    east: topRight.position.longitude,
-    west: bottomLeft.position.longitude
-  };
-};
-
-/**
- * Returns the center of focus of the map
- * @returns {{latitude: number, longitude:number}}
- */
-EMPWorldWind.map.prototype.getCenter = function() {
-  return this.worldWind.navigator.lookAtLocation;
-};

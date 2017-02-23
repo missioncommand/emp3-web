@@ -2884,12 +2884,12 @@ function EmpCesium()
      * @param {string} args.id - The id of the kml object to be added.
      * @param {string} args.overlayId - The id of the overlay the kml is to be added to.
      * @param {string} args.kmlString - The kml string to be added to the overlay.
-     * @param {object} args.properties - Properties to modify the kml to be added.
+     * @param {objcet} args.properties - Properties to modify the kml to be added.
      * @param {@link Feature} args.feature - The original {@link Feature} passed in.
      *
      * @returns {object} result - The resulting object to be returned.
      * @returns {boolean} result.success - Describes if the kml was added or not.
-     * @returns {string} result.message - Description of error that occurred.
+     * @returns {string} result.message - Description of error that occured.
      * @returns {object} result.jsError - Object returned from a caught javascript exception.
      */
     this.addKmlToOverlay = function (args)
@@ -5658,7 +5658,7 @@ function EmpCesium()
      * @returns {object} result - The resulting object.
      * @returns {string} result.message - A description of why the function failed.
      * @returns {object} result.jsError - A caught javascript exception.
-     * @returns {string} result.error - A description of the error that occurred
+     * @returns {string} result.error - A description of the error that occured
      */
     this.zoomToBounds = function (item)
     {

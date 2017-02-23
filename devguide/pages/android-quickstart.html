@@ -1,0 +1,95 @@
+<div class="mdl-grid" style="max-width: 1024px">
+    <div class="mdl-cell mdl-cell--12-col">
+        <h2>Hello World for EMP3 Android</h2>
+        <p>For the simplese example of using EMP3 within an android application you can use the docuemtnation below which is extracted from a working example avaiable to download and build from source at:
+            <a href="https://stash.di2e.net/projects/EMP/repos/emp3-android-examples/browse/HelloEmp3?at=development" target="_blank">https://stash.di2e.net/projects/EMP/repos/emp3-android-examples/browse/HelloEmp3?at=development</a>
+        </p>
+        <h3>Hello World manifest file</h3>
+        <pre style="width: 100%; height: 450px;" id="editor">
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;manifest xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    package=&quot;mil.emp3.hello&quot;&gt;
+
+    &lt;uses-permission android:name=&quot;android.permission.INTERNET&quot; /&gt;
+    &lt;uses-permission android:name=&quot;android.permission.WRITE_EXTERNAL_STORAGE&quot; /&gt;
+
+    &lt;application
+        android:allowBackup=&quot;true&quot;
+        android:icon=&quot;@mipmap/ic_launcher&quot;
+        android:label=&quot;@string/app_name&quot;
+        android:supportsRtl=&quot;true&quot;
+        android:theme=&quot;@style/AppTheme&quot;&gt;
+        &lt;activity android:name=&quot;.HelloEmp3Activity&quot;
+            android:configChanges=&quot;keyboard|keyboardHidden|orientation|screenSize&quot;&gt;
+            &lt;intent-filter&gt;
+                &lt;action android:name=&quot;android.intent.action.MAIN&quot; /&gt;
+
+                &lt;category android:name=&quot;android.intent.category.LAUNCHER&quot; /&gt;
+            &lt;/intent-filter&gt;
+        &lt;/activity&gt;
+    &lt;/application&gt;
+
+&lt;/manifest&gt;
+</pre>
+        <h3>Hello World layout file</h3>
+
+        <pre style="width: 100%; height: 400px;" id="editor1">
+
+&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;
+&lt;LinearLayout xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+    xmlns:tools=&quot;http://schemas.android.com/tools&quot;
+    android:layout_width=&quot;match_parent&quot;
+    android:layout_height=&quot;match_parent&quot;
+    android:orientation=&quot;vertical&quot;
+    tools:context=&quot;mil.emp3.hello.HelloEmp3Activity&quot;&gt;
+
+
+
+    &lt;fragment xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;
+        xmlns:app=&quot;http://schemas.android.com/apk/res-auto&quot;
+        android:id=&quot;@+id/wwmap&quot;
+        class=&quot;mil.emp3.api.MapFragment&quot;
+        app:map_engine_name=&quot;mil.emp3.worldwind.MapInstance&quot;
+        app:map_engine_apk_name=&quot;mil.emp3.worldwind&quot;
+        android:layout_width=&quot;match_parent&quot;
+        android:layout_height=&quot;match_parent&quot;
+        android:layout_weight=&quot;1&quot;/&gt;
+
+
+&lt;/LinearLayout&gt;</pre>
+        <h3>Hello World activity file</h3>
+        <pre style="width: 100%; height: 300px;" id="editor2">
+
+package mil.emp3.hello;
+
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+
+public class HelloEmp3Activity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_hello_emp3);
+    }
+}
+</pre>
+        <script>
+        var editor = ace.edit("editor");
+        editor.session.setMode("ace/mode/xml");
+        editor.setOption("wrap", true);
+        editor.setReadOnly(true);
+
+        var editor1 = ace.edit("editor1");
+        editor1.session.setMode("ace/mode/xml");
+        editor1.setOption("wrap", true);
+        editor1.setReadOnly(true);
+
+        var editor2 = ace.edit("editor2");
+        editor2.session.setMode("ace/mode/java");
+        editor2.setOption("wrap", true);
+        editor2.setReadOnly(true);
+        </script>
+    </div>
+</div>

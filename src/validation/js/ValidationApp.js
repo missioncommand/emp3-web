@@ -31,16 +31,6 @@ import {
 import {addCamera} from './actions/CameraActions';
 import {addLookAt} from './actions/LookAtActions';
 
-// This fixes the load time on the config object
-const waitForConfig = function() {
-  if (!empConfig.engines) {
-    setTimeout(waitForConfig.bind(this), 50);
-  } else {
-    componentHandler.upgradeDom();
-    this.forceUpdate();
-  }
-};
-
 class ValidationApp extends Component {
 
   // React functions and events ========================================================================================
@@ -78,7 +68,6 @@ class ValidationApp extends Component {
 
   componentDidMount() {
     document.addEventListener('mouseup', this.handleMouseUp);
-    waitForConfig.call(this);
   }
 
   componentDidUpdate() {

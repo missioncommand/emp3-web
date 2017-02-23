@@ -6,14 +6,6 @@ var EMPWorldWind = EMPWorldWind || {};
 EMPWorldWind.utils = {};
 
 /**
- * @typedef {object} RGBAColor
- * @property {number} r
- * @property {number} g
- * @property {number} b
- * @property {number} a 0-1
- */
-
-/**
  *
  * @param {MouseEvent} event
  * @returns {{lat: undefined, lon: undefined, clientX: *, clientY: *, screenX: *, screenY: *}}
@@ -797,23 +789,10 @@ EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
 };
 
 /**
- * Returns the east-west distance of the bounds
- * @param {Bounds} bounds
- * @returns {number}
+ * @typedef {object} RGBAColor
+ * @property {number} r
+ * @property {number} g
+ * @property {number} b
+ * @property {number} a 0-1
  */
-EMPWorldWind.utils.boundsWidth = function(bounds) {
-  return WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
-      new WorldWind.Location(0, bounds.west),
-      new WorldWind.Location(0, bounds.east));
-};
 
-/**
- * Returns the north-south distance of the bounds
- * @param {Bounds} bounds
- * @returns {number}
- */
-EMPWorldWind.utils.boundsHeight = function(bounds) {
-  return WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
-      new WorldWind.Location(bounds.south, 0),
-      new WorldWind.Location(bounds.north, 0));
-};

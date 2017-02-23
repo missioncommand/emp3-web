@@ -68,7 +68,6 @@ function initializeWorldwind(args) {
       "data/EMPWorldWind.data.EmpFeature.js",
       "utils/EMPWorldWind.constants.js",
       "utils/EMPWorldWind.utils.js",
-      "controllers/editors/EMPWorldWind.editors.primitiveBuilders.js",
       "controllers/editors/EMPWorldWind.editors.EditorController.js",
       "controllers/eventHandlers/EMPWorldWind.eventHandlers.js",
       "controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
