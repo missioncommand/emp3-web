@@ -142,15 +142,15 @@ function EmpCesium()
     this.enableClusterIcon = true;
     this.currentMultiPointEditorRenderGraphicFuction;
     this.bMartMapMoving = false;
-    this.bMartMapMoving;
-    this.bSmartMapMovingRightZone;
-    this.bSmartMapMovingLeftZone;
-    this.bSmartMapMovingTopZone;
-    this.bSmartMapMovingBottomZone;
-    this.bSmartMapMovingTopRightZone;
-    this.bSmartMapMovingBottomRightZone;
-    this.bSmartMapMovingTopLeftZone;
-    this.bSmartMapMovingBottomLeftZone;
+    this.bSmartMapMovingRightZone = false;
+    this.bSmartMapMovingLeftZone = false;
+    this.bSmartMapMovingTopZone = false;
+    this.bSmartMapMovingBottomZone = false;
+    this.bSmartMapMovingTopRightZone = false;
+    this.bSmartMapMovingBottomRightZone = false;
+    this.bSmartMapMovingTopLeftZone = false;
+    ;
+    this.bSmartMapMovingBottomLeftZone = false;
     this.startMousePosition = undefined;
     this.mousePosition = undefined;
     // this.cesiumConverter;
@@ -13139,8 +13139,41 @@ var CesiumRenderOptimizer = function (empCesium)
                 var lookFactor = 0.05;
                 empCesium.viewer.camera.lookRight(x * lookFactor);
                 empCesium.viewer.camera.lookUp(y * lookFactor);
+
+                if (empCesium.bSmartMapMovingRightZone)
+                {
+                    
+                }
+                else if (empCesium.bSmartMapMovingLeftZone)
+                {
+                    
+                }
+                else if (empCesium.bSmartMapMovingTopZone)
+                {
+                    
+                }
+                else if (empCesium.bSmartMapMovingBottomZone)
+                {
+                    
+                }
+                else if (empCesium.bSmartMapMovingTopRightZone)
+                {
+                    
+                }
+                else if (empCesium.bSmartMapMovingBottomRightZone)
+                {
+                    
+                }
+                else if (empCesium.bSmartMapMovingTopLeftZone)
+                {
+                    
+                }
+                else if (empCesium.bSmartMapMovingBottomLeftZone)
+                {
+                    
+                }
                 //empCesium.viewer.camera.twistRight(Cesium.Math.toRadians(10.0));
-                empCesium.viewer.camera.rotate(new Cesium.Cartesian3(0, 0, 0), Cesium.Math.toRadians(10.0));
+                //empCesium.viewer.camera.rotate(new Cesium.Cartesian3(0, 0, 0), Cesium.Math.toRadians(10.0));
             }
             //var orientation =
             if (empCesium.isMapMoving())
