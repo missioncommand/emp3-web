@@ -18,8 +18,6 @@ deploy:
   - provider: releases
     skip_cleanup: true
     file_glob: true
-    api_key:
-      secure: e+j716l8j/kmFkpgzfg5k4b4FMntb/5tkt7kQ/eHjUCVI1wF8vs1B1f/rOKWuEXnXfHFuhifOAaop3hkTTjmnvN3KOUD90jMTqKp6fOGZsHh+BMwl7/F94mB7m5ilDkvcgdJzS3glhgS5sPXnhctle5DxzwXNTVAgUZpAawMWitZYSmoJEd+iA8g/jiEGEu0xgRDH8e/KWHVKy7VTyY2KqKAkszMEBapOsJvPYnZXjr2WJu69tw7fJDXktJ3adIXA2/qXxNoGJs2ocIoE9dx6lDkDUbnC9bEV1NPiEOlP1utLvAGrWhHwnfSFqQW5dtP5x6XuDUoYLwPHKiSFYWF6eXxQVO8wuwGtPHokB+08dsUyH18FvHhv+f2AONajtpTlm5LiCyxCVSuSMsEyQX6d6gF+Y2H18x6iJY67h7lrg/79ktYxZWKWojxxfAxrabPCL1wGAjgFA+imspRo/O4s9dcnWqumalKPqt0ZopinNGYq4XgAVEZrq9a86d6wN0p0vaiKXPLgc/v2hAeppsY82u7D7BICFE8nGo21+ODWHp+lu5oWy9jqkzr8wBvmXpGybsuGv8h0pmLMJGDfTiJk9E+sm1mE4OmLFBbGnDhh+LcTxExiDxERXCxDuIuS6KaKsMUCrJssQIgN+49hSzxN5Y8YZedi+ogMKjqqxKmsj8=
     file:
       - dist/zips/EMP3 Developer Guide.zip
       - dist/zips/emp3-map.zip
