@@ -58,11 +58,14 @@ emp.editingManager = function(args) {
         feature = emp.helpers.copyObject(feature);
         // The feature prior to any changes occurring.
         originalFeature = emp.helpers.copyObject(feature);
+
         // set the coreParent to undefined and overlayId to be ALL_PARENTS.
         // By doing this we indicate
         // that this typeLibrary.Feature is intended to be an update.
         originalFeature.coreParent = undefined;
         originalFeature.overlayId = emp.constant.parentIds.ALL_PARENTS;
+        feature.coreParent = undefined;
+        feature.overlayId = emp.constant.parentIds.ALL_PARENTS;
       }
 
       // Determine if this is a MIL Symbol.  The mil symbol categories can greatly
