@@ -141,6 +141,9 @@ function EmpCesium()
     this.secRendererWorker.lastSelected = EmpCesiumConstants.RendererWorker.B;
     this.enableClusterIcon = true;
     this.currentMultiPointEditorRenderGraphicFuction;
+    this.isMartMapMoving = false;
+    this.startMousePosition = undefined;
+    this.mousePosition = undefined;
     // this.cesiumConverter;
     this.drawData = {
         transaction: null,
@@ -1046,6 +1049,37 @@ function EmpCesium()
         }
         return isWithin;
     };
+
+    this.isMouseWithinSmartMoveDetectionZone = function (args)
+    {
+        var isWithin = false,
+                isXWithin = false,
+                isYWithin = false,
+                zoneWidthInPixels = 100,
+                position = args.endPosition || args.position;
+
+        if (this.defined(position))
+        {
+            isXWithin = (position.x >= this.canvas.width - zoneWidthInPixels && position.x <= this.canvas.width) || //&& (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ||
+                    (position.x >= 0 && position.x <= zoneWidthInPixels); // && (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ;
+
+            isYWithin = (position.y >= this.canvas.height - zoneWidthInPixels && position.y <= this.canvas.height) || //&& (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ||
+                    (position.y >= 0 && position.y <= zoneWidthInPixels);
+        }
+
+        isWithin = isXWithin || isYWithin;
+//        if (isWithin)
+//        {
+//            console.log(args.domEvent.originalTarget.localName);
+//        }
+        if (isWithin && args.domEvent && args.domEvent.target && args.domEvent.target.localName !== "canvas")
+        {
+            isWithin = false;// is withinn but mouse event is occurring over another object (another div tag, compass, pop up window, etc.
+            //send false so the event is not  propagated to core.
+        }
+        return isWithin;
+    };
+
     this.getDefaultSkyBoxUrl = function (suffix)
     {
         return this.buildModuleUrl('Assets/Textures/SkyBox/tycho2t3_80_' + suffix + '.jpg');
@@ -1950,8 +1984,23 @@ function EmpCesium()
                 // leftDown
                 handler.setInputAction(function (event)
                 {
+                    this.mousePosition = this.startMousePosition = event.endPosition || event.position;
                     if (this.isMouseWithinCanvas(event))
                     {
+
+                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION && this.isMouseWithinSmartMoveDetectionZone(event))
+                        {
+                            this.scene.screenSpaceCameraController.enableRotate = true;
+                            this.scene.screenSpaceCameraController.enableTranslate = true;
+                            this.scene.screenSpaceCameraController.enableZoom = true;
+                            this.scene.screenSpaceCameraController.enableTilt = true;
+                            this.scene.screenSpaceCameraController.enableLook = true;
+                            //this.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                            this.viewer.cesiumNavigation.setNavigationLocked(false);
+                            this.isMartMapMoving = true;
+                        }
+
+
                         var callbackData = {
                             button: "left",
                             position: {
@@ -2024,6 +2073,18 @@ function EmpCesium()
                 {
                     if (this.isMouseWithinCanvas(event))
                     {
+                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION)
+                        {
+                            this.scene.screenSpaceCameraController.enableRotate = false;
+                            this.scene.screenSpaceCameraController.enableTranslate = false;
+                            this.scene.screenSpaceCameraController.enableZoom = false;
+                            this.scene.screenSpaceCameraController.enableTilt = false;
+                            this.scene.screenSpaceCameraController.enableLook = false;
+                            //empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                            this.viewer.cesiumNavigation.setNavigationLocked(true);
+                            this.isMartMapMoving = false;
+                        }
+
                         var callbackData = {
                             button: "left",
                             position: {
@@ -2394,6 +2455,38 @@ function EmpCesium()
                 {
                     if (this.isMouseWithinCanvas(event))
                     {
+
+                        this.mousePosition = event.endPosition || event.position;
+//                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION && this.isMouseWithinSmartMoveDetectionZone(event))
+//                        {
+//                            var width = this.canvas.width;
+//                            var height = this.canvas.height;
+//                            var mousePosition = event.endPosition || event.position;
+//
+//                            // Coordinate (0.0, 0.0) will be where the mouse was clicked.
+//                            var x = (mousePosition.x - startMousePosition.x) / width;
+//                            var y = -(mousePosition.y - startMousePosition.y) / height;
+//
+//                        }
+//                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION && this.isMouseWithinSmartMoveDetectionZone(event))
+//                        {
+//                            this.scene.screenSpaceCameraController.enableTranslate = true;
+//                            this.scene.screenSpaceCameraController.enableZoom = true;
+//                            this.scene.screenSpaceCameraController.enableTilt = true;
+//                            this.scene.screenSpaceCameraController.enableLook = true;
+//                            //this.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+//                            //empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
+//                        }
+//                        else if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION && !this.isMouseWithinSmartMoveDetectionZone(event))
+//                        {
+//                            this.scene.screenSpaceCameraController.enableTranslate = false;
+//                            this.scene.screenSpaceCameraController.enableZoom = false;
+//                            this.scene.screenSpaceCameraController.enableTilt = false;
+//                            this.scene.screenSpaceCameraController.enableLook = false;
+//                            //empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+//                            //empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
+//                        }
+
                         var callbackData = {
                             button: "mousemove",
                             position: {
@@ -10905,9 +10998,9 @@ function EmpCesium()
         this.currentExtent = rect;
         return  this.currentExtent;
     };
-    
-    
-    
+
+
+
     this.getSmartMoveExtent = function ()
     {
         var rect;
@@ -13005,6 +13098,21 @@ var CesiumRenderOptimizer = function (empCesium)
         {
             //console.log("inside preRenderListener" );
             var position = empCesium.viewer.scene.camera.position;
+            if (empCesium.isMartMapMoving)
+            {
+                var width = empCesium.canvas.width;
+                var height = empCesium.canvas.height;
+
+                // Coordinate (0.0, 0.0) will be where the mouse was clicked.
+                var x = (empCesium.mousePosition.x - empCesium.startMousePosition.x) / width;
+                var y = -(empCesium.mousePosition.y - empCesium.startMousePosition.y) / height;
+
+                var lookFactor = 0.05;
+                empCesium.viewer.camera.lookRight(x * lookFactor);
+                empCesium.viewer.camera.lookUp(y * lookFactor);
+                //empCesium.viewer.camera.twistRight(Cesium.Math.toRadians(10.0));
+                empCesium.viewer.camera.rotate(new Cesium.Cartesian3(0, 0, 0), Cesium.Math.toRadians(10.0));
+            }
             //var orientation =
             if (empCesium.isMapMoving())
             {
