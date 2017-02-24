@@ -149,7 +149,6 @@ function EmpCesium()
     this.bSmartMapMovingTopRightZone = false;
     this.bSmartMapMovingBottomRightZone = false;
     this.bSmartMapMovingTopLeftZone = false;
-    ;
     this.bSmartMapMovingBottomLeftZone = false;
     this.startMousePosition = undefined;
     this.mousePosition = undefined;
@@ -1069,10 +1068,10 @@ function EmpCesium()
 
         if (this.defined(position))
         {
-            this.bSmartMapMovingRightZone = (position.x >= this.canvas.width - zoneWidthInPixels && position.x <= this.canvas.width); //&& (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ||
+            this.bSmartMapMovingRightZone = ((position.x >= (this.canvas.width - zoneWidthInPixels)) && position.x <= this.canvas.width); //&& (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ||
             this.bSmartMapMovingLeftZone = (position.x >= 0 && position.x <= zoneWidthInPixels); // && (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ;
-            this.bSmartMapMovingTopZone = (position.y >= this.canvas.height - zoneWidthInPixels && position.y <= this.canvas.height);
-            this.bSmartMapMovingBottomZone = (position.y >= 0 && position.y <= zoneWidthInPixels);
+            this.bSmartMapMovingTopZone = (position.y >= 0 && position.y <= zoneWidthInPixels);
+            this.bSmartMapMovingBottomZone = ((position.y >= (this.canvas.height - zoneWidthInPixels)) && position.y <= this.canvas.height);
             if (this.bSmartMapMovingRightZone && this.bSmartMapMovingTopZone)
             {
                 this.bSmartMapMovingTopRightZone = true;
@@ -1104,6 +1103,13 @@ function EmpCesium()
         if (this.bMartMapMoving && args.domEvent && args.domEvent.target && args.domEvent.target.localName !== "canvas")
         {
             this.bMartMapMoving = false;// is withinn but mouse event is occurring over another object (another div tag, compass, pop up window, etc.
+            this.bSmartMapMovingLeftZone = false;
+            this.bSmartMapMovingTopZone = false;
+            this.bSmartMapMovingBottomZone = false;
+            this.bSmartMapMovingTopRightZone = false;
+            this.bSmartMapMovingBottomRightZone = false;
+            this.bSmartMapMovingTopLeftZone = false;
+            this.bSmartMapMovingBottomLeftZone = false;
             //send false so the event is not  propagated to core.
         }
         return  this.bMartMapMoving;
@@ -2026,7 +2032,7 @@ function EmpCesium()
                             this.scene.screenSpaceCameraController.enableLook = true;
                             //this.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
                             this.viewer.cesiumNavigation.setNavigationLocked(false);
-                            this.bMartMapMoving = true;
+                            //this.bMartMapMoving = true;
                         }
 
 
@@ -2112,6 +2118,14 @@ function EmpCesium()
                             //empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
                             this.viewer.cesiumNavigation.setNavigationLocked(true);
                             this.bMartMapMoving = false;
+                            this.bSmartMapMovingRightZone = false;
+                            this.bSmartMapMovingLeftZone = false;
+                            this.bSmartMapMovingTopZone = false;
+                            this.bSmartMapMovingBottomZone = false;
+                            this.bSmartMapMovingTopRightZone = false;
+                            this.bSmartMapMovingBottomRightZone = false;
+                            this.bSmartMapMovingTopLeftZone = false;
+                            this.bSmartMapMovingBottomLeftZone = false;
                         }
 
                         var callbackData = {
@@ -13037,6 +13051,7 @@ var CesiumRenderOptimizer = function (empCesium)
      * @type {Boolean}
      */
     this.verboseRendering = false;
+    this.hProcessSmartMoveTimer = undefined;
     /**
      * Gets or sets whether the viewer has stopped rendering since startup or last set to false.
      * @type {Boolean}
@@ -13126,52 +13141,115 @@ var CesiumRenderOptimizer = function (empCesium)
         try
         {
             //console.log("inside preRenderListener" );
-            var position = empCesium.viewer.scene.camera.position;
+            var position = empCesium.viewer.scene.camera.position,
+                    cartographic;
             if (empCesium.bMartMapMoving)
             {
                 var width = empCesium.canvas.width;
                 var height = empCesium.canvas.height;
 
                 // Coordinate (0.0, 0.0) will be where the mouse was clicked.
-                var x = (empCesium.mousePosition.x - empCesium.startMousePosition.x) / width;
-                var y = -(empCesium.mousePosition.y - empCesium.startMousePosition.y) / height;
+                //var x = (empCesium.mousePosition.x - empCesium.startMousePosition.x) / width;
+                //var y = -(empCesium.mousePosition.y - empCesium.startMousePosition.y) / height;
+//                var x = empCesium.mousePosition.x;
+//                var y = empCesium.mousePosition.y;
 
-                var lookFactor = 0.05;
-                empCesium.viewer.camera.lookRight(x * lookFactor);
-                empCesium.viewer.camera.lookUp(y * lookFactor);
+                // var lookFactor = 0.05;
+                //empCesium.viewer.camera.lookRight(x * lookFactor);
+                //empCesium.viewer.camera.lookUp(y * lookFactor);
+//                cartographic = empCesium.getLonLatFromPixel({
+//                    x: x,
+//                    y: y
+//                });
 
-                if (empCesium.bSmartMapMovingRightZone)
+                if (!empCesium.defined(this.hProcessSmartMoveTimer))
                 {
-                    
+                    this.hProcessSmartMoveTimer = setTimeout(function ()
+                    {
+                        var cameraPositionCartographic = empCesium.scene.camera.positionCartographic,
+                         height = cameraPositionCartographic.height,
+                          latDegDelta = 0,
+                          longDegDelta = 0,
+                          bSkyVisible =  empCesium.isSkyWithinMapVisibleArea();
+                        
+                          this.hProcessSmartMoveTimer = undefined;
+                          
+                        if (bSkyVisible)
+                        {
+                             latDegDelta=  1;
+                             longDegDelta = 4;
+                        }
+                        else
+                        {
+                             latDegDelta = 1.5;
+                             longDegDelta = 2;
+                        }
+                        if (empCesium.bSmartMapMovingRightZone)
+                        {
+                            empCesium.viewer.scene.camera.rotateRight(empCesium.Math.toRadians(longDegDelta*.1));
+                        }
+                        else if (empCesium.bSmartMapMovingLeftZone)
+                        {
+                            empCesium.viewer.scene.camera.rotateLeft(empCesium.Math.toRadians(longDegDelta*.1));
+                        }
+                        else if (empCesium.bSmartMapMovingTopZone)
+                        {
+                            empCesium.viewer.scene.camera.rotateDown(empCesium.Math.toRadians(longDegDelta*.1));
+                        }
+                        else if (empCesium.bSmartMapMovingBottomZone)
+                        {
+                            empCesium.viewer.scene.camera.rotateUp(empCesium.Math.toRadians(longDegDelta*.1));
+                        }
+                        else if (empCesium.bSmartMapMovingTopRightZone)
+                        {
+
+                            var lat = cameraPositionCartographic.latitude + empCesium.Math.toRadians(latDegDelta);
+                            var lon = cameraPositionCartographic.longitude + empCesium.Math.toRadians(longDegDelta );
+                            empCesium.viewer.camera.flyTo({
+                                destination: empCesium.Cartesian3.fromRadians(lon, lat, height),
+                                duration: (bSkyVisible)?.2:1.4});
+                        }
+                        else if (empCesium.bSmartMapMovingBottomRightZone)
+                        {
+                            var cameraPositionCartographic = empCesium.scene.camera.positionCartographic;
+                            var height = cameraPositionCartographic.height;
+                            var lat = cameraPositionCartographic.latitude - empCesium.Math.toRadians(latDegDelta);
+                            var lon = cameraPositionCartographic.longitude + empCesium.Math.toRadians(longDegDelta );
+                            empCesium.viewer.camera.flyTo({
+                                destination: empCesium.Cartesian3.fromRadians(lon, lat, height),
+                                duration: (bSkyVisible)?.2:1.4});
+                        }
+                        else if (empCesium.bSmartMapMovingTopLeftZone)
+                        {
+                            var cameraPositionCartographic = empCesium.scene.camera.positionCartographic;
+                            var height = cameraPositionCartographic.height;
+                            var lat = cameraPositionCartographic.latitude + empCesium.Math.toRadians(latDegDelta);
+                            var lon = cameraPositionCartographic.longitude - empCesium.Math.toRadians(longDegDelta );
+                            empCesium.viewer.camera.flyTo({
+                                destination: empCesium.Cartesian3.fromRadians(lon, lat, height),
+                                duration: (bSkyVisible)?.2:1.4});
+                        }
+                        else if (empCesium.bSmartMapMovingBottomLeftZone)
+                        {
+                            var cameraPositionCartographic = empCesium.scene.camera.positionCartographic;
+                            var height = cameraPositionCartographic.height;
+                            var lat = cameraPositionCartographic.latitude - empCesium.Math.toRadians(latDegDelta);
+                            var lon = cameraPositionCartographic.longitude - empCesium.Math.toRadians(longDegDelta );
+                            empCesium.viewer.camera.flyTo({
+                                destination: Cesium.Cartesian3.fromRadians(lon, lat, height),
+                                duration: (bSkyVisible)?.2:1.4});
+                        }
+
+                    }.bind(this), 100);
                 }
-                else if (empCesium.bSmartMapMovingLeftZone)
-                {
-                    
-                }
-                else if (empCesium.bSmartMapMovingTopZone)
-                {
-                    
-                }
-                else if (empCesium.bSmartMapMovingBottomZone)
-                {
-                    
-                }
-                else if (empCesium.bSmartMapMovingTopRightZone)
-                {
-                    
-                }
-                else if (empCesium.bSmartMapMovingBottomRightZone)
-                {
-                    
-                }
-                else if (empCesium.bSmartMapMovingTopLeftZone)
-                {
-                    
-                }
-                else if (empCesium.bSmartMapMovingBottomLeftZone)
-                {
-                    
-                }
+//                    empCesium.camera.flyTo({
+//                        destination: Cesium.Cartesian3.fromDegrees(-122.19, 46.25, 5000.0),
+//                        orientation: {
+//                            heading: Cesium.Math.toRadians(175.0),
+//                            pitch: Cesium.Math.toRadians(-35.0),
+//                            roll: 0.0
+//                        }});
+
                 //empCesium.viewer.camera.twistRight(Cesium.Math.toRadians(10.0));
                 //empCesium.viewer.camera.rotate(new Cesium.Cartesian3(0, 0, 0), Cesium.Math.toRadians(10.0));
             }
