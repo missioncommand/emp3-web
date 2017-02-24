@@ -32,5 +32,4 @@ deploy:
     skip_cleanup: true
     script: chmod +X ./scripts/deployGHPages.sh && . ./scripts/deployGHPages.sh
     on:
-      branch:
-        - master
+      tags: true
