@@ -732,30 +732,78 @@ cesiumEngine.utils.convertEmpPrimitiveItemToMilStandardItem = function (item, fo
         {
             case "circle":
             {
-                convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.radius);
+
+                if (Cesium.defined(convertedItem.properties.buffer))
+                {
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.radius);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.radius);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][2] = parseFloat(convertedItem.properties.buffer);
+                    convertedItem.hasBuffer = true;
+                }
+                else
+                {
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.radius);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.radius);
+                }
                 convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH][0] = parseFloat(convertedItem.properties.azimuth);
                 convertedItem.symbolCode = "PBS_CIRCLE-----";
                 break;
             }
             case "square":
             {
-                convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.width);
+
+                if (Cesium.defined(convertedItem.properties.buffer))
+                {
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.width);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.width);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][2] = parseFloat(convertedItem.properties.buffer);
+                    convertedItem.hasBuffer = true;
+                }
+                else
+                {
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.width);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.width);
+                }
                 convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH][0] = parseFloat(convertedItem.properties.azimuth);
                 convertedItem.symbolCode = "PBS_SQUARE-----";
                 break;
             }
             case  "ellipse":
             {
-                convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.semiMajor);
-                convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.semiMinor);
+                //convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.semiMajor);
+                //convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.semiMinor);
+                if (Cesium.defined(convertedItem.properties.buffer))
+                {
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.semiMajor);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.semiMinor);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][2] = parseFloat(convertedItem.properties.buffer);
+                    convertedItem.hasBuffer = true;
+                }
+                else
+                {
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.semiMajor);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.semiMinor);
+
+                }
                 convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH][0] = parseFloat(convertedItem.properties.azimuth);
                 convertedItem.symbolCode = "PBS_ELLIPSE----";
                 break;
             }
             case  "rectangle":
             {
-                convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.height);
-                convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.width);
+
+                if (Cesium.defined(convertedItem.properties.buffer))
+                {
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.height);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.width);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][2] = parseFloat(convertedItem.properties.buffer);
+                    convertedItem.hasBuffer = true;
+                }
+                else
+                {
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.height);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.width);
+                }
                 convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH][0] = parseFloat(convertedItem.properties.azimuth);
                 convertedItem.symbolCode = "PBS_RECTANGLE--";
                 break;
@@ -779,13 +827,17 @@ cesiumEngine.utils.convertMilStandardItemToEmpPrimitiveItem = function (item, fo
 {
     if (cesiumEngine.utils.isEmpPrimitive(format))
     {
-        convertedItem = emp.helpers.copyObject(item);
+        var convertedItem = emp.helpers.copyObject(item);
         convertedItem.update = item.update;
         switch (format)
         {
             case "circle":
             {
                 convertedItem.properties.radius = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0];
+                if (convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE].length > 2)
+                {
+                    convertedItem.properties.buffer = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][2];
+                }
                 if (Cesium.defined(convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH]) &&
                         Array.isArray(convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH]) &&
                         convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH].length > 0)
@@ -801,6 +853,10 @@ cesiumEngine.utils.convertMilStandardItemToEmpPrimitiveItem = function (item, fo
             case "square":
             {
                 convertedItem.properties.width = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0];
+                if (convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE].length > 2)
+                {
+                    convertedItem.properties.buffer = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][2];
+                }
                 if (Cesium.defined(convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH]) &&
                         Array.isArray(convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH]) &&
                         convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH].length > 0)
@@ -817,6 +873,10 @@ cesiumEngine.utils.convertMilStandardItemToEmpPrimitiveItem = function (item, fo
             {
                 convertedItem.properties.semiMajor = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1];
                 convertedItem.properties.semiMinor = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0];
+                if (convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE].length > 2)
+                {
+                    convertedItem.properties.buffer = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][2];
+                }
                 if (Cesium.defined(convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH]) &&
                         Array.isArray(convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH]) &&
                         convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH].length > 0)
@@ -832,6 +892,11 @@ cesiumEngine.utils.convertMilStandardItemToEmpPrimitiveItem = function (item, fo
             case  "rectangle":
             {
                 convertedItem.properties.height = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1];
+                convertedItem.properties.width = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0];
+                if (convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE].length > 2)
+                {
+                    convertedItem.properties.buffer = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][2];
+                }
                 if (Cesium.defined(convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH]) &&
                         Array.isArray(convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH]) &&
                         convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH].length > 0)
@@ -3500,7 +3565,7 @@ cesiumEngine.utils.checkForRequiredModifiers = function (item, viewDistance)
             i,
             lonDistance,
             overrides = {},
-            rectangle;
+            rectangle, hasBuffer = false;
 
     // Check to see if the properties and modifiers have not yet been set.
     // If they don't exist, this will default them to empty objects.
@@ -3511,6 +3576,10 @@ cesiumEngine.utils.checkForRequiredModifiers = function (item, viewDistance)
     else if (item.symbolCode)
     {
         symbolCode = item.symbolCode;
+    }
+    if (Cesium.defined(item.hasBuffer))
+    {
+        hasBuffer = true;
     }
 
 
@@ -3587,41 +3656,93 @@ cesiumEngine.utils.checkForRequiredModifiers = function (item, viewDistance)
     {
         // These are circle graphics represented by a single point and a radius.
         case armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE: //16
-            if (oAM !== null && oAM.length > 0)
+            if (hasBuffer)
             {
-                oAM = oAM.slice(0, 1); // Make sure that there is only 1.
+                if (oAM !== null && oAM.length > 1)
+                {
+                    oAM = oAM.slice(0, 3); // Make sure that there is only 2.
+                }
+                else
+                {
+                    oAM[0] = 10000; // buffer value is always the first in the array
+                    oAM[1] = 10000;
+                    oAM[2] = 0;
+                }
+                overrides = {
+                    distance: oAM
+                };
             }
             else
             {
-                oAM[0] = 5000;
+                if (oAM !== null && oAM.length > 0)
+                {
+                    oAM = oAM.slice(0, 1); // Make sure that there is only 1.
+                }
+                else
+                {
+                    oAM[0] = 5000;
+                }
+                overrides = {
+                    distance: oAM
+                };
             }
-            overrides = {
-                distance: oAM
-            };
             break;
             // These are 1-point rectangles with an azimuth that determine the angle, and a distance that determines width
         case armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE: //17
-            if ((oAM !== null) && (oAM.length >= 2) &&
-                    (typeof (oAM[0]) === "number") &&
-                    (typeof (oAM[1]) === "number"))
+            if (hasBuffer)
             {
-                oAM = oAM.slice(0, 2); // Make sure that there is only 2.
+                if ((oAM !== null) && (oAM.length >= 3) &&
+                        (typeof (oAM[0]) === "number") &&
+                        (typeof (oAM[1]) === "number") &&
+                        (typeof (oAM[2]) === "number"))
+                {
+                    oAM = oAM.slice(0, 3); // Make sure that there is only 2.
+                }
+                else
+                {
+                    // Check to see if the [0] value is present and its a number.
+                    // If not set a value.
+                    if ((oAM[0] === undefined) || (typeof (oAM[0]) !== "number"))
+                    {
+                        oAM[0] = 1000;
+                    }
+                    // Check to see if the [1] value is present and its a number.
+                    // If not set a value.
+                    if ((oAM[1] === undefined) || (typeof (oAM[1]) !== "number"))
+                    {
+                        oAM[1] = 10000;
+                    }
+                    if ((oAM[2] === undefined) || (typeof (oAM[2]) !== "number"))
+                    {
+                        oAM[2] = 0;
+                    }
+                    oAM = oAM.slice(0, 3); // Make sure that there is only 2.
+                }
             }
             else
             {
-                // Check to see if the [0] value is present and its a number.
-                // If not set a value.
-                if ((oAM[0] === undefined) || (typeof (oAM[0]) !== "number"))
+                if ((oAM !== null) && (oAM.length >= 2) &&
+                        (typeof (oAM[0]) === "number") &&
+                        (typeof (oAM[1]) === "number"))
                 {
-                    oAM[0] = 10000;
+                    oAM = oAM.slice(0, 2); // Make sure that there is only 2.
                 }
-                // Check to see if the [1] value is present and its a number.
-                // If not set a value.
-                if ((oAM[1] === undefined) || (typeof (oAM[1]) !== "number"))
+                else
                 {
-                    oAM[1] = 5000;
+                    // Check to see if the [0] value is present and its a number.
+                    // If not set a value.
+                    if ((oAM[0] === undefined) || (typeof (oAM[0]) !== "number"))
+                    {
+                        oAM[0] = 10000;
+                    }
+                    // Check to see if the [1] value is present and its a number.
+                    // If not set a value.
+                    if ((oAM[1] === undefined) || (typeof (oAM[1]) !== "number"))
+                    {
+                        oAM[1] = 5000;
+                    }
+                    oAM = oAM.slice(0, 2); // Make sure that there is only 2.
                 }
-                oAM = oAM.slice(0, 2); // Make sure that there is only 2.
             }
             if ((oAN !== null) && (oAN.length >= 1) &&
                     (typeof (oAN[1]) === "number"))
@@ -3646,36 +3767,74 @@ cesiumEngine.utils.checkForRequiredModifiers = function (item, viewDistance)
             // This is a sector range fan, requires a point, a min and max distance for each sector, and left
             // and right azimuths for each sector.
         case armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE: //18
-            if ((oAM !== null) && (oAM.length >= 2))
+            if (hasBuffer)
             {
-                for (i = 0; i < oAM.length; )
+                if ((oAM !== null) && (oAM.length >=3))
                 {
-                    if (typeof (oAM[i]) !== "number")
+                    for (i = 0; i < oAM.length; )
                     {
-                        oAM.splice(i, 1);
-                    }
-                    else
-                    {
-                        i++;
+                        if (typeof (oAM[i]) !== "number")
+                        {
+                            oAM.splice(i, 1);
+                        }
+                        else
+                        {
+                            i++;
+                        }
                     }
                 }
-            }
-            if (oAM.length > 1)
-            {
-                // Check to see if the each value is present.
-                for (i = 0; i < oAM.length; i++)
+                if (oAM.length > 1)
                 {
-                    if (oAM[i] === undefined)
+                    // Check to see if the each value is present.
+                    for (i = 0; i < oAM.length; i++)
                     {
-                        oAM[i] = ((i === 0) ? 2000 : oAM[i - 1] + 2000);
+                        if (oAM[i] === undefined)
+                        {
+                            oAM[i] = ((i === 0) ? 5000 : oAM[i - 1] + 5000);
+                        }
+                    }
+                }
+                else
+                {
+                    if (oAM[0] === undefined)
+                    {
+                        oAM[0] = 5000;
                     }
                 }
             }
             else
             {
-                if (oAM[0] === undefined)
+                if ((oAM !== null) && (oAM.length >= 2))
                 {
-                    oAM[0] = 2000;
+                    for (i = 0; i < oAM.length; )
+                    {
+                        if (typeof (oAM[i]) !== "number")
+                        {
+                            oAM.splice(i, 1);
+                        }
+                        else
+                        {
+                            i++;
+                        }
+                    }
+                }
+                if (oAM.length > 1)
+                {
+                    // Check to see if the each value is present.
+                    for (i = 0; i < oAM.length; i++)
+                    {
+                        if (oAM[i] === undefined)
+                        {
+                            oAM[i] = ((i === 0) ? 2000 : oAM[i - 1] + 2000);
+                        }
+                    }
+                }
+                else
+                {
+                    if (oAM[0] === undefined)
+                    {
+                        oAM[0] = 2000;
+                    }
                 }
             }
             // You need at least 2 azimuth values for this to be a drawable graphic
