@@ -4475,31 +4475,31 @@ function EmpCesium()
 
                 if (this.multiPointRenderType === EmpCesiumConstants.MultiPointRenderType.SVG)
                 {
-                    if (item.overlayId)
+                    if (item.parentCoreId)
                     {
                         // If we are running of a V2 core we need to see if the feature is
                         // multi-parent required. And if it is, the parent overlay is in parentCoreId.
-                        if (this.isV2Core)
-                        {
-                            if (args.hasOwnProperty('properties') &&
-                                    args.properties.hasOwnProperty('multiParentRequired') &&
-                                    (args.properties.multiParentRequired === true))
-                            {
-                                layer = this.getLayer(item.parentCoreId);
-                            }
-                            else if (args.parentType === "feature")
-                            {
-                                layer = this.getLayer(item.overlayId);
-                            }
-                            else
-                            {
-                                layer = this.getLayer(item.parentCoreId);
-                            }
-                        }
-                        else
-                        {
+//                        if (this.isV2Core)
+//                        {
+//                            if (args.hasOwnProperty('properties') &&
+//                                    args.properties.hasOwnProperty('multiParentRequired') &&
+//                                    (args.properties.multiParentRequired === true))
+//                            {
+//                                layer = this.getLayer(item.parentCoreId);
+//                            }
+//                            else if (args.parentType === "feature")
+//                            {
+//                                layer = this.getLayer(item.overlayId);
+//                            }
+//                            else
+//                            {
+//                                layer = this.getLayer(item.parentCoreId);
+//                            }
+//                        }
+//                        else
+//                        {
                             layer = this.getLayer(item.parentCoreId);
-                        }
+                       // }
                     }
                     if (layer)
                     {
