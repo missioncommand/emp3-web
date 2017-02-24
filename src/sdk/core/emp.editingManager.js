@@ -113,6 +113,14 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       }
+      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
+        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
+        // create the editor for the appropriate item being edited.
+        activeEditor = new emp.editors.Polygon({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
       else {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.EditorBase({
