@@ -184,7 +184,6 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
     pt3,
     midpoint,
     index,
-    length,
     coordinateUpdate,
     updateData = {},
     type = emp.typeLibrary.CoordinateUpdateType.UPDATE,
@@ -207,9 +206,6 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
       currentVertex.type = 'vertex';
 
       currentFeature = currentVertex.feature;
-
-      index = this.vertices.getIndex(featureId);
-      length = this.vertices.length;
 
       // Change the icon to be that of a vertex.
       currentFeature.properties.iconUrl = emp.ui.images.editPoint;
@@ -245,7 +241,7 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
       // based on the index of the item being moved, determine how to
       // add the front vertices.   If it is the last point
       // we need to add the front vertex at the end with between the first and last point.
-      if (index === length - 1) {
+      if (currentVertex.next === null) {
         // get the midpoint between current point and next point.
         frontFeature = this.vertices.head.feature;
       } else {
@@ -303,6 +299,7 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
   // from the last point in the polygon to the first point.
   // this is the first point.
   if (currentVertex.before === null) {
+    console.log("TAIL: " + this.vertices.tail.feature.featureId);
     animationCoordinates.push(this.vertices.tail.before.feature.data.coordinates);
   } else {
     animationCoordinates.push(currentVertex.before.before.feature.data.coordinates);
@@ -438,7 +435,7 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   items.push(backFeature);
 
 
-  // Check to see if we are moving the tail.  If we are then we will need
+  // Check to see if we are moving the last vertex.  If we are then we will need
   // to move the addpoint at the end of the vertices between the first and last points..
   if (front.next === null) {
     frontFeature = front.feature;
@@ -485,7 +482,7 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   // if the vertex we are moving is the last point of the polygon, the third
   // animation point will be the first point of the polygon.
   if (currentVertex.next.next === null) {
-    animationCoordinates.push(this.head.feature.data.coordinates);
+    animationCoordinates.push(this.vertices.head.feature.data.coordinates);
   } else {
     animationCoordinates.push(currentVertex.next.next.feature.data.coordinates);
   }
@@ -527,7 +524,7 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
 
   updateData.coordinateUpdate = coordinateUpdate;
   updateData.properties = this.featureCopy.properties;
-
+  console.log(this.vertices.toString());
   return updateData;
 };
 
@@ -614,7 +611,7 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   frontFeature.data.coordinates = midpoint;
 
   items.push(frontFeature);
-  
+
   addTransaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
       mapInstanceId: this.mapInstance.mapInstanceId,
@@ -667,7 +664,7 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   updateData.coordinateUpdate = coordinateUpdate;
   updateData.properties = this.featureCopy.properties;
 
-
+  console.log(this.vertices.toString());
 
   return updateData;
 };
