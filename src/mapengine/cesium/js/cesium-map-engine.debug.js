@@ -135,12 +135,12 @@ emp.engineDefs.cesiumMapEngine = function (args)
         PULSE_SOFT_LIMIT: 250,
         PULSE_HARD_LIMIT: 300
     };
-    
+
     engineInterface.capture.screenshot = function (transaction)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
         console.log("screenshot");
-         for (var i = 0; i < transaction.items.length; i += 1)
+        for (var i = 0; i < transaction.items.length; i += 1)
         {
             var item = transaction.items[i];
             if (empCesium.defined(item))
@@ -152,7 +152,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
     };
 
 //    // Change the style of selected items , and change the size of
-//    // selected icons. You do not have to set both values when calling setSelectionStyle. 
+//    // selected icons. You do not have to set both values when calling setSelectionStyle.
 //    // You can change the color, the scale, or both.
 //    engineInterface.selectionStyle = function (transaction)
 //    {
@@ -716,7 +716,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 
         try
         {
-            if (!empCesium.mapLocked)
+            if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
             {
                 empCesium.entityCollection.suspendEvents();
             }
@@ -724,6 +724,10 @@ emp.engineDefs.cesiumMapEngine = function (args)
             {
                 var item = transaction.items[i];
                 result = empCesium.addKmlLayer(item);
+            }
+            if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
+            {
+                empCesium.entityCollection.resumeEvents();
             }
         }
         catch (e)
@@ -795,7 +799,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
         //try to traverse the items and add features
         try
         {
-            if (!empCesium.mapLocked)
+            if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
             {
                 empCesium.entityCollection.suspendEvents();
             }
@@ -825,7 +829,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //                    //v2
 //                    item.parentType = "feature";
 //                }
-                if ((!emp.util.isEmptyString(item.coreParent) &&  !empCesium.isLayer(item.coreParent)) && (!emp.util.isEmptyString(item.overlayId) && item.overlayId !== item.coreParent  ) )
+                if ((!emp.util.isEmptyString(item.coreParent) && !empCesium.isLayer(item.coreParent)) && (!emp.util.isEmptyString(item.overlayId) && item.overlayId !== item.coreParent))
                 {
                     item.parentType = "feature";
                 }
@@ -979,7 +983,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 jsError: result.jsError
             }));
         }
-        if (!empCesium.mapLocked)
+        if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
         {
             empCesium.entityCollection.resumeEvents();
         }
@@ -1377,7 +1381,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
         {
             failList.push(new emp.typeLibrary.Error({
                 coreId: transaction.coreId,
-                message: "An error occured when attempting to stop the drawing.",
+                message: "An error occurred when attempting to stop the drawing.",
                 level: emp.typeLibrary.Error.level.MINOR,
                 jsError: err
             }));
@@ -1780,145 +1784,146 @@ emp.engineDefs.cesiumMapEngine = function (args)
             empCesium.projectionEnableFlat(enable);
         }
     };
-    engineInterface.settings.mil2525.icon.labels.set = function (transaction)
-    {
-        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
-        var iconLabelArray,
-                newIconLabelSettings = [],
-                singlePointKey, drawCountryCodeChanged = false,
-                i;
-
-        try
-        {
-            //empCesium.entityCollection.suspendEvents();
-            // Check to make sure the transaction is good.
-            if (transaction && transaction.items)
-            {
-                // Retrieve the array of labels that are turned on from the
-                // transaction.
-                iconLabelArray = transaction.items[0];
-                if (iconLabelArray && iconLabelArray.length <= 6)
-                {
-                    empCesium.iconLabelOption = "none";
-                }
-                else if (iconLabelArray && iconLabelArray.length <= 12)
-                {
-                    empCesium.iconLabelOption = "common";
-                }
-                else if (iconLabelArray && iconLabelArray.length > 12)
-                {
-                    empCesium.iconLabelOption = "all";
-                }
-                // Loop through the array of labels, and store in an
-                // array.  Index it by the value of the label, so we can
-                // do an easy lookup later.  Just set the value to true
-                // so it equals something.
-                for (i = 0; i < iconLabelArray.length; i += 1)
-                {
-                    newIconLabelSettings[iconLabelArray[i]] = true;
-                }
-
-                if (newIconLabelSettings && newIconLabelSettings.hasOwnProperty("CC"))
-                {
-                    drawCountryCodeChanged = empCesium.drawCountryCode === false;
-                    empCesium.drawCountryCode = true;
-                    armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
-                }
-                else
-                {
-                    drawCountryCodeChanged = empCesium.drawCountryCode === true;
-                    empCesium.drawCountryCode = false;
-                    armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
-                }
-
-                // Assign the class level variable.
-                empCesium.iconLabels = newIconLabelSettings;
-                //check altitude range mode before calling the throttlering. If icon label option is none 
-                //and the range mode is mid or high then there is no need to render because teh icons are already with no labels.
-                if (empCesium.iconLabelOption === "none" && (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
-                        empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
-                {
-                    // do nothing. single points already with no labels and CC enabling not changed
-                    //console.log(empCesium.iconLabelOption);
-                    // console.log(empCesium.singlePointAltitudeRangeMode);
-                }
-                else if ((empCesium.iconLabelOption === "common" || empCesium.iconLabelOption === "all") &&
-                        (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
-                                empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
-                {
-                    // do nothing. single points are at a range with no labels and CC enabling not changed
-                    //console.log(empCesium.iconLabelOption);
-                    //console.log(empCesium.singlePointAltitudeRangeMode);
-                }
-                else
-                {
-                    // Redraw all the symbols affected.
-                    for (singlePointKey in empCesium.singlePointCollection)
-                    {
-                        if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
-                        {
-                            //empCesium.throttleMil2525IconLabelSet(empCesium.getSinglePoint(singlePointKey));
-                            empCesium.throttleMil2525IconLabelSet(singlePointKey);
-                        }
-                    }
-                }
-                transaction.run();
-            }
-        }
-        catch (e)
-        {
-        }
-        //empCesium.entityCollection.resumeEvents();
-    };
-    engineInterface.settings.mil2525.icon.size.set = function (transaction)
-    {
-        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
-        var iconPixelSizeArray, singlePointKey;
-
-        //empCesium.entityCollection.suspendEvents();
-        try
-        {
-            // Make sure the transaction is good first.
-            if (transaction && transaction.items)
-            {
-                // Retrieve the icon size from the transaction.
-                // This will always come in an array.
-                iconPixelSizeArray = transaction.items;
-                // Make sure there is at least one item in the array.
-                if (iconPixelSizeArray.length > 0)
-                {
-                    empCesium.iconPixelSize = iconPixelSizeArray[0];
-                    // Now we need to change the size of all the exiting graphics.
-                    // Redraw all the symbols affected.
-                    for (singlePointKey in empCesium.singlePointCollection)
-                    {
-                        if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
-                        {
-                            empCesium.throttleMil2525IconSizeSet(singlePointKey);
-                        }
-                    }
-                }
-                transaction.run();
-            }
-        }
-        catch (e)
-        {
-        }
-        //empCesium.entityCollection.resumeEvents();
-    };
+    
+//    engineInterface.settings.mil2525.icon.labels.set = function (transaction)
+//    {
+//        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
+//        var iconLabelArray,
+//                newIconLabelSettings = [],
+//                singlePointKey, drawCountryCodeChanged = false,
+//                i;
+//
+//        try
+//        {
+//            //empCesium.entityCollection.suspendEvents();
+//            // Check to make sure the transaction is good.
+//            if (transaction && transaction.items)
+//            {
+//                // Retrieve the array of labels that are turned on from the
+//                // transaction.
+//                iconLabelArray = transaction.items[0];
+//                if (iconLabelArray && iconLabelArray.length <= 6)
+//                {
+//                    empCesium.iconLabelOption = "none";
+//                }
+//                else if (iconLabelArray && iconLabelArray.length <= 12)
+//                {
+//                    empCesium.iconLabelOption = "common";
+//                }
+//                else if (iconLabelArray && iconLabelArray.length > 12)
+//                {
+//                    empCesium.iconLabelOption = "all";
+//                }
+//                // Loop through the array of labels, and store in an
+//                // array.  Index it by the value of the label, so we can
+//                // do an easy lookup later.  Just set the value to true
+//                // so it equals something.
+//                for (i = 0; i < iconLabelArray.length; i += 1)
+//                {
+//                    newIconLabelSettings[iconLabelArray[i]] = true;
+//                }
+//
+//                if (newIconLabelSettings && newIconLabelSettings.hasOwnProperty("CC"))
+//                {
+//                    drawCountryCodeChanged = empCesium.drawCountryCode === false;
+//                    empCesium.drawCountryCode = true;
+//                    armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
+//                }
+//                else
+//                {
+//                    drawCountryCodeChanged = empCesium.drawCountryCode === true;
+//                    empCesium.drawCountryCode = false;
+//                    armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
+//                }
+//
+//                // Assign the class level variable.
+//                empCesium.iconLabels = newIconLabelSettings;
+//                //check altitude range mode before calling the throttlering. If icon label option is none 
+//                //and the range mode is mid or high then there is no need to render because teh icons are already with no labels.
+//                if (empCesium.iconLabelOption === "none" && (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
+//                        empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
+//                {
+//                    // do nothing. single points already with no labels and CC enabling not changed
+//                    //console.log(empCesium.iconLabelOption);
+//                    // console.log(empCesium.singlePointAltitudeRangeMode);
+//                }
+//                else if ((empCesium.iconLabelOption === "common" || empCesium.iconLabelOption === "all") &&
+//                        (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
+//                                empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
+//                {
+//                    // do nothing. single points are at a range with no labels and CC enabling not changed
+//                    //console.log(empCesium.iconLabelOption);
+//                    //console.log(empCesium.singlePointAltitudeRangeMode);
+//                }
+//                else
+//                {
+//                    // Redraw all the symbols affected.
+//                    for (singlePointKey in empCesium.singlePointCollection)
+//                    {
+//                        if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
+//                        {
+//                            //empCesium.throttleMil2525IconLabelSet(empCesium.getSinglePoint(singlePointKey));
+//                            empCesium.throttleMil2525IconLabelSet(singlePointKey);
+//                        }
+//                    }
+//                }
+//                transaction.run();
+//            }
+//        }
+//        catch (e)
+//        {
+//        }
+//        //empCesium.entityCollection.resumeEvents();
+//    };
+//    engineInterface.settings.mil2525.icon.size.set = function (transaction)
+//    {
+//        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
+//        var iconPixelSizeArray, singlePointKey;
+//
+//        //empCesium.entityCollection.suspendEvents();
+//        try
+//        {
+//            // Make sure the transaction is good first.
+//            if (transaction && transaction.items)
+//            {
+//                // Retrieve the icon size from the transaction.
+//                // This will always come in an array.
+//                iconPixelSizeArray = transaction.items;
+//                // Make sure there is at least one item in the array.
+//                if (iconPixelSizeArray.length > 0)
+//                {
+//                    empCesium.iconPixelSize = iconPixelSizeArray[0];
+//                    // Now we need to change the size of all the exiting graphics.
+//                    // Redraw all the symbols affected.
+//                    for (singlePointKey in empCesium.singlePointCollection)
+//                    {
+//                        if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
+//                        {
+//                            empCesium.throttleMil2525IconSizeSet(singlePointKey);
+//                        }
+//                    }
+//                }
+//                transaction.run();
+//            }
+//        }
+//        catch (e)
+//        {
+//        }
+//        //empCesium.entityCollection.resumeEvents();
+//    };
 
 
 
 //    engineInterface.backgroundBrightness  = function (transaction)
 //    {
 //        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
-//         
+//
 //        try
 //        {
 //            // Make sure the transaction is good first.
 //            if (transaction && transaction.items)
 //            {
-//                
+//
 //               empCesium.setBackgroundBrightness(50);
 //                transaction.run();
 //            }
@@ -1940,42 +1945,54 @@ emp.engineDefs.cesiumMapEngine = function (args)
         if (transaction && transaction.items)
         {
             enabled = transaction.items[0];
-            if (enabled.lock)
+            switch (enabled.lock)
             {
-                empCesium.scene.screenSpaceCameraController.enableRotate = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableTranslate = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableZoom = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableTilt = !enabled.lock;
-                empCesium.scene.screenSpaceCameraController.enableLook = !enabled.lock;
-                empCesium.mapLocked = enabled.lock;
-                empCesium.viewer.cesiumNavigation.setNavigationLocked(empCesium.mapLocked);
-            }
-            else
-            {
-                if (enabled === false)
-                {
+                case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
                     empCesium.scene.screenSpaceCameraController.enableRotate = false;
                     empCesium.scene.screenSpaceCameraController.enableTranslate = false;
                     empCesium.scene.screenSpaceCameraController.enableZoom = false;
                     empCesium.scene.screenSpaceCameraController.enableTilt = false;
                     empCesium.scene.screenSpaceCameraController.enableLook = false;
-                    empCesium.mapLocked = true;
-                    empCesium.viewer.cesiumNavigation.setNavigationLocked(empCesium.mapLocked);
-                }
-                else
-                {
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.NO_MOTION;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
+                    empCesium.scene.screenSpaceCameraController.enableRotate = true;
+                    empCesium.scene.screenSpaceCameraController.enableTranslate = true;
+                    empCesium.scene.screenSpaceCameraController.enableZoom = true;
+                    empCesium.scene.screenSpaceCameraController.enableTilt = true;
+                    empCesium.scene.screenSpaceCameraController.enableLook = true;
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.NO_PAN:
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.NO_ZOOM:
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
+                    break;
+                case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
+                    empCesium.scene.screenSpaceCameraController.enableRotate = false;
+                    empCesium.scene.screenSpaceCameraController.enableTranslate = false;
+                    empCesium.scene.screenSpaceCameraController.enableZoom = false;
+                    empCesium.scene.screenSpaceCameraController.enableTilt = false;
+                    empCesium.scene.screenSpaceCameraController.enableLook = false;
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.SMART_MOTION;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
+                    break;
+                default:
                     // Default to enabling mouse navigation to avoid an error state where user cannot interact with the map
                     empCesium.scene.screenSpaceCameraController.enableRotate = true;
                     empCesium.scene.screenSpaceCameraController.enableTranslate = true;
                     empCesium.scene.screenSpaceCameraController.enableZoom = true;
                     empCesium.scene.screenSpaceCameraController.enableTilt = true;
                     empCesium.scene.screenSpaceCameraController.enableLook = true;
-                    empCesium.mapLocked = false;
-                    empCesium.viewer.cesiumNavigation.setNavigationLocked(empCesium.mapLocked);
-                }
-            }
-        }
-        //transaction.run();
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
+                    break;
+
+            }//switch
+        }//  if (transaction && transaction.items)
     };
 
 
@@ -1983,7 +2000,9 @@ emp.engineDefs.cesiumMapEngine = function (args)
     {
         engineInterface.map.config = function (transaction)
         {
-            var bRangeChanged = false,
+            var singlePointKey,
+                    bRangeChanged = false,
+                    iconSizeChanged = false,
                     bSelectionStyleChanged = false;
             try
             {
@@ -2033,7 +2052,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 
                     if (bSelectionStyleChanged)
                     {
-                         empCesium.updateSelections();
+                        empCesium.updateSelections();
                     }
 
                     if (empCesium.defined(config.brightness))
@@ -2041,6 +2060,43 @@ emp.engineDefs.cesiumMapEngine = function (args)
                         empCesium.setBackgroundBrightness(config.brightness);
                     }
 
+                    if (empCesium.defined(config.iconSize))
+                    {
+                        if (empCesium.iconPixelSize !== config.iconSize)
+                        {
+                            iconSizeChanged = true;
+                        }
+                        switch (config.iconSize)
+                        {
+                            case emp3.api.enums.IconSizeEnum.TINY:
+                                empCesium.iconPixelSize = empCesium.iconPixelSizeTiny;
+                                break;
+                            case emp3.api.enums.IconSizeEnum.SMALL:
+                                empCesium.iconPixelSize = empCesium.iconPixelSizeSmall;
+                                break;
+                            case emp3.api.enums.IconSizeEnum.MEDIUM:
+                                empCesium.iconPixelSize = empCesium.iconPixelSizeMedium;
+                                break;
+                            case emp3.api.enums.IconSizeEnum.LARGE:
+                                empCesium.iconPixelSize = empCesium.iconPixelSizeLarge;
+                                break;
+                            default:
+                                empCesium.iconPixelSize = empCesium.iconPixelSizeMedium;
+                                break;
+                        }
+                        // Now we need to change the size of all the exiting graphics.
+                        // Redraw all the symbols affected.
+                        if (iconSizeChanged)
+                        {
+                            for (singlePointKey in empCesium.singlePointCollection)
+                            {
+                                if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
+                                {
+                                    empCesium.throttleMil2525IconSizeSet(singlePointKey);
+                                }
+                            }
+                        }
+                    }
 
 
                     transaction.run();
