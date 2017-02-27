@@ -135,12 +135,12 @@ emp.engineDefs.cesiumMapEngine = function (args)
         PULSE_SOFT_LIMIT: 250,
         PULSE_HARD_LIMIT: 300
     };
-    
+
     engineInterface.capture.screenshot = function (transaction)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
         console.log("screenshot");
-         for (var i = 0; i < transaction.items.length; i += 1)
+        for (var i = 0; i < transaction.items.length; i += 1)
         {
             var item = transaction.items[i];
             if (empCesium.defined(item))
@@ -716,7 +716,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 
         try
         {
-           if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
+            if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
             {
                 empCesium.entityCollection.suspendEvents();
             }
@@ -829,7 +829,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //                    //v2
 //                    item.parentType = "feature";
 //                }
-                if ((!emp.util.isEmptyString(item.coreParent) &&  !empCesium.isLayer(item.coreParent)) && (!emp.util.isEmptyString(item.overlayId) && item.overlayId !== item.coreParent  ) )
+                if ((!emp.util.isEmptyString(item.coreParent) && !empCesium.isLayer(item.coreParent)) && (!emp.util.isEmptyString(item.overlayId) && item.overlayId !== item.coreParent))
                 {
                     item.parentType = "feature";
                 }
@@ -983,7 +983,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 jsError: result.jsError
             }));
         }
-       if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
+        if (!(empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION))
         {
             empCesium.entityCollection.resumeEvents();
         }
@@ -1972,6 +1972,13 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
                     break;
                 case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
+                    empCesium.scene.screenSpaceCameraController.enableRotate = false;
+                    empCesium.scene.screenSpaceCameraController.enableTranslate = false;
+                    empCesium.scene.screenSpaceCameraController.enableZoom = false;
+                    empCesium.scene.screenSpaceCameraController.enableTilt = false;
+                    empCesium.scene.screenSpaceCameraController.enableLook = false;
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.SMART_MOTION;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
                     break;
                 default:
                     // Default to enabling mouse navigation to avoid an error state where user cannot interact with the map
@@ -1984,8 +1991,8 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
                     break;
 
-                }//switch
-            }//  if (transaction && transaction.items)
+            }//switch
+        }//  if (transaction && transaction.items)
     };
 
 
