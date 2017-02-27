@@ -2,20 +2,34 @@ language: node_js
 node_js:
   - "6"
 
+env:
+  global:
+    - secure: 4+4qAMKDoLD1BZ1ZA6JegzEuvPkl3YpjBK9b1jCa9gMOYdsN4n9bujBd2Ru2pPsxjJQ6Rm8cNd6YL1UJHOLgAc0lZwEHlcu0xhe3Dk0EajzUrM2NLd2b0a90QStWDyw5UjI9jUUwPS+mSTdWTlf2UPnesMYe/P9tNCk3wjlXCdrmA9F4ScHrX311hgt0JACNZh4MdxPZX2vgRfSG99UhooZBl9IgelUgRvu65d3gwSDYsxSBOqbJTQfOJJsfw5r6eoSDesj4aPdq5Zc8w0jFHQ1AV0631JIBPXKckC5OI+mgfyUb21abuL36vKD+HAGX/pkzG/zrLzwyEmzy5pIDVmhYXlzV/jQ36CUgCIOwjJh5iEfsidieOE4amrplZ0i0Pu5ekmhPL2PZ7sGu/xEufwhuAFvtdnsGo4YNVKnpgNBe5vSHbvfC1WL+GXvpUYB/BjeG7W10IZ+KA97NBdEno1Y06bcXtZHMMqHifDHi1b1UTbl+ZS6gRXGxwP6tOYCqeyEw4nw+uNSzOYV74ftlP+CHpNCKnqrrUpamG78bRjF73X8Pb0Wxlg4xWtywrUV7ctZ8MsceTG9ySEtRPKl2mWVm6VBmcyIQWIU7ZzQ1UwljdFS2y8Iq38g2q1Rutk8EA3YzTiSQtc/U7UaoRZ3P1ptrentnrDuvMnvyF3HGREg=
+    - secure: 1oRnYveqbC/5EnkBjkV+KoAjPJ8a8HYbzbAMijto0F/Plbf0sj1Qkn8hVTcXN/+YojH0AxE9XkYtjJ2Ai4Ih/+csR9AeKKOixqGB4wc2NVX1u99TQnHwfghMKlgWtcc0WCVC0KpYnlozvXi1hGDwVuAr7tKhOWP82PTNGtPTELWvZ+HEzBO4SkUaZmjxs+ial6RRWqInVigrSlbN/q4oRZpeLssyUO+1eI6CdJd4kW9gYKguyLfQf6z6BJPcMmNzQsON+6dNs+eYpiNjyRr9YaVYFrtxh7EXaePcz7Rz150gOE2QnfDpKTl9qgV4Zh8odEVhMnXhwGdgXOBkVQh6EbfqgejEsQlbRlaDo578MbTM4DLXAAj+uMZMXrK+CNKGLuSltP4lFCoADYCnABizgWCiLWMACOuNhZ8lXYLC+n+9c05jvb5uyfx0zlsvxFF4DdRilODnFi32jrBr4tkgHgXxwR/H2V1A4No/4h+zdFMVnjGjGeBZdoWEHLVi4PjAiQPw4/vd8KlP7hy4ERRTBpV+EmN9iPNtXuFmkXWlELz4rRCBsao7LAG8HF5qDo/1O8JnsWtD2dkev+9LaFNIFophYmLRtd5YounGO+g4QMI0Rpw91iS5R/P/z4WAdJXVjEw1Md9xVym6fndNA4Xvmsyx+dLp65GXgYR3pJ6z5hk=
+
 before_script:
   - npm install -g grunt-cli
+
 script:
   - grunt release
 
 deploy:
-  skip_cleanup: true
-  file_glob: true
-  provider: releases
-  api_key:
-    secure: svrLl3tj2rqow7vwBDbwaaBqBb8bp+Ba+clfZuVWDDmubzrMCqM64C+3JjCfgZt8v2WYGKV2zcHEWCiraTvv6mzAsij1/DYgGkjbarKL+nv2MR39SzNYAlxmrKzFlrZ5CBbxYZOUOgmci4EBQTu+/IdCnRwrrwJD6TKI84ITKufw13B+tN2Xr6DP79DmI+Y0SldTbk3ZSboSKZkztTWIccpME/o07nFVAsgXZXEN7YhxI8M6GuVQd/dcd83sqZov+E6qGBTSFEf068qAgJpROcfrVBjo5OlZqEd18NLEGu5ciZYdTT1j6yLZb+tJg4pDY9Ivvs550be3h6P02A+DMVCig47U7b9Qi+6UTfYxFGXt1w9hu+fk43sSWZ6KhkUJ4ATKU+BA/Xv7hUoGTtHUzjRMI09ssVIkxGaHmB0qM5E21thPRqAmYuywt693m16BY/NvfVT1sQKHVn5QTe0pRThEKxM1ryJ6cJC+/F01AO9oNAMs1o1GJrZoYYL3O9YzdHGaFbQEstnJynUdUqtVNWlrfmZTN4BccCz8LUDfHr8cIxj22DdJR/ixgPEro6AbPL9Ku9UjWHHxOeKwQiZqXbQcMyczXFhvOXe6K7josVND0icUoDak/FSR6yapGzYU51hGVCbTb4xW9IsGHwIfEBxAmZvByPbixSaPzIxwTyI=
-  file:
-    - "dist/zips/EMP3 Developer Guide.zip"
-    - "dist/zips/emp3-map.zip"
-    - "dist/zips/emp3-jsdocs.zip"
-  on:
-    tags: true
+  # GitHub Releases Deployment
+  - provider: releases
+    skip_cleanup: true
+    file_glob: true
+    api_key:
+      secure: EVwtQdjhxAUNWqdabsqugeRVp+Qn6N5FowXyrTCiy55jvUL5vdst1II/AWxtQArSq87S1O8uUqCKob96j5wFMnpD2XDM2PlEVCLKsxgVMJan3Yetoz58MM6FnLUNlhpJRcxiHdx2D8YQvnuVbiP8dAwz3ZpHQh+Qt+k2zv4jNqnjsAJ3j9q/jV3dZGRrZhG4+IzIAN4tmx8W20HqS5+4icFlYP3cxMr/uDaDA7Nt1uiVo1tWkgv2hVYqbtVoOWxS1CjcresDRKeqGu7DqG43kiJknJOOLk83dHv8v42eKF1dXWTfwlo6eMr57bUVdHjKFFif8cCU6dhdRylpa1MZLLnJabFdPdvlHrphD5VXYri91aea1GUhXezsSrvaq2FMvniDNcbt5ndg0xQNaxsNkCwjRQR+S/Z4ZIQ7Ee6tVJbeN66t3XLjDcfP290EctlLh4Zq+eUouMklmXRYQA9QgGZRZrZN4fWx8/Qfys4XBhXRcH3XGodvMzGhbIdKb7yNJvt5HjAwRMFNB0ea2uR0TKMChAUMUss0VDkFJZvEa2MSnfi0Lks0Wv3XK1e6kLrAgMrafiJYHJIJsGfVfXvC00wFaKBfFykXTOxT1ozrV/D4mc9FVGAy7cWjgpJr6UCBk7O/Y8KUNt7N07U6qWLFnFqwPAsF+apnTQYGLQJcxiM=
+    file:
+      - dist/zips/EMP3 Developer Guide.zip
+      - dist/zips/emp3-map.zip
+      - dist/zips/emp3-jsdocs.zip
+    on:
+      tags: true
+
+  # GH Pages Deployment
+  - provider: script
+    skip_cleanup: true
+    script: chmod +X ./scripts/deployGHPages.sh && . ./scripts/deployGHPages.sh
+    on:
+      tags: true

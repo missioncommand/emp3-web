@@ -52,7 +52,9 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       // TODO fillPattern is not yet supported by the ShapeAttributes class
 
       // Line width
-      attributes.outlineWidth = feature.properties.strokeWidth || attributes.outlineWidth;
+      if (feature.properties.strokeWidth || feature.properties.lineWidth) {
+        attributes.outlineWidth = feature.properties.strokeWidth || feature.properties.lineWidth;
+      }
 
       // Stippling of outline
       attributes.outlineStippleFactor = feature.properties.stippleFactor || attributes.outlineStippleFactor;
