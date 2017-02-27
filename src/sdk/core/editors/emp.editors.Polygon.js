@@ -509,8 +509,8 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   newCoordinates = [];
   for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
     newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[i][1],
-      lon: this.featureCopy.data.coordinates[i][0]
+      lat: this.featureCopy.data.coordinates[0][i][1],
+      lon: this.featureCopy.data.coordinates[0][i][0]
     });
   }
 
@@ -560,6 +560,7 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
 
   // copy the coordinates into our object, so we can eventually complete
   // the edit.
+  console.log("coordinates: " + this.vertices.getVerticesAsLineString());
   this.featureCopy.data.coordinates = [this.vertices.getVerticesAsLineString()];
   items.push(this.featureCopy);
 
@@ -648,8 +649,8 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   newCoordinates = [];
   for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
     newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[i][1],
-      lon: this.featureCopy.data.coordinates[i][0]
+      lat: this.featureCopy.data.coordinates[0][i][1],
+      lon: this.featureCopy.data.coordinates[0][i][0]
     });
   }
 
