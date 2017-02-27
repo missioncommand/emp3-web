@@ -3933,33 +3933,33 @@ function EditorController(empCesium)
                         cesiumEngine.utils.isEmpPrimitive(empCesium.drawData.originFeature.format))
                 {
                     var geojsonDegrees = cesiumEngine.utils.convertCartographicCoordinatesToGeojsonDegrees({"type": empCesium.drawData.geometryType, "coordinates": empCesium.drawData.coordinates});
-                    if (empCesium.drawData.originFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE || empCesium.drawData.originFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE)
-                    {
-                        // editing 
-                        if (empCesium.drawData.originFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE)
-                        {
-                            empCesium.drawData.editingFeature.ellipse.semiMajorAxis = empCesium.drawData.properties.modifiers.distance[1];
-                            empCesium.drawData.editingFeature.ellipse.semiMinorAxis = empCesium.drawData.properties.modifiers.distance[0];
-                            empCesium.drawData.editingFeature.ellipse.rotation = -empCesium.drawData.properties.modifiers.azimuth[0].toRad();
-                        }
-                        else
-                        {
-                            empCesium.drawData.editingFeature.ellipse.semiMajorAxis = empCesium.drawData.properties.modifiers.distance[1];
-                            empCesium.drawData.editingFeature.ellipse.semiMinorAxis = empCesium.drawData.properties.modifiers.distance[0];
-                        }
-                        if (empCesium.drawData.coordinates instanceof Array && empCesium.drawData.coordinates.length > 0)
-                        {
-                            empCesium.drawData.editingFeature.position = new empCesium.ConstantPositionProperty(empCesium.Ellipsoid.WGS84.cartographicToCartesian(empCesium.drawData.coordinates[0]), empCesium.ReferenceFrame.FIXED);
-                        }
-                        else if (empCesium.drawData.coordinates && empCesium.drawData.editingFeature.position)
-                        {
-                            empCesium.drawData.editingFeature.position = new empCesium.ConstantPositionProperty(empCesium.Ellipsoid.WGS84.cartographicToCartesian(empCesium.drawData.coordinates), empCesium.ReferenceFrame.FIXED);
-                        }
-                        //entity billboard
-                        empCesium.drawData.editingFeature.ellipse.show = new empCesium.ConstantProperty(true);
-                    }
-                    else
-                    {
+//                    if (empCesium.drawData.originFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE || empCesium.drawData.originFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE)
+//                    {
+//                        // editing 
+//                        if (empCesium.drawData.originFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE)
+//                        {
+//                            empCesium.drawData.editingFeature.ellipse.semiMajorAxis = empCesium.drawData.properties.modifiers.distance[1];
+//                            empCesium.drawData.editingFeature.ellipse.semiMinorAxis = empCesium.drawData.properties.modifiers.distance[0];
+//                            empCesium.drawData.editingFeature.ellipse.rotation = -empCesium.drawData.properties.modifiers.azimuth[0].toRad();
+//                        }
+//                        else
+//                        {
+//                            empCesium.drawData.editingFeature.ellipse.semiMajorAxis = empCesium.drawData.properties.modifiers.distance[1];
+//                            empCesium.drawData.editingFeature.ellipse.semiMinorAxis = empCesium.drawData.properties.modifiers.distance[0];
+//                        }
+//                        if (empCesium.drawData.coordinates instanceof Array && empCesium.drawData.coordinates.length > 0)
+//                        {
+//                            empCesium.drawData.editingFeature.position = new empCesium.ConstantPositionProperty(empCesium.Ellipsoid.WGS84.cartographicToCartesian(empCesium.drawData.coordinates[0]), empCesium.ReferenceFrame.FIXED);
+//                        }
+//                        else if (empCesium.drawData.coordinates && empCesium.drawData.editingFeature.position)
+//                        {
+//                            empCesium.drawData.editingFeature.position = new empCesium.ConstantPositionProperty(empCesium.Ellipsoid.WGS84.cartographicToCartesian(empCesium.drawData.coordinates), empCesium.ReferenceFrame.FIXED);
+//                        }
+//                        //entity billboard
+//                        empCesium.drawData.editingFeature.ellipse.show = new empCesium.ConstantProperty(true);
+//                    }
+//                    else
+//                    {
                         var milstdObject = empCesium.multiPointCollection[empCesium.drawData.editingFeature.id];
                         milstdObject.coordinates = geojsonDegrees;
                         milstdObject.data.coordinates = geojsonDegrees;
@@ -3969,7 +3969,7 @@ function EditorController(empCesium)
                             milstdObject.properties = emp.helpers.copyObject(empCesium.drawData.properties);
                         }
                         empCesium.addSymbolMulti([milstdObject]); // to solve refresh issue
-                    }
+                   // }
 
 
                     if ( (empCesium.drawData.editingFeature.featureType === EmpCesiumConstants.featureType.ENTITY) && empCesium.defined(empCesium.drawData.editingFeature.rectangle) )

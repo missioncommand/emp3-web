@@ -572,6 +572,10 @@ function initializeCesium(args)
                     //empCesium.autoSelect = !empCesium.isV2Core;
             empCesium.autoSelect = true;
             empCesium.enableClusterIcon = true;
+            empCesium.iconPixelSizeTiny = 16;
+            empCesium.iconPixelSizeSmall = 24;
+            empCesium.iconPixelSizeMedium = 32;
+            empCesium.iconPixelSizeLarge = 48;
            // empCesium.relativeBaseURL = relativeBaseURLEmpCesium;
 //            if (emp.util.config.hasOwnProperty("getAutoSelect") && typeof emp.util.config.getAutoSelect === 'function')
 //            {
