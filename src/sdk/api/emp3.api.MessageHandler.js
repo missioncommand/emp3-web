@@ -1928,10 +1928,6 @@ emp3.api.MessageHandler = (function() {
               case emp3.api.enums.channel.lookAtLocation:
                 this.handleLookAtLocationTransactionComplete(callbacks, payload.details);
                 break;
-              case emp3.api.enums.channel.unplotFeature:
-              case emp3.api.enums.channel.unplotFeatureBatch:
-                this.handleUnplotFeatureTransactionComplete(callbacks, payload.details, failures);
-                break;
               case emp3.api.enums.channel.draw:
               case emp3.api.enums.channel.featureEdit:
                 this.handleDrawEditTransactionComplete(callbacks, payload, failures);
@@ -3219,27 +3215,6 @@ emp3.api.MessageHandler = (function() {
         }
       }
     };
-
-    this.handleUnplotFeatureTransactionComplete = function(callbacks, details, failures) {
-      switch (callbacks.callInfo.method) {
-        case "Map.removeMapService":
-          try {
-            callbacks.onSuccess({
-              mapService: callbacks.data.features[0],
-              failures: failures
-            });
-          }
-          catch (e) {
-            console.error("onSuccess function generated an exception." + "\n  name:" + e.name + "\n  message:" + e.message + "\n  stack:" + e.stack);
-          }
-          break;
-        default:
-          this.handleRemoveFeatureTransactionComplete(callbacks, details, failures);
-          break;
-      }
-
-    };
-
     /**
      * The transaction complete handler for centering on a location.  Will call the callbacks
      * associated with the calling function.  Since the centerOnLocation is used for multiple
@@ -3345,50 +3320,8 @@ emp3.api.MessageHandler = (function() {
         console.error("onSuccess function generated an exception." + "\n  name:" + e.name + "\n  message:" + e.message + "\n  stack:" + e.stack);
       }
     };
-
-    this.handleRemoveFeatureTransactionComplete = function(callbacks, details, failures) {
-      // raise feature added event.
-      var featureIds = [],
-        successes = details.features,
-        i;
-
-      // send only the successful items back from the transaction.
-      // This should only ever contain one item.
-      for (i = 0; i < successes.length; i += 1) {
-        featureIds.push({
-          featureId: successes[i].featureId,
-          overlayId: successes[i].overlayId,
-          parentId: successes[i].parentId
-        });
-      }
-
-      if (callbacks.callInfo.method === "Overlay.removeFeatures" ||
-        callbacks.callInfo.method === "Feature.removeFeature" ||
-        callbacks.callInfo.method === "Feature.removeFeatures" ||
-        callbacks.callInfo.method === "Feature.clearContainer") {
-        try {
-          callbacks.onSuccess({
-            featureIds: featureIds,
-            failures: failures
-          });
-        }
-        catch (e) {
-          console.error("onSuccess function generated an exception." + "\n  name:" + e.name + "\n  message:" + e.message + "\n  stack:" + e.stack);
-        }
-      }
-      else if (callbacks.callInfo.method === "Map.removeMapService") {
-        try {
-          callbacks.onSuccess({
-            layerIds: featureIds,
-            failures: failures
-          });
-        }
-        catch (e) {
-          console.error("onSuccess function generated an exception." + "\n  name:" + e.name + "\n  message:" + e.message + "\n  stack:" + e.stack);
-        }
-      }
-    };
-
+    
+    */
     /**
      * This method is a direct call to the map engine. It is not asynchronous.
      *
