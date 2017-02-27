@@ -15,7 +15,7 @@ EMPWorldWind.editors.primitiveBuilders = EMPWorldWind.editors.primitiveBuilders 
  */
 EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature, selectionStyle) {
   var lineColor, lineOpacity, fillColor, highlightAttributes,
-    selectedLineColor, selectedFillColor;
+    selectedLineColor, selectedFillColor, labelColor, selectedLabelColor;
 
   var attributes = new WorldWind.ShapeAttributes();
 
@@ -23,7 +23,51 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
     case emp3.api.enums.FeatureTypeEnum.GEO_ACM: // TODO handle GEO_ACM attributes
     case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL: // Do nothing, handled by renderer, no primitives
     case emp3.api.enums.FeatureTypeEnum.GEO_POINT: // TODO placemark attributes are still done in the placemark constructor function
-    case emp3.api.enums.FeatureTypeEnum.GEO_TEXT: // TODO text attributes are still done in the text constructor function
+      break;
+    case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
+      // GeographicText requires TextAttributes instead
+      attributes = new WorldWind.TextAttributes();
+
+      // Should not be occluded by terrain or objects when false
+      attributes.depthTest = false;
+
+      // Label Color
+      if (feature.properties.labelStyle && feature.properties.labelStyle.color) {
+        labelColor = feature.properties.labelStyle.color;
+        attributes.color = new WorldWind.Color(labelColor.red, labelColor.green, labelColor.blue, labelColor.alpha);
+      } else {
+        labelColor = EMPWorldWind.utils.hexToRGBA(EMPWorldWind.constants.propertyDefaults.FILL_COLOR_HEX);
+        attributes.color = new WorldWind.Color(labelColor.r, labelColor.g, labelColor.b, labelColor.a);
+      }
+
+      // Font Family
+      if (feature.properties.labelStyle && feature.properties.labelStyle.family) {
+        attributes.font.family = feature.properties.labelStyle.family;
+      }
+
+      // Justification
+      if (feature.properties.labelStyle && feature.properties.labelStyle.justification) {
+        attributes.font.horizontalAlignment = feature.properties.labelStyle.justification;
+      }
+
+      // Font size
+      if (feature.properties.labelStyle && feature.properties.labelStyle.size) {
+        attributes.font.size = feature.properties.labelStyle.size;
+      }
+
+      // Label Scale
+      if (feature.properties.labelStyle && feature.properties.labelStyle.scale) {
+        attributes.scale = feature.properties.labelStyle.scale;
+      }
+
+      // Create highlight attributes from the regular attributes, only update highlight color
+      highlightAttributes = new WorldWind.TextAttributes(attributes);
+      if (selectionStyle.lineColor) {
+        selectedLabelColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+        highlightAttributes.color = new WorldWind.Color(selectedLabelColor.r, selectedLabelColor.g, selectedLabelColor.b, selectedLabelColor.a);
+      } else {
+        highlightAttributes.color = WorldWind.Color.YELLOW;
+      }
       break;
     case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
     case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
@@ -442,44 +486,21 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfaceRectangle = function(feat
  * @returns {WorldWind.Text}
  */
 EMPWorldWind.editors.primitiveBuilders.constructText = function(feature, selectionStyle) {
-  var attributes, location, textPrimitive, highlightAttributes, labelColor, selectedLabelColor;
+  var attributes, location, textPrimitive;
 
-  attributes = new WorldWind.TextAttributes(null);
-  attributes.depthTest = false;
+  // Construct circle attributes
+  attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
 
-  if (feature.properties.labelStyle && feature.properties.labelStyle.color) {
-    labelColor = feature.properties.labelStyle.color;
-    attributes.color = new WorldWind.Color(labelColor.red, labelColor.green, labelColor.blue, labelColor.alpha);
-  } else {
-    labelColor = EMPWorldWind.utils.hexToRGBA(EMPWorldWind.constants.propertyDefaults.FILL_COLOR_HEX);
-    attributes.color = new WorldWind.Color(labelColor.r, labelColor.g, labelColor.b, labelColor.a);
-  }
-
-  if (feature.properties.labelStyle && feature.properties.labelStyle.family) {
-    attributes.font.family = feature.properties.labelStyle.family;
-  }
-
-  if (feature.properties.labelStyle && feature.properties.labelStyle.justification) {
-    attributes.font.horizontalAlignment = feature.properties.labelStyle.justification;
-  }
-
-  if (feature.properties.labelStyle && feature.properties.labelStyle.size) {
-    attributes.font.size = feature.properties.labelStyle.size;
-  }
-
-  highlightAttributes = new WorldWind.TextAttributes();
-  if (selectionStyle.lineColor) {
-    selectedLabelColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-    highlightAttributes.color = new WorldWind.Color(selectedLabelColor.r, selectedLabelColor.g, selectedLabelColor.b, selectedLabelColor.a);
-  } else {
-    highlightAttributes.color = WorldWind.Color.YELLOW;
-  }
-
+  // Set the location
   location = new WorldWind.Location(feature.coordinates[1], feature.coordinates[0]);
 
+  // Construct the text
   textPrimitive = new WorldWind.GeographicText(location, feature.name);
+
+  // Set the primitive properties
+  textPrimitive.attributes = attributes.attributes;
   textPrimitive.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
-  textPrimitive.highlightAttributes = highlightAttributes;
+  textPrimitive.highlightAttributes = attributes.highlightAttributes;
 
   return textPrimitive;
 };
@@ -514,6 +535,10 @@ EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON = function(geoJS
     attributes.font.size = geoJSON.properties.labelStyle.size;
   }
 
+  if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.scale) {
+    attributes.scale = geoJSON.properties.labelStyle.scale;
+  }
+
   highlightAttributes = new WorldWind.TextAttributes();
   if (selectionStyle.lineColor) {
     selectedColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
@@ -525,6 +550,7 @@ EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON = function(geoJS
   location = new WorldWind.Location(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
 
   textPrimitive = new WorldWind.GeographicText(location, geoJSON.properties.label);
+  textPrimitive.attributes = attributes;
   textPrimitive.altitudeMode = geoJSON.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
   textPrimitive.highlightAttributes = highlightAttributes;
 
