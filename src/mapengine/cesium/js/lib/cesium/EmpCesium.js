@@ -1500,7 +1500,7 @@ function EmpCesium()
                         }
                         tempEvt = {};
                         tempEvt.feature = feature; //provide the top feature
-                        if (this.drawData && this.drawData.editingFeature && evt.feature.coreId)
+                        if (this.drawData && this.drawData.editingFeature && tempEvt.feature.coreId)
                         {
                             // This case is used when clicking on the feature that is currently being edited.
                             // If evt.feature.coreId is populated it means that the currently edited feature
