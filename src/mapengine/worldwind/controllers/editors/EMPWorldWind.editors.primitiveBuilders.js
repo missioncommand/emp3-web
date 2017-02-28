@@ -39,6 +39,9 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       // Create the highlight attributes
       highlightAttributes = new WorldWind.PlacemarkAttributes(attributes);
 
+      // Create separate label highlights, will be linked and overridden to the normal attributes if not
+      highlightAttributes.labelAttributes = new WorldWind.TextAttributes(attributes.labelAttributes);
+
       // Image scale may differ when selected
       if (selectionStyle.scale) {
         highlightAttributes.imageScale = selectionStyle.scale;
