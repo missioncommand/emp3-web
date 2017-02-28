@@ -562,7 +562,8 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   // the edit.
   console.log("coordinates: " + this.vertices.getVerticesAsLineString());
   this.featureCopy.data.coordinates = [this.vertices.getVerticesAsLineString()];
-  items.push(this.featureCopy);
+  var copy = emp.helpers.copyObject(this.featureCopy);
+  items.push(copy);
 
   // now that this point moved, we need to update the add points directly to the left
   // and right of this feature.
