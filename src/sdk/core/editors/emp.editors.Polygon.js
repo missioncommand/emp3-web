@@ -354,7 +354,7 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
   index = this.vertices.getIndex(featureId);
   newCoordinates = [];
 
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+  for (var i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
     newCoordinates.push({
       lat: this.featureCopy.data.coordinates[0][i][1],
       lon: this.featureCopy.data.coordinates[0][i][0]
@@ -507,7 +507,7 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   // Create the return object.  This will tell you which index was changed,
   // the locations of the new indices, and the type of change it was.
   newCoordinates = [];
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+  for (var i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
     newCoordinates.push({
       lat: this.featureCopy.data.coordinates[0][i][1],
       lon: this.featureCopy.data.coordinates[0][i][0]
@@ -648,7 +648,7 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   // Create the return object.  This will tell you which index was changed,
   // the locations of the new indeces, and the type of change it was.
   newCoordinates = [];
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+  for (var i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
     newCoordinates.push({
       lat: this.featureCopy.data.coordinates[0][i][1],
       lon: this.featureCopy.data.coordinates[0][i][0]
