@@ -321,7 +321,6 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
  */
 EMPWorldWind.map.prototype.lookAt = function(args) {
   // substituting range for altitude for now
-
   if (args.range !== 0) {
     args.range = args.range || this.worldWind.navigator.range;
   }
@@ -346,13 +345,8 @@ EMPWorldWind.map.prototype.lookAt = function(args) {
     this.worldWind.redraw();
   }
 
-  if (args.animate) {
-    this.goToAnimator.travelTime = EMPWorldWind.constants.globeMoveTime;
-    this.goToAnimator.goTo(position, _completeLookAtMotion.bind(this));
-  } else {
-    this.goToAnimator.travelTime = 0;
-    this.goToAnimator.goTo(position, _completeLookAtMotion.bind(this));
-  }
+  this.goToAnimator.travelTime = args.animate ? EMPWorldWind.constants.globeMoveTime : 0;
+  this.goToAnimator.goTo(position, _completeLookAtMotion.bind(this));
 };
 
 /**
@@ -368,17 +362,23 @@ EMPWorldWind.map.prototype.plotFeature = function(feature) {
 
   try {
     if (this.features[feature.featureId]) {
-      rc = EMPWorldWind.editors.EditorController.updateFeature.call(this, this.features[feature.featureId], feature);
       rc.message = "Failed to update feature";
+      rc = EMPWorldWind.editors.EditorController.updateFeature.call(this, this.features[feature.featureId], feature);
     } else {
+      rc.message = "Failed to plot feature";
       rc = EMPWorldWind.editors.EditorController.plotFeature.call(this, feature);
     }
 
     if (rc.success) {
+      // Add the new feature to the global list of features
       if (!(rc.feature.id in this.features)) {
         this.features[rc.feature.id] = rc.feature;
       }
 
+      // Clear the preemptive error message
+      rc.message = "";
+
+      // Update the display
       this.worldWind.redraw();
     }
   } catch (err) {
