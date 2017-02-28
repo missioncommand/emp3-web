@@ -49,8 +49,8 @@ function initializeWorldwind(args) {
       }
 
       var empWorldWind = new EMPWorldWind.map(wwd);
-      empWorldWind.initialize(instArgs.mapInstance);
-      empWorldWind.isV2Core = false;
+      // This delay is necessary for swapping maps, the underlying reason is not understood yet however
+      setTimeout(empWorldWind.initialize, 150, instArgs.mapInstance);
 
       instArgs.mapInstance.engine.initialize.succeed(empWorldWind);
     } catch (err) {

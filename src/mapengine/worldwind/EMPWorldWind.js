@@ -982,3 +982,12 @@ EMPWorldWind.map.prototype.getBounds = function() {
 EMPWorldWind.map.prototype.getCenter = function() {
   return this.worldWind.navigator.lookAtLocation;
 };
+
+/**
+ * Deletes and removes all features and layers on the map
+ */
+EMPWorldWind.map.prototype.shutdown = function() {
+  this.features = {};
+  this.layers = {};
+  this.wwd = undefined;
+};
