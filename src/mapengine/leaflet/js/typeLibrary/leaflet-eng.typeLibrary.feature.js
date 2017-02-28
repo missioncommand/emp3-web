@@ -32,6 +32,18 @@ leafLet.internalPrivateClass.Feature = function () {
                 }
             }, this);
 
+            this.on('mousedown', function (oEvent) {
+                if (oEvent.target.getEngineInstanceInterface()) {
+                    oEvent.target.getEngineInstanceInterface().handleFeatureClicked(oEvent);
+                }
+            }, this);
+
+            this.on('mouseup', function (oEvent) {
+                if (oEvent.target.getEngineInstanceInterface()) {
+                    oEvent.target.getEngineInstanceInterface().handleFeatureClicked(oEvent);
+                }
+            }, this);
+
             this.on('contextmenu', function (oEvent) {
                 if (oEvent.target.getEngineInstanceInterface()) {
                     oEvent.target.getEngineInstanceInterface().handleFeatureClicked(oEvent);
@@ -308,6 +320,7 @@ leafLet.internalPrivateClass.Feature = function () {
             var oLatLngList;
             var bCoordWrapped = bWrappedAlready;
             var iCurrentLevel = iLevel || 0;
+            var iList;
 
             if (!oLeafletObject) {
                 return bCoordWrapped;
@@ -322,15 +335,11 @@ leafLet.internalPrivateClass.Feature = function () {
                 }
             } else if (oLeafletObject instanceof L.Polygon) {
                 oLatLngList = oLeafletObject.getLatLngs();
-
-                if (oLatLngList[0] && (oLatLngList[0][0] instanceof Array)) {
-                    for (var iList = 0; iList < oLatLngList.length; iList++) {
-                        bCoordWrapped = bCoordWrapped || leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList[iIndex], bCoordWrapped);
+                if (oLatLngList.length > 0) {
+                    for (iList = 0; iList < oLatLngList.length; iList = iList + 1) {
+                        bCoordWrapped = bCoordWrapped || leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList[iList], bCoordWrapped);
                     }
-                } else if (oLatLngList.length > 0) {
-                    bCoordWrapped = leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList, bCoordWrapped);
                 }
-
                 if (bCoordWrapped) {
                     oLeafletObject.setLatLngs(oLatLngList);
                 }
