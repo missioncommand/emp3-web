@@ -544,65 +544,6 @@ EMPWorldWind.map.prototype.removeWmsFromMap = function(item) {
 
 /**
  *
- * @param item
- */
-EMPWorldWind.map.prototype.setWmsVisibility = function(item) {
-  var id, layer,
-    providers, providerIndex;
-  try {
-    id = item.coreId;
-    layer = this.getLayer(id);
-
-    // Layer enabled is the current imagery selected from  the drop down.
-    if (layer) {
-      providers = layer.providers;
-      if (providers && providers.length > 0) {
-        for (providerIndex = 0; providerIndex < providers.length; providerIndex++) {
-          //remove provider and respective  imageryLayer layer
-          this.imageryLayerCollection.remove(providers[providerIndex].imageryLayer, true);
-          providers[providerIndex].imageryLayer = undefined;
-        }
-      }
-      layer.providers = [];
-
-      var sLayers = "";
-      if (this.isV2Core && item.activeLayers) {
-        sLayers = item.activeLayers.join();
-      } else if (!this.isV2Core && item.layers) {
-        sLayers = item.layers.join();
-      }
-
-      var worldwindWMSImageryProvider = new this.WebMapServiceImageryProvider({
-        url: item.url,
-        credit: 'wms service description goes here,',
-        parameters: {
-          transparent: item.params.transparent,
-          format: item.params.format,
-          width: 512,
-          height: 512,
-          version: item.params.version,
-          crs: 'CRS:84'
-        },
-        layers: sLayers,
-        proxy: (item.useProxy) ? new this.DefaultProxy(this.getProxyUrl()) : undefined
-      });
-
-      layer.providers.push({
-        layerName: sLayers,
-        provider: worldwindWMSImageryProvider,
-        imageryLayer: undefined,
-        enable: false
-      });
-
-      this.enableLayer(layer, (item.activeLayers.length > 0));
-    }
-  } catch (err) {
-    console.error("Setting WMS visibility in World Wind failed! ", err);
-  }
-};
-
-/**
- *
  * @param id
  * @returns {boolean}
  */
