@@ -8,8 +8,8 @@ EMPWorldWind.editors = EMPWorldWind.editors || {};
 EMPWorldWind.editors.primitiveBuilders = EMPWorldWind.editors.primitiveBuilders || {};
 
 /**
- *
- * @param {emp.typeLibrary.Feature | object}feature
+ * Wrapper function for generating the appropriate attributes based on the given feature and selection style
+ * @param {emp.typeLibrary.Feature | object} feature
  * @param {SelectionStyle} selectionStyle
  * @returns {{attributes: *, highlightAttributes: *}}
  */

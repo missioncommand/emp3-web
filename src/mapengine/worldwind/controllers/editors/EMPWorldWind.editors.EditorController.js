@@ -247,7 +247,6 @@ EMPWorldWind.editors.EditorController = (function() {
 
       try {
         shapes = buildShapes(empFeature, this.state.selectionStyle);
-
         wwFeature.addShapes(shapes);
 
         layer = this.getLayer(empFeature.parentCoreId);

@@ -19,8 +19,11 @@ EMPWorldWind.map = function(wwd) {
    * @type {WorldWind.WorldWindow}
    */
   this.worldWind = wwd;
+  /** @memberof EMPWorldWind.map# */
   this.empLayers = {};
+  /** @memberof EMPWorldWind.map# */
   this.features = {};
+  /** @memberof EMPWorldWind.map# */
   this.services = {};
 
   /**
@@ -569,7 +572,7 @@ EMPWorldWind.map.prototype.setWmsVisibility = function(item) {
         sLayers = item.layers.join();
       }
 
-      var cesiumWMSImageryProvider = new this.WebMapServiceImageryProvider({
+      var worldwindWMSImageryProvider = new this.WebMapServiceImageryProvider({
         url: item.url,
         credit: 'wms service description goes here,',
         parameters: {
@@ -586,7 +589,7 @@ EMPWorldWind.map.prototype.setWmsVisibility = function(item) {
 
       layer.providers.push({
         layerName: sLayers,
-        provider: cesiumWMSImageryProvider,
+        provider: worldwindWMSImageryProvider,
         imageryLayer: undefined,
         enable: false
       });

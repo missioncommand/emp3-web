@@ -1,4 +1,5 @@
 var EMPWorldWind = window.EMPWorldWind || {};
+var emp = window.emp || {};
 emp.engineDefs = emp.engineDefs || {};
 
 /**
@@ -11,7 +12,7 @@ emp.engineDefs = emp.engineDefs || {};
 emp.engineDefs.worldWindMapEngine = function(args) {
 
   var empMapInstance = args.mapInstance;
-  /** @type EMPWorldWind.map */
+  /** @type EMPWorldWind.map# */
   var empWorldWind;
 
   var engineInterface = emp.map.createEngineTemplate(),
