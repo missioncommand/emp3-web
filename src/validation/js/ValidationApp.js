@@ -308,7 +308,7 @@ class ValidationApp extends Component {
       toastr.success('Script executed');
     } catch (err) {
       toastr.error(err.message, 'Failed executing script');
-      console.error(err);
+      window.console.error(err);
     }
   }
 
