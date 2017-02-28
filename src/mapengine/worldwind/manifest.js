@@ -52,9 +52,9 @@ function initializeWorldwind(args) {
       // This delay is necessary for swapping maps, the underlying reason is not understood yet however
       setTimeout(function() {
         empWorldWind.initialize(instArgs.mapInstance);
+        instArgs.mapInstance.engine.initialize.succeed(empWorldWind);
       }.bind(this), 150);
 
-      instArgs.mapInstance.engine.initialize.succeed(empWorldWind);
     } catch (err) {
       instArgs.mapInstance.engine.initialize.fail(err);
     }
