@@ -445,6 +445,15 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     return transaction.items[0].dataUrl = empWorldWind.screenshot();
   };
 
+  /**
+   * Destroys the current engine
+   */
+  engineInterface.state.destroy = function() {
+    if (empWorldWind) {
+      empWorldWind = undefined;
+    }
+  };
+
   // return the engineInterface object as a new engineTemplate instance
   return engineInterface;
 };
