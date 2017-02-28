@@ -9152,23 +9152,27 @@ function EmpCesium()
                     }
                     if (oProperties.fillColor)
                     {
-                        mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.FillColor] = oProperties.fillColor;
+                        mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.fillColor] = oProperties.fillColor;
                     }
                     if (oProperties.lineColor)
                     {
-                        mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = oProperties.lineColor;
+                        mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.lineColor] = oProperties.lineColor;
                     }
                     else if (!armyc2.c2sd.renderer.utilities.SymbolUtilities.hasValidAffiliation(args[index].symbolCode))
                     {
-                        mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = EmpCesiumConstants.propertyDefaults.LINE_COLOR_HEX;
+                        mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.lineColor] = EmpCesiumConstants.propertyDefaults.LINE_COLOR_HEX;
                     }
                     if (oProperties.lineWidth)
                     {
-                        mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineWidth] = oProperties.lineWidth;
+                        // ojo modifierLookup do not have a property for line width??????
+                        mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.lineThickness] = oProperties.lineWidth;
+                        //mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineWidth] = oProperties.lineWidth;
                     }
                     else
                     {
-                        mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineWidth] = EmpCesiumConstants.propertyDefaults.LINE_WIDTH;
+                        // ojo modifierLookup do not have a property for line width??????
+                        //mods.modifiers[mil.symbology.renderer.modifierLookup.LINE_WIDTH] = oProperties.lineWidth;
+                        mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.lineThickness] = EmpCesiumConstants.propertyDefaults.LINE_WIDTH;
                     }
 
                     if (mods.modifiers && !mods.modifiers.hasOwnProperty("azimuth"))
@@ -9176,11 +9180,11 @@ function EmpCesium()
                         // check the properties for azimuth
                         if (oProperties.azimuth && Array.isArray(oProperties.azimuth))
                         {
-                            mods.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = oProperties.azimuth;
+                            mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.AZIMUTH] = oProperties.azimuth;
                         }
                         else if (oProperties.azimuth && !isNaN(parseFloat(oProperties.azimuth)))
                         {
-                            mods.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = [parseFloat(oProperties.azimuth)];
+                            mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.AZIMUTH] = [parseFloat(oProperties.azimuth)];
                             //make sure the azimuth is a number in tge object sent by the api
                         }
                         else

@@ -3332,11 +3332,12 @@ var DrawHelper = (function ()
                 if (oDrawItem.symbolCode === "PBS_SQUARE-----")
                 {
                     // length of one side of square.
-                    oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE] = [dLength * 2];
+                    oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE][0] = [dLength * 2];
                 }
                 else
                 {
-                    oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE] = [dLength];
+                    oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE][0] = [dLength];
+                    oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE][1] = [dLength];
                 }
             }
             
@@ -4931,11 +4932,13 @@ var DrawHelper = (function ()
             oRenderModifiers[emp.typeLibrary.utils.milstd.StringModifiers.LINE_COLOR] = EmpCesiumConstants.selectionProperties.COLOR_HEX;
             if (oDrawItem.symbolCode === "PBS_ELLIPSE----")
             {
-                oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE] = [dWidth / 2, dLength / 2];
+                oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE][0] = [dWidth / 2];
+                oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE][1] = [dLength / 2];
             }
             else if (oDrawItem.symbolCode === "PBS_CIRCLE-----")
             {
-                oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE] = [dLength / 2,dLength / 2];
+                oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE][0] = [dLength / 2];
+                oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE][1] = [dLength / 2]
                 dAzimuth = 0;
             }
             else
@@ -5023,7 +5026,8 @@ var DrawHelper = (function ()
             oRenderModifiers[emp.typeLibrary.utils.milstd.StringModifiers.LINE_COLOR] = EmpCesiumConstants.selectionProperties.COLOR_HEX;
             if (oDrawItem.symbolCode === "PBS_ELLIPSE----")
             {
-                oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE] = [dWidth / 2, dLength / 2];
+                oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE][0] = [dWidth / 2];
+                oRenderModifiers[emp.typeLibrary.utils.milstd.Modifiers.DISTANCE][1] = [dLength / 2];
             }
             else
             {
