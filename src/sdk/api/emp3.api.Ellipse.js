@@ -20,8 +20,8 @@ if (!window.emp3.api) {
  * @example
  * var ellipse = new emp3.api.Ellipse({
  *    position: {
- *       lat: 41,
- *       lon: -71
+ *       latitude: 41,
+ *       longitude: -71
  *    },
  *    semiMajor: 25,
  *    semiMinor: 33

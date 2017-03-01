@@ -4,6 +4,7 @@
   "editorFeatureDraggingEnable": true,
   "urlProxy": "../../urlproxy.jsp",
   "recorder": false,
+  "debug": true,
   "wmsServerUrls": [
   ],
   "startMapEngineId": "cesiumMapEngine",
@@ -26,6 +27,7 @@
       "mapEngineId": "cesiumMapEngine",
       "manifestName": "manifest.js",
       "properties": {
+        "debug":true,
         "defaultImageryUrl": "http://localhost:8080/geoserver/wms",
         "cesiumNavigation": {
           "enableCompass": true,
@@ -35,7 +37,6 @@
         "renderingOptimization": {
           "enabled": true
         },
-        "debug": true,
         "data": [
           {
             "type": "osm",

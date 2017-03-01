@@ -1,3 +1,5 @@
+emp.editors = emp.editors || {};
+
 emp.editors.Point = function(args) {
 
   emp.editors.EditorBase.call(this, args);

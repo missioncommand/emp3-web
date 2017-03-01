@@ -3341,7 +3341,7 @@ var DrawHelper = (function ()
             }
             
             //oRenderData = sec.web.renderer.SECWebRenderer.RenderSymbol(oDrawItem.coreId, oDrawItem.name, "", oDrawItem.symbolCode, sCoordinates, "clampToGround", this.empCesium.getScale(), sExtents, oRenderModifiers, EmpCesiumConstants.MultiPointRenderType.CANVAS, _self.empCesium.drawData.standard);
-            oRenderData = sec.web.renderer.SECWebRenderer.RenderSymbol2D(oDrawItem.coreId, oDrawItem.name, "", oDrawItem.symbolCode, sCoordinates, this.empCesium.canvas.width, this.empCesium.canvas.height, sExtents, oRenderModifiers, EmpCesiumConstants.MultiPointRenderType.CANVAS, _self.empCesium.drawData.standard);
+               oRenderData = sec.web.renderer.SECWebRenderer.RenderSymbol2D(oDrawItem.coreId, oDrawItem.name, "", oDrawItem.symbolCode, sCoordinates, this.empCesium.canvas.width, this.empCesium.canvas.height, sExtents, oRenderModifiers, EmpCesiumConstants.MultiPointRenderType.CANVAS, _self.empCesium.drawData.standard);
             delete oRenderModifiers[emp.typeLibrary.utils.milstd.StringModifiers.LINE_COLOR];
             if (oRenderData && (typeof (oRenderData) === 'string'))
             {
@@ -5002,11 +5002,11 @@ var DrawHelper = (function ()
         
         var renderGraphic = function ()
         {
-              if ((oDrawItem.symbolCode === "PBS_ELLIPSE----") || (oDrawItem.symbolCode === "PBS_CIRCLE-----"))
-            {
-               renderGraphicEllipse();
-               return;
-            }
+//              if ((oDrawItem.symbolCode === "PBS_ELLIPSE----") || (oDrawItem.symbolCode === "PBS_CIRCLE-----"))
+//            {
+//               renderGraphicEllipse();
+//               return;
+//            }
             
             var oRenderModifiers = emp.helpers.copyObject(oModifiers);
             var oExtent = this.empCesium.getExtent();
