@@ -292,9 +292,8 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON = fun
  * @returns {WorldWind.Placemark}
  */
 EMPWorldWind.editors.primitiveBuilders.constructPlacemark = function(feature, selectionStyle) {
-  var position, placemark, attributes, isControlPoint;
-  // TODO determine a better way to know if these are control points for editing
-  isControlPoint = feature.coreParent.toLowerCase() === "vertices";
+  var position, placemark, attributes,
+    eyeDistanceScaling = false;
 
   // Create the placemark attributes
   attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
@@ -306,10 +305,10 @@ EMPWorldWind.editors.primitiveBuilders.constructPlacemark = function(feature, se
     feature.data.coordinates[2] || 0);
 
   // Construct the primitive
-  placemark = new WorldWind.Placemark(position, !isControlPoint, attributes.attributes);
+  placemark = new WorldWind.Placemark(position, eyeDistanceScaling, attributes.attributes);
 
   // Set the placemark attributes
-  placemark.alwaysOnTop = isControlPoint;
+  placemark.alwaysOnTop = true;
   placemark.label = feature.name;
   placemark.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
   placemark.highlightAttributes = new WorldWind.PlacemarkAttributes(attributes.highlightAttributes);

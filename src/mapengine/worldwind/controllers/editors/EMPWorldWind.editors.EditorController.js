@@ -14,7 +14,9 @@ EMPWorldWind.editors.EditorController = (function() {
    * @private
    */
   function _constructSinglePointMilStdSymbol(feature, modifiers, selectionStyle) {
-    var placemark, attributes, highlightAttributes, position, imageInfo, imageCenter, imageBounds, imageOffset, selectedImage;
+    var placemark, attributes, highlightAttributes, position, imageInfo, imageCenter, imageBounds, imageOffset,
+      selectedImage,
+      eyeDistanceScaling = false;
 
     attributes = new WorldWind.PlacemarkAttributes();
 
@@ -54,7 +56,8 @@ EMPWorldWind.editors.EditorController = (function() {
       feature.data.coordinates[0],
       EMPWorldWind.utils.defined(feature.data.coordinates[2]) ? feature.data.coordinates[2] : 0);
 
-    placemark = new WorldWind.Placemark(position, true, null);
+    placemark = new WorldWind.Placemark(position, eyeDistanceScaling);
+    placemark.alwaysOnTop = true;
     placemark.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
     placemark.attributes = new WorldWind.PlacemarkAttributes(attributes);
     placemark.highlightAttributes = new WorldWind.PlacemarkAttributes(highlightAttributes);
