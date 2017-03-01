@@ -14,7 +14,7 @@ EMPWorldWind.editors.primitiveBuilders = EMPWorldWind.editors.primitiveBuilders 
  * @returns {{attributes: *, highlightAttributes: *}}
  */
 EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature, selectionStyle) {
-  var lineColor, lineOpacity, fillColor, highlightAttributes,
+  var lineColor, fillColor, highlightAttributes,
     selectedLineColor, selectedFillColor;
 
   var attributes = new WorldWind.ShapeAttributes();
@@ -33,10 +33,9 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
     case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
     default:
       // Set stroke color
-      if (feature.properties.strokeColor) {
-        lineOpacity = feature.properties.lineOpacity || 1.0;
-        lineColor = EMPWorldWind.utils.hexToRGBA(feature.properties.strokeColor, lineOpacity);
-        attributes.outlineColor = new WorldWind.Color(lineColor.r, lineColor.g, lineColor.b, lineColor.a);
+      if (feature.properties.strokeStyle && feature.properties.strokeStyle.strokeColor) {
+        lineColor = feature.properties.strokeStyle.strokeColor;
+        attributes.outlineColor = new WorldWind.Color(lineColor.red, lineColor.green, lineColor.blue, lineColor.alpha);
       } else {
         attributes.outlineColor = WorldWind.Color.BLACK;
       }
