@@ -21,6 +21,9 @@ var doctoc = [{
     children: [{
             key: "pages/example.html?example=examples/create-mil-icon.js",
             title: "Create a MIL-STD-2525 Icon"
+        }, {
+            key: "pages/example.html?example=examples/create-mil-multipoint.js",
+            title: "Create a MIL-STD-2525 Multi-point Feature"
         },
         {
             key: "pages/example.html?example=examples/update-mil-icon.js",
@@ -29,6 +32,10 @@ var doctoc = [{
         {
             key: "pages/example.html?example=examples/create-point.js",
             title: "Create Point Icon"
+        },
+        {
+            key: "pages/example.html?example=examples/map-setVisibility.js",
+            title: "Set the visibility of an Overlay"
         },
         {
             key: "pages/example.html?example=examples/adjust-camera.js",

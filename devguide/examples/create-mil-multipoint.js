@@ -26,7 +26,7 @@ var circularTarget = new emp3.api.MilStdSymbol({
 });
 
 var boundary = new emp3.api.MilStdSymbol({
-    name: "Enemy Bypass",
+    name: "Division Boundary",
     positions: [{
       latitude: 40,
       longitude: 42
@@ -44,15 +44,13 @@ var boundary = new emp3.api.MilStdSymbol({
     }
 });
 
-// create an Overlay to contain the MilStdSymbol Feature.  Overlays are used to group features.  Features cannot be added directly to a map, they must be on an overlay.
+// create an Overlay to contain the MilStdSymbol Features.  Overlays are used to group features.  Features cannot be added directly to a map, they must be on an overlay.
 var overlay1 = new emp3.api.Overlay({
     name: "overlay1",
     geoId: "w834mne-sdg5467-sdf-we45"
 });
 
-
-
-// Add the overlay to the map.  NOTE: Features can be added to overlay before and after it has been addded to the map
+// Add the overlay to the map. 
 map1.addOverlay({
     overlay: overlay1,
     onSuccess: function() {
