@@ -31,14 +31,14 @@ var overlay1 = new emp3.api.Overlay({
     geoId: "w834mne-sdg5467-sdf-we45"
 });
 
-// Add the overlay to the map.  NOTE: Features can be added to overlay before and after it has been addded to the map
+// Add the overlay to the map.
 map1.addOverlay({
     overlay: overlay1,
     onSuccess: function() {
         // Zoom to the newly added feature
         // Add the MilStdSymbol to the overlay
         overlay1.addFeatures({
-            feature: [sym, sym2],
+            features: [sym, sym2],
             visible: true,
             onSuccess: function() {
               map1.zoomTo({
