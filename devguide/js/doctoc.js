@@ -30,6 +30,10 @@ var doctoc = [{
             title: "Update Exisiting MIL-STD-2525 Icon"
         },
         {
+            key: "pages/example.html?example=examples/changing-mil-icon-appearance.js",
+            title: "Change the appearance of  MIL-STD-2525 Icon"
+        },
+        {
             key: "pages/example.html?example=examples/create-point.js",
             title: "Create Point Icon"
         },
