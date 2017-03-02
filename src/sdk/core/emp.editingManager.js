@@ -100,9 +100,11 @@ emp.editingManager = function(args) {
       }
 
       // Determine the type of editor needed.
+      // create the editor for the appropriate item being edited.
       if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
         (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT)) {
-        // create the editor for the appropriate item being edited.
+        // This is a single point item.  Single point items follow the same rules
+        // regardless if it is MIL-STD or not.
         activeEditor = new emp.editors.Point({
           feature: feature,
           mapInstance: args.mapInstance
@@ -110,16 +112,25 @@ emp.editingManager = function(args) {
       }
       else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
         (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
-        // create the editor for the appropriate item being edited.
+        // This is a path.  These are items that follow the rules of a multipoint
+        // line.  It could be MIL-STD or not.
         activeEditor = new emp.editors.Path({
           feature: feature,
           mapInstance: args.mapInstance
         });
       }
-      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
-        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
-        // create the editor for the appropriate item being edited.
+      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON) {
+        // This is a polygon.   MIL-STD polygons are handled slightly different
+        // so there is a separate editor for those.
         activeEditor = new emp.editors.Polygon({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
+      else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON) {
+        // This is a MIL-STD polygon.  It uses a GEOJSON linestring to represent
+        // itself.  It is stored slightly different than the regular polygon.
+        activeEditor = new emp.editors.MilStdPolygon({
           feature: feature,
           mapInstance: args.mapInstance
         });

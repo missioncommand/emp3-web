@@ -6,19 +6,19 @@ emp.editors = emp.editors || {};
  * Provides and shows the control points and how the shape should removeTransaction
  * when the control points move.
  */
-emp.editors.Polygon = function(args) {
+emp.editors.MilStdPolygon = function(args) {
   this.animation = undefined;
   emp.editors.EditorBase.call(this, args);
 
 };
 
-emp.editors.Polygon.prototype = Object.create(emp.editors.EditorBase.prototype);
-emp.editors.Polygon.prototype.constructor = emp.editors.Polygon;
+emp.editors.MilStdPolygon.prototype = Object.create(emp.editors.EditorBase.prototype);
+emp.editors.MilStdPolygon.prototype.constructor = emp.editors.MilStdPolygon;
 
 /**
  * Adds the control points to the map for an edit or a draw.
  */
-emp.editors.Polygon.prototype.addControlPoints = function() {
+emp.editors.MilStdPolygon.prototype.addControlPoints = function() {
 
   var i,
     controlPoint,
@@ -33,10 +33,10 @@ emp.editors.Polygon.prototype.addControlPoints = function() {
     pt2,
     pt3;
 
-  // All features entering into this method should be a Polygon
+  // All features entering into this method should be a LineString
   // otherwise this will not work.
-  if (this.featureCopy.data.type === 'Polygon') {
-    length = this.featureCopy.data.coordinates[0].length;
+  if (this.featureCopy.data.type === 'LineString') {
+    length = this.featureCopy.data.coordinates.length;
     coordinates = this.featureCopy.data.coordinates;
 
     // Create a feature on the map for each vertex.
@@ -48,7 +48,7 @@ emp.editors.Polygon.prototype.addControlPoints = function() {
         featureId: emp3.api.createGUID(),
         format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
         data: {
-          coordinates: coordinates[0][i],
+          coordinates: coordinates[i],
           type: 'Point'
         },
         properties: {
@@ -69,8 +69,8 @@ emp.editors.Polygon.prototype.addControlPoints = function() {
       if (i < length - 1) {
 
         // find the mid point between this point and the next point.
-        pt1 = new LatLon(coordinates[0][i][1], coordinates[0][i][0]);
-        pt2 = new LatLon(coordinates[0][i + 1][1], coordinates[0][i + 1][0]);
+        pt1 = new LatLon(coordinates[i][1], coordinates[i][0]);
+        pt2 = new LatLon(coordinates[i + 1][1], coordinates[i + 1][0]);
 
         // Get the mid point between this vertex and the next vertex.
         pt3 = pt1.midpointTo(pt2);
@@ -79,8 +79,8 @@ emp.editors.Polygon.prototype.addControlPoints = function() {
 
       } else if (i === length - 1) {
         // find the mid point between this point and the next point.
-        pt1 = new LatLon(coordinates[0][i][1], coordinates[0][i][0]);
-        pt2 = new LatLon(coordinates[0][0][1], coordinates[0][0][0]);
+        pt1 = new LatLon(coordinates[i][1], coordinates[i][0]);
+        pt2 = new LatLon(coordinates[0][1], coordinates[0][0]);
 
         // Get the mid point between this vertex and the next vertex.
         pt3 = pt1.midpointTo(pt2);
@@ -114,7 +114,7 @@ emp.editors.Polygon.prototype.addControlPoints = function() {
 
     // copy the coordinates into our object, so we can eventually complete
     // the edit.
-    this.featureCopy.data.coordinates = [this.vertices.getVerticesAsLineString()];
+    this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
 
     // run the transaction and add all the symbols on the map.
     transaction = new emp.typeLibrary.Transaction({
@@ -135,7 +135,7 @@ emp.editors.Polygon.prototype.addControlPoints = function() {
 };
 
 
-emp.editors.Polygon.prototype.removeControlPoints = function() {
+emp.editors.MilStdPolygon.prototype.removeControlPoints = function() {
 
   // do nothing
   var transaction;
@@ -166,7 +166,7 @@ emp.editors.Polygon.prototype.removeControlPoints = function() {
  * is a vertex or an add control point.  If it is an add point, it will create
  * a new vertex and 2 new add control points.
  */
-emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointer) {
+emp.editors.MilStdPolygon.prototype.startMoveControlPoint = function(featureId, pointer) {
 
   var currentFeature,
     currentVertex,
@@ -349,10 +349,10 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
   index = this.vertices.getIndex(featureId);
   newCoordinates = [];
 
-  for (var i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
+  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
     newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[0][i][1],
-      lon: this.featureCopy.data.coordinates[0][i][0]
+      lat: this.featureCopy.data.coordinates[i][1],
+      lon: this.featureCopy.data.coordinates[i][0]
     });
   }
 
@@ -373,7 +373,7 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
  */
-emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
+emp.editors.MilStdPolygon.prototype.moveControlPoint = function(featureId, pointer) {
   var currentFeature,
     currentVertex,
     back,
@@ -453,7 +453,7 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
 
   // copy the coordinates into our object, so we can eventually complete
   // the edit.
-  this.featureCopy.data.coordinates = [this.vertices.getVerticesAsLineString()];
+  this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
 
   // Create the points for the animation of the line.
   //
@@ -500,10 +500,10 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   // Create the return object.  This will tell you which index was changed,
   // the locations of the new indices, and the type of change it was.
   newCoordinates = [];
-  for (var i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
+  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
     newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[0][i][1],
-      lon: this.featureCopy.data.coordinates[0][i][0]
+      lat: this.featureCopy.data.coordinates[i][1],
+      lon: this.featureCopy.data.coordinates[i][0]
     });
   }
 
@@ -524,7 +524,7 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
  */
-emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer) {
+emp.editors.MilStdPolygon.prototype.endMoveControlPoint = function(featureId, pointer) {
   var items =[],
     newCoordinates,
     coordinateUpdate,
@@ -552,7 +552,7 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
 
   // copy the coordinates into our object, so we can eventually complete
   // the edit.
-  this.featureCopy.data.coordinates = [this.vertices.getVerticesAsLineString()];
+  this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
   var copy = emp.helpers.copyObject(this.featureCopy);
   items.push(copy);
 
@@ -639,10 +639,10 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   // Create the return object.  This will tell you which index was changed,
   // the locations of the new indeces, and the type of change it was.
   newCoordinates = [];
-  for (var i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
+  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
     newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[0][i][1],
-      lon: this.featureCopy.data.coordinates[0][i][0]
+      lat: this.featureCopy.data.coordinates[i][1],
+      lon: this.featureCopy.data.coordinates[i][0]
     });
   }
 
@@ -663,6 +663,6 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
 /**
  * Moves the entire feature, offsetting from the starting position.
  */
-emp.editors.Polygon.prototype.moveFeature = function() {
+emp.editors.MilStdPolygon.prototype.moveFeature = function() {
 
 };
