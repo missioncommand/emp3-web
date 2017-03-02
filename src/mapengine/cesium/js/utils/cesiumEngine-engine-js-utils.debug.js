@@ -725,6 +725,10 @@ cesiumEngine.utils.convertEmpPrimitiveItemToMilStandardItem = function (item, fo
     {
         convertedItem = emp.helpers.copyObject(item);
         convertedItem.update = item.update;
+          if (Cesium.defined(item.originFeature))
+          {
+              convertedItem.properties = item.originFeature.properties;
+          }
         convertedItem.properties.modifiers = (Cesium.defined(convertedItem.properties.modifiers)) ? convertedItem.properties.modifiers : {};
         convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE] = [];
         convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = [];
@@ -3658,14 +3662,20 @@ cesiumEngine.utils.checkForRequiredModifiers = function (item, viewDistance)
         case armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE: //16
             if (hasBuffer)
             {
-                if (oAM !== null && oAM.length > 1)
+                if (oAM !== null && oAM.length > 2)
                 {
                     oAM = oAM.slice(0, 3); // Make sure that there is only 2.
                 }
-                else
+                else   if (oAM !== null && oAM.length > 1)
                 {
-                    oAM[0] = 10000; // buffer value is always the first in the array
-                    oAM[1] = 10000;
+                    oAM[0] = oAM[0]; // buffer value is always the first in the array
+                    oAM[1] = oAM[1];
+                    oAM[2] = 0;
+                }
+                else   if (oAM !== null && oAM.length > 0)
+                {
+                    oAM[0] = oAM[0]; // buffer value is always the first in the array
+                    oAM[1] = 0;
                     oAM[2] = 0;
                 }
                 overrides = {

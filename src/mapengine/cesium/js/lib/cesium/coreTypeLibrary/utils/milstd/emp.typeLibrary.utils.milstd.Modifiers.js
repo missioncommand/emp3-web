@@ -106,8 +106,8 @@ emp.typeLibrary.utils.milstd.StringToModifier = (function ()
     mapping[longModifiers.AA_SPECIAL_C2_HEADQUARTERS] = s2525Modifiers.AA_SPECIAL_C2_HEADQUARTERS;
     mapping[longModifiers.AM_DISTANCE] = s2525Modifiers.AM_DISTANCE;
     mapping[longModifiers.AN_AZIMUTH] = s2525Modifiers.AN_AZIMUTH;
-    mapping[longModifiers.FILLCOLOR] = longModifiers.FILL_COLOR;
-    mapping[longModifiers.LINECOLOR] = longModifiers.LINE_COLOR;
+    mapping[longModifiers.FILL_COLOR] = longModifiers.FILL_COLOR;
+    mapping[longModifiers.LINE_COLOR] = longModifiers.LINE_COLOR;
     mapping[longModifiers.X_OFFSET] = longModifiers.X_OFFSET;
     mapping[longModifiers.X_UNITS] = longModifiers.X_UNITS;
     mapping[longModifiers.Y_OFFSET] = longModifiers.Y_OFFSET;
@@ -196,7 +196,7 @@ emp.typeLibrary.utils.milstd.convertStringsToModifiers = function (oStringModifi
     {
         if (emp.typeLibrary.utils.milstd.StringToModifier.hasOwnProperty(sModifier))
         {
-            if (sModifier === emp.typeLibrary.utils.milstd.StringModifiers.STANDARD)
+            if (sModifier === emp.typeLibrary.utils.milstd.StringToModifier.STANDARD)
             {
                 // convert standard string value  to modifier numeric
                 oModifiers[emp.typeLibrary.utils.milstd.Modifiers.STANDARD] = cesiumEngine.utils.convertSymbolStandardToRendererFormat(oStringModifiers);
