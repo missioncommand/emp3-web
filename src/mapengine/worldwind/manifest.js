@@ -35,13 +35,8 @@ function initializeWorldwind(args) {
       wwCanvas.style.width = "100%";
       container.appendChild(wwCanvas);
 
-      var elevationModel;
-      // TODO generate an elevationModel with default data if none is specified
-      // if (args.engine.properties.elevationData) {
-      //   elevationModel = new WorldWind.EarthElevationModel(null, args.engine.properties.elevationData, 'Earth Elevations');
-      // }
-
-      var wwd = new WorldWind.WorldWindow(wwCanvas.id, elevationModel);
+      // TODO pass in an elevationModel that uses local data
+      var wwd = new WorldWind.WorldWindow(wwCanvas.id);
 
       // Tell the World Window that we want deep picking.
       wwd.deepPicking = true;
@@ -49,8 +44,7 @@ function initializeWorldwind(args) {
       // Add some image layers to the World Window"s globe.
       var numLayers = args.engine.properties.defaultLayers.length;
       if (!numLayers) {
-        // Add a default in the case of nothing specified
-        // TODO configure this to use local data first instead of reaching out to NASA
+        // TODO uses local data to make a base layer instead of BMNGLayer(reaches back to NASA)
         wwd.addLayer(new WorldWind.BMNGLayer());
       } else {
         for (i = 0; i < numLayers; i++) {
