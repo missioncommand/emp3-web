@@ -19,7 +19,8 @@
           "controls": false,
           "compass": false,
           "coordinates": false
-        }
+        },
+        "defaultLayer": "http://localhost:8080/emp-map-tiles/tiles"
       }
     },
     {

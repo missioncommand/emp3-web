@@ -7,10 +7,15 @@
  * @param {object} args.engine.properties
  * @param {boolean} [args.engine.properties.debug]
  * @param {object} args.engine.properties.layers
+ * @param {string} args.engine.properties.elevationData
+ * @param {string} args.engine.properties.defaultLayer URL of the base layer
  * @returns {{resourceList: Array, fnCreateInstance: createWorldWindInstance}}
  */
 function initializeWorldwind(args) {
+  args.engine = args.engine || {};
+  args.engine.properties = args.engine.properties || {};
   args.engine.properties.layers = args.engine.properties.layers || {};
+  args.engine.properties.defaultLayer = args.engine.properties.defaultLayer || '';
 
   var resourceList = [];
 
@@ -28,14 +33,32 @@ function initializeWorldwind(args) {
       wwCanvas.style.width = "100%";
       container.appendChild(wwCanvas);
 
-      var wwd = new WorldWind.WorldWindow(wwCanvas.id);
+      var elevationModel;
+      // TODO generate an elevationModel with default data if none is specified
+      // if (args.engine.properties.elevationData) {
+      //   elevationModel = new WorldWind.EarthElevationModel(null, args.engine.properties.elevationData, 'Earth Elevations');
+      // }
+
+      var wwd = new WorldWind.WorldWindow(wwCanvas.id, elevationModel);
 
       // Tell the World Window that we want deep picking.
       wwd.deepPicking = true;
 
       // Add some image layers to the World Window"s globe.
-      wwd.addLayer(new WorldWind.BMNGLayer()); // wms
-      //wwd.addLayer(new WorldWind.BMNGOneImageLayer());
+      if (args.engine.properties.defaultLayer) {
+        // TODO pass in config object
+        var config = args.engine.properties.defaultLayer.config || {};
+        config.sector = WorldWind.Sector.FULL_SPHERE;
+        config.numLevels = 5;
+        config.levelZeroTileData = new WorldWind.Location(45,45);
+        config.imageFormat = 'image/png';
+        config.tileWidth = 256;
+        config.tileHeight = 256;
+
+        wwd.addLayer(new WorldWind.RestTiledImageLayer(args.engine.properties.defaultLayer, null, 'default layer', config));
+      } else {
+        wwd.addLayer(new WorldWind.BMNGLayer());
+      }
 
       // Add a compass, a coordinates display and some view controls to the World Window.
       if (args.engine.properties.layers.compass) {
@@ -60,7 +83,7 @@ function initializeWorldwind(args) {
 
   if (args.engine.properties.debug === true) {
     resourceList = [
-      "worldwindlib.js",
+      "worldwind.min.js",
       "worldwind-map-engine.debug.js",
       "EMPWorldWind.js",
       "data/EMPWorldWind.data.js",
@@ -78,7 +101,7 @@ function initializeWorldwind(args) {
     ];
   } else {
     resourceList = [
-      "worldwindlib.js",
+      "worldwind.min.js",
       "emp3-worldwind.min.js"
     ];
   }
