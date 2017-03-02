@@ -344,15 +344,19 @@ leafLet.internalPrivateClass.Feature = function () {
                     oLeafletObject.setLatLngs(oLatLngList);
                 }
             } else if (oLeafletObject instanceof L.Polyline) {
-                oLatLngList = oLeafletObject.getLatLngs();
-
-                if (oLatLngList.length > 0) {
-                    bCoordWrapped = leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList, bCoordWrapped);
-                }
-
-                if (bCoordWrapped) {
-                    oLeafletObject.setLatLngs(oLatLngList);
-                }
+              oLatLngList = oLeafletObject.getLatLngs();
+              if (oLatLngList.length > 0) {
+                  if (L.Util.isArray(oLatLngList[0]) && oLatLngList[0].length > 0) {
+                    for (iList = 0; iList < oLatLngList.length; iList = iList + 1) {
+                      bCoordWrapped = bCoordWrapped || leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList[iList], bCoordWrapped);
+                    }
+                  } else {
+                    bCoordWrapped = bCoordWrapped || leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList, bCoordWrapped);
+                  }
+              }
+              if (bCoordWrapped) {
+                oLeafletObject.setLatLngs(oLatLngList);
+              }
             } else if (oLeafletObject instanceof L.LayerGroup) {
                 var oItemList = oLeafletObject.getLayers();
                 var bHasNotWrapped = !bCoordWrapped;
