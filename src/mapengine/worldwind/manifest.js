@@ -6,20 +6,22 @@
  * @param {object} args.engine
  * @param {object} args.engine.properties
  * @param {boolean} [args.engine.properties.debug]
- * @param {object} args.engine.properties.layers
- * @param {string} args.engine.properties.elevationData
- * @param {string} args.engine.properties.defaultLayer URL of the base layer
+ * @param {object} [args.engine.properties.layers]
+ * @param {string} [args.engine.properties.elevationData]
+ * @param {WMSDescriptor[]|TileServiceDescriptor[]} [args.engine.properties.defaultLayers] List of URL of the base layers
  * @returns {{resourceList: Array, fnCreateInstance: createWorldWindInstance}}
  */
 function initializeWorldwind(args) {
   args.engine = args.engine || {};
   args.engine.properties = args.engine.properties || {};
   args.engine.properties.layers = args.engine.properties.layers || {};
-  args.engine.properties.defaultLayer = args.engine.properties.defaultLayer || '';
+  args.engine.properties.defaultLayers = args.engine.properties.defaultLayers || [];
 
   var resourceList = [];
 
   function createWorldWindInstance(instArgs) {
+    var i;
+
     try {
       instArgs.mapInstance.engine = new emp.engineDefs.worldWindMapEngine({
         mapInstance: instArgs.mapInstance
@@ -45,19 +47,43 @@ function initializeWorldwind(args) {
       wwd.deepPicking = true;
 
       // Add some image layers to the World Window"s globe.
-      if (args.engine.properties.defaultLayer) {
-        // TODO pass in config object
-        var config = args.engine.properties.defaultLayer.config || {};
-        config.sector = WorldWind.Sector.FULL_SPHERE;
-        config.numLevels = 5;
-        config.levelZeroTileData = new WorldWind.Location(45,45);
-        config.imageFormat = 'image/png';
-        config.tileWidth = 256;
-        config.tileHeight = 256;
-
-        wwd.addLayer(new WorldWind.RestTiledImageLayer(args.engine.properties.defaultLayer, null, 'default layer', config));
-      } else {
+      var numLayers = args.engine.properties.defaultLayers.length;
+      if (!numLayers) {
+        // Add a default in the case of nothing specified
+        // TODO configure this to use local data first instead of reaching out to NASA
         wwd.addLayer(new WorldWind.BMNGLayer());
+      } else {
+        for (i = 0; i < numLayers; i++) {
+          var layer,
+            descriptor = args.engine.properties.defaultLayers[i];
+
+          if (!descriptor.type) {
+            window.console.warn('No type specified for layer data; skipping it');
+            continue;
+          }
+
+          switch (descriptor.type.toLowerCase()) {
+            case "wms":
+              // Handle defaults
+              descriptor.sector = descriptor.sector || WorldWind.Sector.FULL_SPHERE;
+              descriptor.levelZeroDelta = descriptor.levelZeroDelta || new WorldWind.Location(45, 45);
+              descriptor.numLevels = descriptor.numLevels || 15;
+              descriptor.format = descriptor.format || "image/png";
+              descriptor.size = descriptor.size || 256;
+
+              layer = new WorldWind.WmsLayer(descriptor);
+              break;
+            case "arcgis93rest":
+            case "wmts":
+            default:
+            // Not yet supported
+          }
+
+          // Add the layer
+          if (layer) {
+            wwd.addLayer(layer);
+          }
+        }
       }
 
       // Add a compass, a coordinates display and some view controls to the World Window.
@@ -117,3 +143,26 @@ emp.instanceManager.registerMapEngine({
     fnInitialize: initializeWorldwind
   }
 );
+
+/**
+ * @typedef {object} WMSDescriptor
+ * @property {string} service
+ * @property {string} layerNames comma separated list
+ * @property {WorldWind.Sector} sector
+ * @property {WorldWind.Location} levelZeroDelta
+ * @property {number} numLevels
+ * @property {string} format example 'image/png'
+ * @property {number} size
+ * @property {string} [coordinateSystem]
+ * @property {string} [styleNames]
+ */
+
+/**
+ * @typedef {object} TileServiceDescriptor
+ * @property {WorldWind.Sector} [sector=WorldWind.Sector.FULL_SPHERE]
+ * @property {WorldWind.Location} [levelZeroTileData = '45,45']
+ * @property {number} [numLevels=5]
+ * @property {string} [imageFormat ='image/jpeg']
+ * @property {number} [tileWidth=256]
+ * @property {number} [tileHeight=256]
+ */
