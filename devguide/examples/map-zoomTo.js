@@ -1,4 +1,3 @@
-
 // Adds an overlay and a polygon to the map and zooms to
 // the new polygon.
 
