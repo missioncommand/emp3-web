@@ -67,9 +67,8 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       empMapInstance.eventing.StatusChange({
         status: emp.map.states.READY
       });
-    }
-    catch (err) {
-      window.console.error("Error initializing World Wind ", err);
+    } catch (err) {
+      window.console.error("Error initializing WorldWind ", err);
     }
   };
 

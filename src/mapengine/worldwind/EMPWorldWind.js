@@ -19,8 +19,11 @@ EMPWorldWind.map = function(wwd) {
    * @type {WorldWind.WorldWindow}
    */
   this.worldWind = wwd;
+  /** @memberof EMPWorldWind.map# */
   this.empLayers = {};
+  /** @memberof EMPWorldWind.map# */
   this.features = {};
+  /** @memberof EMPWorldWind.map# */
   this.services = {};
 
   /**
@@ -130,14 +133,14 @@ EMPWorldWind.map = function(wwd) {
 
 /**
  * Creates the initial layers
- * @param {emp.map} map
+ * @param {emp.map} empMapInstance
  */
-EMPWorldWind.map.prototype.initialize = function(map) {
+EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
   /**
    * @memberof EMPWorldWind.map#
    * @type {emp.map}
    */
-  this.empMapInstance = map;
+  this.empMapInstance = empMapInstance;
 
   // Create the contrast layers
   var blackContrastLayer = new WorldWind.SurfaceSector(WorldWind.Sector.FULL_SPHERE, null);
@@ -290,9 +293,9 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
     position = new WorldWind.Location(args.latitude, args.longitude);
   }
 
-  this.worldWind.navigator.heading = args.heading;
-  this.worldWind.navigator.roll = args.roll;
-  this.worldWind.navigator.tilt = args.tilt;
+  this.worldWind.navigator.heading = args.heading || 0;
+  this.worldWind.navigator.roll = args.roll || 0;
+  this.worldWind.navigator.tilt = args.tilt || 0;
 
   if (args.animate) {
     this.goToAnimator.travelTime = EMPWorldWind.constants.globeMoveTime;
@@ -944,7 +947,7 @@ EMPWorldWind.map.prototype.getBounds = function() {
 
   // Check the viewport corners
   topRight = this.worldWind.pickTerrain(new WorldWind.Vec2(this.worldWind.viewport.width - 1, 1)).terrainObject();
-  bottomLeft = this.worldWind.pickTerrain(new WorldWind.Vec2(1, this.worldWind.viewport.height -1)).terrainObject();
+  bottomLeft = this.worldWind.pickTerrain(new WorldWind.Vec2(1, this.worldWind.viewport.height - 1)).terrainObject();
 
   // If the corners don't contain the globe assume we are zoomed very far out, estimate an arbitrary rectangle
   if (!topRight) {
@@ -989,5 +992,5 @@ EMPWorldWind.map.prototype.getCenter = function() {
 EMPWorldWind.map.prototype.shutdown = function() {
   this.features = {};
   this.layers = {};
-  this.wwd = undefined;
+  this.worldWind = undefined;
 };

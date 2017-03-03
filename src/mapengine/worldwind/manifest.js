@@ -36,6 +36,7 @@ function initializeWorldwind(args) {
       container.appendChild(wwCanvas);
 
       // TODO pass in an elevationModel that uses local data
+
       var wwd = new WorldWind.WorldWindow(wwCanvas.id);
 
       // Tell the World Window that we want deep picking.
@@ -92,12 +93,8 @@ function initializeWorldwind(args) {
       }
 
       var empWorldWind = new EMPWorldWind.map(wwd);
-      // This delay is necessary for swapping maps, the underlying reason is not understood yet however
-      setTimeout(function() {
-        empWorldWind.initialize(instArgs.mapInstance);
-        instArgs.mapInstance.engine.initialize.succeed(empWorldWind);
-      }.bind(this), 150);
-
+      empWorldWind.initialize(instArgs.mapInstance);
+      instArgs.mapInstance.engine.initialize.succeed(empWorldWind);
     } catch (err) {
       instArgs.mapInstance.engine.initialize.fail(err);
     }
