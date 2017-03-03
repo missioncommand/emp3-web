@@ -119,50 +119,6 @@ emp.editors.Path.prototype.addControlPoints = function() {
 
 };
 
-
-emp.editors.Path.prototype.removeControlPoints = function() {
-
-  // do nothing
-  var transaction;
-  var items;
-  var vertices = this.vertices.getFeatures();
-  items = vertices;
-
-  transaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
-    mapInstanceId: this.mapInstance.mapInstanceId,
-    transactionId: null,
-    sender: this.mapInstance.mapInstanceId,
-    originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-    source: emp.api.cmapi.SOURCE,
-    messageOriginator: this.mapInstance.mapInstanceId,
-    originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-    items: items
-  });
-
-  this.vertices.clear();
-
-  // Hide the control points
-  transaction.run();
-};
-
-/**
- * Determine if the featureId is a controlPoint or if it is a feature.
- * This is useful for determining if a featureDrag event should be staticContent
- * out or not.
- */
-emp.editors.Path.prototype.isControlPoint = function(featureId) {
-
-  var result = false;
-
-  // Return true if we found the id.
-  if (this.vertices.find(featureId)) {
-    result = true;
-  }
-
-  return result;
-};
-
 emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) {
 
   var currentFeature,
