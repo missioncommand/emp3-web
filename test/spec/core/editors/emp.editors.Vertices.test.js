@@ -122,7 +122,7 @@ describe('emp.editors.Vertices', function () {
       vertices.push(vertex3);
       vertices.push(vertex4);
 
-      expect(vertices.toString()).to.be.equal("[feature1 => feature2 => feature3 => feature4]");
+      expect(vertices.toString()).to.be.equal("[feature1 (vertex) => feature2 (vertex) => feature3 (vertex) => feature4 (vertex)]");
     });
 
   });

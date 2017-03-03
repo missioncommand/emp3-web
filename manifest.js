@@ -69,6 +69,8 @@ var manifest = {
     'src/sdk/core/editors/emp.editors.EditorBase.js',
     'src/sdk/core/editors/emp.editors.Point.js',
     'src/sdk/core/editors/emp.editors.Path.js',
+    'src/sdk/core/editors/emp.editors.Polygon.js',
+    'src/sdk/core/editors/emp.editors.MilStdPolygon.js',
     'src/sdk/core/environment/owf/emp.environment.owf.js',
     'src/sdk/core/environment/browser/emp.environment.browser.js',
     'src/sdk/core/environment/browser/emp.environment.browser.mediator.js',
