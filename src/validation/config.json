@@ -19,7 +19,16 @@
           "controls": false,
           "compass": false,
           "coordinates": false
-        }
+        },
+        "defaultLayers": [
+          {
+            "type": "wms",
+            "name": "default wms",
+            "service": "https://worldwind25.arc.nasa.gov/wms",
+            "layerNames": "BlueMarble-200408",
+            "format": "image/png"
+          }
+        ]
       }
     },
     {
@@ -27,7 +36,7 @@
       "mapEngineId": "cesiumMapEngine",
       "manifestName": "manifest.js",
       "properties": {
-        "debug":true,
+        "debug": true,
         "defaultImageryUrl": "http://localhost:8080/geoserver/wms",
         "cesiumNavigation": {
           "enableCompass": true,
