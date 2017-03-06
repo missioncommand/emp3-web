@@ -36,6 +36,7 @@ function initializeWorldwind(args) {
       container.appendChild(wwCanvas);
 
       // TODO pass in an elevationModel that uses local data
+
       var wwd = new WorldWind.WorldWindow(wwCanvas.id);
 
       // Tell the World Window that we want deep picking.
@@ -93,8 +94,6 @@ function initializeWorldwind(args) {
 
       var empWorldWind = new EMPWorldWind.map(wwd);
       empWorldWind.initialize(instArgs.mapInstance);
-      empWorldWind.isV2Core = false;
-
       instArgs.mapInstance.engine.initialize.succeed(empWorldWind);
     } catch (err) {
       instArgs.mapInstance.engine.initialize.fail(err);

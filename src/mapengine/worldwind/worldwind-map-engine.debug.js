@@ -61,7 +61,6 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     // Add initialization code here
     try {
       empWorldWind = empWorldWindInstance;
-      //empWorldWind.empMapInstance = empMapInstance;
       empWorldWind.mapEngineExposed = mapEngineExposed;
       emp.map.engineDirect = {name: "worldwind", ref: empWorldWind};
 
@@ -69,9 +68,8 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       empMapInstance.eventing.StatusChange({
         status: emp.map.states.READY
       });
-    }
-    catch (err) {
-      window.console.error("Error initializing World Wind ", err);
+    } catch (err) {
+      window.console.error("Error initializing WorldWind ", err);
     }
   };
 
@@ -442,6 +440,16 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    */
   engineInterface.capture.screenshot = function(transaction) {
     return transaction.items[0].dataUrl = empWorldWind.screenshot();
+  };
+
+  /**
+   * Destroys the current engine
+   */
+  engineInterface.state.destroy = function() {
+    if (empWorldWind) {
+      empWorldWind.shutdown();
+      empWorldWind = undefined;
+    }
   };
 
   // return the engineInterface object as a new engineTemplate instance
