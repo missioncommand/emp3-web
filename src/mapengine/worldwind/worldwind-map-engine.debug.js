@@ -445,16 +445,10 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * Destroys the current engine
    */
   engineInterface.state.destroy = function() {
-    empMapInstance.eventing.StatusChange({
-      status: emp.map.states.SHUTDOWN_IN_PROGRESS
-    });
-
     if (empWorldWind) {
       empWorldWind.shutdown();
       empWorldWind = undefined;
     }
-
-    // TODO check if eventing needs to manually trigger the state change
   };
 
   // return the engineInterface object as a new engineTemplate instance
