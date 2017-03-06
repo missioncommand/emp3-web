@@ -559,17 +559,17 @@ EMPWorldWind.map.prototype.addWmtsToMap = function(empWMTS, callback) {
 
   // Handle getting capabilities
   function xhrSuccess() {
-    var layerCapabilities, documentCapabilities, layerElement, wmts;
+    var wmtsLayerCapabilities, wmtsCapabilities, wmtsConfig, wmtsLayer;
 
     if (this.status === 200) {
       try {
-        documentCapabilities = new WorldWind.WmtsCapabilities(this.responseXML);
-        layerElement = documentCapabilities.contents.layer[0];
-        layerCapabilities = new WorldWind.WmtsLayerCapabilities(layerElement, documentCapabilities);
-        wmts = new WorldWind.WmtsLayer(layerCapabilities);
+        wmtsCapabilities = new WorldWind.WmtsCapabilities(this.responseXML);
+        wmtsLayerCapabilities = wmtsCapabilities.getLayer(empWMTS.layer);
+        wmtsConfig = WorldWind.WmtsLayer.formLayerConfiguration(wmtsLayerCapabilities);
+        wmtsLayer = new WorldWind.WmtsLayer(wmtsConfig);
 
-        that.worldWind.addLayer(wmts);
-        that.services[empWMTS.coreId] = wmts;
+        that.worldWind.addLayer(wmtsLayer);
+        that.services[empWMTS.coreId] = wmtsLayer;
 
         that.worldWind.redraw();
       } catch (err) {
@@ -586,7 +586,7 @@ EMPWorldWind.map.prototype.addWmtsToMap = function(empWMTS, callback) {
   }
 
   try {
-    url = empWMTS.url + "?SERVICE=WMTS&REQUEST=GetCapabilities&LAYER=" + empWMTS.layer;
+    url = empWMTS.url + "?SERVICE=WMTS&REQUEST=GetCapabilities&VERSION=1.0.0";
 
     // Configure the request
     xmlHttpRequest = new XMLHttpRequest();
