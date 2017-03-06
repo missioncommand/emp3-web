@@ -40,13 +40,12 @@ function processAdd() {
       overlay1.addFeature({
         feature: args.feature,
         onSuccess: function() {
-          showToaster('We have entered edit mode now');
           map1.editFeature({
             feature: args.feature
           });
         }
       });
-    }
+    }.bind(this)
   });
 }
 
@@ -54,3 +53,13 @@ function processAdd() {
 function processError(error) {
   alert(JSON.stringify(error));
 }
+
+
+// add an overlay to the map.
+map1.addOverlay({
+    overlay: overlay1,
+    onSuccess: processAdd,
+    onError: processError
+});
+
+
