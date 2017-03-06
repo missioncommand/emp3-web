@@ -41,4 +41,4 @@ function addFeatures(args) {
 map1.addOverlay({
   overlay: overlay1,
   onSuccess: addFeatures
-})
+});

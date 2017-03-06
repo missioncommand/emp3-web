@@ -1,27 +1,45 @@
-<a href="https://github.com/missioncommand/emp3-web/tree/development"><img style="position: absolute; top: 0px; right: 0px; border: 0;" src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67" alt="Fork me on GitHub" data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
+<a href="https://github.com/missioncommand/emp3-web/tree/development"><img
+        style="position: absolute; top: 0px; right: 0px; border: 0;"
+        src="https://camo.githubusercontent.com/365986a132ccd6a44c23a9169022c0b5c890c387/68747470733a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f7265645f6161303030302e706e67"
+        alt="Fork me on GitHub"
+        data-canonical-src="https://s3.amazonaws.com/github/ribbons/forkme_right_red_aa0000.png"></a>
 <div class="mdl-grid" style="max-width: 1024px">
     <div class="mdl-cell mdl-cell--12-col">
-    <h2>Overview</h2>
-    <p>EMP Web is an SDK for integrating geospatial visualization and interaction in web applications. EMP abstracts away vendor specific map tool kits and APIs enabling your application to choose between map engine providers, such as Cesium or Leaflet, while using a simple, consistent API.
-</p><p>
-EMP provides a streamlined API with many helper utilities making complex interactions, such as drawing and editing Ellipses, Rectangles, and MIL-STD-2525 Tactical graphics a breeze.</p>
+        <h2>Overview</h2>
+        <p>EMP Web is an SDK for integrating geospatial visualization and interaction in web applications. EMP abstracts
+            away vendor specific map tool kits and APIs enabling your application to choose between map engine
+            providers, such as Cesium or Leaflet, while using a simple, consistent API.
+        </p>
+        <p>
+            EMP provides a streamlined API with many helper utilities making complex interactions, such as drawing and
+            editing Ellipses, Rectangles, and MIL-STD-2525 Tactical graphics a breeze.</p>
 
         Use Cases:
         <ul>
             <li>Integration into web applications as a native component</li>
-            <li>Use as a "widget" via HTML 5 standards such as HTML Messaging for window to iframe, window to window, or tab to tab communication between your web application and an EMP map instance running on a seprate page.</li>
+            <li>Use as a "widget" via HTML 5 standards such as HTML Messaging for window to iframe, window to window, or
+                tab to tab communication between your web application and an EMP map instance running on a seprate page.
+            </li>
             <li>Use as a "widget" in Ozone Widget Framework and Ozone Platform</li>
         </ul>
-        <p> To get started with EMP checkout resources listed in the menu</p><ul><li>Quickstart</li><li>Examples</li><li>API Docs</li></ul></p>
-        <p>you can download a release version, or build from source. A copy of this developer's guide is included in the project source, and with each release</p>
+        <p> To get started with EMP checkout resources listed in the menu</p>
+        <ul>
+            <li>Quickstart</li>
+            <li>Examples</li>
+            <li>API Docs</li>
+        </ul>
+        </p>
+        <p>you can download a release version, or build from source. A copy of this developer's guide is included in the
+            project source, and with each release</p>
         <h2>Architecture</h2>
         <p>EMP3 is broken into a modular design with 4 primary component areas:</p>
-        <img src="img/components.png" style="width: 100%" />
+        <img src="img/components.png" style="width: 100%"/>
         <ol>
             <li><strong>Map API</strong>
                 <ul>
                     <li>Acts as single, consistent interface for any application that uses the map framework</li>
-                    <li><a href="http://www.cmapi.org" target="_blank">CMAPI 1.3.0</a> compliant - <em>NOTE users of EMP do not need to know about or understand CMAPI</em>
+                    <li><a href="http://www.cmapi.org" target="_blank">CMAPI 1.3.0</a> compliant - <em>NOTE users of EMP
+                        do not need to know about or understand CMAPI</em>
                     </li>
                 </ul>
             </li>
@@ -44,9 +62,11 @@ EMP provides a streamlined API with many helper utilities making complex interac
                 <ul>
                     <li>Glue Code
                         <ul>
-                            <li>Translates data and events between 3rd party SDK and the normalized map engine interface types
+                            <li>Translates data and events between 3rd party SDK and the normalized map engine interface
+                                types
                             </li>
-                            <li>Allows for integration of multiple 3rd party map SDKs without affecting development community using the EMP API
+                            <li>Allows for integration of multiple 3rd party map SDKs without affecting development
+                                community using the EMP API
                             </li>
                             <li>Establish clear contract for integration of new map SDKs as needed</li>
                         </ul>
@@ -55,7 +75,8 @@ EMP provides a streamlined API with many helper utilities making complex interac
                         <ul>
                             <li>Provides actual geospatial visualization of map, terrain, and feature data</li>
                             <li>Examples Are Cesium, Leaflet, NASA World Wind Web</li>
-                            <li>Developer interacting with EMP API has no knowledge of the specific SDK and can be confident their code will run consistently regardless of the map engine being used
+                            <li>Developer interacting with EMP API has no knowledge of the specific SDK and can be
+                                confident their code will run consistently regardless of the map engine being used
                             </li>
                         </ul>
                     </li>
