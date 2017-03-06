@@ -270,6 +270,7 @@ var manifest = {
     'src/sdk/api/responseBrokers/emp3.api.ResponseBrokerFactory.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.plotFeatureTransactionComplete.js',
+    'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.handleUnplotFeatureTransactionComplete.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.handleMapGet.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.handleOverlayTransactionComplete.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.handleCreateOverlayTransactionComplete.js',
