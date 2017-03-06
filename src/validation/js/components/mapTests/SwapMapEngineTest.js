@@ -4,21 +4,6 @@ import React, {Component, PropTypes} from 'react';
 import VText from '../shared/VText';
 import RelatedTests from '../../containers/RelatedTests';
 
-/**
- * If this test loads first, we may not have the empConfig values loaded yet,
- * this will be run during componentDidMount and will call itself until the configs are loaded
- */
-const checkForConfig = function() {
-  if (!empConfig.engines) {
-    setTimeout(checkForConfig, 100);
-  } else {
-    let initialMapEngineId = empConfig.startMapEngineId;
-    this.setState({
-      selectedMapEngineConfig: _.find(empConfig.engines, {mapEngineId: initialMapEngineId})
-    });
-  }
-};
-
 class swapMapEngineTest extends Component {
   constructor(props) {
     super(props);
@@ -32,11 +17,27 @@ class swapMapEngineTest extends Component {
     this.updateSelectedMapEngine = this.updateSelectedMapEngine.bind(this);
     this.updateMapEngine = this.updateMapEngine.bind(this);
     this.swapMap = this.swapMap.bind(this);
+    this.checkForConfig = this.checkForConfig.bind(this);
   }
 
   componentDidMount() {
     // Wait for the empConfig to finish loading
-    checkForConfig.call(this);
+    this.checkForConfig();
+  }
+
+  /**
+   * If this test loads first, we may not have the empConfig values loaded yet,
+   * this will be run during componentDidMount and will call itself until the configs are loaded
+   */
+  checkForConfig() {
+    if (!empConfig.engines) {
+      setTimeout(this.checkForConfig.bind(this), 100);
+    } else {
+      let initialMapEngineId = empConfig.startMapEngineId;
+      this.setState({
+        selectedMapEngineConfig: _.find(empConfig.engines, {mapEngineId: initialMapEngineId})
+      });
+    }
   }
 
   componentWillReceiveProps(props) {

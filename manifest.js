@@ -270,6 +270,7 @@ var manifest = {
     'src/sdk/api/responseBrokers/emp3.api.ResponseBrokerFactory.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.plotFeatureTransactionComplete.js',
+    'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.handleUnplotFeatureTransactionComplete.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.handleMapGet.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.handleOverlayTransactionComplete.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.handleCreateOverlayTransactionComplete.js',
@@ -447,7 +448,7 @@ var manifest = {
     "src/mapengine/cesium/js/cesium-map-engine.debug.js"
   ],
   worldwind: [
-    "src/mapengine/worldwind/worldwindlib.js",
+    "src/mapengine/worldwind/worldwind.min.js",
     "src/mapengine/worldwind/worldwind-map-engine.debug.js",
     "src/mapengine/worldwind/EMPWorldWind.js",
     "src/mapengine/worldwind/data/EMPWorldWind.data.js",

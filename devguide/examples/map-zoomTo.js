@@ -1,6 +1,4 @@
-
-// Adds an overlay and a polygon to the map and zooms to
-// the new polygon.
+// Adds an overlay and a polygon to the map and zooms to the new polygon.
 
 var overlay1 = new emp3.api.Overlay({
   name: "My Overlay",
