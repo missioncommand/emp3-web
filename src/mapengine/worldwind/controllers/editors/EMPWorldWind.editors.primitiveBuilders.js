@@ -15,7 +15,7 @@ EMPWorldWind.editors.primitiveBuilders = EMPWorldWind.editors.primitiveBuilders 
  */
 EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature, selectionStyle) {
   var lineColor, fillColor, highlightAttributes,
-    selectedLineColor, selectedFillColor;
+    selectedLineColor, selectedFillColor, labelColor, selectedLabelColor;
 
   var attributes = new WorldWind.ShapeAttributes();
 
