@@ -3,12 +3,6 @@ var overlay1 = new emp3.api.Overlay({
     id: "w834mne-sdg5467-sdf-we45"
 });
 
-// add an overlay to the map.
-map1.addOverlay({
-    overlay: overlay1,
-    onSuccess: processAdd,
-    onError: processError
-});
 
 // After we know an overlay has been added, we can draw the symbol.
 // You don't need an overlay to draw, but when the draw is complete,
@@ -45,7 +39,7 @@ function processAdd() {
       });
         }
       });
-    }
+    }.bind(this)
   });
 }
 
@@ -53,3 +47,13 @@ function processAdd() {
 function processError(error) {
     alert(JSON.stringify(error));
 }
+
+
+// add an overlay to the map.
+map1.addOverlay({
+    overlay: overlay1,
+    onSuccess: processAdd,
+    onError: processError
+});
+
+
