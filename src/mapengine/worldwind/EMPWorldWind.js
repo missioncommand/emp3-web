@@ -544,6 +544,89 @@ EMPWorldWind.map.prototype.removeWmsFromMap = function(item) {
 
 /**
  *
+ * @param {emp.typeLibrary.WMTS} empWMTS
+ * @param {EMPWorldWind.map~WMTSCallback} callback
+ */
+EMPWorldWind.map.prototype.addWmtsToMap = function(empWMTS, callback) {
+  var rc = {
+    success: false,
+    message: ''
+  };
+
+  var xmlHttpRequest, url,
+    async = true,
+    that = this;
+
+  // Handle getting capabilities
+  function xhrSuccess() {
+    var layerCapabilities, layerElement, wmts;
+
+    if (this.status === 200) {
+      try {
+        layerElement = this.responseXML.getElementsByTagName('Layer');
+        layerCapabilities = new WorldWind.WmtsLayerCapabilities(layerElement[0], this.responseXML);
+        wmts = new WorldWind.WmtsLayer(layerCapabilities);
+
+        that.worldWind.addLayer(wmts);
+        that.services[empWMTS.coreId] = wmts;
+
+        that.worldWind.redraw();
+      } catch (err) {
+        // TODO pass this up to the call
+        window.console.error(err);
+      }
+    }
+  }
+
+  // Handle getting error
+  function xhrError() {
+    // TODO pass this up to the call
+    window.console.error(this.statusText);
+  }
+
+  try {
+    url = empWMTS.url + "?SERVICE=WMTS&REQUEST=GetCapabilities&LAYER=" + empWMTS.layer;
+
+    // Configure the request
+    xmlHttpRequest = new XMLHttpRequest();
+    xmlHttpRequest.open("GET", url, async);
+    xmlHttpRequest.callback = callback;
+    xmlHttpRequest.onload = xhrSuccess;
+    xmlHttpRequest.onerror = xhrError;
+
+    // Make the request
+    xmlHttpRequest.send();
+
+    rc.success = true;
+  } catch (err) {
+    rc.message = err.message;
+  }
+
+  return rc;
+};
+
+/**
+ * @callback EMPWorldwind.map~WMTSCallback
+ *
+ */
+
+
+/**
+ *
+ * @param {emp.typeLibrary.WMTS} empWMTS
+ */
+EMPWorldWind.map.prototype.removeWmtsFromMap = function(empWMTS) {
+  var rc = {
+    success: false,
+    message: ''
+  };
+
+  return rc;
+};
+
+
+/**
+ *
  * @param id
  * @returns {boolean}
  */

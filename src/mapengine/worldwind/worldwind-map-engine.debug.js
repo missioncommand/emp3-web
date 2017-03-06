@@ -452,6 +452,51 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     }
   };
 
+  /**
+   *
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.wmts.add = function(transaction) {
+    var failures = [];
+    var count = transaction.items.length;
+
+    function _completeCallback() {
+      if (count === 0) {
+        transaction.run();
+      } else {
+        count--;
+      }
+    }
+
+    // Pause the transaction, we have to manually get the capabilities
+    transaction.pause();
+    emp.util.each(transaction.items, function(wmts) {
+      var rc = empWorldWind.addWmtsToMap(wmts, _completeCallback);
+      if (!rc.success) {
+        failures.push(wmts);
+      }
+    }.bind(this));
+
+    transaction.failures = failures;
+  };
+
+  /**
+   *
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.wmts.remove = function(transaction) {
+    var failures = [];
+
+    emp.util.each(transaction.items, function(wmts) {
+      var rc = empWorldWind.removeWmtsFromMap(wmts);
+      if (!rc.success) {
+        failures.push(wmts);
+      }
+    }.bind(this));
+
+    transaction.failures = failures;
+  };
+
   // return the engineInterface object as a new engineTemplate instance
   return engineInterface;
 };
