@@ -1,8 +1,14 @@
 var overlay1 = new emp3.api.Overlay({
-    name: "overlay1",
-    id: "w834mne-sdg5467-sdf-we45"
+  name: "overlay1",
+  id: "w834mne-sdg5467-sdf-we45"
 });
 
+// add an overlay to the map.
+map1.addOverlay({
+  overlay: overlay1,
+  onSuccess: processAdd,
+  onError: processError
+});
 
 // After we know an overlay has been added, we can draw the symbol.
 // You don't need an overlay to draw, but when the draw is complete,
@@ -33,10 +39,10 @@ function processAdd() {
       // this is what actually adds the feature to the map.
       overlay1.addFeature({
         feature: args.feature,
-        onSuccess: function(){
+        onSuccess: function() {
           map1.editFeature({
-        feature: args.feature
-      });
+            feature: args.feature
+          });
         }
       });
     }.bind(this)
@@ -45,7 +51,7 @@ function processAdd() {
 
 
 function processError(error) {
-    alert(JSON.stringify(error));
+  alert(JSON.stringify(error));
 }
 
 

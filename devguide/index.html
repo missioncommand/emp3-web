@@ -22,91 +22,100 @@
     <link href="css/material.font.css" rel="stylesheet">
     <link href="css/material.icons.css" rel="stylesheet">
     <link href="vendor/mdl/material.cyan-orange.min.css" rel="stylesheet">
-    <link href="vendor/mil-sym/renderer.css" rel="stylesheet" type="text/css" />
+    <link href="vendor/mil-sym/renderer.css" rel="stylesheet" type="text/css"/>
     <script src="vendor/mdl/material.min.js" type="text/javascript"></script>
     <script src="vendor/ace/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
     <style>
-    .exampEditor {
-        background-color: #bbbbbb;
-        box-sizing: border-box;
-        margin: 0px;
-        padding: 0px;
-        position: absolute;
-        top: 0px;
-        width: 50%;
-        left: 50%;
-        bottom: 0px;
-        right:0px;
-    }
-    
-    .exampMap {
-        box-sizing: border-box;
-        margin: 0px;
-        padding: 0px;
-        position: absolute;
-        top: 0px;
-        width: 50%;
-        right: 50%;
-        bottom: 0px;
-    }
-
-    @media only screen and (max-width: 800px) {
-
-       .exampEditor {
-            width: 100%;
+        .exampEditor {
+            background-color: #bbbbbb;
+            box-sizing: border-box;
+            margin: 0px;
+            padding: 0px;
+            position: absolute;
             top: 0px;
-            left: 0px;
-            bottom: 50%;
-            background-color: #ffffff;
-        }
-        
-        .exampMap {
-            top: 50%;
-            right: 0px;
-            left: 0px;
+            width: 50%;
+            left: 50%;
             bottom: 0px;
-            width: 100%;
+            right: 0px;
         }
-    }
-}
+
+        .exampMap {
+            box-sizing: border-box;
+            margin: 0px;
+            padding: 0px;
+            position: absolute;
+            top: 0px;
+            width: 50%;
+            right: 50%;
+            bottom: 0px;
+        }
+
+        @media only screen and (max-width: 800px) {
+
+            .exampEditor {
+                width: 100%;
+                top: 0px;
+                left: 0px;
+                bottom: 50%;
+                background-color: #ffffff;
+            }
+
+            .exampMap {
+                top: 50%;
+                right: 0px;
+                left: 0px;
+                bottom: 0px;
+                width: 100%;
+            }
+        }
     </style>
 </head>
 
 <body>
-    <!-- The drawer is always open in large screens. The header is always shown,
-  even in small screens. -->
-    <div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
+<!-- The drawer is always open in large screens. The header is always shown,
+even in small screens. -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
             mdl-layout--fixed-header" style="overflow: hidden">
-        <header class="mdl-layout__header">
-            <div class="mdl-layout__header-row">
-                <span class="mdl-layout-title" id="topTitle">EMP Map API</span>
-                <div class="mdl-layout-spacer"></div>
-            </div>
-        </header>
-        <div class="mdl-layout__drawer mdl-color--white mdl-color--teal-700" style="overflow: hidden">
-            <nav class="mdl-navigation mdl-color--teal-700" style="padding-top: 0;overflow: hidden; ">
-                <span class="mdl-layout-title mdl-color--primary mdl-color-text--white" style="height: 64px; line-height: 64px; padding-left: 16px;">EMP<strong class="mdl-color-text--teal-800"></strong></span>
-                <div id="tree" style="padding: 24px 0 0;position: absolute; top: 64px; left:0; right: 0; bottom: 0; overflow: auto"></div>
-            </nav>
+    <header class="mdl-layout__header">
+        <div class="mdl-layout__header-row">
+            <span class="mdl-layout-title" id="topTitle">EMP Map API</span>
+            <div class="mdl-layout-spacer"></div>
         </div>
-        <main class="mdl-layout__content mdl-color--grey-50" style="position: relative; padding-right: 24px; overflow: hidden;">
-            <div style="padding: 0; position: absolute; top: 0; left:0; right: 0; bottom: 0; overflow: hidden">
-                <div id="generalContent" style="position: absolute; bottom:0;left:0;top:0;right:0;padding: 0px;overflow: auto; ">
-                </div>
-                <div id="frameContent" style="position: absolute; bottom:0;left:0;top:0;right:0;padding: 0;overflow: auto; display: none;">
-                    <iframe src="docs/android/index.html" id="genericFrame" sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups" style="width: 100%; height: 100%"></iframe>
-                </div>
-                <div id="loadingContent" style="background-color: rgba(0,0,0,0.8); display: none; position: absolute; bottom:0;left:0;top:0;right:0;padding: 24px;overflow: auto; margin: auto auto;z-index: 9999">
-                    <div style="position: absolute; bottom:50%;top:46%;width: 100%; text-align: center;">Loading</div>
-                    <div class="mdl-spinner mdl-js-spinner is-active" style="position: absolute; bottom:50%;left:51%;top:50%;right:50%;"></div>
-                </div>
+    </header>
+    <div class="mdl-layout__drawer mdl-color--white mdl-color--teal-700" style="overflow: hidden">
+        <nav class="mdl-navigation mdl-color--teal-700" style="padding-top: 0;overflow: hidden; ">
+            <span class="mdl-layout-title mdl-color--primary mdl-color-text--white"
+                  style="height: 64px; line-height: 64px; padding-left: 16px;">EMP<strong
+                    class="mdl-color-text--teal-800"></strong></span>
+            <div id="tree"
+                 style="padding: 24px 0 0;position: absolute; top: 64px; left:0; right: 0; bottom: 0; overflow: auto"></div>
+        </nav>
+    </div>
+    <main class="mdl-layout__content mdl-color--grey-50"
+          style="position: relative; padding-right: 24px; overflow: hidden;">
+        <div style="padding: 0; position: absolute; top: 0; left:0; right: 0; bottom: 0; overflow: hidden">
+            <div id="generalContent"
+                 style="position: absolute; bottom:0;left:0;top:0;right:0;padding: 0px;overflow: auto; ">
             </div>
-        </main>
-    </div>
-    <div id="toaster" class="mdl-js-snackbar mdl-snackbar">
-        <div class="mdl-snackbar__text"></div>
-        <button class="mdl-snackbar__action" type="button"></button>
-    </div>
+            <div id="frameContent"
+                 style="position: absolute; bottom:0;left:0;top:0;right:0;padding: 0;overflow: auto; display: none;">
+                <iframe src="docs/android/index.html" id="genericFrame"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock allow-popups"
+                        style="width: 100%; height: 100%"></iframe>
+            </div>
+            <div id="loadingContent"
+                 style="background-color: rgba(0,0,0,0.8); display: none; position: absolute; bottom:0;left:0;top:0;right:0;padding: 24px;overflow: auto; margin: auto auto;z-index: 9999">
+                <div style="position: absolute; bottom:50%;top:46%;width: 100%; text-align: center;">Loading</div>
+                <div class="mdl-spinner mdl-js-spinner is-active"
+                     style="position: absolute; bottom:50%;left:51%;top:50%;right:50%;"></div>
+            </div>
+        </div>
+    </main>
+</div>
+<div id="toaster" class="mdl-js-snackbar mdl-snackbar">
+    <div class="mdl-snackbar__text"></div>
+    <button class="mdl-snackbar__action" type="button"></button>
+</div>
 </body>
 <script src="vendor/jquery/jquery-1.11.1.min.js" type="text/javascript"></script>
 <script src="vendor/jquery/jquery-ui.custom.js" type="text/javascript"></script>
