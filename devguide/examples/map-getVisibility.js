@@ -2,14 +2,14 @@
 // and checks the visibility of each one.
 
 var overlay1 = new emp3.api.Overlay({
-    name: "overlay1",
-    id: "w834mne-sdg5467-sdf-we45"
+  name: "overlay1",
+  id: "w834mne-sdg5467-sdf-we45"
 });
 
 // add an overlay to the map.
 map1.addOverlay({
-    overlay: overlay1,
-    onSuccess: processAdd
+  overlay: overlay1,
+  onSuccess: processAdd
 });
 
 // After the overlay is added, add the point
@@ -32,7 +32,7 @@ function processAdd() {
   overlay1.addFeature({
     feature: point,
     onSuccess: function() {
-      // retrieve the visibility state for the overaly
+      // retrieve the visibility state for the overlay
       map1.getVisibility({
         target: overlay1,
         onSuccess: function() {
