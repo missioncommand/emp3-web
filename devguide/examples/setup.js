@@ -10,7 +10,7 @@ var map1 = new emp3.api.Map({
     mapEngineId: "cesium"
   },
   onSuccess: function() {
-    // Here you receive an event that the EMP map instance is ready to be used.  This can take a while especially the first time an engine is loaded.  If the engine is used in the application more than once, it is opnly loaded once and is faster for additional instance.  If the resources get cached by browser, then this will also make future loading faster as well
+    // Here you receive an event that the EMP map instance is ready to be used.  This can take a while especially the first time an engine is loaded.  If the engine is used in the application more than once, it is only loaded once and is faster for additional instance.  If the resources get cached by browser, then this will also make future loading faster as well
     console.log("Map creation success.");
     // define a new WMTS service
     var wmts = new emp3.api.WMTS({
