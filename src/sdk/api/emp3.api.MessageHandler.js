@@ -3320,8 +3320,7 @@ emp3.api.MessageHandler = (function() {
         console.error("onSuccess function generated an exception." + "\n  name:" + e.name + "\n  message:" + e.message + "\n  stack:" + e.stack);
       }
     };
-    
-    */
+
     /**
      * This method is a direct call to the map engine. It is not asynchronous.
      *
