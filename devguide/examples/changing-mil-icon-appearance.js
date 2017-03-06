@@ -52,7 +52,7 @@ var changeAppearance = function() {
         break;
       case 2:
         // change opacity
-        //sym.fillStyle.fillColor.alpha = 0.5;
+        sym.fillStyle.fillColor.alpha = 0.5;
         break;
       case 3:
         // change Echelon -- just change the symbol id to include echelon code

@@ -69,6 +69,8 @@ var manifest = {
     'src/sdk/core/editors/emp.editors.EditorBase.js',
     'src/sdk/core/editors/emp.editors.Point.js',
     'src/sdk/core/editors/emp.editors.Path.js',
+    'src/sdk/core/editors/emp.editors.Polygon.js',
+    'src/sdk/core/editors/emp.editors.MilStdPolygon.js',
     'src/sdk/core/environment/owf/emp.environment.owf.js',
     'src/sdk/core/environment/browser/emp.environment.browser.js',
     'src/sdk/core/environment/browser/emp.environment.browser.mediator.js',
@@ -445,7 +447,7 @@ var manifest = {
     "src/mapengine/cesium/js/cesium-map-engine.debug.js"
   ],
   worldwind: [
-    "src/mapengine/worldwind/worldwindlib.js",
+    "src/mapengine/worldwind/worldwind.min.js",
     "src/mapengine/worldwind/worldwind-map-engine.debug.js",
     "src/mapengine/worldwind/EMPWorldWind.js",
     "src/mapengine/worldwind/data/EMPWorldWind.data.js",

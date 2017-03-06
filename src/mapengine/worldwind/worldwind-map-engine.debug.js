@@ -1,4 +1,5 @@
 var EMPWorldWind = window.EMPWorldWind || {};
+var emp = window.emp || {};
 emp.engineDefs = emp.engineDefs || {};
 
 /**
@@ -11,7 +12,7 @@ emp.engineDefs = emp.engineDefs || {};
 emp.engineDefs.worldWindMapEngine = function(args) {
 
   var empMapInstance = args.mapInstance;
-  /** @type EMPWorldWind.map */
+  /** @type EMPWorldWind.map# */
   var empWorldWind;
 
   var engineInterface = emp.map.createEngineTemplate(),
@@ -139,9 +140,6 @@ emp.engineDefs.worldWindMapEngine = function(args) {
         bufferScale = 2.25; // Assume conic view from the camera
         feature = transaction.items[0];
         switch (feature.format) {
-          case emp3.api.enums.FeatureTypeEnum.GEO_ACM:
-            // TODO compute bounding box diagonal distance
-            break;
           case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
             altitude = feature.properties.radius * bufferScale;
             break;
@@ -154,8 +152,9 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
             altitude = feature.properties.width * bufferScale;
             break;
+          case emp3.api.enums.FeatureTypeEnum.GEO_ACM: // TODO compute bounding box diagonal distance
           default:
-            altitude = undefined; // Remain at the current altitude
+            altitude = 10000; // Default to 10000m
         }
 
         args = {

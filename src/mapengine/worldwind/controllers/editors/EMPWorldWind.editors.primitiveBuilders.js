@@ -8,8 +8,8 @@ EMPWorldWind.editors = EMPWorldWind.editors || {};
 EMPWorldWind.editors.primitiveBuilders = EMPWorldWind.editors.primitiveBuilders || {};
 
 /**
- *
- * @param {emp.typeLibrary.Feature | object}feature
+ * Wrapper function for generating the appropriate attributes based on the given feature and selection style
+ * @param {emp.typeLibrary.Feature | object} feature
  * @param {SelectionStyle} selectionStyle
  * @returns {{attributes: *, highlightAttributes: *}}
  */
@@ -22,7 +22,41 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
   switch (feature.format) {
     case emp3.api.enums.FeatureTypeEnum.GEO_ACM: // TODO handle GEO_ACM attributes
     case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL: // Do nothing, handled by renderer, no primitives
-    case emp3.api.enums.FeatureTypeEnum.GEO_POINT: // TODO placemark attributes are still done in the placemark constructor function
+    case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
+      // Use PlacemarkAttributes
+      attributes = new WorldWind.PlacemarkAttributes();
+
+      // Set the imageURL
+      attributes.imageSource = feature.properties.iconUrl || WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+
+      // Create the label attributes
+      attributes.labelAttributes = new WorldWind.TextAttributes();
+      attributes.labelAttributes.offset = new WorldWind.Offset(
+        WorldWind.OFFSET_FRACTION, -0.5,
+        WorldWind.OFFSET_FRACTION, 1.5
+      );
+
+      // Create the highlight attributes
+      highlightAttributes = new WorldWind.PlacemarkAttributes(attributes);
+
+      // Create separate label highlights, will be linked and overridden to the normal attributes if not
+      highlightAttributes.labelAttributes = new WorldWind.TextAttributes(attributes.labelAttributes);
+
+      // Image scale may differ when selected
+      if (selectionStyle.scale) {
+        highlightAttributes.imageScale = selectionStyle.scale;
+      }
+
+      if (selectionStyle.lineColor) {
+        selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+        highlightAttributes.imageColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+      } else {
+        highlightAttributes.imageColor = WorldWind.Color.YELLOW;
+      }
+
+      // Update the label attributes for highlighted labels
+      highlightAttributes.labelAttributes.offset = attributes.labelAttributes.offset;
+      highlightAttributes.labelAttributes.color = highlightAttributes.imageColor;
       break;
     case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
       // GeographicText requires TextAttributes instead
@@ -301,41 +335,26 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON = fun
  * @returns {WorldWind.Placemark}
  */
 EMPWorldWind.editors.primitiveBuilders.constructPlacemark = function(feature, selectionStyle) {
-  var location, placemark, highlightAttributes, attributes, selectedLineColor,
-    eyeDistanceScaling = true;
+  var position, placemark, attributes,
+    eyeDistanceScaling = false;
 
-  attributes = new WorldWind.PlacemarkAttributes();
+  // Create the placemark attributes
+  attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
 
-  attributes.imageSource = feature.properties.iconUrl || WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+  // Set the position
+  position = new WorldWind.Position(
+    feature.data.coordinates[1],
+    feature.data.coordinates[0],
+    feature.data.coordinates[2] || 0);
 
-  attributes.labelAttributes = new WorldWind.TextAttributes();
-  attributes.labelAttributes.offset = new WorldWind.Offset(
-    WorldWind.OFFSET_FRACTION, -0.5,
-    WorldWind.OFFSET_FRACTION, 1.5
-  );
+  // Construct the primitive
+  placemark = new WorldWind.Placemark(position, eyeDistanceScaling, attributes.attributes);
 
-  location = new WorldWind.Location(feature.data.coordinates[1], feature.data.coordinates[0]);
-
-  highlightAttributes = new WorldWind.PlacemarkAttributes();
-
-  if (selectionStyle.scale) {
-    highlightAttributes.imageScale = selectionStyle.scale;
-  }
-
-  if (selectionStyle.lineColor) {
-    selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-    highlightAttributes.imageColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
-  } else {
-    highlightAttributes.imageColor = WorldWind.Color.YELLOW;
-  }
-
-  highlightAttributes.labelAttributes.offset = attributes.labelAttributes.offset;
-  highlightAttributes.labelAttributes.color = highlightAttributes.imageColor;
-
-  placemark = new WorldWind.Placemark(location, eyeDistanceScaling, attributes);
+  // Set the placemark attributes
+  placemark.alwaysOnTop = true;
   placemark.label = feature.name;
   placemark.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
-  placemark.highlightAttributes = new WorldWind.PlacemarkAttributes(highlightAttributes);
+  placemark.highlightAttributes = new WorldWind.PlacemarkAttributes(attributes.highlightAttributes);
 
   return placemark;
 };
