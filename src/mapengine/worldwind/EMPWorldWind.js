@@ -559,12 +559,13 @@ EMPWorldWind.map.prototype.addWmtsToMap = function(empWMTS, callback) {
 
   // Handle getting capabilities
   function xhrSuccess() {
-    var layerCapabilities, layerElement, wmts;
+    var layerCapabilities, documentCapabilities, layerElement, wmts;
 
     if (this.status === 200) {
       try {
-        layerElement = this.responseXML.getElementsByTagName('Layer');
-        layerCapabilities = new WorldWind.WmtsLayerCapabilities(layerElement[0], this.responseXML);
+        documentCapabilities = new WorldWind.WmtsCapabilities(this.responseXML);
+        layerElement = documentCapabilities.contents.layer[0];
+        layerCapabilities = new WorldWind.WmtsLayerCapabilities(layerElement, documentCapabilities);
         wmts = new WorldWind.WmtsLayer(layerCapabilities);
 
         that.worldWind.addLayer(wmts);
@@ -615,7 +616,7 @@ EMPWorldWind.map.prototype.addWmtsToMap = function(empWMTS, callback) {
  *
  * @param {emp.typeLibrary.WMTS} empWMTS
  */
-EMPWorldWind.map.prototype.removeWmtsFromMap = function(empWMTS) {
+EMPWorldWind.map.prototype.removeWmtsFromMap = function(/* empWMTS */) {
   var rc = {
     success: false,
     message: ''
