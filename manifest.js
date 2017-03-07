@@ -448,8 +448,7 @@ var manifest = {
     "src/mapengine/cesium/js/cesium-map-engine.debug.js"
   ],
   worldwind: [
-    "src/mapengine/worldwind/worldwind.min.js",
-    "src/mapengine/worldwind/worldwind-map-engine.debug.js",
+    "src/mapengine/worldwind/worldwind-map-engine.js",
     "src/mapengine/worldwind/EMPWorldWind.js",
     "src/mapengine/worldwind/data/EMPWorldWind.data.js",
     "src/mapengine/worldwind/data/EMPWorldWind.data.EmpLayer.js",

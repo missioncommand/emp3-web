@@ -35,49 +35,47 @@ function initializeWorldwind(args) {
       wwCanvas.style.width = "100%";
       container.appendChild(wwCanvas);
 
-      // TODO pass in an elevationModel that uses local data
-
+      // TODO pass in an elevationModel that uses local dat
       var wwd = new WorldWind.WorldWindow(wwCanvas.id);
 
       // Tell the World Window that we want deep picking.
       wwd.deepPicking = true;
 
+      // Always add a default layer
+      wwd.addLayer(new WorldWind.BMNGOneImageLayer());
+
       // Add some image layers to the World Window"s globe.
       var numLayers = args.engine.properties.defaultLayers.length;
-      if (!numLayers) {
-        // TODO uses local data to make a base layer instead of BMNGLayer(reaches back to NASA)
-        wwd.addLayer(new WorldWind.BMNGLayer());
-      } else {
-        for (i = 0; i < numLayers; i++) {
-          var layer,
-            descriptor = args.engine.properties.defaultLayers[i];
 
-          if (!descriptor.type) {
-            window.console.warn('No type specified for layer data; skipping it');
-            continue;
-          }
+      for (i = 0; i < numLayers; i++) {
+        var layer,
+          descriptor = args.engine.properties.defaultLayers[i];
 
-          switch (descriptor.type.toLowerCase()) {
-            case "wms":
-              // Handle defaults
-              descriptor.sector = descriptor.sector || WorldWind.Sector.FULL_SPHERE;
-              descriptor.levelZeroDelta = descriptor.levelZeroDelta || new WorldWind.Location(45, 45);
-              descriptor.numLevels = descriptor.numLevels || 15;
-              descriptor.format = descriptor.format || "image/png";
-              descriptor.size = descriptor.size || 256;
+        if (!descriptor.type) {
+          window.console.warn('No type specified for layer data; skipping it');
+          continue;
+        }
 
-              layer = new WorldWind.WmsLayer(descriptor);
-              break;
-            case "arcgis93rest":
-            case "wmts":
-            default:
-            // Not yet supported
-          }
+        switch (descriptor.type.toLowerCase()) {
+          case "wms":
+            // Handle defaults
+            descriptor.sector = descriptor.sector || WorldWind.Sector.FULL_SPHERE;
+            descriptor.levelZeroDelta = descriptor.levelZeroDelta || new WorldWind.Location(45, 45);
+            descriptor.numLevels = descriptor.numLevels || 15;
+            descriptor.format = descriptor.format || "image/png";
+            descriptor.size = descriptor.size || 256;
 
-          // Add the layer
-          if (layer) {
-            wwd.addLayer(layer);
-          }
+            layer = new WorldWind.WmsLayer(descriptor);
+            break;
+          case "arcgis93rest":
+          case "wmts":
+          default:
+          // Not yet supported
+        }
+
+        // Add the layer
+        if (layer) {
+          wwd.addLayer(layer);
         }
       }
 
@@ -102,8 +100,8 @@ function initializeWorldwind(args) {
 
   if (args.engine.properties.debug === true) {
     resourceList = [
-      "worldwind.min.js",
-      "worldwind-map-engine.debug.js",
+      "worldwind.js",
+      "worldwind-map-engine.js",
       "EMPWorldWind.js",
       "data/EMPWorldWind.data.js",
       "data/EMPWorldWind.data.EmpLayer.js",
