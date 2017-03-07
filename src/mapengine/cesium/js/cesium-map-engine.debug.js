@@ -541,6 +541,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 }
             }
         }
+         empCesium.redrawGraphics();
         if (failList.length > 0)
         {
             transaction.fail(failList);
@@ -707,6 +708,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     }
                 }
             }
+             empCesium.redrawGraphics();
             if (failList.length > 0)
             {
                 transaction.fail(failList);

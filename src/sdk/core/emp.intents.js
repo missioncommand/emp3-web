@@ -366,6 +366,9 @@ emp.intents.control.useNewEditing = function(args) {
   } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
     (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
     result = true;
+  } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
+    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
+    result = true;
   }
 
   return result;

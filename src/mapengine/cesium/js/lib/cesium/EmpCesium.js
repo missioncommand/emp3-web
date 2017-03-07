@@ -4620,18 +4620,22 @@ function EmpCesium()
                 billboard,
                 basicSymbolID,
                 selectionProperties,
-                within,
+                within = true, cartographicPosition,
+                distanceToCenterOfMap,
+                bearingToCenterOfMap,
+                bufferAtHorizonCartographic,
                 isSinglePointPresent = false,
                 isSkyVisible = false,
                 highScaleImage,
                 callRenderer = false,
                 azimuth = 0,
-                callClusterIcon = false;
-        result = {
-            success: true,
-            message: "",
-            jsError: ""
-        };
+                occluder,
+                callClusterIcon = false,
+                result = {
+                    success: true,
+                    message: "",
+                    jsError: ""
+                };
 
         //add single point to singlePointCollection
         //TODO: delete this in remove function
@@ -4684,9 +4688,28 @@ function EmpCesium()
         item.coordinates = args.coordinates;
 
         //item.isSinglePointRendered =  isSinglePointPresent;
+        cartographicPosition = this.Cartographic.fromDegrees(longitude, latitude, altitude);
+        //within = this.Rectangle.contains(this.getExtent(), this.Cartographic.fromDegrees(longitude, latitude, altitude));
+        //var occluderEllipsoid = this.Ellipsoid.WGS84;
 
-        within = this.Rectangle.contains(this.getExtent(), this.Cartographic.fromDegrees(longitude, latitude, altitude));
+
+        //within = within || ; // || this.getSinglePointsIdOnHoldCount() < 50;// render if on hold less than 50
+
         isSkyVisible = this.isSkyWithinMapVisibleArea();
+        occluder = new this.EllipsoidalOccluder(this.ellipsoid, this.viewer.camera.position);
+        within = occluder.isPointVisible(this.Ellipsoid.WGS84.cartographicToCartesian(cartographicPosition));
+        if (!within && isSkyVisible)
+        {
+            // the occluder does not take into consideration the height of the billboard that shows when the point is close to the horizon.
+            //Use a buffer Point that will be  located at 10% of the distance from the point to the center of map. If that
+            // buffer point returns is visible from the occluder the billboard  is visible and withing  the view area.
+             distanceToCenterOfMap = this.viewer.camera.positionCartographic.distanceTo(cartographicPosition);
+             bearingToCenterOfMap = this.viewer.camera.positionCartographic.bearingTo(cartographicPosition);// degrees
+             bufferAtHorizonCartographic = this.viewer.camera.positionCartographic.destinationPoint(bearingToCenterOfMap + 180, distanceToCenterOfMap * .10);
+             within = occluder.isPointVisible(this.Ellipsoid.WGS84.cartographicToCartesian(bufferAtHorizonCartographic));
+        }
+
+
         var afiliationLetter = item.symbolCode.substring(1, 2);
         var highScaleImage;
 
@@ -4721,9 +4744,9 @@ function EmpCesium()
                             this.storeSinglePointIdOnHold(item.id);
                             return  result;
                         }
-                else if (isSinglePointPresent && !item.isOnUpdateDelayHold && !item.isNewAddThrotled && !item.singlePointAltitudeRangeChanged && this.enableRenderingOptimization)// this.defined(item.lastUpdateTime) &&  Math.abs(new Date().getTime() - item.lastUpdateTime) < 20000)
+                else if (isSinglePointPresent && !item.isOnUpdateDelayHold && !item.isNewAddThrotled && !item.singlePointAltitudeRangeChanged && this.enableRenderingOptimization) // this.defined(item.lastUpdateTime) &&  Math.abs(new Date().getTime() - item.lastUpdateTime) < 20000)
                 {
-                    // throttle the new updates to existing points.
+                    // throttle the new updates to existing points. Do not throttle if on hold <=  50
                     item.isOnOutsideViewableAreaHold = false;
                     item.isOnUpdateDelayHold = true;
                     item.lastUpdateTime = new Date().getTime();
@@ -4770,8 +4793,8 @@ function EmpCesium()
 //                        }
 //                        else
 //                        {
-                            layer = this.getLayer(item.parentCoreId);
-                       // }
+                        layer = this.getLayer(item.parentCoreId);
+                        // }
                     }
                     if (layer)
                     {

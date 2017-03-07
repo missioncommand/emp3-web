@@ -55,7 +55,7 @@ emp.editors.Vertices.prototype.toString = function() {
   result = "[";
 
   while (current !== null) {
-    result += current.feature.featureId;
+    result += current.feature.featureId + " (" + current.type + ")";
     current = current.next;
 
     if (current !== null) {
@@ -85,6 +85,10 @@ emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
     // the target's next property.  It will be null.
     if (target.before === null) {
       target.before = vertex;
+
+      // we are at the head so the new head is the new item
+      // we are passing in.
+      this.head = vertex;
     } else {
       target.before.next = vertex;
       target.before = vertex;
@@ -109,6 +113,7 @@ emp.editors.Vertices.prototype.append = function(featureId, vertex) {
 
     if (target.next === null) {
       target.next = vertex;
+      this.tail = vertex;
     } else {
       target.next.before = vertex;
       target.next = vertex;
@@ -182,6 +187,10 @@ emp.editors.Vertices.prototype.clear = function() {
   this.length = 0;
 };
 
+/**
+ * Returns the index of a vertex.  This does not find the index
+ * of an "add" point.
+ */
 emp.editors.Vertices.prototype.getIndex = function(featureId) {
   var index = 0,
     currentVertex = this.head;

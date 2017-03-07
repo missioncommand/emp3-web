@@ -1,4 +1,3 @@
-
 var eiffelTower = new emp3.api.LookAt({
   name: 'Eiffel Tower',
   latitude: 48.8580,
@@ -34,7 +33,7 @@ var willisTower = new emp3.api.LookAt({
   latitude: 41.8789,
   longitude: -87.6359,
   altitude: 442.1,
-  range: 100000,
+  range: 1000,
   heading: 0,
   tilt: 45
 });
