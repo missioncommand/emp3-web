@@ -92,11 +92,12 @@ class MapGetScreenCaptureTest extends Component {
       <div className='mdl-grid'>
         <span className='mdl-layout-title'>Get Screen Capture</span>
 
-        <MapSelect selectedMapId={this.state.selectedMapId}
-                   className='mdl-cell mdl-cell--12-col'
-                   label='Select Map '
-                   maps={maps}
-                   callback={event => this.setState({selectedMapId: event.target.value})}/>
+        <div className='mdl-cell mdl-cell--12-col'>
+          <MapSelect selectedMapId={this.state.selectedMapId}
+                     label='Select Map '
+                     maps={maps}
+                     callback={event => this.setState({selectedMapId: event.target.value})}/>
+        </div>
 
         <button
           className='mdl-button mdl-js-button mdl-js--ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
@@ -109,7 +110,7 @@ class MapGetScreenCaptureTest extends Component {
           <canvas ref="canvas" width={200} height={200}/>
         </div>
 
-        <button className="mdl-button mdl-js-button mdl-button--raised mdl-cell mdl-cell--12-col"
+        <button className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-cell mdl-cell--12-col"
                 style={{alignContents: 'center'}}
                 onClick={this.copyDataUrlToClipboard}
                 disabled={!this.state.preview}>
