@@ -321,9 +321,6 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       itemCount = transaction.items.length;
     for (i = 0; i < itemCount; i++) {
       item = transaction.items[i];
-      if (empWorldWind.isV2Core) {
-        item.useProxy = emp.util.config.getUseProxySetting();
-      }
       empWorldWind.addWmsToMap(item);
     }
   };
@@ -346,17 +343,28 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.feature.add = function(transaction) {
-    var i, item, result,
-      itemCount = transaction.items.length;
+    var item,
+      itemsCount = transaction.items.length;
 
-    for (i = 0; i < itemCount; i++) {
-      item = transaction.items[i];
+    // Pause the transaction
+    transaction.pause();
 
-      result = empWorldWind.plotFeature(item);
-      if (!result.success) {
-        result.feature = item;
-        transaction.fail(new emp.typeLibrary.Error(result));
-      }
+    while (itemsCount) {
+      // Note pre-decrement
+      item = transaction.items[--itemsCount];
+
+      empWorldWind.plotFeature(item, function(count, cbArgs) {
+        if (!cbArgs.success) {
+          transaction.fail(new emp.typeLibrary.Error({
+            feature: cbArgs.feature
+          }));
+        }
+
+        // All items have been processed
+        if (count === 0) {
+          transaction.run();
+        }
+      }.bind(this, itemsCount));
     }
   };
 
@@ -377,6 +385,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   /**
    *
    * @param {emp.typeLibrary.Transaction} transaction
+   * @deprecated
    */
   engineInterface.settings.mil2525.icon.labels.set = function(transaction) {
     empWorldWind.setLabelStyle(transaction.items[0]);
