@@ -18,32 +18,32 @@ let StorageEntry = ({entry}) => {
 
       if (typeof value === 'object') {
         if (prop === 'childObjects') {
-          properties.push(<div key={Math.random()} className='mdl-grid mdl-grid--no-spacing'>
+          properties.push(<div key={'childObject_' + entry.coreId} className='mdl-grid mdl-grid--no-spacing'>
             <div className='mdl-cell mdl-cell--3-col'>{prop}</div>
             <div className='mdl-cell mdl-cell--9-col'>
               {_.map(entry[prop], linkedObject => {
-                return <div>{linkedObject.options.coreId}</div>;
+                return <div key={linkedObject.options.coreId}>{linkedObject.options.coreId}</div>;
               })}
             </div>
           </div>);
         } else if (prop === 'parentObjects') {
-          properties.push(<div key={Math.random()} className='mdl-grid mdl-grid--no-spacing'>
+          properties.push(<div key={'parentObject_' + entry.coreId} className='mdl-grid mdl-grid--no-spacing'>
             <div className='mdl-cell mdl-cell--3-col'>{prop}</div>
             <div className='mdl-cell mdl-cell--9-col'>
               {_.map(entry[prop], linkedObject => {
-                return (<div key={Math.random()}>
+                return (<div key={linkedObject.options.parentStorageEntry.options.coreId}>
                   {linkedObject.options.parentStorageEntry.options.coreId}</div>);
               })}
             </div>
           </div>);
         } else {
-          properties.push(<div key={Math.random()} className='mdl-grid mdl-grid--no-spacing'>
+          properties.push(<div key={'genericProp_' + entry.coreId + '_' + prop} className='mdl-grid mdl-grid--no-spacing'>
             <div className='mdl-cell mdl-cell--3-col'>{prop}</div>
             <div className='mdl-cell mdl-cell--9-col'>TODO</div>
           </div>);
         }
       } else {
-        properties.push(<div key={Math.random()} className='mdl-grid mdl-grid--no-spacing'>
+        properties.push(<div key={'genericProp_' + entry.coreId + '_' + prop + '_' + value} className='mdl-grid mdl-grid--no-spacing'>
           <div className='mdl-cell mdl-cell--3-col'>{prop}</div>
           <div className='mdl-cell mdl-cell--9-col'>{value}</div>
         </div>);
@@ -115,7 +115,8 @@ class EMPStorageStructure extends Component {
           </div>
           <div className='mdl-cell mdl-cell--4-col'>
             <label htmlFor='typeSelect'>Show </label>
-            <select id='typeSelect' value={this.state.typeFilter} onChange={event => this.setState({typeFilter: event.target.value.toLowerCase()})}>
+            <select id='typeSelect' value={this.state.typeFilter}
+                    onChange={event => this.setState({typeFilter: event.target.value.toLowerCase()})}>
               <option value=''>All</option>
               <option value='static'>Static</option>
               <option value='overlay'>Overlay</option>

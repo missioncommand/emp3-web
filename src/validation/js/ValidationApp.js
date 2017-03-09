@@ -1,3 +1,5 @@
+/* global empConfig */
+
 // Import required modules
 import * as React from 'react';
 import {Component, PropTypes} from 'react';
@@ -12,8 +14,6 @@ import ControlPanel from './components/ControlPanel';
 import Results from './containers/Results';
 
 import Settings from './components/Settings';
-
-import {CoordinatesWindow} from './components/windows';
 
 // Import actions
 import {addError, addResult, clearResults} from './actions/ResultActions';
@@ -30,16 +30,6 @@ import {
 } from './actions/EventListenerCallbackActions';
 import {addCamera} from './actions/CameraActions';
 import {addLookAt} from './actions/LookAtActions';
-
-// This fixes the load time on the config object
-const waitForConfig = function() {
-  if (!empConfig.engines) {
-    setTimeout(waitForConfig.bind(this), 50);
-  } else {
-    componentHandler.upgradeDom();
-    this.forceUpdate();
-  }
-};
 
 class ValidationApp extends Component {
 
@@ -74,11 +64,24 @@ class ValidationApp extends Component {
     this.showResults = this.showResults.bind(this);
     this.toggleSettings = this.toggleSettings.bind(this);
     this.mapGoto = this.mapGoto.bind(this);
+    this.waitForConfig = this.waitForConfig.bind(this);
   }
 
   componentDidMount() {
     document.addEventListener('mouseup', this.handleMouseUp);
-    waitForConfig.call(this);
+    this.waitForConfig();
+  }
+
+  /**
+   * This fixes the load time on the config object
+   */
+  waitForConfig() {
+    if (!empConfig.engines) {
+      setTimeout(this.waitForConfig, 50);
+    } else {
+      componentHandler.upgradeDom();
+      this.forceUpdate();
+    }
   }
 
   componentDidUpdate() {
@@ -146,23 +149,25 @@ class ValidationApp extends Component {
    * @param {boolean} [recorder=false]
    */
   createMap(bounds, mapEngineId, silent = false, recorder = false, brightness = 50,
-    midDistanceThreshold = 20000, farDistanceThreshold = 600000) {
-    var config = empConfig;
+            midDistanceThreshold = 20000, farDistanceThreshold = 600000) {
+    const {maps, addResult, addCamera, addMap, addError} = this.props;
+    const toastrTitle = 'Create Map';
+    let config = empConfig;
 
     if (typeof empConfig.recorder !== 'undefined') {
       recorder = empConfig.recorder;
     }
 
-    const {maps, addResult, addCamera, addMap, addError} = this.props;
-    const toastrTitle = 'Create Map';
     if (config.engines.length === 0) {
-      toastr.warning('No engines are specified in the config');
+      toastr.warning('No engines are specified in the config', 'EMP3 Validation');
       return;
     }
+
     if (this.state.createMapPending) {
       toastr.warning('Map creation already in progress, please wait for it to complete before adding additional maps', toastrTitle);
       return;
     }
+
     if (maps.length >= 4) {
       toastr.warning('Current limit of 4 maps', toastrTitle);
       return;
@@ -173,8 +178,8 @@ class ValidationApp extends Component {
       let containerId = 'map' + parseInt(maps.length);
       let environment = config.environment;
       let envOverride = false;
-      (function () {
-        var urlEnv = emp.util.getParameterByName('empenv');
+      (function() {
+        let urlEnv = emp.util.getParameterByName('empenv');
         if (urlEnv !== null) {
           environment = urlEnv;
           switch (environment) {
@@ -205,19 +210,6 @@ class ValidationApp extends Component {
           });
 
           addMap(map);
-
-          let coordinatesWindow = (
-            <CoordinatesWindow map={map}
-                               key={map.geoId + '_coords'}
-                               style={{
-                                 position: 'absolute',
-                                 bottom: this.state.windows.length * 50,
-                                 left: (this.state.width + 6) + 'px'
-                               }}/>
-          );
-
-          let newWindows = [...this.state.windows, coordinatesWindow];
-          this.setState({windows: newWindows});
 
           if (!silent) {
             this.setState({lastResults: args});
@@ -450,9 +442,6 @@ class ValidationApp extends Component {
             {this.state.isSettingsOpen ? <Settings /> : null}
           </div>
         </div>
-
-        {/* Non-standard rendered things */}
-        {this.state.windows}
       </div>
     );
   }

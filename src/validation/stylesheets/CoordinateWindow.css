@@ -1,0 +1,28 @@
+.coordinateWindow {
+    background-color: rgba(208, 217, 232, 0.3);
+    color: yellow;
+    font-weight: 300;
+    width: 280px;
+    z-index: 10000000;
+}
+
+.dragHandle {
+    background-color: rgba(146, 178, 229, 0.5);
+    color:aliceblue;
+    cursor: move;
+    padding-left: 2px;
+}
+
+.coordIconButton {
+    float: right;
+    padding-top: 4px;
+    color: black;
+}
+
+.coordIconButton:hover {
+    color: aliceblue;
+}
+
+.coordIconButton:active {
+    color: limegreen;
+}

@@ -8,6 +8,7 @@ src/sdk/api/environment/com.octabits.starfish.js
 src/validation/vendor/*
 src/validation/dist/*
 src/mapengine/worldwind/test/*
+src/mapengine/worldwind/worldwind.js
 src/mapengine/worldwind/worldwind.min.js
 test/vendor/*
 test/dist/*
