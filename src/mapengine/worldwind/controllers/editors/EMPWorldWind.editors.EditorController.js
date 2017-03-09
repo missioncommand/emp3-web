@@ -30,12 +30,13 @@ EMPWorldWind.editors.EditorController = (function ()
 
         if (feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.HIGHEST_RANGE)
         {
+            //optimizatiojn
             attributes.imageScale = 1;
-            attributes.imageOffset = imageOffset = new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0, WorldWind.OFFSET_FRACTION,0);
+            //attributes.imageOffset = imageOffset = new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0, WorldWind.OFFSET_FRACTION,0);
             attributes.imageSource = EMPWorldWind.utils.selectHighAltitudeRangeImage(feature.symbolCode);
             highlightAttributes = new WorldWind.PlacemarkAttributes();
             highlightAttributes.imageColor = WorldWind.Color.WHITE;
-            highlightAttributes.imageOffset = imageOffset;
+            //highlightAttributes.imageOffset = imageOffset;
             highlightAttributes.imageSource = attributes.imageSource;
         }
         else

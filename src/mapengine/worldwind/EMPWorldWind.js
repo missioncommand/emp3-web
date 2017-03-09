@@ -121,20 +121,11 @@ EMPWorldWind.map = function (wwd)
 
     /** @type EMPWorldWind.data.EmpLayer */
     this.layer = undefined;
-    
     // optimization for mil standard  single points.
     this.singlePointAltitudeRanges = {};
     this.singlePointAltitudeRanges.mid = 600000;//default
     this.singlePointAltitudeRanges.high = 1200000;// default
     this.singlePointAltitudeRangeMode = EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
-//    this.highScaleImage = {};
-//    this.highScaleImage.highScaleImageRed = 'data:image/svg+xml;base64,' + window.btoa('<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12"  r="3" fill="red" stroke="red" stroke-width="1"  /></g></svg>');
-//    this.highScaleImage.highScaleImageBlue = 'data:image/svg+xml;base64,' + window.btoa('<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle cx="12" cy="12"  r="3" fill="blue" stroke="blue" stroke-width="1"  /></g></svg>');
-//    this.highScaleImage.highScaleImageGreen = 'data:image/svg+xml;base64,' + window.btoa('<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12" r="3" fill="green" stroke="green" stroke-width="1"  /></g></svg>');
-//    this.highScaleImage.highScaleImageYellow = 'data:image/svg+xml;base64,' + window.btoa('<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12" r="3" fill="yellow" stroke="yellow" stroke-width="1"  /></g></svg>');
-//    this.highScaleImage.blankMultipoint = 'data:image/svg+xml;base64,' + window.btoa('<svg preserveAspectRatio="none" width="2px" height="2px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12" r="3" fill="black" stroke="black" stroke-width="1"  /></g></svg>');
-   // this.highScaleImage.blankMultipointBase64 = 'data:image/svg+xml;base64,' + window.btoa(this.highScaleImage.blankMultipoint);
-
 };
 
 // typedefs ============================================================================================================
@@ -980,6 +971,7 @@ EMPWorldWind.map.prototype.setLabelStyle = function (styles)
  */
 EMPWorldWind.map.prototype.refresh = function ()
 {
+    EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
     //var featureId, feature;
 
     // for (featureId in this.features) {
