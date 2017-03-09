@@ -17,7 +17,18 @@ class CreateKMLTest extends Component {
       feature: {
         name: '',
         geoId: '',
-        KMLString: ''
+        KMLString: '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<kml xmlns="http://www.opengis.net/kml/2.2">\n' +
+        '  <Placemark>\n' +
+        '    <name>Simple placemark</name>\n' +
+        '    <description>\n' +
+        '      Attached to the ground. Intelligently places itself at the height of the underlying terrain.\n' +
+        '    </description>\n' +
+        '    <Point>\n' +
+        '      <coordinates>-122.0822035425683,37.42228990140251,0</coordinates>\n' +
+        '    </Point>\n' +
+        '  </Placemark>\n' +
+        '</kml>'
       },
       selectedOverlayId: selectedOverlayId,
       featureProps: {}
@@ -143,70 +154,64 @@ class CreateKMLTest extends Component {
     const {overlays} = this.props;
 
     return (
-      <div>
+      <div className='mdl-grid'>
         <span className='mdl-layout-title'>Create a KML</span>
-        <div className='mdl-grid'>
 
-          <VText id='createKML-name'
-                 value={this.state.feature.name}
-                 callback={this.updateKML}
-                 label='Name'
-                 classes={['mdl-cell', 'mdl-cell--12-col']}/>
+        <VText id='createKML-name'
+               value={this.state.feature.name}
+               callback={this.updateKML}
+               label='Name'
+               className='mdl-cell mdl-cell--12-col'/>
 
-          <VText id='createKML-geoId'
-                 value={this.state.feature.geoId}
-                 callback={this.updateKML}
-                 label='GeoId'
-                 classes={['mdl-cell', 'mdl-cell--12-col']}/>
+        <VText id='createKML-geoId'
+               value={this.state.feature.geoId}
+               callback={this.updateKML}
+               label='GeoId'
+               className='mdl-cell mdl-cell--12-col'/>
 
-          <VText id='createKML-KMLString'
-                 value={this.state.feature.KMLString}
-                 rows='10'
-                 callback={this.updateKML}
-                 label='Place KML string Here'
-                 classes={['mdl-cell', 'mdl-cell--12-col']}/>
+        <VText id='createKML-KMLString'
+               value={this.state.feature.KMLString}
+               rows={10}
+               callback={this.updateKML}
+               label='Place KML string Here'
+               className='mdl-cell mdl-cell--12-col'/>
 
-          <button
-            className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
-            onClick={this.createKML}>
-            Create KML
-          </button>
+        <button
+          className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
+          onClick={this.createKML}>
+          Create KML
+        </button>
 
-          <div className='mdl-cell mdl-cell--12-col'>
-            <OverlaySelect id="selectedOverlay"
-                           overlays={overlays}
-                           label='Select which overlay to add to'
-                           selectedOverlayId={this.state.selectedOverlayId}
-                           callback={this.updateSelectedOverlay}/>
-          </div>
+        <OverlaySelect id="selectedOverlay"
+                       className='mdl-cell mdl-cell--12-col'
+                       overlays={overlays}
+                       label='Select which overlay to add to'
+                       selectedOverlayId={this.state.selectedOverlayId}
+                       callback={this.updateSelectedOverlay}/>
 
-          <button
-            className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
-            onClick={this.createKMLAddToOverlay}
-            disabled={overlays.length === 0}>
-            Create KML Add To Overlay
-          </button>
+        <button
+          className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
+          onClick={this.createKMLAddToOverlay}
+          disabled={overlays.length === 0}>
+          Create KML Add To Overlay
+        </button>
 
+        <button
+          className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
+          onClick={this.apply}>
+          Update
+        </button>
 
-          <button
-            className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
-            onClick={this.apply}>
-            Update
-          </button>
+        <PropertiesBox featureType={emp3.api.enums.FeatureTypeEnum.KML}
+                       callback={this.updateKMLProperties}
+                       properties={this.state.featureProps}/>
 
-          <div id='createKML-properties' className='mdl-cell mdl-cell--12-col mdl-grid'>
-            <h3>Properties</h3>
-            <PropertiesBox featureType={emp3.api.enums.FeatureTypeEnum.KML} callback={this.updateKMLProperties}
-                           properties={this.state.featureProps}/>
-          </div>
-
-          <RelatedTests relatedTests={[
-            {text: 'Create an Overlay', target: 'createOverlayTest'},
-            {text: 'Add this feature to an overlay'},
-            {text: 'Add this feature to another feature'},
-            {text: 'Delete a feature', target: 'deleteFeaturesTest'}
-          ]}/>
-        </div>
+        <RelatedTests relatedTests={[
+          {text: 'Create an Overlay', target: 'createOverlayTest'},
+          {text: 'Add this feature to an overlay'},
+          {text: 'Add this feature to another feature'},
+          {text: 'Delete a feature', target: 'deleteFeaturesTest'}
+        ]}/>
       </div>
     );
   }

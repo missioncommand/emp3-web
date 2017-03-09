@@ -351,42 +351,43 @@ EMPWorldWind.map.prototype.lookAt = function(args) {
 
 /**
  * @param {emp.typeLibrary.Feature} feature
- * @returns {{success: boolean, message: string, jsError: string}}
+ * @param {PlotFeatureCB} callback
  */
-EMPWorldWind.map.prototype.plotFeature = function(feature) {
-  var rc = {
-    success: false,
-    message: "",
-    jsError: ""
-  };
+EMPWorldWind.map.prototype.plotFeature = function(feature, callback) {
+  /**
+   * Handle the async plotFeature method
+   * @private
+   */
+  var _callback = function(cbArgs) {
+    // Trigger an update for the display
+    this.worldWind.redraw();
 
-  try {
-    if (this.features[feature.featureId]) {
-      rc.message = "Failed to update feature";
-      rc = EMPWorldWind.editors.EditorController.updateFeature.call(this, this.features[feature.featureId], feature);
-    } else {
-      rc.message = "Failed to plot feature";
-      rc = EMPWorldWind.editors.EditorController.plotFeature.call(this, feature);
-    }
-
-    if (rc.success) {
+    if (cbArgs.success) {
       // Add the new feature to the global list of features
-      if (!(rc.feature.id in this.features)) {
-        this.features[rc.feature.id] = rc.feature;
+      if (!(cbArgs.feature.id in this.features)) {
+        this.features[cbArgs.feature.id] = cbArgs.feature;
       }
-
-      // Clear the preemptive error message
-      rc.message = "";
-
-      // Update the display
-      this.worldWind.redraw();
     }
-  } catch (err) {
-    rc.jsError = err.message;
-  }
 
-  return rc;
+    callback(cbArgs);
+  }.bind(this);
+
+  if (feature.featureId in this.features) {
+    // Update an existing feature
+    EMPWorldWind.editors.EditorController.updateFeature.call(this, this.features[feature.featureId], feature, _callback);
+  } else {
+    // Plot a new feature
+    EMPWorldWind.editors.EditorController.plotFeature.call(this, feature, _callback);
+  }
 };
+/**
+ * @callback PlotFeatureCB
+ * @param {object} cbArgs
+ * @param {EMPWorldWind.data.Feature} cbArgs.feature
+ * @param {boolean} cbArgs.success
+ * @param {string} [cbArgs.message]
+ * @param {string} [cbArgs.jsError]
+ */
 
 /**
  *
