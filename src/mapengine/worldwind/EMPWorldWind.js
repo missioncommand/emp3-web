@@ -572,17 +572,23 @@ EMPWorldWind.map.prototype.addWmtsToMap = function(empWMTS, callback) {
         that.services[empWMTS.coreId] = wmtsLayer;
 
         that.worldWind.redraw();
+
+        rc.success = true;
+        callback(rc);
       } catch (err) {
         // TODO pass this up to the call
-        window.console.error(err);
+        rc.message = err.message;
+        callback(rc);
       }
     }
   }
 
   // Handle getting error
   function xhrError() {
-    // TODO pass this up to the call
-    window.console.error(this.statusText);
+    callback({
+      success: false,
+      message: this.statusText
+    });
   }
 
   try {
@@ -608,7 +614,8 @@ EMPWorldWind.map.prototype.addWmtsToMap = function(empWMTS, callback) {
 
 /**
  * @callback EMPWorldwind.map~WMTSCallback
- *
+ * @property {boolean} success
+ * @property {message}
  */
 
 

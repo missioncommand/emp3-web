@@ -457,27 +457,22 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.wmts.add = function(transaction) {
-    var failures = [];
-    var count = transaction.items.length;
-
-    function _completeCallback() {
-      if (count === 0) {
-        transaction.run();
-      } else {
-        count--;
-      }
-    }
+    var itemCount = transaction.items.length;
 
     // Pause the transaction, we have to manually get the capabilities
     transaction.pause();
-    emp.util.each(transaction.items, function(wmts) {
-      var rc = empWorldWind.addWmtsToMap(wmts, _completeCallback);
-      if (!rc.success) {
-        failures.push(wmts);
-      }
-    }.bind(this));
 
-    transaction.failures = failures;
+    while (itemCount--) {
+      empWorldWind.addWmtsToMap(transaction.items[itemCount], function(count, cbArgs) {
+        if (!cbArgs.success) {
+          transaction.fail(new emp.typeLibrary.Error(cbArgs));
+        }
+
+        if (count === 0) {
+          transaction.run();
+        }
+      }.bind(this, itemCount));
+    }
   };
 
   /**
