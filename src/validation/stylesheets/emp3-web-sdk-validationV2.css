@@ -2,6 +2,7 @@
 @import 'ControlPanel.css';
 @import 'ResultsPanel.css';
 @import 'SymbolExplorer.css';
+@import 'CoordinateWindow.css';
 
 body, html {
     width: 100%;
