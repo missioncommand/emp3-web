@@ -105,7 +105,7 @@ class MapDrawFreehandTest extends Component {
 
     return (
       <div>
-        <span className='mdl-layout-title'>Get All Overlays</span>
+        <span className='mdl-layout-title'>Draw Freehand</span>
 
         <div className='mdl-cell mdl-cell--12-col'>
           <MapSelect maps={maps}
