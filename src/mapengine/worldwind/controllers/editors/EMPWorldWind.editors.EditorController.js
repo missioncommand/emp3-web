@@ -215,14 +215,14 @@ EMPWorldWind.editors.EditorController = (function() {
 
         // Add the KML layer to the map
         kmlLayer.addRenderable(kmlFile);
-        this.worldWind.addLayer(kmlLayer);
+        this.worldWindow.addLayer(kmlLayer);
 
         // Use the standard data holder to keep track of the layer
         wwFeature = new EMPWorldWind.data.EmpFeature(feature, this.state.labelStyles);
         wwFeature.addShapes(kmlLayer); // This isn't a WW primitive but use it as if it was
 
         // Record the layer so we can remove/modify it later
-        this.empLayers[feature.coreId] = kmlLayer;
+        this.layers[feature.coreId] = kmlLayer;
 
         // Configure the callback args
         rc.success = true;
@@ -333,7 +333,7 @@ EMPWorldWind.editors.EditorController = (function() {
         layer.removeFeature(wwFeature);
       } else {
         // Handle KML
-        this.worldWind.removeLayer(this.layers[empFeature.coreId]);
+        this.worldWindow.removeLayer(this.layers[empFeature.coreId]);
       }
 
       // Clear the primitives from the feature

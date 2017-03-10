@@ -41,25 +41,25 @@ EMPWorldWind.eventHandlers.throttle = function(fn, threshold, scope) {
  */
 EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
   var view = {
-    range: this.worldWind.navigator.range,
-    tilt: this.worldWind.navigator.tilt,
-    roll: this.worldWind.navigator.roll,
-    heading: this.worldWind.navigator.heading,
-    altitude: this.worldWind.navigator.range, // TODO this is not correct, just an approximation until camera support
+    range: this.worldWindow.navigator.range,
+    tilt: this.worldWindow.navigator.tilt,
+    roll: this.worldWindow.navigator.roll,
+    heading: this.worldWindow.navigator.heading,
+    altitude: this.worldWindow.navigator.range, // TODO this is not correct, just an approximation until camera support
     location: {
-      lat: this.worldWind.navigator.lookAtLocation.latitude,
-      lon: this.worldWind.navigator.lookAtLocation.longitude
+      lat: this.worldWindow.navigator.lookAtLocation.latitude,
+      lon: this.worldWindow.navigator.lookAtLocation.longitude
     },
     bounds: this.getBounds()
   };
 
   var lookAt = {
-    range: this.worldWind.navigator.range,
-    tilt: this.worldWind.navigator.tilt,
-    heading: this.worldWind.navigator.heading,
-    altitude: this.worldWind.navigator.lookAtLocation.altitude || 0,
-    latitude: this.worldWind.navigator.lookAtLocation.latitude,
-    longitude: this.worldWind.navigator.lookAtLocation.longitude
+    range: this.worldWindow.navigator.range,
+    tilt: this.worldWindow.navigator.tilt,
+    heading: this.worldWindow.navigator.heading,
+    altitude: this.worldWindow.navigator.lookAtLocation.altitude || 0,
+    latitude: this.worldWindow.navigator.lookAtLocation.latitude,
+    longitude: this.worldWindow.navigator.lookAtLocation.longitude
   };
 
   this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
@@ -75,7 +75,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
 EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
   // TODO trigger this less often or on a timer
   this.state.lastRender.bounds = this.getBounds();
-  this.state.lastRender.altitude = this.worldWind.navigator.range;
+  this.state.lastRender.altitude = this.worldWindow.navigator.range;
 
   emp.util.each(Object.keys(this.features), function(featureId) {
     var feature = this.features[featureId];
@@ -86,7 +86,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
       this.plotFeature(feature.feature);
     }
   }.bind(this));
-  this.worldWind.redraw();
+  this.worldWindow.redraw();
 };
 
 /**
@@ -96,7 +96,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
  */
 EMPWorldWind.eventHandlers.extractFeatureFromEvent = function(mouseEvent, empEventingArgs) {
   var obj, len,
-    pickList = this.worldWind.pick(this.worldWind.canvasCoordinates(mouseEvent.clientX, mouseEvent.clientY));
+    pickList = this.worldWindow.pick(this.worldWindow.canvasCoordinates(mouseEvent.clientX, mouseEvent.clientY));
 
   len = pickList.objects.length;
   for (var i = 0; i < len; i++) {
