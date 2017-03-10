@@ -467,7 +467,6 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   };
 
   /**
-   * @todo Need to get content of WorldWind renderer
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.capture.screenshot = function(transaction) {
