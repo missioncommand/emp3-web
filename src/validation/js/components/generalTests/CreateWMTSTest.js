@@ -120,7 +120,7 @@ class CreateWMTSTest extends Component {
       case 'createWMTS-url':
         this.setState({
           url: event.target.value
-        });
+        }, _.debounce(this.parseCapabilities, 2000));
         break;
       case 'createWMTS-layer':
         this.setState({

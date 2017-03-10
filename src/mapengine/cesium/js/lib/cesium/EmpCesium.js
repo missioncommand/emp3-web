@@ -2122,6 +2122,7 @@ function EmpCesium()
                 {
                     if (this.isMouseWithinCanvas(event))
                     {
+                        // if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION || this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN)
                         if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION)
                         {
                             this.scene.screenSpaceCameraController.enableRotate = false;
@@ -11226,30 +11227,6 @@ function EmpCesium()
         return  this.currentExtent;
     };
 
-
-
-    this.getSmartMoveExtent = function ()
-    {
-        var rect;
-        if (this.currentSmartMoveExtent && (!isNaN(parseFloat(this.currentSmartMoveExtent.west)) && !isNaN(parseFloat(this.currentSmartMoveExtent.south)) && !isNaN(parseFloat(this.currentSmartMoveExtent.east)) && !isNaN(parseFloat(this.currentSmartMoveExtent.north))))
-        {
-            return this.currentSmartMoveExtent;
-        }
-        rect = this.scene.camera.computeViewRectangle(this.scene.globe.ellipsoid);
-        if (!rect)
-        {
-            rect = this.getExtentApproximation();
-        }
-        else if (rect.equals(this.Rectangle.MAX_VALUE))
-        {
-            // sec renderer throw errors when using max value for rectangle.
-            // Get an approximation that is going to be smaller
-            rect = this.getExtentApproximation();
-        }
-
-        this.currentExtent = rect;
-        return  this.currentExtent;
-    };
 
     this.getExtentApproximation = function ()
     {

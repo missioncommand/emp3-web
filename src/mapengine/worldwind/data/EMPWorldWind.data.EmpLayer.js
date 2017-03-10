@@ -468,7 +468,13 @@ EMPWorldWind.data.EmpLayer.prototype.removeFeature = function(feature) {
     }
 
     emp.util.each(feature.shapes, function(shape){
-      this.layer.removeRenderable(shape);
+      if (shape instanceof WorldWind.RenderableLayer) {
+        // Handle KML features
+        this.worldwind.removeLayer(shape);
+      } else {
+        // Handle normal primitives
+        this.layer.removeRenderable(shape);
+      }
     }.bind(this));
 
     delete this.featureKeys[feature.id];
