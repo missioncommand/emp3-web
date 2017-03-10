@@ -198,7 +198,7 @@ L.Icon.Default = L.Icon.Default.extend({
 
 L.Marker = L.Marker.extend({
     options: {
-        icon: new L.Icon.Default()
+      nonBubblingEvents: ['dblclick', 'mouseover', 'mouseout', 'contextmenu']
     },
     // Overrides.
     // Leaflet version 1.0.3 seems to have implemented its eventing in a more centrally structured
