@@ -420,10 +420,33 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.map.config = function(transaction) {
-    var config = transaction.items[0];
-    if (typeof config.brightness === "number") {
-      empWorldWind.setContrast(config.brightness);
-    }
+    // Iterate through each transaction item, check for properties and apply them
+    emp.util.each(transaction.items, function(config) {
+      var prop, value;
+      for (prop in config) {
+        if (config.hasOwnProperty(prop)) {
+          // Skip meta data fields
+          if (prop === "messageId") {
+            continue;
+          }
+
+          value = config[prop];
+
+          switch (prop.toLowerCase()) {
+            case "brightness":
+              empWorldWind.setContrast(value);
+              break;
+            case "milstdlabels":
+              empWorldWind.setLabelStyle(value);
+              break;
+            default:
+              transaction.fail(new emp.typeLibrary.Error({
+                message: 'Config property ' + prop + ' is not supported by this engine'
+              }));
+          }
+        }
+      }
+    }.bind(this));
   };
 
   /**
