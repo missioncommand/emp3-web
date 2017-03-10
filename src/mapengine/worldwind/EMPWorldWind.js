@@ -153,10 +153,12 @@ EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
 
   this.contrastLayer = new WorldWind.RenderableLayer('contrast layer');
   this.contrastLayer.pickEnabled = false;
-  this.worldWind.addLayer(this.contrastLayer);
 
   this.contrastLayer.addRenderable(whiteContrastLayer);
   this.contrastLayer.addRenderable(blackContrastLayer);
+
+  // Add this layer, this should always be on top, use insertLayer with an index value everywhere else
+  this.worldWind.addLayer(this.contrastLayer);
 
   // Create the goTo manipulator
   /** @member {WorldWind.GoToAnimator */
