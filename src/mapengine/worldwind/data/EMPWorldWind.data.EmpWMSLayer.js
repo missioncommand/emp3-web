@@ -15,7 +15,7 @@ EMPWorldWind.data.EmpWMSLayer = function(wms) {
   var _wms = wms;
 
   /**
-   * @name EMPWorldWind.data.WMSLayer#wms
+   * @name EMPWorldWind.data.EmpWMSLayer#wms
    * @type {emp.typeLibrary.WMS}
    */
   Object.defineProperty(this, 'wms', {
