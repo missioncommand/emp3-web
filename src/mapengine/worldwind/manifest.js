@@ -105,6 +105,7 @@ function initializeWorldwind(args) {
       "EMPWorldWind.js",
       "data/EMPWorldWind.data.js",
       "data/EMPWorldWind.data.EmpLayer.js",
+      "data/EMPWorldWind.data.EmpWMSLayer.js",
       "data/EMPWorldWind.data.EmpFeature.js",
       "utils/EMPWorldWind.constants.js",
       "utils/EMPWorldWind.utils.js",
