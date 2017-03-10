@@ -935,9 +935,13 @@ EMPWorldWind.map.prototype.spinGlobe = function() {
 
 /**
  * Returns a data URI of the current view of the canvas
+ * @todo Handle iconURL within Placemarks
  * @returns {string}
  */
 EMPWorldWind.map.prototype.screenshot = function() {
+  // This forces webgl to render which exposes current context for the canvas.toDataURL function
+  // Note: this is still lacking functionality as Placemarks are not rendered
+  this.worldWind.drawFrame();
   return this.worldWind.canvas.toDataURL();
 };
 
