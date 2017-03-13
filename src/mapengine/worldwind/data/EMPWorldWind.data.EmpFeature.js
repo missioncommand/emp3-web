@@ -16,11 +16,16 @@ EMPWorldWind.data.EmpFeature = function (feature) {
    */
   this.shapes = [];
 
+  var _feature = feature;
   /**
    * The native EMP Feature
+   * @name EMPWorldWind.data.Feature#feature
    * @type {emp.typeLibrary.Feature}
    */
-  this.feature = feature;
+  Object.defineProperty(this, 'feature', {
+    enumerable: true,
+    value: _feature
+  });
 
   var _id = feature.coreId;
   /**

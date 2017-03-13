@@ -192,7 +192,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     EMPWorldWind.eventHandlers.notifyViewChange.call(empWorldWind, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
     empWorldWind.centerOnLocation(args);
 
-    // Set initial transaction return values, to be overwritten if the moved is animated
+    // Set initial transaction return values, to be overwritten if the move is animated
     transaction.items[0].location = {
       lat: empWorldWind.getCenter().latitude,
       lon: empWorldWind.getCenter().longitude
@@ -229,63 +229,25 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   };
 
   /**
-   *
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.overlay.add = function(transaction) {
-    var item,
-      result,
-      length = transaction.items.length,
+    var rc,
       failList = [];
 
-    for (var i = 0; i < length; i += 1) {
-      item = transaction.items[i];
-      if (item.overlayId !== undefined) {
-        var layer = empWorldWind.getLayer(item.overlayId);
-        if (layer) {
-          result = {
-            success: false,
-            message: "An overlay with this id (" + item.overlayId + ") already exists"
-          };
-        } else {
-          try {
-            var renderableLayer = new WorldWind.RenderableLayer(item.name),
-              overlay = empWorldWind.addLayer(item.name, item.overlayId, null, EMPWorldWind.constants.LayerType.OVERLAY_LAYER, renderableLayer);
+    emp.util.each(transaction.items, function(overlay) {
+      rc = empWorldWind.addLayer(overlay);
 
-            var parentOverlay = empWorldWind.getLayer(item.parentCoreId);
-            if (EMPWorldWind.utils.defined(parentOverlay)) {
-              parentOverlay.addSubLayer(overlay);
-            }
-
-            empWorldWind.rootOverlayId = item.overlayId;
-            result = {
-              success: true,
-              message: "New layer added to worldwind map"
-            };
-          } catch (e) {
-            result = {
-              success: false,
-              message: "Failed to add layer to worldwind map."
-            };
-          }
-        }
-      } else {
-        result = {
-          success: false,
-          message: "arguments sent to function are undefined."
-        };
+      if (!rc.success) {
+        failList.push(new emp.typeLibrary.Error({
+          coreId: overlay.coreId,
+          message: rc.message,
+          level: emp.typeLibrary.Error.level.MINOR
+        }));
       }
-    }
+    });
 
-    if (!result.success) {
-      failList.push(new emp.typeLibrary.Error({
-        coreId: item.coreId,
-        message: result.message,
-        level: emp.typeLibrary.Error.level.MINOR
-      }));
-    }
     transaction.fail(failList);
-    return result;
   };
 
   /**
@@ -293,23 +255,20 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.overlay.remove = function(transaction) {
-    var result = {},
+    var rc = {},
       failList = [];
 
-    for (var i = 0; i < transaction.items.length; i += 1) {
-      var item = transaction.items[i];
-      result = empWorldWind.removeLayer(item.overlayId);
-      if (!result.success) {
+    emp.util.each(transaction.items, function(overlay) {
+      rc = empWorldWind.removeLayer(overlay.overlayId);
+      if (!rc.success) {
         failList.push(new emp.typeLibrary.Error({
-          coreId: item.coreId,
-          message: result.message,
-          level: emp.typeLibrary.Error.level.MINOR,
-          jsError: result.jsError
+          coreId: overlay.coreId,
+          message: rc.message
         }));
       }
-    }
+    }.bind(this));
+
     transaction.fail(failList);
-    return result;
   };
 
   /**
@@ -317,12 +276,9 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.wms.add = function(transaction) {
-    var i, item,
-      itemCount = transaction.items.length;
-    for (i = 0; i < itemCount; i++) {
-      item = transaction.items[i];
-      empWorldWind.addWmsToMap(item);
-    }
+    emp.util.each(transaction.items, function(wms) {
+      empWorldWind.addWMS(wms);
+    }.bind(this));
   };
 
   /**
@@ -330,12 +286,9 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.wms.remove = function(transaction) {
-    var i, item,
-      itemCount = transaction.items.length;
-    for (i = 0; i < itemCount; i++) {
-      item = transaction.items[i];
-      empWorldWind.removeWmsFromMap(item);
-    }
+    emp.util.each(transaction.items, function(wms) {
+      empWorldWind.removeWMS(wms);
+    }.bind(this));
   };
 
   /**
@@ -343,7 +296,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.feature.add = function(transaction) {
-    var item,
+    var feature,
       itemsCount = transaction.items.length;
 
     // Pause the transaction
@@ -351,9 +304,9 @@ emp.engineDefs.worldWindMapEngine = function(args) {
 
     while (itemsCount) {
       // Note pre-decrement
-      item = transaction.items[--itemsCount];
+      feature = transaction.items[--itemsCount];
 
-      empWorldWind.plotFeature(item, function(count, cbArgs) {
+      empWorldWind.plotFeature(feature, function(featureCount, cbArgs) {
         if (!cbArgs.success) {
           transaction.fail(new emp.typeLibrary.Error({
             feature: cbArgs.feature
@@ -361,7 +314,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
         }
 
         // All items have been processed
-        if (count === 0) {
+        if (featureCount === 0) {
           transaction.run();
         }
       }.bind(this, itemsCount));
@@ -373,13 +326,15 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.feature.remove = function(transaction) {
-    var i,
-      itemCount = transaction.items.length;
-
-    for (i = 0; i < itemCount; i++) {
-      empWorldWind.unplotFeature(transaction.items[i]);
-    }
-    empWorldWind.refresh();
+    var rc;
+    emp.util.each(transaction.items, function(feature) {
+      rc = empWorldWind.unplotFeature(feature);
+      if (!rc.success) {
+        transaction.fail(new emp.typeLibrary.Error({
+          message: rc.message
+        }));
+      }
+    }.bind(this));
   };
 
   /**
@@ -397,7 +352,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    */
   engineInterface.view.getLatLonFromXY = function(transaction) {
     var pickPoint = new WorldWind.Vec2(transaction.items[0].x, transaction.items[0].y);
-    var terrainObject = empWorldWind.worldWind.pickTerrain(pickPoint).terrainObject();
+    var terrainObject = empWorldWind.worldWindow.pickTerrain(pickPoint).terrainObject();
     transaction.items[0].lat = terrainObject ? terrainObject.position.latitude : undefined;
     transaction.items[0].lon = terrainObject ? terrainObject.position.longitude : undefined;
   };
@@ -411,7 +366,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       if (feature.featureId in empWorldWind.features) {
         empWorldWind.features[feature.featureId].setVisible(feature.visible);
       }
-    });
+    }.bind(this));
     empWorldWind.refresh();
   };
 
@@ -451,7 +406,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
 
   /**
    *
-   * @param transaction
+   * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.navigation.enable = function(transaction) {
     empWorldWind.setLockState(transaction.items[0]);

@@ -452,6 +452,7 @@ var manifest = {
     "src/mapengine/worldwind/EMPWorldWind.js",
     "src/mapengine/worldwind/data/EMPWorldWind.data.js",
     "src/mapengine/worldwind/data/EMPWorldWind.data.EmpLayer.js",
+    "src/mapengine/worldwind/data/EMPWorldWind.data.EmpWMSLayer.js",
     "src/mapengine/worldwind/data/EMPWorldWind.data.EmpFeature.js",
     "src/mapengine/worldwind/utils/EMPWorldWind.constants.js",
     "src/mapengine/worldwind/utils/EMPWorldWind.utils.js",
