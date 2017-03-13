@@ -60,7 +60,9 @@ class MapSetFreehandStyleTest extends Component {
       red,
       blue,
       green;
-
+    if(hex.length === 6){
+      hex = "ff" + hex;
+    }
     if (hex.length === 8) {
       alpha = hex.substr(0, 2);
       red = hex.substr(2, 2);
