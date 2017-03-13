@@ -79,5 +79,11 @@ describe('cmapi', function() {
       var ellipse = new emp3.api.Ellipse({geoId: ""});
       ellipse.geoId.should.not.be.empty;
     });
+
+    it('allows other properties to be blank', function() {
+      var ellipse = new emp3.api.Ellipse({geoId: "", description: ""});
+      ellipse.geoId.should.not.be.empty;
+      ellipse.description.should.equal("");
+    });
   });
 });
