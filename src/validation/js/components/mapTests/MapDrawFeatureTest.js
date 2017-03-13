@@ -91,7 +91,7 @@ class MapDrawFeatureTest extends Component {
     var feature;
     const featureArgs = {
       name: this.state.name,
-      geoId: this.state.geoId
+      geoId: this.state.geoId ? this.state.geoId : undefined
     };
 
     for (var field in this.state.properties) {

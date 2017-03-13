@@ -1009,6 +1009,12 @@ emp.intents.control.intentSequenceMapper = (function() {
           if (oMapInstance && oMapInstance.engine) {
             oMapInstance.engine.draw.begin(args);
           }
+
+          if (args.failures.length > 0) {
+            for (var i = 0; i < args.failures.length; i++) {
+              window.console.error(args.failures[i].message);
+            }
+          }
         }
       ],
       exit: [
