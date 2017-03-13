@@ -5,34 +5,50 @@ EMPWorldWind.data = EMPWorldWind.data || {};
  * @classdesc This represents an EMP layer. Any interaction with the WorldWind layer itself will occur here.
  *
  * @class
- * @param {string} name
- * @param {string} id
- * @param {string} type
+ * @param {emp.typeLibrary.Overlay} overlay
  */
-EMPWorldWind.data.EmpLayer = function(name, id, type) {
-  /** @member {object} */
+EMPWorldWind.data.EmpLayer = function(overlay) {
+  /** @type {Object.<string, EMPWorldWind.Data.EmpLayer>} */
   this.subLayers = {};
 
-  /** @member {object} */
+  /** @type {Object.<string, EMPWorldWind.Data.EmpFeature>} */
   this.featureKeys = {};
 
   /** @member {string} */
-  this.name = name || undefined;
+  this.name = overlay.name || undefined;
 
   /** @member {string} */
-  this.description = undefined;
+  this.description = overlay.description;
 
   /** @member {string} */
-  this.id = id || undefined;
-
-  /** @member {boolean} */
-  this.visibility = true;
+  this.id = overlay.overlayId;
 
   /** @member {string} */
-  this.parentId = undefined;
+  this.parentId = overlay.parentId;
 
   /** @member {string} */
-  this.globalType = type || "vector"; // vector, wms
+  this.globalType = overlay.globalType || "vector"; // vector, wms
+
+  var _overlay = overlay;
+  /**
+   * @name EMPWorldWind.data.EmpLayer#overlay
+   * @type {emp.typeLibrary.Overlay}
+   */
+  Object.defineProperty(this, 'overlay', {
+    enumerable: true,
+    value: _overlay
+  });
+
+  // TODO handle WMS, WMTS, KML...
+  var _layer = new WorldWind.RenderableLayer(this.id);
+  /**
+   * @name EMPWorldWind.data.EmpLayer#layer
+   * @type {WorldWind.RenderableLayer}
+   */
+  Object.defineProperty(this, 'layer', {
+    enumerable: true,
+    value: _layer
+  });
 
   /** @member {boolean} */
   this.enabled = true; // true by default
@@ -63,7 +79,7 @@ EMPWorldWind.data.EmpLayer.prototype.addFeature = function(feature) {
 };
 
 /**
- *
+ * Expose a refresh for the actual WorldWind layer
  */
 EMPWorldWind.data.EmpLayer.prototype.refresh = function() {
   this.layer.refresh();
@@ -656,8 +672,9 @@ EMPWorldWind.data.EmpLayer.prototype.getFeatureChildrenEntityArray = function(en
  * @param id
  */
 EMPWorldWind.data.EmpLayer.prototype.removeFeatureById = function(id) {
+  var feature;
   if (this.isFeaturePresentById(id)) {
-    var feature = this.getFeature(id);
+    feature = this.getFeature(id);
     this.removeFeature(feature);
   }
 };
@@ -744,6 +761,9 @@ EMPWorldWind.data.EmpLayer.prototype.isFeaturePresent = function(entity) {
  * @returns {boolean}
  */
 EMPWorldWind.data.EmpLayer.prototype.isSubLayerPresent = function(id) {
-  if (id)
+  if (id) {
     return (id in this.subLayers);
+  }
+
+  return false;
 };

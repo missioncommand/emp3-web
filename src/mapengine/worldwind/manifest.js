@@ -42,7 +42,9 @@ function initializeWorldwind(args) {
       wwd.deepPicking = true;
 
       // Always add a default layer
-      wwd.addLayer(new WorldWind.BMNGOneImageLayer());
+      var blueMarbleDefault = new WorldWind.BMNGOneImageLayer();
+      blueMarbleDefault.minActiveAltitude = 0; // Don't let it disappear in case no other layers exist
+      wwd.addLayer(blueMarbleDefault);
 
       // Add some image layers to the World Window"s globe.
       var numLayers = args.engine.properties.defaultLayers.length;
@@ -105,6 +107,7 @@ function initializeWorldwind(args) {
       "EMPWorldWind.js",
       "data/EMPWorldWind.data.js",
       "data/EMPWorldWind.data.EmpLayer.js",
+      "data/EMPWorldWind.data.EmpWMSLayer.js",
       "data/EMPWorldWind.data.EmpFeature.js",
       "utils/EMPWorldWind.constants.js",
       "utils/EMPWorldWind.utils.js",

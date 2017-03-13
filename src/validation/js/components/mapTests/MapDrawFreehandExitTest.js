@@ -45,7 +45,7 @@ class MapDrawFreehandExitTest extends Component {
 
     return (
       <div>
-        <span className='mdl-layout-title'>Get All Overlays</span>
+        <span className='mdl-layout-title'>Exit Freehand</span>
 
         <div className='mdl-cell mdl-cell--12-col'>
           <MapSelect maps={maps}
