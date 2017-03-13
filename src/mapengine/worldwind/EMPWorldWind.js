@@ -350,7 +350,9 @@ EMPWorldWind.map.prototype.plotFeature = function(feature, callback) {
       }
     }
 
-    callback(cbArgs);
+    if (callback) {
+      callback(cbArgs);
+    }
   }.bind(this);
 
   if (feature.featureId in this.features) {
