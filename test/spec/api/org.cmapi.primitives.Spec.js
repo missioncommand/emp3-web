@@ -41,6 +41,43 @@ describe('cmapi', function() {
     });
   });
 
-  describe('randomUUID');
-  describe('patchProps');
+  describe('randomUUID', function() {
+    it('generates a random UUID value', function() {
+      cmapi.randomUUID().should.have.length.at.least(16);
+    });
+  });
+
+  describe('patchProps', function() {
+    it('adds arguments', function() {
+
+      var User = function(args) {
+        this.coffee = false;
+        this.donuts = false;
+
+        this.patchProps = cmapi.patchProps;
+        if (args) {
+          this.patchProps(args);
+        }
+      };
+
+      var coffeeBreak = {
+        coffee: true,
+        donuts: true
+      };
+
+      var unhappyUser = new User();
+      unhappyUser.coffee.should.be.false;
+      unhappyUser.donuts.should.be.false;
+
+      var happyUser = new User(coffeeBreak);
+      happyUser.coffee.should.be.true;
+      happyUser.donuts.should.be.true;
+
+    });
+
+    it('ignores empty geoId', function() {
+      var ellipse = new emp3.api.Ellipse({geoId: ""});
+      ellipse.geoId.should.not.be.empty;
+    });
+  });
 });

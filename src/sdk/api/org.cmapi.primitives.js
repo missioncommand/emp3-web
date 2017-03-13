@@ -93,7 +93,7 @@ cmapi.IGeoAltitudeMode = function(args) {
     }
   });
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -146,7 +146,7 @@ cmapi.IGeoTimeSpan = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -220,7 +220,7 @@ cmapi.IGeoPosition = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -294,7 +294,7 @@ cmapi.IGeoPositionGroup = function(args) {
     }
   });
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -326,7 +326,7 @@ cmapi.IGeoPositionHistory = function(args) {
     }
   });
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -479,7 +479,7 @@ cmapi.IGeoCamera = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -632,7 +632,7 @@ cmapi.IGeoLookAt = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
   if (args) {
     this.patchProps(args);
   }
@@ -720,7 +720,7 @@ cmapi.IGeoBounds = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -810,7 +810,7 @@ cmapi.IGeoView = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -903,7 +903,7 @@ cmapi.IGeoColor = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1011,7 +1011,7 @@ cmapi.IGeoStrokeStyle = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1083,7 +1083,7 @@ cmapi.IGeoFillStyle = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1171,7 +1171,7 @@ cmapi.IGeoIconStyle = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1316,7 +1316,7 @@ cmapi.IGeoLabelStyle = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1421,7 +1421,7 @@ cmapi.IGeoBase = function(args) {
     }
   });
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1460,7 +1460,7 @@ cmapi.IGeoContainer = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1689,7 +1689,7 @@ cmapi.IGeoRenderable = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1746,7 +1746,7 @@ cmapi.IGeoPoint = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1766,7 +1766,7 @@ cmapi.IGeoText = function(args) {
   cmapi.inherit(new cmapi.IGeoRenderable(), this);
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1786,7 +1786,7 @@ cmapi.IGeoPolygon = function(args) {
   cmapi.inherit(new cmapi.IGeoRenderable(), this);
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1806,7 +1806,7 @@ cmapi.IGeoPath = function(args) {
   cmapi.inherit(new cmapi.IGeoRenderable(), this);
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1851,7 +1851,7 @@ cmapi.IGeoCircle = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1919,7 +1919,7 @@ cmapi.IGeoEllipse = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1987,7 +1987,7 @@ cmapi.IGeoRectangle = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2031,7 +2031,7 @@ cmapi.IGeoSquare = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2070,7 +2070,7 @@ cmapi.IGeoImageOverlay = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2197,7 +2197,7 @@ cmapi.IGeoMilSymbol = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2254,7 +2254,7 @@ cmapi.IGeoAirControlMeasure = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2312,7 +2312,7 @@ cmapi.IGeoDocument = function(args) {
   });
 
 
-  this.patchProps = cmapi.patchProps.bind(this);
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
