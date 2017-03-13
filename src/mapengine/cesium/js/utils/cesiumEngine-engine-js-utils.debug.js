@@ -778,18 +778,18 @@ cesiumEngine.utils.convertEmpPrimitiveItemToMilStandardItem = function (item, fo
                 //convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.semiMinor);
                 if (Cesium.defined(convertedItem.properties.buffer))
                 {
-                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.semiMajor);
-                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.semiMinor);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.semiMajor);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.semiMinor);
                     convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][2] = parseFloat(convertedItem.properties.buffer);
                     convertedItem.hasBuffer = true;
                 }
                 else
                 {
-                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.semiMajor);
-                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.semiMinor);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0] = parseFloat(convertedItem.properties.semiMajor);
+                    convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1] = parseFloat(convertedItem.properties.semiMinor);
 
                 }
-                convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH][0] = parseFloat(convertedItem.properties.azimuth);
+                convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH][0] = parseFloat(convertedItem.properties.azimuth) - 90;
                 convertedItem.symbolCode = "PBS_ELLIPSE----";
                 break;
             }
@@ -875,8 +875,8 @@ cesiumEngine.utils.convertMilStandardItemToEmpPrimitiveItem = function (item, fo
             }
             case  "ellipse":
             {
-                convertedItem.properties.semiMajor = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1];
-                convertedItem.properties.semiMinor = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0];
+                convertedItem.properties.semiMajor = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][0];
+                convertedItem.properties.semiMinor = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][1];
                 if (convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE].length > 2)
                 {
                     convertedItem.properties.buffer = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.DISTANCE][2];
@@ -885,7 +885,7 @@ cesiumEngine.utils.convertMilStandardItemToEmpPrimitiveItem = function (item, fo
                         Array.isArray(convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH]) &&
                         convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH].length > 0)
                 {
-                    convertedItem.properties.azimuth = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH][0];
+                    convertedItem.properties.azimuth = convertedItem.properties.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH][0] + 90;
                 }
                 else
                 {

@@ -75,8 +75,8 @@ EMPWorldWind.eventHandlers.mouse = {
    * @this EMPWorldWind.map
    */
   wheel: function (event) {
-    if (event.wheelDeltaY < 0 && this.worldWind.navigator.range > EMPWorldWind.constants.view.MAX_HEIGHT) {
-      this.worldWind.navigator.range = EMPWorldWind.constants.view.MAX_HEIGHT;
+    if (event.wheelDeltaY < 0 && this.worldWindow.navigator.range > EMPWorldWind.constants.view.MAX_HEIGHT) {
+      this.worldWindow.navigator.range = EMPWorldWind.constants.view.MAX_HEIGHT;
       event.preventDefault();
     }
 
