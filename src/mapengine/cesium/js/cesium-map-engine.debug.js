@@ -466,6 +466,11 @@ emp.engineDefs.cesiumMapEngine = function (args)
     engineInterface.view.set = function (transaction)
     {
         empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
+        if (empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION)
+        {
+            // no view set  API initiated allowed while in no motion mode
+            return; // what about the transaction? I assume the transaction will time out so no need to run it from here.
+        }
         this.cameraStoppedMoving = false;
         var result = {
             success: true,
@@ -536,6 +541,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 }
             }
         }
+         empCesium.redrawGraphics();
         if (failList.length > 0)
         {
             transaction.fail(failList);
@@ -664,6 +670,12 @@ emp.engineDefs.cesiumMapEngine = function (args)
             },
             failList = [];
 
+            if (empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION)
+            {
+                // no loolkAt API initiated allowed while in no motion mode
+                return; // what about the transaction? I assume the transaction will time out so no need to run it from here.
+            }
+
             transaction.pause();
             empCesium.viewTransaction = transaction;
 
@@ -696,6 +708,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     }
                 }
             }
+             empCesium.redrawGraphics();
             if (failList.length > 0)
             {
                 transaction.fail(failList);
@@ -1784,7 +1797,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
             empCesium.projectionEnableFlat(enable);
         }
     };
-    
+
 //    engineInterface.settings.mil2525.icon.labels.set = function (transaction)
 //    {
 //        empCesium.cesiumRenderOptimizer.boundNotifyRepaintRequired();
@@ -1966,10 +1979,31 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
                     break;
                 case emp3.api.enums.MapMotionLockEnum.NO_PAN:
+                    empCesium.scene.screenSpaceCameraController.enableRotate = false;
+                    empCesium.scene.screenSpaceCameraController.enableTranslate = false;
+                    empCesium.scene.screenSpaceCameraController.enableZoom = true;
+                    empCesium.scene.screenSpaceCameraController.enableTilt = true;
+                    empCesium.scene.screenSpaceCameraController.enableLook = true;
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.NO_PAN;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
                     break;
                 case emp3.api.enums.MapMotionLockEnum.NO_ZOOM:
+                    empCesium.scene.screenSpaceCameraController.enableRotate = true;
+                    empCesium.scene.screenSpaceCameraController.enableTranslate = true;
+                    empCesium.scene.screenSpaceCameraController.enableZoom = false;
+                    empCesium.scene.screenSpaceCameraController.enableTilt = true;
+                    empCesium.scene.screenSpaceCameraController.enableLook = true;
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.NO_ZOOM;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
                     break;
                 case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
+                    empCesium.scene.screenSpaceCameraController.enableRotate = false;
+                    empCesium.scene.screenSpaceCameraController.enableTranslate = false;
+                    empCesium.scene.screenSpaceCameraController.enableZoom = false;
+                    empCesium.scene.screenSpaceCameraController.enableTilt = false;
+                    empCesium.scene.screenSpaceCameraController.enableLook = false;
+                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN;
+                    empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
                     break;
                 case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
                     empCesium.scene.screenSpaceCameraController.enableRotate = false;

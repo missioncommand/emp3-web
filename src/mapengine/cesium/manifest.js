@@ -700,7 +700,7 @@ function initializeCesium(args)
                 empCesium.empMapInstance.eventing.StaticContent(oLayerList);
             }
             var argsProp = args;
-            var addTimeout = 550;
+            var addTimeout = 1500;
             if (argsProp !== undefined && argsProp !== null)
             {
                 args.mapInstance.engine.initialize.succeed(empCesium);
@@ -714,7 +714,8 @@ function initializeCesium(args)
                 empCesium.viewChange( empCesium.currentExtent, true, emp3.api.enums.MapViewEventEnum.VIEW_MOTION_STOPPED);
                 empCesium.prevExtent = empCesium.currentExtent;
                 empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
-                // args.mapInstance.engine.initialize.succeed(empCesium);
+                //args.mapInstance.engine.initialize.succeed(empCesium);
+                empCesium.redrawGraphics();
             }, addTimeout);
             //add navigation plugin
             //navigationInitialization(container, viewer);

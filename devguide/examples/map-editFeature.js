@@ -1,6 +1,6 @@
 var overlay1 = new emp3.api.Overlay({
-    name: "overlay1",
-    id: "w834mne-sdg5467-sdf-we45"
+  name: "overlay1",
+  id: "w834mne-sdg5467-sdf-we45"
 });
 
 // This is the handler for the map click event.  We are
@@ -34,7 +34,7 @@ var processAdd = function() {
   map1.drawFeature({
     feature: path,
     onDrawUpdate: function() {
-      // This is to show you that the map will notifiy you when it is updating.
+      // This is to show you that the map will notify you when it is updating.
       // This occurs each time you add a point to the feature.
       console.log("draw update occurred!");
     },
@@ -43,7 +43,7 @@ var processAdd = function() {
       // this is what actually adds the feature to the map.
       overlay1.addFeature({
         feature: args.feature,
-        onSuccess: function(){
+        onSuccess: function() {
           // to complete the edit, call map1.completeEdit.
           // to cancel edit, call, map1.cancelEdit.
           map1.editFeature({
@@ -57,12 +57,12 @@ var processAdd = function() {
 
 
 var processError = function(error) {
-    alert(JSON.stringify(error));
+  alert(JSON.stringify(error));
 };
 
 // add an overlay to the map.
 map1.addOverlay({
-    overlay: overlay1,
-    onSuccess: processAdd,
-    onError: processError
+  overlay: overlay1,
+  onSuccess: processAdd,
+  onError: processError
 });

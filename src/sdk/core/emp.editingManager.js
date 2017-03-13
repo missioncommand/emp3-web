@@ -342,11 +342,10 @@ emp.editingManager = function(args) {
       }
       else {
         mapLock = new emp.typeLibrary.Lock({
-          lock: false
+          lock: emp3.api.enums.MapMotionLockEnum.SMART_MOTION
         });
 
-        // first lock the map in place so the map does not pan.
-
+        /* first lock the map in place so the map does not pan.*/
         lockMapTransaction = new emp.typeLibrary.Transaction({
           intent: emp.intents.control.VIEW_LOCK,
           mapInstanceId: mapInstance.mapInstanceId,

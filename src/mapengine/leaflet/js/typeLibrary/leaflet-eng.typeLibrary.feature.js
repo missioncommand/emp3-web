@@ -32,6 +32,18 @@ leafLet.internalPrivateClass.Feature = function () {
                 }
             }, this);
 
+            this.on('mousedown', function (oEvent) {
+                if (oEvent.target.getEngineInstanceInterface()) {
+                    oEvent.target.getEngineInstanceInterface().handleFeatureClicked(oEvent);
+                }
+            }, this);
+
+            this.on('mouseup', function (oEvent) {
+                if (oEvent.target.getEngineInstanceInterface()) {
+                    oEvent.target.getEngineInstanceInterface().handleFeatureClicked(oEvent);
+                }
+            }, this);
+
             this.on('contextmenu', function (oEvent) {
                 if (oEvent.target.getEngineInstanceInterface()) {
                     oEvent.target.getEngineInstanceInterface().handleFeatureClicked(oEvent);
@@ -306,9 +318,9 @@ leafLet.internalPrivateClass.Feature = function () {
         },
         _updateLeafletObject: function (oMapBounds, oLeafletObject, bWrappedAlready, iLevel) {
             var oLatLngList;
-            var oNewLatLngList;
             var bCoordWrapped = bWrappedAlready;
             var iCurrentLevel = iLevel || 0;
+            var iList;
 
             if (!oLeafletObject) {
                 return bCoordWrapped;
@@ -323,29 +335,28 @@ leafLet.internalPrivateClass.Feature = function () {
                 }
             } else if (oLeafletObject instanceof L.Polygon) {
                 oLatLngList = oLeafletObject.getLatLngs();
-
-                if (oLatLngList[0] && (oLatLngList[0][0] instanceof Array)) {
-                    for (var iList = 0; iList < oLatLngList.length; iList++) {
-                        bCoordWrapped = bCoordWrapped || leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList[iIndex], bCoordWrapped);
+                if (oLatLngList.length > 0) {
+                    for (iList = 0; iList < oLatLngList.length; iList = iList + 1) {
+                        bCoordWrapped = bCoordWrapped || leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList[iList], bCoordWrapped);
                     }
-                } else if (oLatLngList.length > 0) {
-                    bCoordWrapped = leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList, bCoordWrapped);
                 }
-
                 if (bCoordWrapped) {
                     oLeafletObject.setLatLngs(oLatLngList);
                 }
             } else if (oLeafletObject instanceof L.Polyline) {
-                oNewLatLngList = [];
-                oLatLngList = oLeafletObject.getLatLngs();
-
-                if (oLatLngList.length > 0) {
-                    bCoordWrapped = leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList, bCoordWrapped);
-                }
-
-                if (bCoordWrapped) {
-                    oLeafletObject.setLatLngs(oLatLngList);
-                }
+              oLatLngList = oLeafletObject.getLatLngs();
+              if (oLatLngList.length > 0) {
+                  if (L.Util.isArray(oLatLngList[0]) && oLatLngList[0].length > 0) {
+                    for (iList = 0; iList < oLatLngList.length; iList = iList + 1) {
+                      bCoordWrapped = bCoordWrapped || leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList[iList], bCoordWrapped);
+                    }
+                  } else {
+                    bCoordWrapped = bCoordWrapped || leafLet.utils.wrapCoordinates(oMapBounds, oLatLngList, bCoordWrapped);
+                  }
+              }
+              if (bCoordWrapped) {
+                oLeafletObject.setLatLngs(oLatLngList);
+              }
             } else if (oLeafletObject instanceof L.LayerGroup) {
                 var oItemList = oLeafletObject.getLayers();
                 var bHasNotWrapped = !bCoordWrapped;
@@ -360,7 +371,6 @@ leafLet.internalPrivateClass.Feature = function () {
                         } else {
                             // We need to break out so the top iteration starts over.
                             break;
-                            ;
                         }
                     }
                 }

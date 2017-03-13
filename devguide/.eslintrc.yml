@@ -1,0 +1,13 @@
+---
+env:
+  browser: true
+
+globals:
+  map1: true
+  emp3: true
+  runExample: true
+  showToaster: true
+
+rules:
+  no-console: off
+  no-unused-vars: off
