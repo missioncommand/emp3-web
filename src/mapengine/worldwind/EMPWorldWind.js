@@ -116,13 +116,13 @@ EMPWorldWind.map = function(wwd) {
       "Z": false
     }
   };
-  
+
   // optimization for mil standard  single points.
-    this.singlePointAltitudeRanges = {};
-    this.singlePointAltitudeRanges.mid = 600000;//default
-    this.singlePointAltitudeRanges.high = 1200000;// default
-    this.singlePointAltitudeRangeMode = EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
-  
+  this.singlePointAltitudeRanges = {};
+  this.singlePointAltitudeRanges.mid = 600000;//default
+  this.singlePointAltitudeRanges.high = 1200000;// default
+  this.singlePointAltitudeRangeMode = EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
+
 };
 
 // typedefs ============================================================================================================
@@ -818,22 +818,21 @@ EMPWorldWind.map.prototype.setLabelStyle = function(styles) {
 /**
  * Expose a refresh
  */
-EMPWorldWind.map.prototype.refresh = function ()
-{
-    EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
-    //var featureId, feature;
+EMPWorldWind.map.prototype.refresh = function() {
+  EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
+  //var featureId, feature;
 
-    // for (featureId in this.features) {
-    //   if (this.features.hasOwnProperty(featureId)) {
-    //     feature = this.features[featureId];
-    //
-    //     // TODO check if it is visible first
-    //     //EMPWorldWind.editors.EditorController.updateRender.call(this, feature);
-    //   }
-    // }
+  // for (featureId in this.features) {
+  //   if (this.features.hasOwnProperty(featureId)) {
+  //     feature = this.features[featureId];
+  //
+  //     // TODO check if it is visible first
+  //     //EMPWorldWind.editors.EditorController.updateRender.call(this, feature);
+  //   }
+  // }
 
-    // TODO trigger redraw if necessary only
-    this.worldWind.redraw();
+  // TODO trigger redraw if necessary only
+  this.worldWindow.redraw();
 };
 
 /**
