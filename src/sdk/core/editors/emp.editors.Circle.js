@@ -1,4 +1,4 @@
-/*global LatLon*/
+/*global*/
 emp.editors = emp.editors || {};
 
 emp.editors.Circle = function(args) {
@@ -22,7 +22,6 @@ emp.editors.Circle.prototype.addControlPoints = function() {
 
   var controlPoint,
     transaction,
-    radiusPoint,
     items = [],
     vertex,
     addPoint,
@@ -121,7 +120,8 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
     coordinateUpdate,
     updateData = {},
     type = emp.typeLibrary.CoordinateUpdateType.UPDATE,
-    newCoordinates;
+    newCoordinates,
+    newRadiusPosition;
 
   currentVertex = this.vertices.find(featureId);
 
@@ -144,7 +144,27 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       this.featureCopy.properties.distance[0] = distance;
     }
+  } else {
+    this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+
+    // Add the radius control point.
+    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) {
+      distance = this.featureCopy.properties.radius;
+    } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+      distance = this.featureCopy.properties.distance[0];
+    }
+
+    newRadiusPosition = emp.geoLibrary.geodesic_coordinate({
+      x: this.featureCopy.data.coordinates[0],
+      y: this.featureCopy.data.coordinates[1]
+    }, distance, 0);
+
+    this.radius.feature.data.coordinates = [newRadiusPosition.x, newRadiusPosition.y];
+
+    items.push(this.radius.feature);
   }
+
+  items.push(this.featureCopy);
 
   // Add our updated feature onto the items we will be updating in our
   // transaction.
@@ -176,9 +196,6 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
 
   items.push(this.animation);
   */
-  // copy the coordinates into our object, so we can eventually complete
-  // the edit.
-  this.featureCopy.data.coordinates = this.center.feature.data.coordinates;
 
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
@@ -201,8 +218,8 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
 
   for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
     newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[i][1],
-      lon: this.featureCopy.data.coordinates[i][0]
+      lat: this.featureCopy.data.coordinates[1],
+      lon: this.featureCopy.data.coordinates[0]
     });
   }
 
@@ -224,6 +241,7 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
  * Also updates the control point and the feature with the change.
  */
 emp.editors.Circle.prototype.moveControlPoint = function(featureId, pointer) {
+  /*
   var currentFeature,
     currentVertex,
     back,
@@ -242,6 +260,7 @@ emp.editors.Circle.prototype.moveControlPoint = function(featureId, pointer) {
     updateData = {},
     animationCoordinates = [],
     index;
+    */
 
   return this.startMoveControlPoint(featureId, pointer);
 
