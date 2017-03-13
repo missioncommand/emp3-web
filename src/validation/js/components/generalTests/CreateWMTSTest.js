@@ -26,8 +26,8 @@ class CreateWMTSTest extends Component {
       sampleDimension: '',
       useProxy: false,
       version: 'WMTS' // this translates to undefined.  I had to hack this
-                        // a little because VSelect does not allow me to specify
-                        // numbers as my value.
+      // a little because VSelect does not allow me to specify
+      // numbers as my value.
     };
 
     this.updateSelectedMapId = this.updateSelectedMapId.bind(this);
@@ -77,16 +77,16 @@ class CreateWMTSTest extends Component {
 
   parseCapabilities() {
     $.get(this.state.url.trim() + '?request=GetCapabilities&service=WMTS')
-    .done(data => {
-      let xml = $(data);
-      let root = xml.find('Layer');
-      this.setState({availableLayers: this.getLayers(root)});
-      toastr.success('Received Layer Information');
-    })
-    .fail(() => {
-      toastr.error('Failed to Find Layer Information');
-      this.setState({availableLayers: []});
-    });
+      .done(data => {
+        let xml = $(data);
+        let root = xml.find('Layer');
+        this.setState({availableLayers: this.getLayers(root)});
+        toastr.success('Received Layer Information');
+      })
+      .fail(() => {
+        toastr.error('Failed to Find Layer Information');
+        this.setState({availableLayers: []});
+      });
   }
 
   getLayers(root) {
@@ -106,7 +106,7 @@ class CreateWMTSTest extends Component {
 
   updateWMTS(event) {
 
-    switch(event.target.id) {
+    switch (event.target.id) {
       case 'createWMTS-name':
         this.setState({
           name: event.target.value
@@ -120,7 +120,7 @@ class CreateWMTSTest extends Component {
       case 'createWMTS-url':
         this.setState({
           url: event.target.value
-        });
+        }, _.debounce(this.parseCapabilities, 2000));
         break;
       case 'createWMTS-layer':
         this.setState({
@@ -168,7 +168,6 @@ class CreateWMTSTest extends Component {
       wmts;
 
 
-
     // Translate the values in the selection box to be the actual values
     // of the wms version enumeration.  If the value is just WMTS, that is
     // considered undefined.
@@ -185,7 +184,7 @@ class CreateWMTSTest extends Component {
     if (this.state.sampleDimensions !== '') {
       try {
         sampleDimensions = JSON.parse(this.state.sampleDimensions);
-      } catch(e) {
+      } catch (e) {
         sampleDimensions = undefined;
       }
     }
@@ -246,15 +245,17 @@ class CreateWMTSTest extends Component {
       <div>
         <h3>Create a WMTS Service</h3>
 
-        <MapSelect id='createWMTS-mapSelect' label='Choose which map to add the service to' selectedMapId={this.state.selectedMapId} callback={this.updateSelectedMapId}/>
+        <MapSelect id='createWMTS-mapSelect' label='Choose which map to add the service to'
+                   selectedMapId={this.state.selectedMapId} callback={this.updateSelectedMapId}/>
 
         <VText id='createWMTS-geoId' value={this.state.geoId} label='GeoID' callback={this.updateWMTS}/>
         <VText id='createWMTS-name' value={this.state.name} label='Name' callback={this.updateWMTS}/>
-        <VText id='createWMTS-description' value={this.state.description} label='Description' callback={this.updateWMTS}/>
+        <VText id='createWMTS-description' value={this.state.description} label='Description'
+               callback={this.updateWMTS}/>
         <VText id='createWMTS-url' value={this.state.url} label='URL' callback={this.updateWMTS}/>
-        <div style={{overflowX:'auto', width: '400px'}}>
+        <div style={{overflowX: 'auto', width: '400px'}}>
           <label htmlFor='availableLayersList'>Available Layers</label>
-          <ul id='availableLayersList' style={{listStyle:'none', maxHeight:'400px', overflowY:'auto'}}>
+          <ul id='availableLayersList' style={{listStyle: 'none', maxHeight: '400px', overflowY: 'auto'}}>
             {this.state.availableLayers.length === 0 ? <li>No Layers Available</li> : null}
             {this.state.availableLayers.map((layer, i) => {
               if (i > 50) {
@@ -268,19 +269,22 @@ class CreateWMTSTest extends Component {
                     <input type='checkbox' id={layer.id} value={layer.id}
                            onChange={this.toggleLayer} checked={checked}/>
                     {layer.id}
-                    <span style={{fontSize: '0.8em', fontStyle:'oblique'}}> {layer.name}</span>
+                    <span style={{fontSize: '0.8em', fontStyle: 'oblique'}}> {layer.name}</span>
                   </label>
 
                 </li>);
             })}
           </ul>
         </div>
-        <VSelect id='createWMTS-version' label='WMTS Version' values={WMTSVERSION} value={this.state.version} callback={this.updateWMTS}/>
+        <VSelect id='createWMTS-version' label='WMTS Version' values={WMTSVERSION} value={this.state.version}
+                 callback={this.updateWMTS}/>
         <VText id='createWMTS-layer' value={this.state.layer} label='Layer' callback={this.updateWMTS}/>
         <VText id='createWMTS-style' value={this.state.style} label='Style' callback={this.updateWMTS}/>
         <VText id='createWMTS-tileFormat' value={this.state.tileFormat} label='Format' callback={this.updateWMTS}/>
-        <VText id='createWMTS-sampleDimensions' value={this.state.sampleDimensions} label='Sample Dimensions' callback={this.updateWMTS}/>
-        <VCheckBox id='createWMTS-useProxy' checked={this.state.useProxy} label='Use Proxy' callback={event => this.setState({useProxy: event.target.checked})}/>
+        <VText id='createWMTS-sampleDimensions' value={this.state.sampleDimensions} label='Sample Dimensions'
+               callback={this.updateWMTS}/>
+        <VCheckBox id='createWMTS-useProxy' checked={this.state.useProxy} label='Use Proxy'
+                   callback={event => this.setState({useProxy: event.target.checked})}/>
 
         <button className='blocky mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored'
                 onClick={this.createWMTS}>

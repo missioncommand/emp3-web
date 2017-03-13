@@ -123,7 +123,7 @@ leafLet.internalPrivateClass.GeoJsonFeature = function(){
             return new L.geoJson(oGeoJSON, {
                 style: function(oGeoJSONData)
                 {
-                    var oProperties = leafLet.utils.geoJson.mergeGeoJSONProperties(this.getEngineInstanceInterface(), args.item.properties, oGeoJSONData.properties);
+                    var oProperties = leafLet.utils.geoJson.mergeGeoJSONProperties(oThis.getEngineInstanceInterface(), args.properties, oGeoJSONData.properties);
             
                     if (bIsSelected)
                     {
@@ -143,7 +143,7 @@ leafLet.internalPrivateClass.GeoJsonFeature = function(){
                 },
                 pointToLayer: function(oGeoJsonfeature, latlng)
                 {
-                    var oProperties = leafLet.utils.geoJson.mergeGeoJSONProperties(this.getEngineInstanceInterface(), args.item.properties, oGeoJsonfeature.properties);
+                    var oProperties = leafLet.utils.geoJson.mergeGeoJSONProperties(oThis.getEngineInstanceInterface(), args.properties, oGeoJsonfeature.properties);
 
                     if (oProperties.iconOptions)
                     {

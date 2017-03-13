@@ -35,7 +35,7 @@ describe("EMPWorldWind.eventHandlers.mouse", function () {
       const viewChangeSpy = sandbox.spy();
       const pointerStub = sandbox.stub();
       context = {
-        worldWind: worldWind,
+        worldWindow: worldWind,
         empMapInstance: {
           eventing: {
             ViewChange: viewChangeSpy,
@@ -55,7 +55,7 @@ describe("EMPWorldWind.eventHandlers.mouse", function () {
     it('sends a dblclick event to the EMP eventing controller', function () {
       const pointerStub = sandbox.stub();
       context = {
-        worldWind: worldWind,
+        worldWindow: worldWind,
         empMapInstance: {
           eventing: {
             Pointer: pointerStub
@@ -74,7 +74,7 @@ describe("EMPWorldWind.eventHandlers.mouse", function () {
     it('sends a mouseup event to the EMP eventing controller', function () {
       const pointerStub = sandbox.stub();
       context = {
-        worldWind: worldWind,
+        worldWindow: worldWind,
         empMapInstance: {
           eventing: {
             Pointer: pointerStub
@@ -98,7 +98,7 @@ describe("EMPWorldWind.eventHandlers.mouse", function () {
     it('sends a mousedown event to the EMP eventing controller', function () {
       const pointerStub = sandbox.stub();
       context = {
-        worldWind: worldWind,
+        worldWindow: worldWind,
         empMapInstance: {
           eventing: {
             Pointer: pointerStub
@@ -122,7 +122,7 @@ describe("EMPWorldWind.eventHandlers.mouse", function () {
     it('sends an update to the EMP eventing controller that the mouse has moved', function () {
       const pointerStub = sandbox.stub();
       context = {
-        worldWind: worldWind,
+        worldWindow: worldWind,
         empMapInstance: {
           eventing: {
             Pointer: pointerStub
@@ -145,7 +145,7 @@ describe("EMPWorldWind.eventHandlers.mouse", function () {
       const viewChangeSpy = sandbox.spy();
       const pointerStub = sandbox.stub();
       context = {
-        worldWind: worldWind,
+        worldWindow: worldWind,
         empMapInstance: {
           eventing: {
             ViewChange: viewChangeSpy,
@@ -172,7 +172,7 @@ describe("EMPWorldWind.eventHandlers.mouse", function () {
       const viewChangeSpy = sandbox.spy();
       const pointerStub = sandbox.stub();
       context = {
-        worldWind: worldWind,
+        worldWindow: worldWind,
         empMapInstance: {
           eventing: {
             ViewChange: viewChangeSpy,

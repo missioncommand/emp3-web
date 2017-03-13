@@ -6,8 +6,7 @@ class MapSetBackgroundBrightnessTest extends Component {
   constructor(props) {
     super(props);
 
-    var selectedMapId = '';
-
+    let selectedMapId = '';
     if (props.maps.length > 0) {
       selectedMapId = _.first(props.maps).geoId;
     }
@@ -32,37 +31,44 @@ class MapSetBackgroundBrightnessTest extends Component {
   }
 
   setBackgroundBrightness() {
-    const map = _.find(this.props.maps, {geoId: this.state.selectedMapId});
+    const {maps} = this.props;
+    const map = _.find(maps, {geoId: this.state.selectedMapId});
     try {
-
       map.setBackgroundBrightness(parseInt(this.state.brightness));
       toastr.success("Changed Background Brightness to " + this.state.brightness);
-
-    } catch(err) {
+    } catch (err) {
       toastr.error(err.message, 'Map.setBackgroundBrightness: Critical');
     }
   }
 
   render() {
+    const {maps} = this.props;
+
     return (
       <div className='mdl-grid'>
         <span className='mdl-layout-title'>Set BackgroundBrightness</span>
         <div className='mdl-cell mdl-cell--12-col'>
-          <MapSelect selectedMapId={this.state.selectedMapId} label='Select Map ' maps={this.props.maps}
+          <MapSelect selectedMapId={this.state.selectedMapId}
+                     label='Select Map'
+                     maps={maps}
                      callback={event => this.setState({selectedMapId: event.target.value})}/>
-
-          <VText id='mapSetBackgroundBrightness-brightness' value={this.state.brightness} label='Brightness' callback={this.update}/>
-          <br/>
-          <br/>
-          <button className='mdl-button mdl-js-button mdl-js--ripple-effect mdl-button--raised mdl-button--colored'
-                  onClick={this.setBackgroundBrightness} disabled={this.state.selectedMapId === ''}>
-            Set
-          </button>
-
-          <RelatedTests relatedTests={[
-            {text: 'Map.getBackgroundBrightness', target: 'mapGetBackgroundBrightnessTest'}
-          ]}/>
         </div>
+
+        <VText id='mapSetBackgroundBrightness-brightness'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.brightness} label='Brightness'
+               callback={this.update}/>
+
+        <button
+          className='mdl-button mdl-js-button mdl-js--ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
+          onClick={this.setBackgroundBrightness}
+          disabled={this.state.selectedMapId === ''}>
+          Set
+        </button>
+
+        <RelatedTests relatedTests={[
+          {text: 'Map.getBackgroundBrightness', target: 'mapGetBackgroundBrightnessTest'}
+        ]}/>
       </div>
     );
   }
