@@ -216,12 +216,10 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
   index = this.vertices.getIndex(featureId);
   newCoordinates = [];
 
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-    newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[1],
-      lon: this.featureCopy.data.coordinates[0]
-    });
-  }
+  newCoordinates.push({
+    lat: this.featureCopy.data.coordinates[1],
+    lon: this.featureCopy.data.coordinates[0]
+  });
 
   coordinateUpdate = {
       type: type,
