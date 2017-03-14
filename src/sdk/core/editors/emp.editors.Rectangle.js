@@ -171,12 +171,13 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
 
   // First update the control point with new pointer info.
   currentFeature = currentVertex.feature;
-  currentFeature.data.coordinates = [pointer.lon, pointer.lat];
+
 
   if (featureId === this.width.feature.featureId){
     // if the radius moves, then we need to update the radius value on the
     // original feature.
     //
+    currentFeature.data.coordinates = [pointer.lon, pointer.lat];
     widthDistance = emp.geoLibrary.measureDistance(this.width.feature.data.coordinates[1],
       this.width.feature.data.coordinates[0],
       this.center.feature.data.coordinates[1],
@@ -188,7 +189,16 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       this.featureCopy.properties.distance[0] = widthDistance * 2;
     }
+
+    azimuth = this.featureCopy.properties.azimuth;
+    newWidthPosition = emp.geoLibrary.geodesic_coordinate({
+      x: this.featureCopy.data.coordinates[0],
+      y: this.featureCopy.data.coordinates[1]
+    }, widthDistance, 90 + azimuth);
+
+    currentFeature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
   } else if (featureId === this.height.feature.featureId) {
+    currentFeature.data.coordinates = [pointer.lon, pointer.lat];
     heightDistance = emp.geoLibrary.measureDistance(this.height.feature.data.coordinates[1],
       this.height.feature.data.coordinates[0],
       this.center.feature.data.coordinates[1],
@@ -200,7 +210,17 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       this.featureCopy.properties.distance[1] = heightDistance * 2;
     }
+
+    azimuth = this.featureCopy.properties.azimuth;
+    newHeightPosition = emp.geoLibrary.geodesic_coordinate({
+      x: this.featureCopy.data.coordinates[0],
+      y: this.featureCopy.data.coordinates[1]
+    }, heightDistance, azimuth);
+
+    currentFeature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
   } else {
+
+    currentFeature.data.coordinates = [pointer.lon, pointer.lat];
     this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
 
     // Add the radius control point.
@@ -217,12 +237,12 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     newWidthPosition = emp.geoLibrary.geodesic_coordinate({
       x: this.featureCopy.data.coordinates[0],
       y: this.featureCopy.data.coordinates[1]
-    }, widthDistance, 90 + azimuth);
+    }, widthDistance / 2, 90 + azimuth);
 
     newHeightPosition = emp.geoLibrary.geodesic_coordinate({
       x: this.featureCopy.data.coordinates[0],
       y: this.featureCopy.data.coordinates[1]
-    }, heightDistance, azimuth);
+    }, heightDistance / 2, azimuth);
 
     this.width.feature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
     this.height.feature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
