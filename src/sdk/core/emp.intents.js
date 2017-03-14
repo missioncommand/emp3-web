@@ -372,6 +372,9 @@ emp.intents.control.useNewEditing = function(args) {
   } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
     (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
     result = true;
+  } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
+    result = true;
   }
 
   return result;
