@@ -174,7 +174,13 @@ emp.engineDefs.leafletMapEngine = function (args) {
         oCurrentEditor: undefined,
         oEditTransaction: undefined,
         oTransactionList: {},
-        oZoomControl: undefined,
+        lockState: undefined,
+        setLockState: function (lockState) {
+            instanceInterface.lockState = lockState;
+        },
+        getLockState: function () {
+            return instanceInterface.lockState;
+        },
         getLeafletMap: function () {
             return instanceInterface.leafletInstance;
         },
@@ -656,8 +662,6 @@ emp.engineDefs.leafletMapEngine = function (args) {
             coreId: emp.helpers.id.newGUID()
         });
 
-        instanceInterface.oZoomControl = oControl;
-
         oLayerEntry = new emp.typeLibrary.Static({
             name: 'Zoom Buttons',
             featureId: oControl.getCoreId(),
@@ -747,6 +751,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
         if (instanceInterface.renderingOptimization.enabled) {
             instanceInterface.renderingOptimization.refreshZone();
         }
+        instanceInterface.setLockState(emp3.api.enums.MapMotionLockEnum.UNLOCKED);
         //notify application that the map is ready to recieve data
         instanceInterface.empMapInstance.eventing.StatusChange({status: emp.map.states.READY});
     };
@@ -1902,24 +1907,54 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
         instanceInterface.oSelectionManager.resetEventData();
     };
-    engineInterface.navigation = engineInterface.navigation || {};
+
     engineInterface.navigation.enable = function (transaction) {
         var enabled;
-        if (transaction && transaction.items) {
-            enabled = transaction.items[0];
 
-            if (enabled.lock && instanceInterface.oZoomControl._map) {
-                instanceInterface.leafletInstance.dragging.disable();
-                instanceInterface.leafletInstance.scrollWheelZoom.disable();
-                instanceInterface.oZoomControl.removeFrom(instanceInterface.leafletInstance);
-            } else if (!enabled.lock && (instanceInterface.oZoomControl._map === null)){
-                instanceInterface.oZoomControl.addTo(instanceInterface.leafletInstance);
-                instanceInterface.leafletInstance.scrollWheelZoom.enable();
-                // Default to enabling mouse navigation to avoid an error state where user cannot interact with the map
-                instanceInterface.leafletInstance.dragging.enable();
+        try {
+          if (transaction && transaction.items) {
+            enabled = transaction.items[0];
+            instanceInterface.setLockState(enabled.lock);
+            switch (instanceInterface.getLockState()) {
+              case emp3.api.enums.MapMotionLockEnum.NO_MOTION:
+                if (instanceInterface.leafletInstance.zoomControl) {
+                  instanceInterface.leafletInstance.dragging.disable();
+                  instanceInterface.leafletInstance.doubleClickZoom.disable();
+                  instanceInterface.leafletInstance.scrollWheelZoom.disable();
+                  instanceInterface.leafletInstance.keyboard.disable();
+                  instanceInterface.leafletInstance.boxZoom.disable();
+                  instanceInterface.leafletInstance.zoomControl.remove(instanceInterface.leafletInstance);
+                }
+                break;
+              case emp3.api.enums.MapMotionLockEnum.NO_PAN:
+                break;
+              case emp3.api.enums.MapMotionLockEnum.NO_ZOOM:
+                break;
+              case emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN:
+                break;
+              case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
+                break;
+              case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
+                break;
+              default:
+                throw new Error("MapMotionLockEnum is not valid.");
+                break;
             }
+            transaction.run();
+          }
+        } catch (Ex) {
+          new emp.typeLibrary.Error({
+            level: emp.typeLibrary.Error.level.MAJOR,
+            message: Ex.name + ": " + Ex.message,
+            jsError: Ex
+          });
         }
-        transaction.run();
+          // else if (!enabled.lock && (instanceInterface.oZoomControl._map === null)){
+          //     instanceInterface.oZoomControl.addTo(instanceInterface.leafletInstance);
+          //     instanceInterface.leafletInstance.scrollWheelZoom.enable();
+          //     // Default to enabling mouse navigation to avoid an error state where user cannot interact with the map
+          //     instanceInterface.leafletInstance.dragging.enable();
+          // }
     };
 
     engineInterface.settings.mil2525.icon.size.set = function (transaction) {
