@@ -7,43 +7,56 @@ EMPWorldWind.data = EMPWorldWind.data || {};
  * @class
  * @param {emp.typeLibrary.WMS} wms
  */
-EMPWorldWind.data.EmpWMSLayer = function(wms) {
-  var layerNames, config;
+EMPWorldWind.data.EmpWMSLayer = function (wms)
+{
+    var layerNames, useProxy, url, config;
 
-  this.id = wms.coreId;
+    this.id = wms.coreId;
 
-  var _wms = wms;
+    var _wms = wms;
 
-  /**
-   * @name EMPWorldWind.data.EmpWMSLayer#wms
-   * @type {emp.typeLibrary.WMS}
-   */
-  Object.defineProperty(this, 'wms', {
-    enumerable: true,
-    value: _wms
-  });
+    /**
+     * @name EMPWorldWind.data.EmpWMSLayer#wms
+     * @type {emp.typeLibrary.WMS}
+     */
+    Object.defineProperty(this, 'wms', {
+        enumerable: true,
+        value: _wms
+    });
 
-  layerNames = wms.activeLayers.join();
+    layerNames = wms.activeLayers.join();
+    
+    if (wms.useProxy)
+    {
+        useProxy = wms.useProxy;
+    }
+    if (useProxy === true)
+    {
+        url = emp3.api.global.configuration.urlProxy + "?url=" + wms.url;
+    }
+    else
+    {
+        url = wms.url;
+    }
+    config = {
+        service: url,
+        layerNames: layerNames,
+        sector: WorldWind.Sector.FULL_SPHERE,
+        levelZeroDelta: new WorldWind.Location(36, 36),
+        numLevels: 15,
+        format: "image/png",
+        size: 256
+    };
 
-  config = {
-    service: wms.url,
-    layerNames: layerNames,
-    sector: WorldWind.Sector.FULL_SPHERE,
-    levelZeroDelta: new WorldWind.Location(36, 36),
-    numLevels: 15,
-    format: "image/png",
-    size: 256
-  };
-
-  // Purposely null for now
-  var timeString = '';
-  var _wmsLayer = new WorldWind.WmsLayer(config, timeString);
-  /**
-   * @name EMPWorldWind.data.EmpWMS#layer
-   * @type {WorldWind.WmsLayer}
-   */
-  Object.defineProperty(this, 'layer', {
-    enumerable: true,
-    value: _wmsLayer
-  });
+    // Purposely null for now
+    var timeString = '';
+    var _wmsLayer = new WorldWind.WmsLayer(config, timeString);
+    /**
+     * @name EMPWorldWind.data.EmpWMS#layer
+     * @type {WorldWind.WmsLayer}
+     */
+    Object.defineProperty(this, 'layer', {
+        enumerable: true,
+        value: _wmsLayer
+    });
 };
