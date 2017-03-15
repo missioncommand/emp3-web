@@ -129,73 +129,53 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
   currentFeature = currentVertex.feature;
   currentFeature.data.coordinates = [pointer.lon, pointer.lat];
 
+  // If the control point being moved is the radius control point,
+  // calculate the new radius.  Calculate the new position of where
+  // we want the control point to be.
   if (featureId === this.radius.feature.featureId){
-    // if the radius moves, then we need to update the radius value on the
-    // original feature.
-    //
+    // measure the distance between the mouse location and the center.  This
+    // will be the new radius.
     distance = emp.geoLibrary.measureDistance(this.radius.feature.data.coordinates[1],
       this.radius.feature.data.coordinates[0],
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
-    // Add the radius control point.
+    // Depending on if this is a GEO_CIRCLE or a GEO_MIL_SYMBOL, set different properties on
+    // our feature.
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) {
       this.featureCopy.properties.radius = distance;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       this.featureCopy.properties.distance[0] = distance;
     }
   } else {
+    // If we are updating the center point, we need to move the center vertex
+    // to a new location and we need to update the vertex of the radius location.
     this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
 
-    // Add the radius control point.
+    // retrieve our distance from the existing circle.  We will use this to Calculate
+    // the position of the new radius vertex.
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) {
       distance = this.featureCopy.properties.radius;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       distance = this.featureCopy.properties.distance[0];
     }
 
+    // retrieve the new radius vertex.   It will sit directly above our center point.
     newRadiusPosition = emp.geoLibrary.geodesic_coordinate({
       x: this.featureCopy.data.coordinates[0],
       y: this.featureCopy.data.coordinates[1]
     }, distance, 0);
-
     this.radius.feature.data.coordinates = [newRadiusPosition.x, newRadiusPosition.y];
 
     items.push(this.radius.feature);
   }
 
+  // make sure the symbol is updated with its new properties.
   items.push(this.featureCopy);
 
   // Add our updated feature onto the items we will be updating in our
   // transaction.
   items.push(currentFeature);
-
-  /*
-  if (currentVertex.before !== null) {
-    animationCoordinates.push(currentVertex.before.before.feature.data.coordinates);
-  }
-  animationCoordinates.push(currentFeature.data.coordinates);
-  if (currentVertex.next !== null) {
-    animationCoordinates.push(currentVertex.next.next.feature.data.coordinates);
-  }
-
-  // create a line going from the previous point, to the current point
-  // to the next point.  This will be the animation.
-  this.animation = new emp.typeLibrary.Feature({
-    overlayId: "vertices",
-    featureId: emp3.api.createGUID(),
-    format: emp3.api.enums.FeatureTypeEnum.GEO_PATH,
-    data: {
-      coordinates: animationCoordinates,
-      type: 'LineString'
-    },
-    properties: {
-      lineColor: "FFFFFF00"
-    }
-  });
-
-  items.push(this.animation);
-  */
 
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
@@ -216,10 +196,12 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
   index = this.vertices.getIndex(featureId);
   newCoordinates = [];
 
-  newCoordinates.push({
-    lat: this.featureCopy.data.coordinates[1],
-    lon: this.featureCopy.data.coordinates[0]
-  });
+  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+    newCoordinates.push({
+      lat: this.featureCopy.data.coordinates[1],
+      lon: this.featureCopy.data.coordinates[0]
+    });
+  }
 
   coordinateUpdate = {
       type: type,
@@ -239,130 +221,8 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
  * Also updates the control point and the feature with the change.
  */
 emp.editors.Circle.prototype.moveControlPoint = function(featureId, pointer) {
-  /*
-  var currentFeature,
-    currentVertex,
-    back,
-    front,
-    backFeature,
-    frontFeature,
-    nextFrontVertexFeature,
-    nextBackVertexFeature,
-    items =[],
-    pt1,
-    pt2,
-    pt3,
-    midpoint,
-    newCoordinates,
-    coordinateUpdate,
-    updateData = {},
-    animationCoordinates = [],
-    index;
-    */
-
+  // startMoveControlPoint does everything we need to do.
   return this.startMoveControlPoint(featureId, pointer);
-
-  /*
-  // First update the control point with new pointer info.
-  currentVertex = this.vertices.find(featureId);
-  currentFeature = currentVertex.feature;
-  currentFeature.data.coordinates = [pointer.lon, pointer.lat];
-  // the updated feature to the list of items to be updated.
-  items.push(currentFeature);
-
-  // now that this point moved, we need to update the points directly to the leaflet
-  // and right of this feature.
-  back = currentVertex.before;
-  front = currentVertex.next;
-
-  // Make sure that we are not moving the head.  If we are, skip.
-  if (back !== null) {
-    backFeature = back.feature;
-    nextBackVertexFeature = back.before.feature;
-
-    // get the new location of the backFeature, the feature in before the current feature
-    pt1 = new LatLon(nextBackVertexFeature.data.coordinates[1], nextBackVertexFeature.data.coordinates[0]);
-    pt2 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
-
-    // Get the mid point between this vertex and the next vertex.
-    pt3 = pt1.midpointTo(pt2);
-    midpoint = [pt3.lon(), pt3.lat()];
-
-    backFeature.data.coordinates = midpoint;
-
-    items.push(backFeature);
-
-  }
-
-  // Make sure that we are not moving the tail.  If we are skip.
-  if (front !== null) {
-    frontFeature = front.feature;
-    nextFrontVertexFeature = front.next.feature;
-    // get the new location of the frontFeature. the feature after the current feature.
-    pt1 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
-    pt2 = new LatLon(nextFrontVertexFeature.data.coordinates[1], nextFrontVertexFeature.data.coordinates[0]);
-
-    // Get the mid point between this vertex and the next vertex.
-    pt3 = pt1.midpointTo(pt2);
-    midpoint = [pt3.lon(), pt3.lat()];
-
-    frontFeature.data.coordinates = midpoint;
-
-    items.push(frontFeature);
-  }
-
-  // copy the coordinates into our object, so we can eventually complete
-  // the edit.
-  this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
-
-  if (currentVertex.before !== null) {
-    animationCoordinates.push(currentVertex.before.before.feature.data.coordinates);
-  }
-  animationCoordinates.push(currentFeature.data.coordinates);
-  if (currentVertex.next !== null) {
-    animationCoordinates.push(currentVertex.next.next.feature.data.coordinates);
-  }
-  this.animation.data.coordinates = animationCoordinates;
-
-  items.push(this.animation);
-
-  var transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
-  });
-
-  transaction.run();
-
-  // Create the return object.  This will tell you which index was changed,
-  // the locations of the new indeces, and the type of change it was.
-  newCoordinates = [];
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-    newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[i][1],
-      lon: this.featureCopy.data.coordinates[i][0]
-    });
-  }
-
-  index = this.vertices.getIndex(featureId);
-
-  coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index], //TODO: Get the correct index.
-      coordinates: newCoordinates
-  };
-
-  updateData.coordinateUpdate = coordinateUpdate;
-  updateData.properties = this.featureCopy.properties;
-
-  return updateData;
-  */
 };
 
 /**
@@ -370,141 +230,13 @@ emp.editors.Circle.prototype.moveControlPoint = function(featureId, pointer) {
  * Also updates the control point and the feature with the change.
  */
 emp.editors.Circle.prototype.endMoveControlPoint = function(featureId, pointer) {
+  // startMoveControlPoint does everything we need to do.
   return this.startMoveControlPoint(featureId, pointer);
-
-  /*
-  var items =[],
-    newCoordinates,
-    coordinateUpdate,
-    updateData = {},
-    index,
-    addTransaction,
-    removeTransaction,
-    currentVertex,
-    currentFeature,
-    back,
-    front,
-    backFeature,
-    nextBackVertexFeature,
-    frontFeature,
-    nextFrontVertexFeature,
-    pt1,
-    pt2,
-    pt3,
-    midpoint;
-
-  // First update the control point with new pointer info.
-  currentVertex = this.vertices.find(featureId);
-  currentFeature = currentVertex.feature;
-  currentFeature.data.coordinates = [pointer.lon, pointer.lat];
-
-  // copy the coordinates into our object, so we can eventually complete
-  // the edit.
-  this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
-  items.push(this.featureCopy);
-
-  // now that this point moved, we need to update the points directly to the leaflet
-  // and right of this feature.
-  back = currentVertex.before;
-  front = currentVertex.next;
-
-  // Make sure that we are not moving the head.  If we are, skip.
-  if (back !== null) {
-    backFeature = back.feature;
-    nextBackVertexFeature = back.before.feature;
-
-    // get the new location of the backFeature, the feature in before the current feature
-    pt1 = new LatLon(nextBackVertexFeature.data.coordinates[1], nextBackVertexFeature.data.coordinates[0]);
-    pt2 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
-
-    // Get the mid point between this vertex and the next vertex.
-    pt3 = pt1.midpointTo(pt2);
-    midpoint = [pt3.lon(), pt3.lat()];
-
-    backFeature.data.coordinates = midpoint;
-
-    items.push(backFeature);
-
-  }
-
-  // Make sure that we are not moving the tail.  If we are skip.
-  if (front !== null) {
-    frontFeature = front.feature;
-    nextFrontVertexFeature = front.next.feature;
-    // get the new location of the frontFeature. the feature after the current feature.
-    pt1 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
-    pt2 = new LatLon(nextFrontVertexFeature.data.coordinates[1], nextFrontVertexFeature.data.coordinates[0]);
-
-    // Get the mid point between this vertex and the next vertex.
-    pt3 = pt1.midpointTo(pt2);
-    midpoint = [pt3.lon(), pt3.lat()];
-
-    frontFeature.data.coordinates = midpoint;
-
-    items.push(frontFeature);
-  }
-
-  addTransaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
-  });
-
-  // Remove the line animation.
-  removeTransaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
-    mapInstanceId: this.mapInstance.mapInstanceId,
-    transactionId: null,
-    sender: this.mapInstance.mapInstanceId,
-    originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-    source: emp.api.cmapi.SOURCE,
-    messageOriginator: this.mapInstance.mapInstanceId,
-    originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-    items: [this.animation]
-  });
-
-  addTransaction.run();
-  removeTransaction.run();
-
-  // reset the animated path.
-  this.animation = undefined;
-
-  // Create the return object.  This will tell you which index was changed,
-  // the locations of the new indeces, and the type of change it was.
-  newCoordinates = [];
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-    newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[i][1],
-      lon: this.featureCopy.data.coordinates[i][0]
-    });
-  }
-
-  index = this.vertices.getIndex(featureId);
-
-  coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index], //TODO: Get the correct index.
-      coordinates: newCoordinates
-  };
-
-  updateData.coordinateUpdate = coordinateUpdate;
-  updateData.properties = this.featureCopy.properties;
-
-
-
-  return updateData;
-  */
 };
 
 /**
  * Moves the entire feature, offsetting from the starting position.
  */
 emp.editors.Circle.prototype.moveFeature = function() {
-
+  // do not do anything here.  We do not want to let users move the feature.
 };
