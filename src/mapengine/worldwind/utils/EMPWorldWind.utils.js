@@ -7,10 +7,10 @@ EMPWorldWind.utils = {};
 
 /**
  * @typedef {object} RGBAColor
- * @property {number} r
- * @property {number} g
- * @property {number} b
- * @property {number} a 0-1
+ * @property {number} red
+ * @property {number} green
+ * @property {number} blue
+ * @property {number} alpha
  */
 
 /**
@@ -715,9 +715,9 @@ EMPWorldWind.utils.convertSymbolStandardToRendererFormat = function(modifiers) {
 };
 
 /**
- *
+ * Parses a 6 character color string, assumes full opacity
  * @param hex #RRGGBB
- * @returns {{r: (Number|*), g: (Number|*), g: (Number|*), b: (Number|*), b: (Number|*)}}
+ * @returns {RGBAColor}
  * @private
  */
 function _hex6ToRGBA(hex) {
@@ -729,16 +729,17 @@ function _hex6ToRGBA(hex) {
   b = parseInt(hex.substring(4, 6), 16);
 
   return {
-    r: r,
-    g: g,
-    b: b
+    red: r,
+    green: g,
+    blue: b,
+    alpha: 1
   };
 }
 
 /**
- *
+ * Parses an 8 character color string
  * @param hex AARRGGBB
- * @returns {{r: (Number|*), g: (Number|*), b: (Number|*), a: (Number|*)}}
+ * @returns {RGBAColor}
  * @private
  */
 function _hex8ToRGBA(hex) {
@@ -750,10 +751,10 @@ function _hex8ToRGBA(hex) {
   b = parseInt(hex.substring(6, 8), 16);
 
   return {
-    r: r,
-    g: g,
-    b: b,
-    a: a
+    red: r,
+    green: g,
+    blue: b,
+    alpha: a
   };
 }
 
@@ -769,10 +770,10 @@ function _hex8ToRGBA(hex) {
 EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
   if (!hex) {
     return {
-      r: 0,
-      g: 0,
-      b: 0,
-      a: 1
+      red: 0,
+      green: 0,
+      blue: 0,
+      alpha: 1
     };
   }
   normalize = EMPWorldWind.utils.defined(normalize) ? normalize : true;
@@ -784,13 +785,13 @@ EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
     newHex = _hex8ToRGBA(hex);
   } else {
     newHex = _hex6ToRGBA(hex);
-    newHex.a = alpha;
+    newHex.alpha = alpha;
   }
 
   if (normalize) {
-    newHex.r = newHex.r / 256.0;
-    newHex.g = newHex.g / 256.0;
-    newHex.b = newHex.b / 256.0;
+    newHex.red = newHex.red / 256.0;
+    newHex.green = newHex.green / 256.0;
+    newHex.blue = newHex.blue / 256.0;
   }
 
   return newHex;
