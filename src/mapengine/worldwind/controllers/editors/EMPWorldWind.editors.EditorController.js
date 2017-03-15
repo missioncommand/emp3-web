@@ -126,6 +126,11 @@ EMPWorldWind.editors.EditorController = (function() {
     // Generate primitives from the geoJSON
     for (i = 0; i < imageInfo.features.length; i++) {
       componentFeature = imageInfo.features[i];
+
+      // TODO have the renderer return the proper width, manually overwriting the line width for now
+      componentFeature.properties.strokeWidth = 1;
+      componentFeature.properties.strokeWeight = 1;
+
       switch (componentFeature.geometry.type) {
         case "MultiLineString":
           lineCount = componentFeature.geometry.coordinates.length;
