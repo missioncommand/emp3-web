@@ -6,10 +6,6 @@ emp.editors.Circle = function(args) {
   this.radius = undefined;
   this.center = undefined;
   emp.editors.EditorBase.call(this, args);
-
-  this.calculateAddPoints = function() {
-
-  };
 };
 
 emp.editors.Circle.prototype = Object.create(emp.editors.EditorBase.prototype);
@@ -27,87 +23,96 @@ emp.editors.Circle.prototype.addControlPoints = function() {
     addPoint,
     newPoint,
     radiusVertex,
-    distance;
+    distance,
+    x, y;
 
-  // All features entering into this method should be a LineString
-  // otherwise this will not work.
+  // We have an issue in that GEO_CIRCLE uses GeoJSON Point, and all
+  // MIL-STD-2525 symbols use LineString, even though it is a single point.
+  // So we store the x/y values so we can use them univerally throughout the
+  // function.
   if (this.featureCopy.data.type === 'Point') {
-
-    // Create a feature on the map for the center of the circle.
-    controlPoint = new emp.typeLibrary.Feature({
-      overlayId: "vertices",
-      featureId: emp3.api.createGUID(),
-      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-      data: {
-        coordinates: this.featureCopy.data.coordinates,
-        type: 'Point'
-      },
-      properties: {
-        iconUrl: emp.ui.images.editPoint,
-        iconXOffset: 12,
-        iconYOffset: 12,
-        xUnits: "pixels",
-        yUnits: "pixels",
-        altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
-      }
-    });
-
-    vertex = new emp.editors.Vertex(controlPoint, "vertex");
-    this.vertices.push(vertex);
-    this.center = vertex;
-    items.push(controlPoint);
-
-    // Add the radius control point.
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) {
-      distance = this.featureCopy.properties.radius;
-    } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      distance = this.featureCopy.properties.distance[0];
-    }
-
-    newPoint = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
-    }, distance, 0);
-
-    // create a feature for each of these coordinates.  This
-    // will be our 'add point'
-    addPoint = new emp.typeLibrary.Feature({
-      overlayId: "vertices",
-      featureId: emp3.api.createGUID(),
-      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-      data: {
-        coordinates: [newPoint.x, newPoint.y],
-        type: 'Point'
-      },
-      properties: {
-        iconUrl: emp.ui.images.addPoint,
-        iconXOffset: 8,
-        iconYOffset: 8,
-        xUnits: "pixels",
-        yUnits: "pixels",
-        altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
-      }
-    });
-
-    items.push(addPoint);
-    radiusVertex = new emp.editors.Vertex(addPoint, "add");
-    this.radius = radiusVertex;
-    this.vertices.push(radiusVertex);
-
-    // run the transaction and add all the symbols on the map.
-    transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
-    });
-    transaction.run();
+    x = this.featureCopy.data.coordinates[0];
+    y = this.featureCopy.data.coordinates[1];
+  } else if (this.featureCopy.data.type === 'LineString') {
+    x = this.featureCopy.data.coordinates[0][0];
+    y = this.featureCopy.data.coordinates[0][1];
   }
+
+  // Create a feature on the map for the center of the circle.
+  controlPoint = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [x, y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.editPoint,
+      iconXOffset: 12,
+      iconYOffset: 12,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  vertex = new emp.editors.Vertex(controlPoint, "vertex");
+  this.vertices.push(vertex);
+  this.center = vertex;
+  items.push(controlPoint);
+
+  // Add the radius control point.
+  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) {
+    distance = this.featureCopy.properties.radius;
+  } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+    distance = this.featureCopy.properties.modifiers.distance[0];
+  }
+
+  newPoint = emp.geoLibrary.geodesic_coordinate({
+    x: x,
+    y: y
+  }, distance, 0);
+
+  // create a feature for each of these coordinates.  This
+  // will be our 'add point'
+  addPoint = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [newPoint.x, newPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.addPoint,
+      iconXOffset: 8,
+      iconYOffset: 8,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  items.push(addPoint);
+  radiusVertex = new emp.editors.Vertex(addPoint, "add");
+  this.radius = radiusVertex;
+  this.vertices.push(radiusVertex);
+
+  // run the transaction and add all the symbols on the map.
+  transaction = new emp.typeLibrary.Transaction({
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
+  });
+  transaction.run();
+
 };
 
 emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer) {
@@ -121,49 +126,75 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
     updateData = {},
     type = emp.typeLibrary.CoordinateUpdateType.UPDATE,
     newCoordinates,
-    newRadiusPosition;
+    newRadiusPosition,
+    x, y;
+
+  // We have an issue in that GEO_CIRCLE uses GeoJSON Point, and all
+  // MIL-STD-2525 symbols use LineString, even though it is a single point.
+  // So we store the x/y values so we can use them univerally throughout the
+  // function.
+  if (this.featureCopy.data.type === 'Point') {
+    x = this.featureCopy.data.coordinates[0];
+    y = this.featureCopy.data.coordinates[1];
+  } else if (this.featureCopy.data.type === 'LineString') {
+    x = this.featureCopy.data.coordinates[0][0];
+    y = this.featureCopy.data.coordinates[0][1];
+  }
 
   currentVertex = this.vertices.find(featureId);
-
-  // First update the control point with new pointer info.
   currentFeature = currentVertex.feature;
-  currentFeature.data.coordinates = [pointer.lon, pointer.lat];
 
   // If the control point being moved is the radius control point,
   // calculate the new radius.  Calculate the new position of where
   // we want the control point to be.
   if (featureId === this.radius.feature.featureId){
+
     // measure the distance between the mouse location and the center.  This
     // will be the new radius.
-    distance = emp.geoLibrary.measureDistance(this.radius.feature.data.coordinates[1],
-      this.radius.feature.data.coordinates[0],
+    distance = emp.geoLibrary.measureDistance(pointer.lat,
+      pointer.lon,
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
+
+    // retrieve the new radius vertex.   It will sit directly above our center point.
+    newRadiusPosition = emp.geoLibrary.geodesic_coordinate({
+      x: x,
+      y: y
+    }, distance, 0);
+    // First update the control point with new pointer info.
+    currentFeature.data.coordinates = [newRadiusPosition.x, newRadiusPosition.y];
 
     // Depending on if this is a GEO_CIRCLE or a GEO_MIL_SYMBOL, set different properties on
     // our feature.
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) {
       this.featureCopy.properties.radius = distance;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      this.featureCopy.properties.distance[0] = distance;
+      this.featureCopy.properties.modifiers.distance[0] = distance;
     }
   } else {
     // If we are updating the center point, we need to move the center vertex
     // to a new location and we need to update the vertex of the radius location.
-    this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+    if (this.featureCopy.data.type === 'Point') {
+      this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+    } else if (this.featureCopy.data.type === 'LineString') {
+      this.featureCopy.data.coordinates = [[pointer.lon, pointer.lat]];
+    }
+
+    // First update the control point with new pointer info.
+    currentFeature.data.coordinates = [pointer.lon, pointer.lat];
 
     // retrieve our distance from the existing circle.  We will use this to Calculate
     // the position of the new radius vertex.
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) {
       distance = this.featureCopy.properties.radius;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      distance = this.featureCopy.properties.distance[0];
+      distance = this.featureCopy.properties.modifiers.distance[0];
     }
 
     // retrieve the new radius vertex.   It will sit directly above our center point.
     newRadiusPosition = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
+      x: pointer.lon,
+      y: pointer.lat
     }, distance, 0);
     this.radius.feature.data.coordinates = [newRadiusPosition.x, newRadiusPosition.y];
 
@@ -195,13 +226,10 @@ emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer
   // help with generating some events.
   index = this.vertices.getIndex(featureId);
   newCoordinates = [];
-
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-    newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[1],
-      lon: this.featureCopy.data.coordinates[0]
-    });
-  }
+  newCoordinates.push({
+    lat: y,
+    lon: x
+  });
 
   coordinateUpdate = {
       type: type,

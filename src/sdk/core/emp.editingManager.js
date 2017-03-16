@@ -136,10 +136,10 @@ emp.editingManager = function(args) {
         });
       }
       else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
-        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCLE)) {
+        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
         // This is a circle defined by a point and radius.  It uses a GEOJSON point and
         // a distance in meters to represent
-        // itself.  
+        // itself.
         activeEditor = new emp.editors.Circle({
           feature: feature,
           mapInstance: args.mapInstance
