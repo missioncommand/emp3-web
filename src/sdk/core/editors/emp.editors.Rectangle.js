@@ -2,16 +2,13 @@
 emp.editors = emp.editors || {};
 
 emp.editors.Rectangle = function(args) {
-  this.animation = undefined;
-  this.witdh = undefined;
-  this.height = undefined;
-  this.azimuth = undefined;
-  this.center = undefined;
+  this.width = undefined; // store the Vertex object for the width point
+  this.height = undefined; // stores the Vertex object for the height point.
+  this.azimuth = undefined; // stores the Vertex object for the azimuth rotation point.
+  this.center = undefined; // stores the center Vertex.
+
+  // inherit from the base class.
   emp.editors.EditorBase.call(this, args);
-
-  this.calculateAddPoints = function() {
-
-  };
 };
 
 emp.editors.Rectangle.prototype = Object.create(emp.editors.EditorBase.prototype);
@@ -40,8 +37,10 @@ emp.editors.Rectangle.prototype.addControlPoints = function() {
     azimuthFeature,
     x, y;
 
-  // Normal GEO_CIRCLE will be of type point, but MIL_STD_SYMBOL may be
-  // of type line string.  Get the coordinates.
+  // We have an issue in that GEO_RECTANGLE uses GeoJSON Point, and all
+  // MIL-STD-2525 symbols use LineString, even though it is a single point.
+  // So we store the x/y values so we can use them univerally throughout the
+  // function.
   if (this.featureCopy.data.type === 'Point') {
     x = this.featureCopy.data.coordinates[0];
     y = this.featureCopy.data.coordinates[1];
@@ -50,7 +49,8 @@ emp.editors.Rectangle.prototype.addControlPoints = function() {
     y = this.featureCopy.data.coordinates[0][1];
   }
 
-  // Create a feature on the map for the center of the circle.
+  // Create a feature on the map for the center of the rectangle.  This is
+  // the center vertex.
   controlPoint = new emp.typeLibrary.Feature({
     overlayId: "vertices",
     featureId: emp3.api.createGUID(),
@@ -69,12 +69,17 @@ emp.editors.Rectangle.prototype.addControlPoints = function() {
     }
   });
 
+  // Create a vertex for our one and only control point.  The Vertices object
+  // lets the editing manager know if the Vertex is a control point or not
+  // so it is necessary.
   vertex = new emp.editors.Vertex(controlPoint, "vertex");
   this.vertices.push(vertex);
   this.center = vertex;
   items.push(controlPoint);
 
-  // get the width, height, and azimuth for our calculations.
+  // get the width, height, and azimuth for our calculations.  This properties will
+  // be different for a GEO_RECTANGLE and a GEO_MIL_SYMBOL.  Pull from the
+  // correct properties.
   if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
     width = this.featureCopy.properties.width;
     height = this.featureCopy.properties.height;
@@ -103,13 +108,16 @@ emp.editors.Rectangle.prototype.addControlPoints = function() {
     y: y
   }, height / 2, azimuth);
 
+  // place the azimuth point to the left of the width point.   No reason
+  // why, it just looks nice there.
   azimuthPoint = emp.geoLibrary.geodesic_coordinate({
     x: x,
     y: y
   }, width / 2, -90 + azimuth);
 
   // create a feature for each of these points.  This
-  // will be our 'add point'
+  // will be our 'add points' in the Vertices.   We keep
+  // a reference to these Vertex objects in our code.
   widthFeature = new emp.typeLibrary.Feature({
     overlayId: "vertices",
     featureId: emp3.api.createGUID(),
@@ -168,6 +176,9 @@ emp.editors.Rectangle.prototype.addControlPoints = function() {
   items.push(heightFeature);
   items.push(azimuthFeature);
 
+  // add these new Vertex objects into our Vertices collection.
+  // Remember Vertices allows editingManager to tell the difference
+  // between control points and special points.
   widthVertex = new emp.editors.Vertex(widthFeature, "add");
   heightVertex = new emp.editors.Vertex(heightFeature, "add");
   azimuthVertex = new emp.editors.Vertex(azimuthFeature, "add");
@@ -197,6 +208,9 @@ emp.editors.Rectangle.prototype.addControlPoints = function() {
 
 };
 
+/**
+ * Occurs first when one of the control points is dragged.
+ */
 emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, pointer) {
 
   var currentFeature,
@@ -218,8 +232,9 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     delta,
     x, y;
 
-  // Normal GEO_CIRCLE will be of type point, but MIL_STD_SYMBOL may be
-  // of type line string.  Get the coordinates.
+  // Normal GEO_RECTANGLE will use GeoJSON type "Point", but MIL_STD_SYMBOL will
+  // be GeoJson type "LineString".  Retrieve the coordinates so we do not have
+  // to make this distinction later.
   if (this.featureCopy.data.type === 'Point') {
     x = this.featureCopy.data.coordinates[0];
     y = this.featureCopy.data.coordinates[1];
@@ -228,34 +243,41 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     y = this.featureCopy.data.coordinates[0][1];
   }
 
+  // Find the vertex in our vertices collection and retrieve the feature.
   currentVertex = this.vertices.find(featureId);
-
-  // First update the control point with new pointer info.
   currentFeature = currentVertex.feature;
 
-  // get the old azimuth.  normalize the value.
+  // get the old azimuth.  The azimuth is stored in different properties
+  // for a GEO_RECTANGLE than a GEO_MIL_SYMBOL.
   if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
     azimuth = this.featureCopy.properties.azimuth;
   } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
     azimuth = this.featureCopy.properties.modifiers.azimuth[0];
   }
 
-
+  // Determine which control point was moved and react appropriately.
   if (featureId === this.width.feature.featureId){
-    // if the radius moves, then we need to update the radius value on the
-    // original feature.
+
+    // if the width moves, then we need to update the width and azimuth control points
+    // on both sides of the rectangle.  We also will need to change the width
+    // property on the feature we are editing.
+
+    // calculate the new width.
     currentFeature.data.coordinates = [pointer.lon, pointer.lat];
     widthDistance = emp.geoLibrary.measureDistance(this.width.feature.data.coordinates[1],
       this.width.feature.data.coordinates[0],
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
+    // since we are measuring the distance between the edget and center we multiply
+    // the width by 2.  The width is stored differently for GEO_RECTANGLE and GEO_MIL_SYMBOL
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
       this.featureCopy.properties.width = widthDistance * 2;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       this.featureCopy.properties.modifiers.distance[0] = widthDistance * 2;
     }
 
+    // Get the positions of where the new control points will be.
     newWidthPosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
@@ -266,28 +288,37 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
       y: y
     }, widthDistance, -90 + azimuth);
 
+    // update the control points.
     currentFeature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
     this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
 
     items.push(this.azimuth.feature);
   } else if (featureId === this.height.feature.featureId) {
+    // if the height moves, then we need to update the height control point.
+    // We also will need to change the height property on the feature we are editing.
+
+    // calculate the new height.
     currentFeature.data.coordinates = [pointer.lon, pointer.lat];
     heightDistance = emp.geoLibrary.measureDistance(this.height.feature.data.coordinates[1],
       this.height.feature.data.coordinates[0],
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
+    // store the new height in the feature.  It is stored differently for GEO_RECTANGLE
+    // and GEO_MIL_SYMBOL.
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
       this.featureCopy.properties.height = heightDistance * 2;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       this.featureCopy.properties.modifiers.distance[1] = heightDistance * 2;
     }
 
+    // Calculate the position of the new height control point.
     newHeightPosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
     }, heightDistance, azimuth);
 
+    // Update the control point position.
     currentFeature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
   } else if (featureId === this.azimuth.feature.featureId) {
     // the rotation vertex was dragged.
@@ -301,7 +332,6 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
 
     // get the angle but convert to radians.
     newAzimuth = (Math.asin(o/h) * 180 / Math.PI);
-
 
     if (azimuth > 180) {
       azimuth = azimuth - 360;
@@ -376,15 +406,17 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
 
     currentFeature.data.coordinates = [pointer.lon, pointer.lat];
 
-    // Normal GEO_CIRCLE will be of type point, but MIL_STD_SYMBOL may be
-    // of type line string.  Get the coordinates.
+    // Normal GEO_RECTANGLE is stored as a GeoJSON Point, but MIL_STD_SYMBOL will be
+    // of type GeoJSON LineString.  Get the coordinates once so we don't have to
+    // keep checking this.
     if (this.featureCopy.data.type === 'Point') {
       this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
     } else if (this.featureCopy.data.type === 'LineString') {
       this.featureCopy.data.coordinates = [[pointer.lon, pointer.lat]];
     }
 
-    // Add the radius control point.
+    // Get the properties for width, height and azimuth.  They are stored
+    // in different locations in GEO_RECTANGLE than in GEO_MIL_SYMBOL.
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
       widthDistance = this.featureCopy.properties.width;
       heightDistance = this.featureCopy.properties.height;
@@ -395,6 +427,7 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
       azimuth = this.featureCopy.properties.modifiers.azimuth[0];
     }
 
+    // Calculate the new positions of the control points.
     newWidthPosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
@@ -410,7 +443,7 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
       y: y
     }, widthDistance / 2, -90 + azimuth);
 
-
+    // update the control point positions.
     this.width.feature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
     this.height.feature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
     this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
