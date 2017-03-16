@@ -116,6 +116,13 @@ EMPWorldWind.map = function(wwd) {
       "Z": false
     }
   };
+
+  // optimization for mil standard  single points.
+  this.singlePointAltitudeRanges = {};
+  this.singlePointAltitudeRanges.mid = 600000;//default
+  this.singlePointAltitudeRanges.high = 1200000;// default
+  this.singlePointAltitudeRangeMode = EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
+
 };
 
 // typedefs ============================================================================================================
@@ -812,6 +819,7 @@ EMPWorldWind.map.prototype.setLabelStyle = function(styles) {
  * Expose a refresh
  */
 EMPWorldWind.map.prototype.refresh = function() {
+  EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
   //var featureId, feature;
 
   // for (featureId in this.features) {

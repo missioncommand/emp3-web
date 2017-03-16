@@ -538,7 +538,7 @@ EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON = function(geoJS
     color = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.labelStyle.color);
     attributes.color = new WorldWind.Color(color.r, color.g, color.b, color.a);
   } else {
-    attributes.color = WorldWind.Color.BLACK;
+    attributes.color = WorldWind.Color.WHITE;
   }
 
   if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.family) {

@@ -63,7 +63,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
   };
 
   this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
-
+  this.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
   EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
 };
 
@@ -84,6 +84,38 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
     if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "LineString") {
       this.plotFeature(feature.feature);
+    } else if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
+      feature.feature.data.type === "Point") {
+      //optimization
+      var callRenderer = false;
+      feature.singlePointAltitudeRangeChanged = feature.singlePointAltitudeRangeMode !== this.singlePointAltitudeRangeMode;
+
+      if (feature.singlePointAltitudeRangeChanged && (this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE) && (this.iconLabelOption !== 'none')) {
+        callRenderer = true;
+        feature.isHighAltitudeRangeImage = false;
+        feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+        feature.feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+        feature.singlePointAltitudeRangeChanged = false;
+      }
+      else if (feature.singlePointAltitudeRangeChanged && this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.MID_RANGE) {
+        callRenderer = true;
+        feature.isHighAltitudeRangeImage = false;
+        feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+        feature.feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+        feature.singlePointAltitudeRangeChanged = false;
+      }
+      else if (feature.singlePointAltitudeRangeChanged && this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) {
+        feature.isHighAltitudeRangeImage = true;
+        //  dot image based on affiliation
+        feature.shapes[0].attributes._imageSource = EMPWorldWind.utils.selectHighAltitudeRangeImage(feature.feature.symbolCode);
+        feature.shapes[0].highlightAttributes._imageSource = feature.shapes[0].attributes._imageSource;
+        feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+        feature.feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+        feature.singlePointAltitudeRangeChanged = false;
+      }
+      if (callRenderer) {
+        this.plotFeature(feature.feature);
+      }
     }
   }.bind(this));
   this.worldWindow.redraw();
