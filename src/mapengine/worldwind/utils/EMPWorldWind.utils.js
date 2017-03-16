@@ -817,3 +817,60 @@ EMPWorldWind.utils.boundsHeight = function(bounds) {
       new WorldWind.Location(bounds.south, 0),
       new WorldWind.Location(bounds.north, 0));
 };
+
+
+/**
+ * Dot color based on the symbol code affiliation
+ * @param symbolCode
+ * @returns {*}
+ */
+EMPWorldWind.utils.selectHighAltitudeRangeImage = function(symbolCode) {
+  var affiliationLetter,
+    highAltitudeRangeImage;
+
+  if (!EMPWorldWind.utils.defined(symbolCode)) {
+    return EMPWorldWind.constants.highAltitudeRangeImage.highScaleImageYellow; // unknown
+  }
+
+  affiliationLetter = symbolCode.substring(1, 2);
+  switch (affiliationLetter.toLowerCase()) {
+    case "h":
+      highAltitudeRangeImage = EMPWorldWind.constants.highAltitudeRangeImage.highRangeImageRed;
+      break;
+    case "f":
+      highAltitudeRangeImage = EMPWorldWind.constants.highAltitudeRangeImage.highRangeImageBlue;
+      break;
+    case "n":
+      highAltitudeRangeImage = EMPWorldWind.constants.highAltitudeRangeImage.highRangeImageGreen;
+      break;
+    case "u":
+      highAltitudeRangeImage = EMPWorldWind.constants.highAltitudeRangeImage.highRangeImageYellow;
+      break;
+    default:
+      highAltitudeRangeImage = EMPWorldWind.constants.highAltitudeRangeImage.highRangeImageYellow;
+      break;
+  }
+  return highAltitudeRangeImage;
+};
+
+/**
+ *
+ * @param CameraAltitude
+ * @param singlePointAltitudeRanges
+ * @returns {EMPWorldWind.constants.SinglePointAltitudeRangeMode|number}
+ */
+EMPWorldWind.utils.getSinglePointAltitudeRangeMode = function(CameraAltitude, singlePointAltitudeRanges) {
+  if (CameraAltitude < singlePointAltitudeRanges.mid) {
+    return EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
+  }
+  else if (CameraAltitude >= singlePointAltitudeRanges.mid && CameraAltitude < singlePointAltitudeRanges.high) {
+    return EMPWorldWind.constants.SinglePointAltitudeRangeMode.MID_RANGE;
+  }
+  else if (CameraAltitude >= singlePointAltitudeRanges.high) {
+    return EMPWorldWind.constants.SinglePointAltitudeRangeMode.HIGHEST_RANGE;
+  }
+  else {
+    //default
+    return EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
+  }
+};

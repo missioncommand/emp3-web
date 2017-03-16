@@ -103,7 +103,7 @@ emp.instanceManager = (function () {
 
     // needs the args.domContainer and args.instanceId;
     // Sets up the html and adds the divs for the map.  Show the loading screen.
-    instanceDomId = emp.ui.renderContainer({
+    emp.ui.renderContainer({
       instanceId: instanceId,
       domContainer: instanceDomId,
       recorder: args.recorder
