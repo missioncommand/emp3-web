@@ -37,151 +37,164 @@ emp.editors.Rectangle.prototype.addControlPoints = function() {
     azimuthVertex,
     widthFeature,
     heightFeature,
-    azimuthFeature;
+    azimuthFeature,
+    x, y;
 
-  // All features entering into this method should be a LineString
-  // otherwise this will not work.
+  // Normal GEO_CIRCLE will be of type point, but MIL_STD_SYMBOL may be
+  // of type line string.  Get the coordinates.
   if (this.featureCopy.data.type === 'Point') {
-
-    // Create a feature on the map for the center of the circle.
-    controlPoint = new emp.typeLibrary.Feature({
-      overlayId: "vertices",
-      featureId: emp3.api.createGUID(),
-      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-      data: {
-        coordinates: this.featureCopy.data.coordinates,
-        type: 'Point'
-      },
-      properties: {
-        iconUrl: emp.ui.images.editPoint,
-        iconXOffset: 12,
-        iconYOffset: 12,
-        xUnits: "pixels",
-        yUnits: "pixels",
-        altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
-      }
-    });
-
-    vertex = new emp.editors.Vertex(controlPoint, "vertex");
-    this.vertices.push(vertex);
-    this.center = vertex;
-    items.push(controlPoint);
-
-    // get the width, height, and azimuth for our calculations.
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
-      width = this.featureCopy.properties.width;
-      height = this.featureCopy.properties.height;
-      azimuth = this.featureCopy.properties.azimuth;
-    } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      width = this.featureCopy.properties.distance[0];
-      height = this.featureCopy.properties.distance[1];
-      azimuth = this.featureCopy.properties.azimuth[0];
-    }
-
-    // get the position of the point that controls the width of the feature.
-    widthPoint = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
-    }, width / 2, 90 + azimuth);
-
-    // get the position of the point that controls the height of the feature.
-    heightPoint = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
-    }, height / 2, azimuth);
-
-    azimuthPoint = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
-    }, width / 2, -90 + azimuth);
-
-    // create a feature for each of these points.  This
-    // will be our 'add point'
-    widthFeature = new emp.typeLibrary.Feature({
-      overlayId: "vertices",
-      featureId: emp3.api.createGUID(),
-      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-      data: {
-        coordinates: [widthPoint.x, widthPoint.y],
-        type: 'Point'
-      },
-      properties: {
-        iconUrl: emp.ui.images.addPoint,
-        iconXOffset: 8,
-        iconYOffset: 8,
-        xUnits: "pixels",
-        yUnits: "pixels",
-        altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
-      }
-    });
-
-    heightFeature = new emp.typeLibrary.Feature({
-      overlayId: "vertices",
-      featureId: emp3.api.createGUID(),
-      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-      data: {
-        coordinates: [heightPoint.x, heightPoint.y],
-        type: 'Point'
-      },
-      properties: {
-        iconUrl: emp.ui.images.addPoint,
-        iconXOffset: 8,
-        iconYOffset: 8,
-        xUnits: "pixels",
-        yUnits: "pixels",
-        altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
-      }
-    });
-
-    azimuthFeature = new emp.typeLibrary.Feature({
-      overlayId: "vertices",
-      featureId: emp3.api.createGUID(),
-      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-      data: {
-        coordinates: [azimuthPoint.x, azimuthPoint.y],
-        type: 'Point'
-      },
-      properties: {
-        iconUrl: emp.ui.images.rotationPoint,
-        iconXOffset: 12,
-        iconYOffset: 12,
-        xUnits: "pixels",
-        yUnits: "pixels",
-        altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
-      }
-    });
-
-    items.push(widthFeature);
-    items.push(heightFeature);
-    items.push(azimuthFeature);
-
-    widthVertex = new emp.editors.Vertex(widthFeature, "add");
-    heightVertex = new emp.editors.Vertex(heightFeature, "add");
-    azimuthVertex = new emp.editors.Vertex(azimuthFeature, "add");
-
-    this.width = widthVertex;
-    this.height = heightVertex;
-    this.azimuth = azimuthVertex;
-
-    this.vertices.push(widthVertex);
-    this.vertices.push(heightVertex);
-    this.vertices.push(azimuthVertex);
-
-
-    // run the transaction and add all the symbols on the map.
-    transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
-    });
-    transaction.run();
+    x = this.featureCopy.data.coordinates[0];
+    y = this.featureCopy.data.coordinates[1];
+  } else if (this.featureCopy.data.type === 'LineString') {
+    x = this.featureCopy.data.coordinates[0][0];
+    y = this.featureCopy.data.coordinates[0][1];
   }
+
+  // Create a feature on the map for the center of the circle.
+  controlPoint = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [x, y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.editPoint,
+      iconXOffset: 12,
+      iconYOffset: 12,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  vertex = new emp.editors.Vertex(controlPoint, "vertex");
+  this.vertices.push(vertex);
+  this.center = vertex;
+  items.push(controlPoint);
+
+  // get the width, height, and azimuth for our calculations.
+  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
+    width = this.featureCopy.properties.width;
+    height = this.featureCopy.properties.height;
+    azimuth = this.featureCopy.properties.azimuth;
+  } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+    width = this.featureCopy.properties.modifiers.distance[0];
+    height = this.featureCopy.properties.modifiers.distance[1];
+    // if no azimuth is set, set the azimuth to 0;
+    if (this.featureCopy.properties.modifiers.azimuth) {
+      azimuth = this.featureCopy.properties.modifiers.azimuth[0];
+    } else {
+      this.featureCopy.properties.modifiers.azimuth = [0];
+      azimuth = 0;
+    }
+  }
+
+  // get the position of the point that controls the width of the feature.
+  widthPoint = emp.geoLibrary.geodesic_coordinate({
+    x: x,
+    y: y
+  }, width / 2, 90 + azimuth);
+
+  // get the position of the point that controls the height of the feature.
+  heightPoint = emp.geoLibrary.geodesic_coordinate({
+    x: x,
+    y: y
+  }, height / 2, azimuth);
+
+  azimuthPoint = emp.geoLibrary.geodesic_coordinate({
+    x: x,
+    y: y
+  }, width / 2, -90 + azimuth);
+
+  // create a feature for each of these points.  This
+  // will be our 'add point'
+  widthFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [widthPoint.x, widthPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.addPoint,
+      iconXOffset: 8,
+      iconYOffset: 8,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  heightFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [heightPoint.x, heightPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.addPoint,
+      iconXOffset: 8,
+      iconYOffset: 8,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  azimuthFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [azimuthPoint.x, azimuthPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.rotationPoint,
+      iconXOffset: 12,
+      iconYOffset: 12,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  items.push(widthFeature);
+  items.push(heightFeature);
+  items.push(azimuthFeature);
+
+  widthVertex = new emp.editors.Vertex(widthFeature, "add");
+  heightVertex = new emp.editors.Vertex(heightFeature, "add");
+  azimuthVertex = new emp.editors.Vertex(azimuthFeature, "add");
+
+  this.width = widthVertex;
+  this.height = heightVertex;
+  this.azimuth = azimuthVertex;
+
+  this.vertices.push(widthVertex);
+  this.vertices.push(heightVertex);
+  this.vertices.push(azimuthVertex);
+
+
+  // run the transaction and add all the symbols on the map.
+  transaction = new emp.typeLibrary.Transaction({
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
+  });
+  transaction.run();
+
 };
 
 emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, pointer) {
@@ -202,12 +215,30 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     azimuth,
     o,a,h,
     newAzimuth,
-    delta;
+    delta,
+    x, y;
+
+  // Normal GEO_CIRCLE will be of type point, but MIL_STD_SYMBOL may be
+  // of type line string.  Get the coordinates.
+  if (this.featureCopy.data.type === 'Point') {
+    x = this.featureCopy.data.coordinates[0];
+    y = this.featureCopy.data.coordinates[1];
+  } else if (this.featureCopy.data.type === 'LineString') {
+    x = this.featureCopy.data.coordinates[0][0];
+    y = this.featureCopy.data.coordinates[0][1];
+  }
 
   currentVertex = this.vertices.find(featureId);
 
   // First update the control point with new pointer info.
   currentFeature = currentVertex.feature;
+
+  // get the old azimuth.  normalize the value.
+  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
+    azimuth = this.featureCopy.properties.azimuth;
+  } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+    azimuth = this.featureCopy.properties.modifiers.azimuth[0];
+  }
 
 
   if (featureId === this.width.feature.featureId){
@@ -222,18 +253,17 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
       this.featureCopy.properties.width = widthDistance * 2;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      this.featureCopy.properties.distance[0] = widthDistance * 2;
+      this.featureCopy.properties.modifiers.distance[0] = widthDistance * 2;
     }
 
-    azimuth = this.featureCopy.properties.azimuth;
     newWidthPosition = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
+      x: x,
+      y: y
     }, widthDistance, 90 + azimuth);
 
     newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
+      x: x,
+      y: y
     }, widthDistance, -90 + azimuth);
 
     currentFeature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
@@ -250,13 +280,12 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
       this.featureCopy.properties.height = heightDistance * 2;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      this.featureCopy.properties.distance[1] = heightDistance * 2;
+      this.featureCopy.properties.modifiers.distance[1] = heightDistance * 2;
     }
 
-    azimuth = this.featureCopy.properties.azimuth;
     newHeightPosition = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
+      x: x,
+      y: y
     }, heightDistance, azimuth);
 
     currentFeature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
@@ -266,15 +295,14 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     // will determine the new vertex.
 
     //  asin(o/h) will return the angle in radians of a right sided triangle.
-    o = pointer.lat - this.featureCopy.data.coordinates[1];
-    a = pointer.lon - this.featureCopy.data.coordinates[0];
+    o = pointer.lat - y;
+    a = pointer.lon - x;
     h = Math.sqrt(o*o + a*a);
 
     // get the angle but convert to radians.
     newAzimuth = (Math.asin(o/h) * 180 / Math.PI);
 
-    // get the old azimuth.  normalize the value.
-    azimuth = this.featureCopy.properties.azimuth;
+
     if (azimuth > 180) {
       azimuth = azimuth - 360;
     } else if (azimuth < -180) {
@@ -282,17 +310,17 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     }
 
     // determine the quadrant to correctly calculate the azimuth.
-    if (pointer.lat >= this.featureCopy.data.coordinates[1] &&
-        pointer.lon >= this.featureCopy.data.coordinates[0]) {
+    if (pointer.lat >= y &&
+        pointer.lon >= x) {
       newAzimuth = 90 - newAzimuth;
-    } else if (pointer.lat >= this.featureCopy.data.coordinates[1] &&
-        pointer.lon < this.featureCopy.data.coordinates[0]) {
+    } else if (pointer.lat >= y &&
+        pointer.lon < x) {
       newAzimuth = -90 + newAzimuth;
-    } else if (pointer.lat <= this.featureCopy.data.coordinates[1] &&
-        pointer.lon <= this.featureCopy.data.coordinates[0]) {
+    } else if (pointer.lat <= y &&
+        pointer.lon <= x) {
       newAzimuth = -90 + newAzimuth;
-    } else if (pointer.lat < this.featureCopy.data.coordinates[1] &&
-        pointer.lon > this.featureCopy.data.coordinates[0]) {
+    } else if (pointer.lat < y &&
+        pointer.lon > x) {
       newAzimuth = 90 - newAzimuth;
     }
 
@@ -304,7 +332,11 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
     newAzimuth = azimuth + delta;
 
     // update our copy of the feature with the new azimuth parameter.
-    this.featureCopy.properties.azimuth = newAzimuth;
+    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
+      this.featureCopy.properties.azimuth = newAzimuth;
+    } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+      this.featureCopy.properties.modifiers.azimuth = [newAzimuth];
+    }
 
     // adjust the vertices of the width, height, and rotation vertices.
     widthDistance = emp.geoLibrary.measureDistance(this.width.feature.data.coordinates[1],
@@ -318,18 +350,18 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
       this.center.feature.data.coordinates[0], "meters");
 
     newWidthPosition = emp.geoLibrary.geodesic_coordinate({
-        x: this.featureCopy.data.coordinates[0],
-        y: this.featureCopy.data.coordinates[1]
+        x: x,
+        y: y
       }, widthDistance, 90 + newAzimuth);
 
     newHeightPosition = emp.geoLibrary.geodesic_coordinate({
-        x: this.featureCopy.data.coordinates[0],
-        y: this.featureCopy.data.coordinates[1]
+        x: x,
+        y: y
       }, heightDistance, newAzimuth);
 
     newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
-        x: this.featureCopy.data.coordinates[0],
-        y: this.featureCopy.data.coordinates[1]
+        x: x,
+        y: y
       }, widthDistance, -90 + newAzimuth);
 
     this.width.feature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
@@ -343,7 +375,14 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
   } else {
 
     currentFeature.data.coordinates = [pointer.lon, pointer.lat];
-    this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+
+    // Normal GEO_CIRCLE will be of type point, but MIL_STD_SYMBOL may be
+    // of type line string.  Get the coordinates.
+    if (this.featureCopy.data.type === 'Point') {
+      this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+    } else if (this.featureCopy.data.type === 'LineString') {
+      this.featureCopy.data.coordinates = [[pointer.lon, pointer.lat]];
+    }
 
     // Add the radius control point.
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
@@ -351,24 +390,24 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
       heightDistance = this.featureCopy.properties.height;
       azimuth = this.featureCopy.properties.azimuth;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      widthDistance = this.featureCopy.properties.distance[0];
-      heightDistance = this.featureCopy.properties.distance[1];
-      azimuth = this.featureCopy.properties.azimuth[0];
+      widthDistance = this.featureCopy.properties.modifiers.distance[0];
+      heightDistance = this.featureCopy.properties.modifiers.distance[1];
+      azimuth = this.featureCopy.properties.modifiers.azimuth[0];
     }
 
     newWidthPosition = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
+      x: x,
+      y: y
     }, widthDistance / 2, 90 + azimuth);
 
     newHeightPosition = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
+      x: x,
+      y: y
     }, heightDistance / 2, azimuth);
 
     newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
-      x: this.featureCopy.data.coordinates[0],
-      y: this.featureCopy.data.coordinates[1]
+      x: x,
+      y: y
     }, widthDistance / 2, -90 + azimuth);
 
 
@@ -407,8 +446,8 @@ emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, poin
   newCoordinates = [];
 
   newCoordinates.push({
-    lat: this.featureCopy.data.coordinates[1],
-    lon: this.featureCopy.data.coordinates[0]
+    lat: y,
+    lon: x
   });
 
   coordinateUpdate = {
