@@ -57,25 +57,28 @@ emp.editors.Circle.prototype.addControlPoints = function() {
     }
   });
 
+  // Create a vertex.  This is so the editingManager knows that
+  // the center point is a control point and not the radius.
   vertex = new emp.editors.Vertex(controlPoint, "vertex");
   this.vertices.push(vertex);
   this.center = vertex;
   items.push(controlPoint);
 
-  // Add the radius control point.
+  // Create a radius control point.
   if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) {
     distance = this.featureCopy.properties.radius;
   } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
     distance = this.featureCopy.properties.modifiers.distance[0];
   }
 
+  // project out the radius right above the center point of the circle.
   newPoint = emp.geoLibrary.geodesic_coordinate({
     x: x,
     y: y
   }, distance, 0);
 
   // create a feature for each of these coordinates.  This
-  // will be our 'add point'
+  // will be our radius control point that is displayed by the map.
   addPoint = new emp.typeLibrary.Feature({
     overlayId: "vertices",
     featureId: emp3.api.createGUID(),
@@ -115,6 +118,9 @@ emp.editors.Circle.prototype.addControlPoints = function() {
 
 };
 
+/**
+ * Begins the movement of a control point.  
+ */
 emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer) {
 
   var currentFeature,
