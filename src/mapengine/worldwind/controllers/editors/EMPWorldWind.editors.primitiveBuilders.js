@@ -530,7 +530,7 @@ EMPWorldWind.editors.primitiveBuilders.constructText = function(feature, selecti
 EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON = function(geoJSON, selectionStyle) {
   var textPrimitive, attributes, highlightAttributes, color, selectedColor, location;
 
-  attributes = new WorldWind.TextAttributes(null);
+  attributes = new WorldWind.TextAttributes();
   attributes.depthTest = false;
 
   if (geoJSON.properties.fontColor) {
@@ -539,7 +539,6 @@ EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON = function(geoJS
     color = EMPWorldWind.utils.hexToRGBA(EMPWorldWind.constants.propertyDefaults.FILL_COLOR_HEX);
   }
   attributes.color = new WorldWind.Color(color.red, color.green, color.blue, color.alpha);
-
 
   if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.family) {
     attributes.font.family = geoJSON.properties.labelStyle.family;
@@ -557,7 +556,7 @@ EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON = function(geoJS
     attributes.scale = geoJSON.properties.labelStyle.scale;
   }
 
-  highlightAttributes = new WorldWind.TextAttributes();
+  highlightAttributes = new WorldWind.TextAttributes(attributes);
   if (selectionStyle.lineColor) {
     selectedColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
     highlightAttributes.color = new WorldWind.Color(selectedColor.red, selectedColor.green, selectedColor.blue, selectedColor.alpha);

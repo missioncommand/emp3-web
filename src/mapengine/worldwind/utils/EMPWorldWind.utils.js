@@ -65,6 +65,10 @@ EMPWorldWind.utils.milstd.updateModifierLabels = function(properties, name, icon
   for (property in properties) {
     if (properties.hasOwnProperty(property)) {
       switch (property) {
+        case "labelColor":
+          // Convert labelColor to textColor
+          modifiedModifiers["textColor"] = properties[property];
+          break;
         case "fillColor":
           modifiedModifiers["fillColor"] = properties[property];
           break;
@@ -228,7 +232,7 @@ EMPWorldWind.utils.milstd.updateModifierLabels = function(properties, name, icon
  *
  * @param modifiers
  * @param showModLabels
- * @returns {{}}
+ * @returns {object}
  */
 EMPWorldWind.utils.milstd.convertModifierStringTo2525 = function(modifiers, showModLabels) {
   var standardModifiers = {};
@@ -363,6 +367,9 @@ EMPWorldWind.utils.milstd.convertModifierStringTo2525 = function(modifiers, show
             case EMPWorldWind.constants.RendererSettings.modifierLookup.LINE_COLOR:
               standardModifiers["LINECOLOR"] = modValue;
               break;
+            case EMPWorldWind.constants.RendererSettings.modifierLookup.TEXT_COLOR:
+              standardModifiers["TEXTCOLOR"] = modValue;
+              break;
             case EMPWorldWind.constants.RendererSettings.modifierLookup.STANDARD:
               // convert standard string value  to modifier numeric
               standardModifiers[emp.typeLibrary.utils.milstd.Modifiers.STANDARD] = EMPWorldWind.utils.convertSymbolStandardToRendererFormat(modifiers);
@@ -389,7 +396,7 @@ EMPWorldWind.utils.milstd.convertModifierStringTo2525 = function(modifiers, show
  * Borrowed from the Cesium Implementation
  *
  * @param item
- * @returns {{}}
+ * @returns {object}
  */
 EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
   var result = {},
@@ -738,7 +745,7 @@ function _hex6ToRGBA(hex) {
 
 /**
  * Parses an 8 character color string
- * @param hex AARRGGBB
+ * @param hex AARRGGBB format
  * @returns {RGBAColor}
  * @private
  */
