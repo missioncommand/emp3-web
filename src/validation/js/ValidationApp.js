@@ -69,8 +69,6 @@ class ValidationApp extends Component {
 
   componentDidMount() {
     document.addEventListener('mouseup', this.handleMouseUp);
-<<<<<<< HEAD
-=======
     this.waitForConfig();
   }
 
@@ -84,7 +82,6 @@ class ValidationApp extends Component {
       componentHandler.upgradeDom();
       this.forceUpdate();
     }
->>>>>>> 2.2.0
   }
 
   componentDidUpdate() {

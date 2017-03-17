@@ -58,6 +58,12 @@ EMPWorldWind.map = function(wwd) {
      * Object for holding state to compute when MilStdSymbols should be re-rendered
      */
     lastRender: {
+      bounds: {
+        north: 0,
+        south: 0,
+        east: 0,
+        west: 0
+      },
       altitude: 0
     },
     /**
@@ -112,6 +118,15 @@ EMPWorldWind.map = function(wwd) {
   };
 };
 
+// typedefs ============================================================================================================
+/**
+ * @typedef {object} SelectionStyle
+ * @property {number} scale
+ * @property {string|undefined} lineColor
+ * @property {string|undefined} fillColor
+ */
+//======================================================================================================================
+
 /**
  * Creates the initial layers
  * @param {emp.map} empMapInstance
@@ -133,12 +148,8 @@ EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
   whiteContrastLayer.attributes.drawOutline = false;
 
   this.contrastLayer = new WorldWind.RenderableLayer('contrast layer');
-<<<<<<< HEAD
-  this.worldWind.addLayer(this.contrastLayer);
-=======
   this.contrastLayer.pickEnabled = false;
   this.worldWindow.addLayer(this.contrastLayer);
->>>>>>> 2.2.0
 
   this.contrastLayer.addRenderable(whiteContrastLayer);
   this.contrastLayer.addRenderable(blackContrastLayer);
@@ -167,6 +178,8 @@ EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
       }
     }
   }
+
+  EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
 };
 
 /**
@@ -267,7 +280,8 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
 
   if (args.animate) {
     this.goToAnimator.travelTime = EMPWorldWind.constants.globeMoveTime;
-    this.goToAnimator.goTo(position, args.animateCB || function() { });
+    this.goToAnimator.goTo(position, args.animateCB || function() {
+      });
   } else {
     this.goToAnimator.travelTime = 0;
     this.goToAnimator.goTo(position);
@@ -804,7 +818,7 @@ EMPWorldWind.map.prototype.refresh = function() {
   //   if (this.features.hasOwnProperty(featureId)) {
   //     feature = this.features[featureId];
   //
-  //     // TODO check if it is visible first1
+  //     // TODO check if it is visible first
   //     //EMPWorldWind.editors.EditorController.updateRender.call(this, feature);
   //   }
   // }
@@ -846,7 +860,7 @@ EMPWorldWind.map.prototype.setLockState = function(lockState) {
 /**
  * Spins the globe if autoPanning is enabled
  */
-EMPWorldWind.map.prototype.spinGlobe = function () {
+EMPWorldWind.map.prototype.spinGlobe = function() {
   var vertical = 0,
     horizontal = 0;
 
@@ -883,13 +897,6 @@ EMPWorldWind.map.prototype.spinGlobe = function () {
 };
 
 /**
-<<<<<<< HEAD
- * @typedef {object} SelectionStyle
- * @property {number} scale
- * @property {string|undefined} lineColor
- * @property {string|undefined} fillColor
- */
-=======
  * Returns a data URI of the current view of the canvas
  * @todo Handle iconURL within Placemarks
  * @returns {string}
@@ -957,4 +964,3 @@ EMPWorldWind.map.prototype.shutdown = function() {
   this.layers = {};
   this.worldWindow = undefined;
 };
->>>>>>> 2.2.0

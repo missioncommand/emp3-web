@@ -25,23 +25,8 @@ var processAdd = function() {
 
   alert("Click on the map to begin drawing - double click to end.");
 
-// Adds the overlay to the map, and after the overlay is
-// added, the feature.   The feature is immediately placed
-// in "edit mode"
-function afterAddOverlay(args) {
-  var feature = new emp3.api.Polygon({
-    geoId: "editPolygon",
-    name: "My Polygon",
-    positions: [{
-      latitude: 40,
-      longitude: 40
-    }, {
-      latitude: 41,
-      longitude: 41
-    }, {
-      latitude: 40,
-      longitude: 42
-    }]
+  var path = new emp3.api.Path({
+    name: "myPath1"
   });
 
   // This just puts the map in draw mode, so the map begins

@@ -34,15 +34,9 @@ const spec = {
 
     featureArgs.positions = [origin];
 
-    if (symbolDef && symbolDef.maxPoints) {
-<<<<<<< HEAD
-      for (let i = 1; i < Math.min(symbolDef.maxPoints, 5); i++) {
-        let nextPoint = _.clone(origin);
+    let nextPoint, finalPoint;
 
-        if (i%2 !== 0) {
-          nextPoint.latitude += step;
-        }
-=======
+    if (symbolDef && symbolDef.maxPoints) {
       switch (Math.min(symbolDef.maxPoints, 5)) {
         case 5:
           for (let i = 1; i < 4; i++) {
@@ -70,10 +64,10 @@ const spec = {
             if (i % 2 !== 0) {
               nextPoint.latitude += step;
             }
->>>>>>> 2.2.0
 
-        nextPoint.longitude += i * step;
-        featureArgs.positions.push(nextPoint);
+            nextPoint.longitude += i * step;
+            featureArgs.positions.push(nextPoint);
+          }
       }
     }
 
