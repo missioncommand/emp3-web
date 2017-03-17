@@ -2154,6 +2154,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                         // array.  Index it by the value of the label, so we can
                         // do an easy lookup later.  Just set the value to true
                         // so it equals something.
+                        newMilStdIconLabelSetting = [];
                         for (i = 0; i < milStdIconLabels.length; i += 1)
                         {
                             newMilStdIconLabelSetting[milStdIconLabels[i]] = true;
