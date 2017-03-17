@@ -90,13 +90,14 @@ cmapi.channel.handler[cmapi.channel.names.CMAPI2_MAP_CONFIG] = {
       
       //add the label item to the configTransaction for v3
       if (labelItem) {
+        configItem.milStdIconLabels = labelItem;
         labelTransaction.items.push(labelItem);
-        configTransaction.items.push(labelItem);
         labelTransaction.queue();
+        if(configItem){
+          configTransaction.items.push(configItem);
+        }
         configTransaction.queue();
-      }
-
-      if (configItem) {
+      }else if (configItem) {
         configTransaction.items.push(configItem);
         configTransaction.queue();
       }
