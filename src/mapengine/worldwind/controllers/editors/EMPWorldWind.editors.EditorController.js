@@ -167,7 +167,7 @@ EMPWorldWind.editors.EditorController = (function() {
     if (feature.data.type === "Point") {
       modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, this.state.labelStyles, this.state.pixelSize);
     } else {
-      modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, {}, this.state.pixelSize);
+      modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, EMPWorldWind.constants.AllLabels, this.state.pixelSize);
     }
 
     modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, ( (this.state.labelStyles.CN === true) && feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE));
