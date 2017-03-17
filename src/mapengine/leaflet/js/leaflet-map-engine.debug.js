@@ -816,76 +816,78 @@ emp.engineDefs.leafletMapEngine = function (args) {
     }
 
     function setupEventListeners() {
-        function onMouseMove(e) {
-            var eventData = {};
-            eventData.lat = e.latlng.lat;
-            eventData.lon = leafLet.utils.normilizeLongitude(e.latlng.lng);
-            eventData.mgrs = emp.geoLibrary.ddToMGRS(eventData.lat, eventData.lon);
-            eventData.type = emp.typeLibrary.Pointer.EventType.MOVE;
-            instanceInterface.empMapInstance.eventing.Pointer(eventData);
+      function onMouseMove(event) {
+        var eventData = {};
+
+        eventData.lat = event.latlng.lat;
+        eventData.lon = leafLet.utils.normilizeLongitude(event.latlng.lng);
+        eventData.mgrs = emp.geoLibrary.ddToMGRS(eventData.lat, eventData.lon);
+        eventData.type = emp.typeLibrary.Pointer.EventType.MOVE;
+        instanceInterface.empMapInstance.eventing.Pointer(eventData);
+      }
+
+      function onMoveEnd(event) {
+        var center,
+            view,
+            lookAt;
+
+        checkMapCenter();
+        center = instanceInterface.leafletInstance.getCenter();
+        if ((center.lng < -180.0) || (center.lng > 180.0)) {
+          instanceInterface.leafletInstance.setView(center.wrap());
+          return;
+        }
+        if (instanceInterface.renderingOptimization.enabled) {
+          instanceInterface.renderingOptimization.refreshZone();
+        }
+        view = instanceInterface.getView();
+        lookAt = instanceInterface.viewToLookAt(view);
+        instanceInterface.scheduleRendering(view);
+        instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
+        instanceInterface.processViewSetTrans();
+      }
+
+      function onMapClick(event) {
+        var button = event.originalEvent.button;
+
+        if ((button !== 0) ||
+          event.originalEvent.altKey || !event.originalEvent.ctrlKey ||
+          event.originalEvent.shiftKey) {
+          instanceInterface.oSelectionManager.deselectAllFeatures();
+          instanceInterface.oSelectionManager.generateEvent();
         }
 
-        function onMoveEnd(e) {
-          var center;
+        instanceInterface.generatePointerEvent(event, instanceInterface.getView());
+        event.originalEvent.preventDefault();
+      }
 
-          checkMapCenter();
-          center = instanceInterface.leafletInstance.getCenter();
-          if ((center.lng < -180.0) || (center.lng > 180.0)) {
-            instanceInterface.leafletInstance.setView(center.wrap());
-            return;
-          }
-          if (instanceInterface.renderingOptimization.enabled) {
-            instanceInterface.renderingOptimization.refreshZone();
-          }
-          var view = instanceInterface.getView();
-          var lookAt = instanceInterface.viewToLookAt(view);
-          instanceInterface.scheduleRendering(view);
-          instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-          instanceInterface.processViewSetTrans();
-        }
+      function onZoomEnd(event) {
+        checkMapWidth();
+        //var view = instanceInterface.getView();
+        // lookAt = instanceInterface.viewToLookAt(view);
 
-        function onMapClick(e) {
-            var button = e.originalEvent.button;
+        //instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
+        //instanceInterface.processViewSetTrans();
+      }
 
-            if ((button !== 0) ||
-                    e.originalEvent.altKey ||
-                    !e.originalEvent.ctrlKey ||
-                    e.originalEvent.shiftKey) {
-                instanceInterface.oSelectionManager.deselectAllFeatures();
-                instanceInterface.oSelectionManager.generateEvent();
-            }
+      function onViewReset(event) {
+        //checkMapWidth();
+        //instanceInterface.scheduleRendering();
+      }
 
-            instanceInterface.generatePointerEvent(e, instanceInterface.getView());
-            e.originalEvent.preventDefault();
-        }
+      function onMouseUpDown(event) {
+        instanceInterface.generatePointerEvent(event, instanceInterface.getView());
+        event.originalEvent.preventDefault();
+      }
 
-        function onZoomEnd(oEvent) {
-          checkMapWidth();
-          //var view = instanceInterface.getView();
-          // lookAt = instanceInterface.viewToLookAt(view);
-
-          //instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-          //instanceInterface.processViewSetTrans();
-        }
-
-        function onViewReset(e) {
-          //checkMapWidth();
-          //instanceInterface.scheduleRendering();
-        }
-
-        function onMouseUpDown(e) {
-          instanceInterface.generatePointerEvent(e, instanceInterface.getView());
-          e.originalEvent.preventDefault();
-        }
-
-        instanceInterface.leafletInstance.on('mousemove', onMouseMove);
-        instanceInterface.leafletInstance.on('moveend', onMoveEnd);
-        instanceInterface.leafletInstance.on('mousedown', onMouseUpDown);
-        instanceInterface.leafletInstance.on('mouseup', onMouseUpDown);
-        instanceInterface.leafletInstance.on('contextmenu', onMapClick);
-        instanceInterface.leafletInstance.on('click', onMapClick);
-        instanceInterface.leafletInstance.on('viewreset', onViewReset);
-        instanceInterface.leafletInstance.on('zoomend', onZoomEnd);
+      instanceInterface.leafletInstance.on('mousemove', onMouseMove);
+      instanceInterface.leafletInstance.on('moveend', onMoveEnd);
+      instanceInterface.leafletInstance.on('mousedown', onMouseUpDown);
+      instanceInterface.leafletInstance.on('mouseup', onMouseUpDown);
+      instanceInterface.leafletInstance.on('contextmenu', onMapClick);
+      instanceInterface.leafletInstance.on('click', onMapClick);
+      instanceInterface.leafletInstance.on('viewreset', onViewReset);
+      instanceInterface.leafletInstance.on('zoomend', onZoomEnd);
     }
     /*
      // The plugin to do the screen capture requires that leaflet be
@@ -1955,6 +1957,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
                   }
                   break;
                 case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
+                  instanceInterface.leafletInstance.dragging.disable();
                   instanceInterface.leafletInstance.doubleClickZoom.disable();
                   instanceInterface.leafletInstance.scrollWheelZoom.disable();
                   if (instanceInterface.leafletInstance.zoomControl) {
