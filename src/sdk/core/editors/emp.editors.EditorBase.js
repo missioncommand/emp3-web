@@ -29,7 +29,68 @@ emp.editors.EditorBase = function(args) {
  */
 emp.editors.EditorBase.prototype.addControlPoints = function() {
 
+  var i,
+    controlPoint,
+    transaction,
+    length,
+    coordinates,
+    items = [],
+    vertex;
 
+  // Normalize the coordinates so we can handle them the same.
+  if (this.featureCopy.data.type === 'Point') {
+    coordinates = [this.featureCopy.data.coordinates];
+  } else if (this.featureCopy.data.type === 'LineString') {
+    length = this.featureCopy.data.coordinates.length;
+    coordinates = this.featureCopy.data.coordinates;
+  } else if (this.featureCopy.data.type === 'Polygon') {
+    length = this.featureCopy.data.coordinates[0].length;
+    coordinates = this.featureCopy.data.coordinates[0];
+  }
+
+  // Create a feature on the map for each vertex.
+  for (i = 0; i < length; i++) {
+
+    // create a feature for each of these coordinates.
+    // This feature will be added to the map as a control point.
+    controlPoint = new emp.typeLibrary.Feature({
+      overlayId: "vertices",
+      featureId: emp3.api.createGUID(),
+      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+      data: {
+        coordinates: coordinates[i],
+        type: 'Point'
+      },
+      properties: {
+        iconUrl: emp.ui.images.editPoint,
+        iconXOffset: 12,
+        iconYOffset: 12,
+        xUnits: "pixels",
+        yUnits: "pixels",
+        altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+      }
+    });
+
+    // create a vertex entry for each feature.  These are all control points.
+    vertex = new emp.editors.Vertex(controlPoint, "vertex");
+    this.vertices.push(vertex);
+    items.push(controlPoint);
+  }
+
+  // run the transaction and add all the symbols on the map.
+  transaction = new emp.typeLibrary.Transaction({
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
+  });
+
+  transaction.run();
 };
 
 emp.editors.EditorBase.prototype.removeControlPoints = function() {
@@ -87,76 +148,41 @@ emp.editors.EditorBase.prototype.isFeature = function(featureId) {
 };
 
 /**
- * Moves control point passed in to the new location provided.
- * Also updates the control point and the feature with the change.
- */
-emp.editors.EditorBase.prototype.moveControlPoint = function(featureId, pointer) {
-  var index,
-    newCoordinates,
-    coordinateUpdate,
-    updateData;
-
-  // for the base implementation, just move the control point.
-
-  // Grab the actual feature associated with this control point featureId.
-  var newFeature = this.vertices.findFeature(featureId);
-  newFeature.data.coordinates = [pointer.lon, pointer.lat];
-
-  // Update the position of the control point.
-  var transaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.FEATURE_ADD,
-    mapInstanceId: this.mapInstance.mapInstanceId,
-    transactionId: null,
-    sender: this.mapInstance.mapInstanceId,
-    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-    source: emp.api.cmapi.SOURCE,
-    messageOriginator: this.mapInstance.mapInstanceId,
-    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-    items: [newFeature]
-  });
-  transaction.run();
-
-  // Now send back the information to the editingManager that will
-  // help with generating some events.
-  index = this.vertices.getIndex(featureId);
-  newCoordinates = [];
-
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-    newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[i][1],
-      lon: this.featureCopy.data.coordinates[i][0]
-    });
-  }
-
-  coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index],
-      coordinates: newCoordinates
-  };
-
-  updateData.coordinateUpdate = coordinateUpdate;
-  updateData.properties = this.featureCopy.properties;
-
-  return updateData;
-
-};
-
-/**
- * Starts the move of an add point. Turns the add point into a vertex and creates
- * a new add point
+ * Occurs first when the control point is moved.  This method is called prior
+ * to move control point.  It is a move, but allows us to initialize the
+ * behavior of what happens prior to the move.
  */
 emp.editors.EditorBase.prototype.startMoveControlPoint = function(featureId, pointer) {
 
   var index,
     newCoordinates,
     coordinateUpdate,
-    updateData;
+    updateData = {},
+    items = [],
+    coordinates;
 
   // for the base implementation, just move the control point.
 
   // Grab the actual feature associated with this control point featureId.
   var newFeature = this.vertices.findFeature(featureId);
+
+  // assign the control point the new coordinates.
   newFeature.data.coordinates = [pointer.lon, pointer.lat];
+
+  // make it one of the items that needs to be updated.
+  items.push(newFeature);
+
+  // update the actual feature that is being edited.
+  // Normalize the coordinates so we can handle them the same.
+  if (this.featureCopy.data.type === 'Point') {
+    this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+  } else if (this.featureCopy.data.type === 'LineString') {
+    this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
+  } else if (this.featureCopy.data.type === 'Polygon') {
+    this.featureCopy.data.coordinates = this.vertices.getVerticesAsPolygon();
+  }
+
+  items.push(this.featureCopy);
 
   // Update the position of the control point.
   var transaction = new emp.typeLibrary.Transaction({
@@ -168,8 +194,9 @@ emp.editors.EditorBase.prototype.startMoveControlPoint = function(featureId, poi
     source: emp.api.cmapi.SOURCE,
     messageOriginator: this.mapInstance.mapInstanceId,
     originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-    items: [newFeature]
+    items: items
   });
+
   transaction.run();
 
   // Now send back the information to the editingManager that will
@@ -177,7 +204,18 @@ emp.editors.EditorBase.prototype.startMoveControlPoint = function(featureId, poi
   index = this.vertices.getIndex(featureId);
   newCoordinates = [];
 
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+  // Normalize the coordinates so we can handle them the same.
+  if (this.featureCopy.data.type === 'Point') {
+    coordinates = [this.featureCopy.data.coordinates];
+  } else if (this.featureCopy.data.type === 'LineString') {
+    length = this.featureCopy.data.coordinates.length;
+    coordinates = this.featureCopy.data.coordinates;
+  } else if (this.featureCopy.data.type === 'Polygon') {
+    length = this.featureCopy.data.coordinates[0].length;
+    coordinates = this.featureCopy.data.coordinates[0];
+  }
+
+  for (var i = 0; i < coordinates.length; i++) {
     newCoordinates.push({
       lat: this.featureCopy.data.coordinates[i][1],
       lon: this.featureCopy.data.coordinates[i][0]
@@ -197,56 +235,19 @@ emp.editors.EditorBase.prototype.startMoveControlPoint = function(featureId, poi
 };
 
 /**
- * To be called when ending the movement of a control point.
+ * Moves control point passed in to the new location provided.
+ * Also updates the control point and the feature with the change.
+ */
+emp.editors.EditorBase.prototype.moveControlPoint = function(featureId, pointer) {
+  return this.startMoveControlPoint(featureId, pointer);
+};
+
+
+/**
+ * Occurs after the control point has finished being moved.
  */
 emp.editors.EditorBase.prototype.endMoveControlPoint = function(featureId, pointer) {
-  var index,
-    newCoordinates,
-    coordinateUpdate,
-    updateData;
-
-  // for the base implementation, just move the control point.
-
-  // Grab the actual feature associated with this control point featureId.
-  var newFeature = this.vertices.findFeature(featureId);
-  newFeature.data.coordinates = [pointer.lon, pointer.lat];
-
-  // Update the position of the control point.
-  var transaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.FEATURE_ADD,
-    mapInstanceId: this.mapInstance.mapInstanceId,
-    transactionId: null,
-    sender: this.mapInstance.mapInstanceId,
-    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-    source: emp.api.cmapi.SOURCE,
-    messageOriginator: this.mapInstance.mapInstanceId,
-    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-    items: [newFeature]
-  });
-  transaction.run();
-
-  // Now send back the information to the editingManager that will
-  // help with generating some events.
-  index = this.vertices.getIndex(featureId);
-  newCoordinates = [];
-
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-    newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[i][1],
-      lon: this.featureCopy.data.coordinates[i][0]
-    });
-  }
-
-  coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index],
-      coordinates: newCoordinates
-  };
-
-  updateData.coordinateUpdate = coordinateUpdate;
-  updateData.properties = this.featureCopy.properties;
-
-  return updateData;
+  return this.startMoveControlPoint(featureId, pointer);
 };
 
 /**
