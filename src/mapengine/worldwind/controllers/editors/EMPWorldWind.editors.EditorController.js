@@ -164,7 +164,9 @@ EMPWorldWind.editors.EditorController = (function() {
    * @private
    */
   function _constructSinglePointMilStdSymbol(feature, modifiers, selectionStyle) {
-    var placemark, attributes, highlightAttributes, position, imageInfo, imageCenter, imageBounds, imageOffset, selectedImage;
+    var placemark, attributes, highlightAttributes, position, imageInfo, imageCenter, imageBounds, imageOffset,
+      selectedImage,
+      eyeDistanceScaling = false;
 
     attributes = new WorldWind.PlacemarkAttributes();
 
@@ -203,7 +205,8 @@ EMPWorldWind.editors.EditorController = (function() {
       feature.data.coordinates[0],
       EMPWorldWind.utils.defined(feature.data.coordinates[2]) ? feature.data.coordinates[2] : 0);
 
-    placemark = new WorldWind.Placemark(position, true, null);
+    placemark = new WorldWind.Placemark(position, eyeDistanceScaling);
+    placemark.alwaysOnTop = true;
     placemark.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
     placemark.attributes = new WorldWind.PlacemarkAttributes(attributes);
     placemark.highlightAttributes = new WorldWind.PlacemarkAttributes(highlightAttributes);
@@ -347,6 +350,7 @@ EMPWorldWind.editors.EditorController = (function() {
   }
 
   /**
+<<<<<<< HEAD
    * Constructs a {@link EMPWorldWind.data.EmpFeature} using using the {@link WorldWind.SurfacePolyline} primitive
    * @param {emp.typeLibrary.Feature} feature
    * @param {SelectionStyle} selectionStyle
@@ -750,6 +754,47 @@ EMPWorldWind.editors.EditorController = (function() {
     textPrimitive.highlightAttributes = highlightAttributes;
 
     return textPrimitive;
+=======
+   * Async function
+   * @param {emp.classLibrary.Feature} feature
+   * @param {PlotFeatureCB} callback
+   * @this EMPWorldWind.map
+   */
+  function asyncPlotKMLFeature(feature, callback) {
+    var url, kmlFilePromise, kmlLayer, wwFeature,
+      rc = {
+        success: false
+      };
+
+    // Convert the kml string to a data url
+    url = "data:text/xml," + encodeURIComponent(feature.data);
+
+    // Build the KML file promise
+    kmlFilePromise = new WorldWind.KmlFile(url);
+    kmlFilePromise
+      .then(function(kmlFile) {
+        // Construct the KML layer to hold the document
+        kmlLayer = new WorldWind.RenderableLayer(feature.coreId);
+
+        // Add the KML layer to the map
+        kmlLayer.addRenderable(kmlFile);
+        this.worldWindow.addLayer(kmlLayer);
+
+        // Use the standard data holder to keep track of the layer
+        wwFeature = new EMPWorldWind.data.EmpFeature(feature, this.state.labelStyles);
+        wwFeature.addShapes(kmlLayer); // This isn't a WW primitive but use it as if it was
+
+        // Record the layer so we can remove/modify it later
+        this.layers[feature.coreId] = kmlLayer;
+
+        // Configure the callback args
+        rc.success = true;
+        rc.feature = wwFeature;
+
+        // Fire the callback
+        callback(rc);
+      }.bind(this));
+>>>>>>> 2.2.0
   }
 
   return {
@@ -757,10 +802,10 @@ EMPWorldWind.editors.EditorController = (function() {
      * Creates a new EMPWorldWind feature and associated WorldWind features from an EMP feature and adds it to the map
      *
      * @param {emp.typeLibrary.Feature} empFeature
+     * @param {PlotFeatureCB} callback Callback to be invoked on completion
      * @this EMPWorldWind.map
-     * @returns {{success: boolean, message: string, feature: EMPWorldWind.data.EmpFeature}}
      */
-    plotFeature: function(empFeature) {
+    plotFeature: function(empFeature, callback) {
       var wwFeature, layer, buildShapes, shapes;
 
       var rc = {
@@ -798,40 +843,47 @@ EMPWorldWind.editors.EditorController = (function() {
         case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
           buildShapes = constructText;
           break;
+        case emp3.api.enums.FeatureTypeEnum.KML:
+          // KML is not supported as native primitives in WorldWind
+          // TODO KML selection, not sure how to support it or represent it
+          return asyncPlotKMLFeature.call(this, empFeature, callback);
         default:
           rc.success = false;
           rc.message = "Missing feature constructor for format: " + empFeature.format;
       }
 
+      // Check if we have a builder for standard primitives
       if (!rc.success) {
-        return rc;
+        callback(rc);
+        return;
       }
 
+      // construct the feature
       wwFeature = new EMPWorldWind.data.EmpFeature(empFeature, this.state.labelStyles);
 
-      try {
-        shapes = buildShapes(empFeature, this.state.selectionStyle);
+      // Build the primitives
+      shapes = buildShapes(empFeature, this.state.selectionStyle);
+      wwFeature.addShapes(shapes);
 
-        wwFeature.addShapes(shapes);
+      // Add the feature to the layer
+      layer = this.getLayer(empFeature.parentCoreId);
+      layer.addFeature(wwFeature);
 
-        layer = this.getLayer(empFeature.parentCoreId);
-        layer.addFeature(wwFeature);
+      // Configure the callback params
+      rc.feature = wwFeature;
+      rc.success = true;
 
-        rc.feature = wwFeature;
-        rc.success = true;
-      } catch (err) {
-        rc.message = err.message;
-      }
-
-      return rc;
+      // Fire the callback
+      callback(rc);
     },
     /**
      * Updates a WorldWind Renderable object on the map and returns the updated objects in the response
      * @param {EMPWorldWind.data.EmpFeature} wwFeature
      * @param {emp.typeLibrary.Feature} empFeature
-     * @returns {object}
+     * @param {PlotFeatureCB} callback
+     * @this EMPWorldWind.map
      */
-    updateFeature: function(wwFeature, empFeature) {
+    updateFeature: function(wwFeature, empFeature, callback) {
       var layer,
         rc = {
           success: true,
@@ -839,9 +891,16 @@ EMPWorldWind.editors.EditorController = (function() {
           feature: wwFeature
         };
 
-      // TODO get update on how to move features instead of deleting them and redrawing new ones
-      layer = this.getLayer(empFeature.parentCoreId);
-      layer.removeFeature(wwFeature);
+      // Remove existing primitives from the map
+      if (empFeature.format !== emp3.api.enums.FeatureTypeEnum.KML) {
+        layer = this.getLayer(empFeature.parentCoreId);
+        layer.removeFeature(wwFeature);
+      } else {
+        // Handle KML
+        this.worldWindow.removeLayer(this.layers[empFeature.coreId]);
+      }
+
+      // Clear the primitives from the feature
       wwFeature.clearShapes();
 
       switch (empFeature.format) {
@@ -882,8 +941,12 @@ EMPWorldWind.editors.EditorController = (function() {
         case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
           wwFeature.addShapes(constructText.call(this, empFeature, this.state.labelStyles));
           break;
+        case emp3.api.enums.FeatureTypeEnum.KML:
+          // KML is not supported as native primitives in WorldWind
+          return asyncPlotKMLFeature.call(this, empFeature, callback);
         default:
           rc.success = false;
+          rc.message = "Missing feature constructor for format: " + empFeature.format;
       }
 
       // Redraw the new shapes
@@ -891,8 +954,11 @@ EMPWorldWind.editors.EditorController = (function() {
         layer.addFeature(wwFeature);
         rc.feature = wwFeature;
       }
-      return rc;
-    },
+
+      callback(rc);
+    }
+
+    ,
     /**
      *
      * @param {EMPWorldWind.data.EmpFeature} wwFeature
@@ -924,4 +990,5 @@ EMPWorldWind.editors.EditorController = (function() {
       }
     }
   };
-})();
+})
+();

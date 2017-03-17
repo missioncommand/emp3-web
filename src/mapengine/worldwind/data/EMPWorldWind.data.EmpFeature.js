@@ -9,18 +9,23 @@ EMPWorldWind.data = EMPWorldWind.data || {};
  * @class
  * @param {emp.typeLibrary.Feature} feature
  */
-EMPWorldWind.data.EmpFeature = function (feature){
+EMPWorldWind.data.EmpFeature = function (feature) {
   /**
    * The storage of all the shapes composing the primary shape
    * @type {WorldWind.SurfaceShape[]}
    */
   this.shapes = [];
 
+  var _feature = feature;
   /**
    * The native EMP Feature
+   * @name EMPWorldWind.data.Feature#feature
    * @type {emp.typeLibrary.Feature}
    */
-  this.feature = feature;
+  Object.defineProperty(this, 'feature', {
+    enumerable: true,
+    value: _feature
+  });
 
   var _id = feature.coreId;
   /**
@@ -75,8 +80,13 @@ EMPWorldWind.data.EmpFeature.prototype.shapesCount = function() {
  */
 EMPWorldWind.data.EmpFeature.prototype.addShapes = function(primitives) {
   if (!Array.isArray(primitives)) {
-    primitives.userProperties.id = this.id;
+    if (primitives instanceof WorldWind.RenderableLayer) { // TODO this doesn't smell right, may need to handle KML differently
+      primitives.renderables[0].userProperties.id = this.id;
+    } else {
+      primitives.userProperties.id = this.id;
+    }
     this.shapes.push(primitives);
+
   } else {
     emp.util.each(primitives, function(primitive) {
       primitive.userProperties.id = this.id;

@@ -11,8 +11,8 @@ EMPWorldWind.utils = {};
  * @returns {{lat: undefined, lon: undefined, clientX: *, clientY: *, screenX: *, screenY: *}}
  */
 EMPWorldWind.utils.getEventCoordinates = function(event) {
-  var pickPoint = this.worldWind.canvasCoordinates(event.clientX, event.clientY);
-  var terrainObject = this.worldWind.pickTerrain(pickPoint).terrainObject();
+  var pickPoint = this.worldWindow.canvasCoordinates(event.clientX, event.clientY);
+  var terrainObject = this.worldWindow.pickTerrain(pickPoint).terrainObject();
 
   return {
     lat: terrainObject ? terrainObject.position.latitude : undefined,

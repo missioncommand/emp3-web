@@ -1,3 +1,5 @@
+/* globals empConfig */
+
 import React, {Component, PropTypes} from 'react';
 import VText from '../shared/VText';
 import RelatedTests from '../../containers/RelatedTests';
@@ -5,16 +7,45 @@ import RelatedTests from '../../containers/RelatedTests';
 class swapMapEngineTest extends Component {
   constructor(props) {
     super(props);
-    let initialMapEngineId = empConfig.startMapEngineId;
 
     this.state = {
       selectedMapId: props.maps.length > 0 ? _.first(props.maps).geoId : '',
-      selectedMapEngineConfig: _.find(empConfig.engines, {mapEngineId: initialMapEngineId})
+      selectedMapEngineConfig: undefined
     };
+
     this.updateSelectedMap = this.updateSelectedMap.bind(this);
     this.updateSelectedMapEngine = this.updateSelectedMapEngine.bind(this);
     this.updateMapEngine = this.updateMapEngine.bind(this);
     this.swapMap = this.swapMap.bind(this);
+    this.checkForConfig = this.checkForConfig.bind(this);
+  }
+
+  componentDidMount() {
+    // Wait for the empConfig to finish loading
+    this.checkForConfig();
+  }
+
+  /**
+   * If this test loads first, we may not have the empConfig values loaded yet,
+   * this will be run during componentDidMount and will call itself until the configs are loaded
+   */
+  checkForConfig() {
+    if (!empConfig.engines) {
+      setTimeout(this.checkForConfig.bind(this), 100);
+    } else {
+      let initialMapEngineId = empConfig.startMapEngineId;
+      this.setState({
+        selectedMapEngineConfig: _.find(empConfig.engines, {mapEngineId: initialMapEngineId})
+      });
+    }
+  }
+
+  componentWillReceiveProps(props) {
+    if (props.maps.length && this.state.selectedMapId === '') {
+      this.setState({
+        selectedMapId: _.first(props.maps).geoId
+      });
+    }
   }
 
   updateSelectedMap(event) {
@@ -95,15 +126,23 @@ class swapMapEngineTest extends Component {
                callback={(event) => {
                  this.updateMapEngine('manifestName', event.target.value);
                }}/>
-        <VText id='mapEngine-mapEngineId' label="Map Engine Id" value={this.state.selectedMapEngineConfig.mapEngineId}
-               callback={(event) => {
-                 this.updateMapEngine('mapEngineId', event.target.value);
-               }}/>
-        <button className="blocky mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored"
+        { // Only render this once we have the engine config available
+          this.state.selectedMapEngineConfig ? (
+            <div>
+              <VText id='mapEngine-mapEngineId' label="Map Engine Id"
+                     value={this.state.selectedMapEngineConfig.mapEngineId}
+                     callback={(event) => {
+                       this.updateMapEngine('mapEngineId', event.target.value);
+                     }}/>
+
+              <button
+                className="blocky mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored"
                 disabled={engineBasePath.length === 0 || mapEngineId.length === 0}
                 onClick={this.swapMap}>
-          Swap
-        </button>
+                Swap
+              </button>
+            </div>) : null
+        }
         <RelatedTests relatedTests={[
           {text: 'Create a map', target: 'addMapTest'}
         ]}/>

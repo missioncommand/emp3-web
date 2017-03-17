@@ -366,6 +366,9 @@ emp.intents.control.useNewEditing = function(args) {
   } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
     (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
     result = true;
+  } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
+    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
+    result = true;
   }
 
   return result;
@@ -1005,6 +1008,12 @@ emp.intents.control.intentSequenceMapper = (function() {
 
           if (oMapInstance && oMapInstance.engine) {
             oMapInstance.engine.draw.begin(args);
+          }
+
+          if (args.failures.length > 0) {
+            for (var i = 0; i < args.failures.length; i++) {
+              window.console.error(args.failures[i].message);
+            }
           }
         }
       ],

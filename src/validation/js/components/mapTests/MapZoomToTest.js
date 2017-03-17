@@ -11,7 +11,7 @@ class MapZoomToTest extends Component {
     }
     let selectedFeatureId = '';
     let selectedOverlayId = '';
-    let selectedFeatureIds = [];
+    let selectedFeatureIds = [''];
 
     this.state = {
       selectedMapId: selectedMapId,
@@ -27,6 +27,12 @@ class MapZoomToTest extends Component {
     this.zoom = this.zoom.bind(this);
   }
 
+  componentWillReceiveProps(props) {
+    if (props.maps.length && this.state.selectedMapId === '') {
+      this.setState({selectedMapId: _.first(props.maps).geoId});
+    }
+  }
+
   updateSelectedMap(event) {
     this.setState({
       selectedMapId: event.target.value
@@ -35,101 +41,139 @@ class MapZoomToTest extends Component {
 
   updateSelectedFeature(event) {
     this.setState({
-      selectedFeatureId: event.target.value
+      selectedFeatureId: event.target.value,
+      selectedFeatureIds: [""],
+      selectedOverlayId: ""
     });
   }
 
   updateSelectedFeatures(event) {
-    var values = [];
-
-    for (var i = 0, len = event.target.length; i < len; i++) {
-      if (event.target[i].selected) {
-        values.push(event.target[i].value);
+    // Clear other selections visibly
+    let selectedFeatureIds = [];
+    for (let i = 1; i < event.target.options.length; i++) {
+      if (event.target.options[i].selected) {
+        selectedFeatureIds.push(event.target.options[i].value);
       }
     }
 
     this.setState({
-      selectedFeatureIds: values
+      selectedFeatureId: '',
+      selectedFeatureIds: selectedFeatureIds,
+      selectedOverlayId: ''
     });
   }
 
   updateSelectedOverlay(event) {
     this.setState({
-      selectedOverlayId: event.target.value
+      selectedOverlayId: event.target.value,
+      selectedFeatureIds: [""],
+      selectedFeatureId: ""
     });
   }
 
   zoom() {
+    const {maps, features, overlays} = this.props;
 
-    var map,
+    let map,
       feature,
-      features,
+      selectedFeatures = [],
       overlay,
       i,
       j;
 
-    map = _.find(this.props.maps, {geoId: this.state.selectedMapId});
-    feature = _.find(this.props.features, {geoId: this.state.selectedFeatureId});
-    overlay = _.find(this.props.overlays, {geoId: this.state.selectedOverlayId});
+    map = _.find(maps, {geoId: this.state.selectedMapId});
+    feature = _.find(features, {geoId: this.state.selectedFeatureId});
+    overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
 
     if (this.state.selectedFeatureIds.length > 0) {
-      features = [];
       for (i = 0, j = this.state.selectedFeatureIds.length; i < j; i++) {
-        var tempFeature = _.find(this.props.features, {geoId: this.state.selectedFeatureIds[i]});
+        let tempFeature = _.find(features, {geoId: this.state.selectedFeatureIds[i]});
         if (tempFeature) {
-          features.push(tempFeature);
+          selectedFeatures.push(tempFeature);
         }
       }
+    }
+    if (!selectedFeatures.length) {
+      selectedFeatures = undefined;
     }
 
     if (map) {
       map.zoomTo({
-        featureList: features,
+        featureList: selectedFeatures,
         feature: feature,
         overlay: overlay
       });
     } else {
-      toastr.error('Cound not find selected map', 'Cound not find selected map');
+      toastr.error('Could not find selected map', 'Could not find selected map');
     }
   }
 
   render() {
+    const {maps, overlays, features} = this.props;
+
     return (
-      <div>
-        <h3>Zoom to Something on Map</h3>
+      <div className="mdl-grid">
+        <span className="mdl-layout-title">Zoom to something on Map</span>
 
-        <label htmlFor='mapZoomTo-map'> Choose which map you want to zoom</label>
-        <select className='blocky' id='mapZoomTo-map' value={this.state.selectedMapId} onChange={this.updateSelectedMap}>
-          {this.props.maps.map(map => {
-            return <option key={map.geoId} value={map.geoId}>{map.container}</option>;
-          })}
-        </select>
+        <div className="mdl-cell mdl-cell--12-col">
+          <label htmlFor='mapZoomTo-map'> Choose which map you want to zoom</label>
+          <select id='mapZoomTo-map'
+                  style={{width: "100%"}}
+                  value={this.state.selectedMapId}
+                  onChange={this.updateSelectedMap}>
+            {maps.map(map => {
+              return <option key={map.geoId} value={map.geoId}>{map.container}</option>;
+            })}
+          </select>
+        </div>
 
-        <label htmlFor='mapZoomTo-feature'>Chose a feature from this list</label>
-        <select className='blocky' id='mapZoomTo-feature' value={this.state.selectedFeatureId} onChange={this.updateSelectedFeature}>
-          <option value=''>None</option>
-          {this.props.features.map(feature => {
-            return <option key={feature.geoId} value={feature.geoId}>{feature.name}</option>;
-          })}
-        </select>
+        <div className="mdl-cell mdl-cell--12-col">
+          <label htmlFor='mapZoomTo-feature'>Choose a feature from this list</label>
+          <select style={{width: "100%"}}
+                  id='mapZoomTo-feature'
+                  value={this.state.selectedFeatureId}
+                  onChange={this.updateSelectedFeature}>
+            <option value=''>None</option>
+            {features.map(feature => {
+              return <option key={feature.geoId}
+                             value={feature.geoId}>{feature.name ? feature.name : feature.geoId.substr(0, 12) + "..."}</option>;
+            })}
+          </select>
+        </div>
 
-        <label htmlFor='mapZoomTo-features'>Or chose one or more features to zoom to</label>
-        <select className='blocky' id='mapZoomTo-features' value={this.state.selectedFeatureIds} onChange={this.updateSelectedFeatures} multiple>
-          {this.props.features.map(feature => {
-            return <option key={feature.geoId} value={feature.geoId}>{feature.name}</option>;
-          })}
-        </select>
+        <div className="mdl-cell mdl-cell--12-col">
+          <label htmlFor='mapZoomTo-features'>Or choose one or more features to zoom to</label>
+          <select id='mapZoomTo-features'
+                  style={{width: "100%"}}
+                  value={this.state.selectedFeatureIds}
+                  onChange={this.updateSelectedFeatures}
+                  multiple>
+            <option value=''>None</option>
+            {features.map(feature => {
+              return <option key={feature.geoId}
+                             value={feature.geoId}>
+                {feature.name ? feature.name : feature.geoId.substr(0, 12) + "..."}
+              </option>;
+            })}
+          </select>
+        </div>
 
-        <label htmlFor='mapZoomTo-overlay'>Or chose an overlay from this list to zoom to</label>
-        <select className='blocky' id='mapZoomTo-overlay' value={this.state.selectedOverlayId} onChange={this.updateSelectedOverlay}>
-          <option value=''>None</option>
-          {this.props.overlays.map(overlay => {
-            return <option key={overlay.geoId} value={overlay.geoId}>{overlay.name}</option>;
-          })}
-        </select>
+        <div className="mdl-cell mdl-cell--12-col">
+          <label htmlFor='mapZoomTo-overlay'>Or choose zoom to an overlay</label>
+          <select id='mapZoomTo-overlay'
+                  style={{width: "100%"}}
+                  value={this.state.selectedOverlayId}
+                  onChange={this.updateSelectedOverlay}>
+            <option value=''>None</option>
+            {overlays.map(overlay => {
+              return <option key={overlay.geoId} value={overlay.geoId}>{overlay.name}</option>;
+            })}
+          </select>
+        </div>
 
-        <button className='blocky mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored'
-                onClick={this.zoom}>
+        <button
+          className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
+          onClick={this.zoom}>
           Zoom
         </button>
 

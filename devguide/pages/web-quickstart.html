@@ -1,5 +1,6 @@
 <div class="mdl-grid" style="max-width: 1024px">
     <div class="mdl-cell mdl-cell--12-col">
+<<<<<<< HEAD
         <H1>Quick start for EMP3 Web</h1>
         <p>Below you will find a simple example to embed an use EMP3 in a web application.</a>
         </p>
@@ -51,12 +52,51 @@
         <script>
         ;
 
+=======
+        <h3>Create a simple HTML page with EMP</h3>
+        <p>Below is a bare minimum example of using EMP on a web page</p>
+        <pre style="width: 100%; height: 500px;" id="editor1">
+                    Loading...
+                </pre>
+
+        <p> Below is the <a href="quickstart.html" target="_blank">quickstart.html</a> file from above loaded into an
+            iframe.</p>
+        <iframe src="quickstart.html" style="width: 100%; height: 500px;"></iframe>
+        <p>At this point you are ready to start using the EMP API to interact with the map instance and do some magic
+            like draw a MIL-STD-2525 Ambush</p>
+        <p>Take a look at the Examples and API Docs sections to learn more about the EMP API</p>
+
+
+    </div>
+
+    <script>
+      ;
+      (function() {
+>>>>>>> 2.2.0
         var editor1 = ace.edit("editor1");
         editor1.session.setMode("ace/mode/html");
         editor1.setOption("wrap", true);
         editor1.setReadOnly(true);
 
+<<<<<<< HEAD
 
         </script>
     </div>
 </div>
+=======
+        function loadSample(src) {
+          $.ajax({
+            url: src,
+            dataType: "text",
+            success: function(data) {
+              $(".text").html(data);
+              editor1.setValue(data);
+            }
+          });
+        }
+
+        loadSample('quickstart.html');
+      }());
+    </script>
+</div>
+>>>>>>> 2.2.0

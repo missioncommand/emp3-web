@@ -1,0 +1,77 @@
+<script>
+  function getmyuri(n, s) {
+    n = n.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+    var p = (new RegExp("[\\?&]" + n + "=([^&#]*)")).exec(s);
+    return (p === null) ? "" : p[1];
+  }
+
+  var editor = ace.edit("editor");
+  var setupScript = "";
+  //editor.setTheme("ace/theme/twilight");
+  editor.session.setMode("ace/mode/javascript");
+  editor.setOption("wrap", true);
+
+  function evalstuff() {
+    try {
+      eval.call(null, "(function(){" + editor.getValue() + "}());");
+      $("#empMapInstance").html("");
+    } catch (e) {
+      showToaster("Error: " + (e.lineNumber ? (" line " + e.lineNumber) + ", " : "") + e.message);
+      console.error(e);
+    }
+  }
+
+  function loadSetup() {
+    $.ajax({
+      url: "examples/setup.js",
+      dataType: "text",
+      success: function(data) {
+        setupScript = data;
+        var sample = getmyuri("example", window.location.href);
+        loadSample(sample);
+      }
+    });
+  }
+
+  function loadSample(src) {
+    $.ajax({
+      url: src,
+      dataType: "text",
+      success: function(data) {
+        editor.setValue(setupScript + "\n\nfunction runExample(){\n\ntry{\n\n" + data + "\n} catch(e) {\n\n   showToaster(\"Error: \" + (e.lineNumber ? (\" line \" + e.lineNumber) + \", \" : \"\") + e.message); }\n\n}\n\n");
+        editor.resize(true);
+
+        editor.gotoLine(0, 0, true);
+      }
+    });
+  }
+</script>
+
+<div class="mdl-color--grey-300 exampMap" style="">
+    <pre style="box-sizing: border-box; margin: 16px; margin-bottom: 0px; margin-left:0px; padding: 0px;position: absolute; top: 0px; left: 0px; right: 0px; bottom: 64px; font-size: 13px; width: 100%"
+         id="editor">loading...</pre>
+    <div style="box-sizing: border-box; margin: 0px; padding: 0px;position: absolute; height:64px; right: 0px; left: 0px; bottom: 0px;">
+        <button style="float:right; margin-top:16px; margin-right:16px"
+                class="mdl-button mdl-js-button mdl-button--primary" onClick="evalstuff();"
+                title="Click to run the example script and see the results to the right">Try it!
+        </button>
+        <button style="float:right; margin-top:16px" class="mdl-button mdl-js-button mdl-button--primary"
+                onClick="location.reload();" title="Click to reset the example back to its original state">reset
+        </button>
+    </div>
+</div>
+<div class="exampEditor" style="" id="empMapInstance">
+    <div style="padding: 24px; text-align: center;">
+        <p>When you click the "TRY IT!" button at the bottom right of the code sample, an EMP map instance will appear
+            here</p>
+        <p>You can modify the script to try different things and customize the example</p>
+        <p>Click the "RESET" button to refresh this example back to its original state</p>
+    </div>
+</div>
+
+<script type="text/javascript">
+  $(document).ready(function() {
+
+    loadSetup();
+  });
+</script>

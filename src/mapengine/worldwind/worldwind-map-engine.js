@@ -1,4 +1,5 @@
 var EMPWorldWind = window.EMPWorldWind || {};
+var emp = window.emp || {};
 emp.engineDefs = emp.engineDefs || {};
 
 /**
@@ -10,8 +11,14 @@ emp.engineDefs = emp.engineDefs || {};
  */
 emp.engineDefs.worldWindMapEngine = function(args) {
 
+<<<<<<< HEAD:src/mapengine/worldwind/worldwind-map-engine.debug.js
   var empMapInstance = args.mapInstance,
     empWorldWind;
+=======
+  var empMapInstance = args.mapInstance;
+  /** @type EMPWorldWind.map# */
+  var empWorldWind;
+>>>>>>> 2.2.0:src/mapengine/worldwind/worldwind-map-engine.js
 
   var engineInterface = emp.map.createEngineTemplate(),
     mapEngineExposed = engineInterface;
@@ -59,7 +66,6 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     // Add initialization code here
     try {
       empWorldWind = empWorldWindInstance;
-      //empWorldWind.empMapInstance = empMapInstance;
       empWorldWind.mapEngineExposed = mapEngineExposed;
       emp.map.engineDirect = {name: "worldwind", ref: empWorldWind};
 
@@ -67,9 +73,14 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       empMapInstance.eventing.StatusChange({
         status: emp.map.states.READY
       });
+<<<<<<< HEAD:src/mapengine/worldwind/worldwind-map-engine.debug.js
     }
     catch (err) {
       console.error("Error initializing World Wind ", err);
+=======
+    } catch (err) {
+      window.console.error("Error initializing WorldWind ", err);
+>>>>>>> 2.2.0:src/mapengine/worldwind/worldwind-map-engine.js
     }
   };
 
@@ -137,9 +148,6 @@ emp.engineDefs.worldWindMapEngine = function(args) {
         bufferScale = 2.25; // Assume conic view from the camera
         feature = transaction.items[0];
         switch (feature.format) {
-          case emp3.api.enums.FeatureTypeEnum.GEO_ACM:
-            // TODO compute bounding box diagonal distance
-            break;
           case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
             altitude = feature.properties.radius * bufferScale;
             break;
@@ -153,8 +161,9 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
             altitude = feature.properties.width * bufferScale;
             break;
+          case emp3.api.enums.FeatureTypeEnum.GEO_ACM: // TODO compute bounding box diagonal distance
           default:
-            altitude = undefined; // Remain at the current altitude
+            altitude = 10000; // Default to 10000m
         }
 
         args = {
@@ -183,6 +192,16 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     // Notify start of movement
     EMPWorldWind.eventHandlers.notifyViewChange.call(empWorldWind, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
     empWorldWind.centerOnLocation(args);
+<<<<<<< HEAD:src/mapengine/worldwind/worldwind-map-engine.debug.js
+=======
+
+    // Set initial transaction return values, to be overwritten if the move is animated
+    transaction.items[0].location = {
+      lat: empWorldWind.getCenter().latitude,
+      lon: empWorldWind.getCenter().longitude
+    };
+    transaction.items[0].bounds = empWorldWind.getBounds();
+>>>>>>> 2.2.0:src/mapengine/worldwind/worldwind-map-engine.js
   };
 
   /**
@@ -214,63 +233,25 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   };
 
   /**
-   *
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.overlay.add = function(transaction) {
-    var item,
-      result,
-      length = transaction.items.length,
+    var rc,
       failList = [];
 
-    for (var i = 0; i < length; i += 1) {
-      item = transaction.items[i];
-      if (item.overlayId !== undefined) {
-        var layer = empWorldWind.getLayer(item.overlayId);
-        if (layer) {
-          result = {
-            success: false,
-            message: "An overlay with this id (" + item.overlayId + ") already exists"
-          };
-        } else {
-          try {
-            var renderableLayer = new WorldWind.RenderableLayer(item.name),
-              overlay = empWorldWind.addLayer(item.name, item.overlayId, null, EMPWorldWind.constants.LayerType.OVERLAY_LAYER, renderableLayer);
+    emp.util.each(transaction.items, function(overlay) {
+      rc = empWorldWind.addLayer(overlay);
 
-            var parentOverlay = empWorldWind.getLayer(item.parentCoreId);
-            if (EMPWorldWind.utils.defined(parentOverlay)) {
-              parentOverlay.addSubLayer(overlay);
-            }
-
-            empWorldWind.rootOverlayId = item.overlayId;
-            result = {
-              success: true,
-              message: "New layer added to worldwind map"
-            };
-          } catch (e) {
-            result = {
-              success: false,
-              message: "Failed to add layer to worldwind map."
-            };
-          }
-        }
-      } else {
-        result = {
-          success: false,
-          message: "arguments sent to function are undefined."
-        };
+      if (!rc.success) {
+        failList.push(new emp.typeLibrary.Error({
+          coreId: overlay.coreId,
+          message: rc.message,
+          level: emp.typeLibrary.Error.level.MINOR
+        }));
       }
-    }
+    });
 
-    if (!result.success) {
-      failList.push(new emp.typeLibrary.Error({
-        coreId: item.coreId,
-        message: result.message,
-        level: emp.typeLibrary.Error.level.MINOR
-      }));
-    }
     transaction.fail(failList);
-    return result;
   };
 
   /**
@@ -278,23 +259,20 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.overlay.remove = function(transaction) {
-    var result = {},
+    var rc = {},
       failList = [];
 
-    for (var i = 0; i < transaction.items.length; i += 1) {
-      var item = transaction.items[i];
-      result = empWorldWind.removeLayer(item.overlayId);
-      if (!result.success) {
+    emp.util.each(transaction.items, function(overlay) {
+      rc = empWorldWind.removeLayer(overlay.overlayId);
+      if (!rc.success) {
         failList.push(new emp.typeLibrary.Error({
-          coreId: item.coreId,
-          message: result.message,
-          level: emp.typeLibrary.Error.level.MINOR,
-          jsError: result.jsError
+          coreId: overlay.coreId,
+          message: rc.message
         }));
       }
-    }
+    }.bind(this));
+
     transaction.fail(failList);
-    return result;
   };
 
   /**
@@ -302,15 +280,9 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.wms.add = function(transaction) {
-    var i, item,
-      itemCount = transaction.items.length;
-    for (i = 0; i < itemCount; i++) {
-      item = transaction.items[i];
-      if (empWorldWind.isV2Core) {
-        item.useProxy = emp.util.config.getUseProxySetting();
-      }
-      empWorldWind.addWmsToMap(item);
-    }
+    emp.util.each(transaction.items, function(wms) {
+      empWorldWind.addWMS(wms);
+    }.bind(this));
   };
 
   /**
@@ -318,12 +290,9 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.wms.remove = function(transaction) {
-    var i, item,
-      itemCount = transaction.items.length;
-    for (i = 0; i < itemCount; i++) {
-      item = transaction.items[i];
-      empWorldWind.removeWmsFromMap(item);
-    }
+    emp.util.each(transaction.items, function(wms) {
+      empWorldWind.removeWMS(wms);
+    }.bind(this));
   };
 
   /**
@@ -331,17 +300,28 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.feature.add = function(transaction) {
-    var i, item, result,
-      itemCount = transaction.items.length;
+    var feature,
+      itemsCount = transaction.items.length;
 
-    for (i = 0; i < itemCount; i++) {
-      item = transaction.items[i];
+    // Pause the transaction
+    transaction.pause();
 
-      result = empWorldWind.plotFeature(item);
-      if (!result.success) {
-        result.feature = item;
-        transaction.fail(new emp.typeLibrary.Error(result));
-      }
+    while (itemsCount) {
+      // Note pre-decrement
+      feature = transaction.items[--itemsCount];
+
+      empWorldWind.plotFeature(feature, function(featureCount, cbArgs) {
+        if (!cbArgs.success) {
+          transaction.fail(new emp.typeLibrary.Error({
+            feature: cbArgs.feature
+          }));
+        }
+
+        // All items have been processed
+        if (featureCount === 0) {
+          transaction.run();
+        }
+      }.bind(this, itemsCount));
     }
   };
 
@@ -350,18 +330,21 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.feature.remove = function(transaction) {
-    var i,
-      itemCount = transaction.items.length;
-
-    for (i = 0; i < itemCount; i++) {
-      empWorldWind.unplotFeature(transaction.items[i]);
-    }
-    empWorldWind.refresh();
+    var rc;
+    emp.util.each(transaction.items, function(feature) {
+      rc = empWorldWind.unplotFeature(feature);
+      if (!rc.success) {
+        transaction.fail(new emp.typeLibrary.Error({
+          message: rc.message
+        }));
+      }
+    }.bind(this));
   };
 
   /**
    *
    * @param {emp.typeLibrary.Transaction} transaction
+   * @deprecated
    */
   engineInterface.settings.mil2525.icon.labels.set = function(transaction) {
     empWorldWind.setLabelStyle(transaction.items[0]);
@@ -373,7 +356,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    */
   engineInterface.view.getLatLonFromXY = function(transaction) {
     var pickPoint = new WorldWind.Vec2(transaction.items[0].x, transaction.items[0].y);
-    var terrainObject = empWorldWind.worldWind.pickTerrain(pickPoint).terrainObject();
+    var terrainObject = empWorldWind.worldWindow.pickTerrain(pickPoint).terrainObject();
     transaction.items[0].lat = terrainObject ? terrainObject.position.latitude : undefined;
     transaction.items[0].lon = terrainObject ? terrainObject.position.longitude : undefined;
   };
@@ -387,7 +370,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       if (feature.featureId in empWorldWind.features) {
         empWorldWind.features[feature.featureId].setVisible(feature.visible);
       }
-    });
+    }.bind(this));
     empWorldWind.refresh();
   };
 
@@ -396,15 +379,38 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.map.config = function(transaction) {
-    var config = transaction.items[0];
-    if (typeof config.brightness === "number") {
-      empWorldWind.setContrast(config.brightness);
-    }
+    // Iterate through each transaction item, check for properties and apply them
+    emp.util.each(transaction.items, function(config) {
+      var prop, value;
+      for (prop in config) {
+        if (config.hasOwnProperty(prop)) {
+          // Skip meta data fields
+          if (prop === "messageId") {
+            continue;
+          }
+
+          value = config[prop];
+
+          switch (prop.toLowerCase()) {
+            case "brightness":
+              empWorldWind.setContrast(value);
+              break;
+            case "milstdlabels":
+              empWorldWind.setLabelStyle(value);
+              break;
+            default:
+              transaction.fail(new emp.typeLibrary.Error({
+                message: 'Config property ' + prop + ' is not supported by this engine'
+              }));
+          }
+        }
+      }
+    }.bind(this));
   };
 
   /**
    *
-   * @param transaction
+   * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.navigation.enable = function(transaction) {
     empWorldWind.setLockState(transaction.items[0]);
@@ -419,6 +425,25 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     transaction.failures = rc.failed;
   };
 
+<<<<<<< HEAD:src/mapengine/worldwind/worldwind-map-engine.debug.js
+=======
+  /**
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.capture.screenshot = function(transaction) {
+    return transaction.items[0].dataUrl = empWorldWind.screenshot();
+  };
+>>>>>>> 2.2.0:src/mapengine/worldwind/worldwind-map-engine.js
+
+  /**
+   * Destroys the current engine
+   */
+  engineInterface.state.destroy = function() {
+    if (empWorldWind) {
+      empWorldWind.shutdown();
+      empWorldWind = undefined;
+    }
+  };
 
   // return the engineInterface object as a new engineTemplate instance
   return engineInterface;

@@ -1500,7 +1500,7 @@ function EmpCesium()
                         }
                         tempEvt = {};
                         tempEvt.feature = feature; //provide the top feature
-                        if (this.drawData && this.drawData.editingFeature && evt.feature.coreId)
+                        if (this.drawData && this.drawData.editingFeature && tempEvt.feature.coreId)
                         {
                             // This case is used when clicking on the feature that is currently being edited.
                             // If evt.feature.coreId is populated it means that the currently edited feature
@@ -2122,6 +2122,7 @@ function EmpCesium()
                 {
                     if (this.isMouseWithinCanvas(event))
                     {
+                        // if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION || this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN)
                         if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION)
                         {
                             this.scene.screenSpaceCameraController.enableRotate = false;
@@ -4619,18 +4620,22 @@ function EmpCesium()
                 billboard,
                 basicSymbolID,
                 selectionProperties,
-                within,
+                within = true, cartographicPosition,
+                distanceToCenterOfMap,
+                bearingToCenterOfMap,
+                bufferAtHorizonCartographic,
                 isSinglePointPresent = false,
                 isSkyVisible = false,
                 highScaleImage,
                 callRenderer = false,
                 azimuth = 0,
-                callClusterIcon = false;
-        result = {
-            success: true,
-            message: "",
-            jsError: ""
-        };
+                occluder,
+                callClusterIcon = false,
+                result = {
+                    success: true,
+                    message: "",
+                    jsError: ""
+                };
 
         //add single point to singlePointCollection
         //TODO: delete this in remove function
@@ -4683,9 +4688,28 @@ function EmpCesium()
         item.coordinates = args.coordinates;
 
         //item.isSinglePointRendered =  isSinglePointPresent;
+        cartographicPosition = this.Cartographic.fromDegrees(longitude, latitude, altitude);
+        //within = this.Rectangle.contains(this.getExtent(), this.Cartographic.fromDegrees(longitude, latitude, altitude));
+        //var occluderEllipsoid = this.Ellipsoid.WGS84;
 
-        within = this.Rectangle.contains(this.getExtent(), this.Cartographic.fromDegrees(longitude, latitude, altitude));
+
+        //within = within || ; // || this.getSinglePointsIdOnHoldCount() < 50;// render if on hold less than 50
+
         isSkyVisible = this.isSkyWithinMapVisibleArea();
+        occluder = new this.EllipsoidalOccluder(this.ellipsoid, this.viewer.camera.position);
+        within = occluder.isPointVisible(this.Ellipsoid.WGS84.cartographicToCartesian(cartographicPosition));
+        if (!within && isSkyVisible)
+        {
+            // the occluder does not take into consideration the height of the billboard that shows when the point is close to the horizon.
+            //Use a buffer Point that will be  located at 10% of the distance from the point to the center of map. If that
+            // buffer point returns is visible from the occluder the billboard  is visible and withing  the view area.
+             distanceToCenterOfMap = this.viewer.camera.positionCartographic.distanceTo(cartographicPosition);
+             bearingToCenterOfMap = this.viewer.camera.positionCartographic.bearingTo(cartographicPosition);// degrees
+             bufferAtHorizonCartographic = this.viewer.camera.positionCartographic.destinationPoint(bearingToCenterOfMap + 180, distanceToCenterOfMap * .10);
+             within = occluder.isPointVisible(this.Ellipsoid.WGS84.cartographicToCartesian(bufferAtHorizonCartographic));
+        }
+
+
         var afiliationLetter = item.symbolCode.substring(1, 2);
         var highScaleImage;
 
@@ -4720,9 +4744,9 @@ function EmpCesium()
                             this.storeSinglePointIdOnHold(item.id);
                             return  result;
                         }
-                else if (isSinglePointPresent && !item.isOnUpdateDelayHold && !item.isNewAddThrotled && !item.singlePointAltitudeRangeChanged && this.enableRenderingOptimization)// this.defined(item.lastUpdateTime) &&  Math.abs(new Date().getTime() - item.lastUpdateTime) < 20000)
+                else if (isSinglePointPresent && !item.isOnUpdateDelayHold && !item.isNewAddThrotled && !item.singlePointAltitudeRangeChanged && this.enableRenderingOptimization) // this.defined(item.lastUpdateTime) &&  Math.abs(new Date().getTime() - item.lastUpdateTime) < 20000)
                 {
-                    // throttle the new updates to existing points.
+                    // throttle the new updates to existing points. Do not throttle if on hold <=  50
                     item.isOnOutsideViewableAreaHold = false;
                     item.isOnUpdateDelayHold = true;
                     item.lastUpdateTime = new Date().getTime();
@@ -4769,8 +4793,8 @@ function EmpCesium()
 //                        }
 //                        else
 //                        {
-                            layer = this.getLayer(item.parentCoreId);
-                       // }
+                        layer = this.getLayer(item.parentCoreId);
+                        // }
                     }
                     if (layer)
                     {
@@ -9152,23 +9176,27 @@ function EmpCesium()
                     }
                     if (oProperties.fillColor)
                     {
-                        mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.FillColor] = oProperties.fillColor;
+                        mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.fillColor] = oProperties.fillColor;
                     }
                     if (oProperties.lineColor)
                     {
-                        mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = oProperties.lineColor;
+                        mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.lineColor] = oProperties.lineColor;
                     }
                     else if (!armyc2.c2sd.renderer.utilities.SymbolUtilities.hasValidAffiliation(args[index].symbolCode))
                     {
-                        mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineColor] = EmpCesiumConstants.propertyDefaults.LINE_COLOR_HEX;
+                        mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.lineColor] = EmpCesiumConstants.propertyDefaults.LINE_COLOR_HEX;
                     }
                     if (oProperties.lineWidth)
                     {
-                        mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineWidth] = oProperties.lineWidth;
+                        // ojo modifierLookup do not have a property for line width??????
+                        mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.lineThickness] = oProperties.lineWidth;
+                        //mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineWidth] = oProperties.lineWidth;
                     }
                     else
                     {
-                        mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.LineWidth] = EmpCesiumConstants.propertyDefaults.LINE_WIDTH;
+                        // ojo modifierLookup do not have a property for line width??????
+                        //mods.modifiers[mil.symbology.renderer.modifierLookup.LINE_WIDTH] = oProperties.lineWidth;
+                        mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.lineThickness] = EmpCesiumConstants.propertyDefaults.LINE_WIDTH;
                     }
 
                     if (mods.modifiers && !mods.modifiers.hasOwnProperty("azimuth"))
@@ -9176,11 +9204,11 @@ function EmpCesium()
                         // check the properties for azimuth
                         if (oProperties.azimuth && Array.isArray(oProperties.azimuth))
                         {
-                            mods.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = oProperties.azimuth;
+                            mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.AZIMUTH] = oProperties.azimuth;
                         }
                         else if (oProperties.azimuth && !isNaN(parseFloat(oProperties.azimuth)))
                         {
-                            mods.modifiers[mil.symbology.renderer.modifierLookup.AZIMUTH] = [parseFloat(oProperties.azimuth)];
+                            mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.AZIMUTH] = [parseFloat(oProperties.azimuth)];
                             //make sure the azimuth is a number in tge object sent by the api
                         }
                         else
@@ -11199,30 +11227,6 @@ function EmpCesium()
         return  this.currentExtent;
     };
 
-
-
-    this.getSmartMoveExtent = function ()
-    {
-        var rect;
-        if (this.currentSmartMoveExtent && (!isNaN(parseFloat(this.currentSmartMoveExtent.west)) && !isNaN(parseFloat(this.currentSmartMoveExtent.south)) && !isNaN(parseFloat(this.currentSmartMoveExtent.east)) && !isNaN(parseFloat(this.currentSmartMoveExtent.north))))
-        {
-            return this.currentSmartMoveExtent;
-        }
-        rect = this.scene.camera.computeViewRectangle(this.scene.globe.ellipsoid);
-        if (!rect)
-        {
-            rect = this.getExtentApproximation();
-        }
-        else if (rect.equals(this.Rectangle.MAX_VALUE))
-        {
-            // sec renderer throw errors when using max value for rectangle.
-            // Get an approximation that is going to be smaller
-            rect = this.getExtentApproximation();
-        }
-
-        this.currentExtent = rect;
-        return  this.currentExtent;
-    };
 
     this.getExtentApproximation = function ()
     {

@@ -717,7 +717,7 @@ emp.map = function (args) {
         messageOriginator: "",
         originalMessageType: cmapi.channel.names.FREEHAND_START,
         items: [{
-          lock: true // this needs to be in smart mode.
+          lock: emp3.api.enums.MapMotionLockEnum.SMART_MOTION
         }]
       });
 
@@ -751,7 +751,7 @@ emp.map = function (args) {
         messageOriginator: "",
         originalMessageType: cmapi.channel.names.FREEHAND_STOP,
         items: [{
-          lock: false // this needs to be in smart mode.
+          lock: emp3.api.enums.MapMotionLockEnum.UNLOCKED
         }]
       });
 

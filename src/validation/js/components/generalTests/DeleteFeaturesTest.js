@@ -123,7 +123,7 @@ class DeleteFeaturesTest extends Component {
       Promise.all(promises)
       .then(() => {
         this.props.removeFeatures(featuresToDelete);
-        toastr.success('Successfully Removed Features');
+        toastr.success('Successfully Removed Features: '  + featuresToDelete.map(function(elem){     return elem.name + "_" + elem.geoId; }).join(","));
       })
       .catch(err => {
         this.props.addError(err, 'deleteFeatures');
@@ -152,6 +152,7 @@ class DeleteFeaturesTest extends Component {
         overlay.removeFeatures({
           features: featuresToDelete,
           onSuccess: () => {
+
             resolve();
           },
           onError: (err) => {

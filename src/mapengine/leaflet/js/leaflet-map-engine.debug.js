@@ -374,9 +374,8 @@ emp.engineDefs.leafletMapEngine = function (args) {
         },
         generatePointerEvent: function (oEvent, oData) {
             var button = (oEvent.originalEvent ? oEvent.originalEvent.button : 0),
-                    pointer = oData || instanceInterface.getView(),
-                    level = instanceInterface.leafletInstance.getZoom(),
-                    oLL = oEvent.latlng.wrap();
+                pointer = oData || instanceInterface.getView(),
+                oLL = oEvent.latlng.wrap();
 
             pointer.lat = oLL.lat;
             pointer.lon = oLL.lng;
@@ -775,7 +774,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             iZoom = instanceInterface.leafletInstance.getZoom() + 1;
             instanceInterface.leafletInstance.setView(center, iZoom, {animate: false});
         }
-    };
+    }
 
     function checkMapCenter() {
         // Leaflet allows the map to be moved out of view north or south.
@@ -810,7 +809,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
                 instanceInterface.leafletInstance.panBy(oBottomRight, {animate: false});
             }
         }
-    };
+    }
 
     function setupEventListeners() {
         function onMouseMove(e) {
@@ -823,8 +822,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onMoveEnd(e) {
-          var center,
-              mapBounds;
+          var center;
 
           checkMapCenter();
           center = instanceInterface.leafletInstance.getCenter();
@@ -872,8 +870,8 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
 
         function onMouseUpDown(e) {
-            instanceInterface.generatePointerEvent(e, instanceInterface.getView());
-            e.originalEvent.preventDefault();
+          instanceInterface.generatePointerEvent(e, instanceInterface.getView());
+          e.originalEvent.preventDefault();
         }
 
         instanceInterface.leafletInstance.on('mousemove', onMouseMove);

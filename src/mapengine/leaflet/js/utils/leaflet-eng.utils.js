@@ -135,9 +135,6 @@ leafLet.utils.wrapCoordinates = function(oMapBoundry, oLatLngList, bWrappedAlrea
     var bLnginView;
     var iCoorCnt = oLatLngList.length;
     var bCoordWrapped = bWrappedAlready || false;
-    var oMapCenter = oMapBoundry.getCenter();
-    var diffWithWest;
-    var diffWithEast;
     var empBoundary = new leafLet.typeLibrary.EmpBoundary(oMapBoundry);
     var bIDLinView = empBoundary.containsIDL();
     

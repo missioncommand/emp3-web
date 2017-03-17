@@ -41,25 +41,25 @@ EMPWorldWind.eventHandlers.throttle = function (fn, threshold, scope) {
  */
 EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
   var view = {
-    range: this.worldWind.navigator.range,
-    tilt: this.worldWind.navigator.tilt,
-    roll: this.worldWind.navigator.roll,
-    heading: this.worldWind.navigator.heading,
-    altitude: this.worldWind.navigator.range, // TODO this is not correct, just an approximation until camera support
+    range: this.worldWindow.navigator.range,
+    tilt: this.worldWindow.navigator.tilt,
+    roll: this.worldWindow.navigator.roll,
+    heading: this.worldWindow.navigator.heading,
+    altitude: this.worldWindow.navigator.range, // TODO this is not correct, just an approximation until camera support
     location: {
-      lat: this.worldWind.navigator.lookAtLocation.latitude,
-      lon: this.worldWind.navigator.lookAtLocation.longitude
+      lat: this.worldWindow.navigator.lookAtLocation.latitude,
+      lon: this.worldWindow.navigator.lookAtLocation.longitude
     },
     bounds: this.worldWind.viewport
   };
 
   var lookAt = {
-    range: this.worldWind.navigator.range,
-    tilt: this.worldWind.navigator.tilt,
-    heading: this.worldWind.navigator.heading,
-    altitude: this.worldWind.navigator.lookAtLocation.altitude || 0,
-    latitude: this.worldWind.navigator.lookAtLocation.latitude,
-    longitude: this.worldWind.navigator.lookAtLocation.longitude
+    range: this.worldWindow.navigator.range,
+    tilt: this.worldWindow.navigator.tilt,
+    heading: this.worldWindow.navigator.heading,
+    altitude: this.worldWindow.navigator.lookAtLocation.altitude || 0,
+    latitude: this.worldWindow.navigator.lookAtLocation.latitude,
+    longitude: this.worldWindow.navigator.lookAtLocation.longitude
   };
 
   this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
@@ -72,13 +72,21 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
  * Notify the that a re-render of the MilStd graphics is required based off of a delta from the last time the renderer
  * was called. This may trigger based on altitude delta or distance delta.
  */
+<<<<<<< HEAD
 EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
   // TODO see if this approach can be tuned to be more accurate
   var altitudeDeltaMin = this.state.lastRender.altitude - this.state.lastRender.altitude * 0.3;
   var altitudeDeltaMax = this.state.lastRender.altitude + this.state.lastRender.altitude * 0.3;
+=======
+EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
+  // TODO trigger this less often or on a timer
+  this.state.lastRender.bounds = this.getBounds();
+  this.state.lastRender.altitude = this.worldWindow.navigator.range;
+>>>>>>> 2.2.0
 
   var reRender = this.worldWind.navigator.range < altitudeDeltaMin || this.worldWind.navigator.range > altitudeDeltaMax;
 
+<<<<<<< HEAD
   if (reRender) {
     // Update the last render location
     this.state.lastRender.location = new WorldWind.Location(
@@ -90,6 +98,15 @@ EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
     // TODO trigger re-render
     // this.refresh();
   }
+=======
+    // TODO check if the symbol is visible first
+    if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
+      feature.feature.data.type === "LineString") {
+      this.plotFeature(feature.feature);
+    }
+  }.bind(this));
+  this.worldWindow.redraw();
+>>>>>>> 2.2.0
 };
 
 /**
@@ -99,7 +116,7 @@ EMPWorldWind.eventHandlers.checkIfRenderRequired = function() {
  */
 EMPWorldWind.eventHandlers.extractFeatureFromEvent = function(mouseEvent, empEventingArgs) {
   var obj, len,
-    pickList = this.worldWind.pick(this.worldWind.canvasCoordinates(mouseEvent.clientX, mouseEvent.clientY));
+    pickList = this.worldWindow.pick(this.worldWindow.canvasCoordinates(mouseEvent.clientX, mouseEvent.clientY));
 
   len = pickList.objects.length;
   for (var i = 0; i < len; i++) {

@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import {findDOMNode} from 'react-dom';
 import {DropTarget} from 'react-dnd';
 import {DragItems} from '../../constants/DragItems';
+import {CoordinatesWindow} from '../windows';
 
 //======================================================================================================================
 const spec = {
@@ -34,12 +35,42 @@ const spec = {
     featureArgs.positions = [origin];
 
     if (symbolDef && symbolDef.maxPoints) {
+<<<<<<< HEAD
       for (let i = 1; i < Math.min(symbolDef.maxPoints, 5); i++) {
         let nextPoint = _.clone(origin);
 
         if (i%2 !== 0) {
           nextPoint.latitude += step;
         }
+=======
+      switch (Math.min(symbolDef.maxPoints, 5)) {
+        case 5:
+          for (let i = 1; i < 4; i++) {
+            nextPoint = _.clone(origin);
+
+            if (i % 2 !== 0) {
+              nextPoint.latitude += step;
+            }
+
+            nextPoint.longitude += i * step;
+            featureArgs.positions.push(nextPoint);
+          }
+          finalPoint = _.clone(nextPoint);
+          finalPoint.latitude -= 2 * step;
+          featureArgs.positions.push(finalPoint);
+          break;
+        case 4:
+        case 3:
+        case 2:
+        case 1:
+        default:
+          for (let i = 1; i < Math.min(symbolDef.maxPoints, 5); i++) {
+            nextPoint = _.clone(origin);
+
+            if (i % 2 !== 0) {
+              nextPoint.latitude += step;
+            }
+>>>>>>> 2.2.0
 
         nextPoint.longitude += i * step;
         featureArgs.positions.push(nextPoint);
@@ -102,16 +133,23 @@ class Map extends Component {
     super(props);
   }
 
-
   render() {
-    const {connectDropTarget, selectMap, id, style} = this.props;
+    const {connectDropTarget, selectMap, id, style, maps} = this.props;
+    let map = _.find(maps, {container: id});
 
     return (
       <div className="map"
            onMouseDown={selectMap.bind(this)}
            style={style}>
-        {connectDropTarget(<div id={id}
-                                style={{height: '100%', width: '100%'}}/>)}
+        {connectDropTarget(<div id={id} style={{height: '100%', width: '100%'}}/>)}
+        {map ? <CoordinatesWindow map={map}
+                                  ref={"coords"}
+                                  style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0
+                                  }}
+                                  id={map.geoId + '_coordsWindow'}/> : null }
       </div>
     );
   }
