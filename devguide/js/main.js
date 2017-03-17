@@ -1,4 +1,4 @@
-var tryitsrc = "examples/default.js";
+/*global doctoc,$,marked */
 (function() {
   'use strict';
   var titleBase = "<a  onclick=\"loadNodeByKey('" + doctoc[0].key + "');\" style=\"color: #FFF;\"></a>";

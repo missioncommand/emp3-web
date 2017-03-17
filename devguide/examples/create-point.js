@@ -1,6 +1,4 @@
-var lat = Math.random() * 90;
-var lon = Math.random() * 180;
-
+// Create an new Point feature
 var point = new emp3.api.Point({
   position: {
     latitude: 35.6586,
@@ -11,30 +9,13 @@ var point = new emp3.api.Point({
   iconURI: "https://cdn2.iconfinder.com/data/icons/starwars/icons/48/R2-D2.png"
 });
 
+// Create an overlay to contain the feature
 var overlay1 = new emp3.api.Overlay({
   name: "overlay1",
   id: "w834mne-sdg5467-sdf-we45"
 });
 
-function processAdd(cbArgs) {
-    overlay1.addFeature({
-        feature: point
-    });
-
-    var camera = new emp3.api.Camera({
-        latitude: lat,
-        longitude: lon
-    });
-
-    map1.setCamera({
-      camera: camera
-    });
-}
-
-function processError(error) {
-    alert(JSON.stringify(error));
-}
-
+// Add overlay to map
 map1.addOverlay({
   overlay: overlay1,
   onSuccess: function() {

@@ -1,5 +1,3 @@
-var lat = Math.random() * 10;
-var lon = Math.random() * 100;
 var sym = new emp3.api.MilStdSymbol({
   name: "Example Unit",
   position: {

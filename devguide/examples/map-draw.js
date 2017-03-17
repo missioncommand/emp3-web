@@ -41,6 +41,7 @@ function processAdd() {
   });
 }
 
+
 function processError(error) {
   alert(JSON.stringify(error));
 }
@@ -52,3 +53,5 @@ map1.addOverlay({
   onSuccess: processAdd,
   onError: processError
 });
+
+
