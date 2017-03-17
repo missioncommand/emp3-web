@@ -135,6 +135,14 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       }
+      else if (feature.format == emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+        // This is a square. 
+        // so there is a separate editor for those.
+        activeEditor = new emp.editors.Square({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
       else {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.EditorBase({
