@@ -232,7 +232,7 @@ EMPWorldWind.utils.milstd.updateModifierLabels = function(properties, name, icon
  *
  * @param modifiers
  * @param showModLabels
- * @returns {{}}
+ * @returns {object}
  */
 EMPWorldWind.utils.milstd.convertModifierStringTo2525 = function(modifiers, showModLabels) {
   var standardModifiers = {};
@@ -396,7 +396,7 @@ EMPWorldWind.utils.milstd.convertModifierStringTo2525 = function(modifiers, show
  * Borrowed from the Cesium Implementation
  *
  * @param item
- * @returns {{}}
+ * @returns {object}
  */
 EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
   var result = {},
@@ -722,9 +722,9 @@ EMPWorldWind.utils.convertSymbolStandardToRendererFormat = function(modifiers) {
 };
 
 /**
- *
+ * Parses a 6 character color string, assumes full opacity
  * @param hex #RRGGBB
- * @returns {{r: (Number|*), g: (Number|*), g: (Number|*), b: (Number|*), b: (Number|*)}}
+ * @returns {RGBAColor}
  * @private
  */
 function _hex6ToRGBA(hex) {
@@ -744,9 +744,9 @@ function _hex6ToRGBA(hex) {
 }
 
 /**
- *
- * @param hex AARRGGBB
- * @returns {{r: (Number|*), g: (Number|*), b: (Number|*), a: (Number|*)}}
+ * Parses an 8 character color string
+ * @param hex AARRGGBB format
+ * @returns {RGBAColor}
  * @private
  */
 function _hex8ToRGBA(hex) {

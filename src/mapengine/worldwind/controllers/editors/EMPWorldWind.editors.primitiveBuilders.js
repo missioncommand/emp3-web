@@ -85,7 +85,6 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
     case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
       // Use PlacemarkAttributes
       attributes = new WorldWind.PlacemarkAttributes();
-      attributes.depthTest = false;
 
       // Set the imageURL
       attributes.imageSource = feature.properties.iconUrl || WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
@@ -465,13 +464,13 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygonFromGeoJSON = func
   highlightAttributes = new WorldWind.ShapeAttributes();
   if (selectionStyle.lineColor) {
     selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-    highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.a, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
   } else {
     highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
   }
   if (selectionStyle.fillColor) {
     selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
-    highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.a, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.red, selectedFillColor.green, selectedFillColor.blue, selectedFillColor.alpha);
   } else {
     highlightAttributes.drawInterior = false;
   }
