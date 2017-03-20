@@ -7,10 +7,10 @@ EMPWorldWind.utils = {};
 
 /**
  * @typedef {object} RGBAColor
- * @property {number} r
- * @property {number} g
- * @property {number} b
- * @property {number} a 0-1
+ * @property {number} red
+ * @property {number} green
+ * @property {number} blue
+ * @property {number} alpha 0-1
  */
 
 /**
@@ -729,9 +729,10 @@ function _hex6ToRGBA(hex) {
   b = parseInt(hex.substring(4, 6), 16);
 
   return {
-    r: r,
-    g: g,
-    b: b
+    red: r,
+    green: g,
+    blue: b,
+    alpha: 1
   };
 }
 
@@ -750,10 +751,10 @@ function _hex8ToRGBA(hex) {
   b = parseInt(hex.substring(6, 8), 16);
 
   return {
-    r: r,
-    g: g,
-    b: b,
-    a: a
+    red: r,
+    green: g,
+    blue: b,
+    alpha: a
   };
 }
 
@@ -767,33 +768,59 @@ function _hex8ToRGBA(hex) {
  * @returns {RGBAColor}
  */
 EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
+  var newHex;
+
   if (!hex) {
     return {
-      r: 0,
-      g: 0,
-      b: 0,
-      a: 1
+      red: 0,
+      green: 0,
+      blue: 0,
+      alpha: 1
     };
   }
   normalize = EMPWorldWind.utils.defined(normalize) ? normalize : true;
   alpha = EMPWorldWind.utils.defined(alpha) ? alpha : 1;
 
-  var newHex;
-
   if (hex.length === 8) {
     newHex = _hex8ToRGBA(hex);
   } else {
     newHex = _hex6ToRGBA(hex);
-    newHex.a = alpha;
+    newHex.alpha = alpha;
   }
 
   if (normalize) {
-    newHex.r = newHex.r / 256.0;
-    newHex.g = newHex.g / 256.0;
-    newHex.b = newHex.b / 256.0;
+    newHex.red = newHex.red / 256.0;
+    newHex.green = newHex.green / 256.0;
+    newHex.blue = newHex.blue / 256.0;
   }
 
   return newHex;
+};
+
+/**
+ * Will normalize an {@link RGBAColor} object, will return the same object if already normalized
+ * (contains a decimal in the value)
+ *
+ * WorldWind.Color requires 0-1 values for color
+ *
+ * @param {RGBAColor} color
+ * @returns {RGBAColor}
+ */
+EMPWorldWind.utils.normalizeRGBAColor = function(color) {
+  var normalize,
+    normalColor = Object.assign({}, color);
+
+  normalize = color.red.toString().indexOf('.') === -1 ||
+    color.green.toString().indexOf('.') === -1 ||
+    color.blue.toString().indexOf('.') === -1;
+
+  if (normalize) {
+    normalColor.red = color.red / 256.0;
+    normalColor.green = color.green / 256.0;
+    normalColor.blue = color.blue / 256.0;
+  }
+
+  return normalColor;
 };
 
 /**

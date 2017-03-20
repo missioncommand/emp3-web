@@ -22,7 +22,6 @@ class CoordinatesWindow extends Component {
     this.handleMouseMove = this.handleMouseMove.bind(this);
     this.handleDoubleClick = this.handleDoubleClick.bind(this);
     this.copyCoordsToClipboard = this.copyCoordsToClipboard.bind(this);
-    this.reposition = this.reposition.bind(this);
   }
 
   componentDidMount() {
@@ -85,10 +84,6 @@ class CoordinatesWindow extends Component {
       window.console.error(err);
     }
     window.getSelection().removeAllRanges();
-  }
-
-  reposition() {
-    toastr.info('moving to match parent');
   }
 
   render() {
