@@ -65,6 +65,10 @@ EMPWorldWind.utils.milstd.updateModifierLabels = function(properties, name, icon
   for (property in properties) {
     if (properties.hasOwnProperty(property)) {
       switch (property) {
+        case "labelColor":
+          // Convert labelColor to textColor
+          modifiedModifiers["textColor"] = properties[property];
+          break;
         case "fillColor":
           modifiedModifiers["fillColor"] = properties[property];
           break;
@@ -362,6 +366,9 @@ EMPWorldWind.utils.milstd.convertModifierStringTo2525 = function(modifiers, show
               break;
             case EMPWorldWind.constants.RendererSettings.modifierLookup.LINE_COLOR:
               standardModifiers["LINECOLOR"] = modValue;
+              break;
+            case EMPWorldWind.constants.RendererSettings.modifierLookup.TEXT_COLOR:
+              standardModifiers["TEXTCOLOR"] = modValue;
               break;
             case EMPWorldWind.constants.RendererSettings.modifierLookup.STANDARD:
               // convert standard string value  to modifier numeric
