@@ -27,11 +27,12 @@ EMPWorldWind.editors.primitiveBuilders.createTextAttributes = function(feature) 
   // Label Color
   if (feature.properties.labelStyle && feature.properties.labelStyle.color) {
     textColor = EMPWorldWind.utils.normalizeRGBAColor(feature.properties.labelStyle.color);
-    attributes.color = new WorldWind.Color(textColor.red, textColor.green, textColor.blue, textColor.alpha);
+  } else if (feature.properties.fontColor) {
+    textColor = EMPWorldWind.utils.hexToRGBA(feature.properties.fontColor);
   } else {
     textColor = EMPWorldWind.utils.hexToRGBA(EMPWorldWind.constants.propertyDefaults.FILL_COLOR_HEX);
-    attributes.color = new WorldWind.Color(textColor.r, textColor.g, textColor.b, textColor.a);
   }
+  attributes.color = new WorldWind.Color(textColor.red, textColor.green, textColor.blue, textColor.alpha);
 
   // Font Family
   if (feature.properties.labelStyle && feature.properties.labelStyle.family) {
