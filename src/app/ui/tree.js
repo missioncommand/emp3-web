@@ -464,7 +464,7 @@ var domContainer = "content";
                             oThis.storageItemTreeNodeMapper.addMapping(oChildNode.data.storageEntry, parentCoreId, oChildNode);
                         }
                     } catch (Err) {
-                        console.log("An error occurred while loading tree nodes.");
+                        console.log("An error occured while loading tree nodes.");
                     }
                     oThis.oTree.enableUpdate(bPrevValue, oThis._oParentNodeExpanding);
                 } else {
@@ -966,7 +966,7 @@ var domContainer = "content";
                     emp.typeLibrary.Error({
                         coreId: oItem.coreId,
                         level: emp.typeLibrary.Error.level.MAJOR,
-                        message: "Error occurred while updating an overlay on the tree. " + err.message,
+                        message: "Error occured while updating an overlay on the tree. " + err.message,
                         jsError: err.stack
                     });
                 }
@@ -1136,7 +1136,7 @@ var domContainer = "content";
                     emp.typeLibrary.Error({
                         coreId: oItem.coreId,
                         level: emp.typeLibrary.Error.level.MAJOR,
-                        message: "Error occurred while updating item on the tree. " + err.message,
+                        message: "Error occured while updating item on the tree. " + err.message,
                         jsError: err.stack
                     });
                 }
