@@ -10,7 +10,7 @@ EMPWorldWind.utils = {};
  * @property {number} red
  * @property {number} green
  * @property {number} blue
- * @property {number} alpha
+ * @property {number} alpha 0-1
  */
 
 /**
@@ -775,6 +775,8 @@ function _hex8ToRGBA(hex) {
  * @returns {RGBAColor}
  */
 EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
+  var newHex;
+
   if (!hex) {
     return {
       red: 0,
@@ -785,8 +787,6 @@ EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
   }
   normalize = EMPWorldWind.utils.defined(normalize) ? normalize : true;
   alpha = EMPWorldWind.utils.defined(alpha) ? alpha : 1;
-
-  var newHex;
 
   if (hex.length === 8) {
     newHex = _hex8ToRGBA(hex);
@@ -802,6 +802,32 @@ EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
   }
 
   return newHex;
+};
+
+/**
+ * Will normalize an {@link RGBAColor} object, will return the same object if already normalized
+ * (contains a decimal in the value)
+ *
+ * WorldWind.Color requires 0-1 values for color
+ *
+ * @param {RGBAColor} color
+ * @returns {RGBAColor}
+ */
+EMPWorldWind.utils.normalizeRGBAColor = function(color) {
+  var normalize,
+    normalColor = Object.assign({}, color);
+
+  normalize = color.red.toString().indexOf('.') === -1 ||
+    color.green.toString().indexOf('.') === -1 ||
+    color.blue.toString().indexOf('.') === -1;
+
+  if (normalize) {
+    normalColor.red = color.red / 256.0;
+    normalColor.green = color.green / 256.0;
+    normalColor.blue = color.blue / 256.0;
+  }
+
+  return normalColor;
 };
 
 /**
