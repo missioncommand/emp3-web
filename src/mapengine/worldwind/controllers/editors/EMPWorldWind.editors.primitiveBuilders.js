@@ -107,7 +107,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
 
       if (selectionStyle.lineColor) {
         selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-        highlightAttributes.imageColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+        highlightAttributes.imageColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
       } else {
         highlightAttributes.imageColor = WorldWind.Color.YELLOW;
       }
@@ -124,7 +124,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       highlightAttributes = new WorldWind.TextAttributes(attributes);
       if (selectionStyle.lineColor) {
         selectedLabelColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-        highlightAttributes.color = new WorldWind.Color(selectedLabelColor.r, selectedLabelColor.g, selectedLabelColor.b, selectedLabelColor.a);
+        highlightAttributes.color = new WorldWind.Color(selectedLabelColor.red, selectedLabelColor.green, selectedLabelColor.blue, selectedLabelColor.alpha);
       } else {
         highlightAttributes.color = WorldWind.Color.YELLOW;
       }
@@ -138,7 +138,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
     default:
       // Set stroke color
       if (feature.properties.strokeStyle && feature.properties.strokeStyle.strokeColor) {
-        lineColor = feature.properties.strokeStyle.strokeColor;
+        lineColor = EMPWorldWind.utils.normalizeRGBAColor(feature.properties.strokeStyle.strokeColor);
         attributes.outlineColor = new WorldWind.Color(lineColor.red, lineColor.green, lineColor.blue, lineColor.alpha);
       } else {
         attributes.outlineColor = WorldWind.Color.BLACK;
@@ -147,7 +147,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       // Set fill color
       if (feature.properties.fillColor) {
         fillColor = EMPWorldWind.utils.hexToRGBA(feature.properties.fillColor);
-        attributes.interiorColor = new WorldWind.Color(fillColor.r, fillColor.g, fillColor.b, fillColor.a);
+        attributes.interiorColor = new WorldWind.Color(fillColor.red, fillColor.green, fillColor.blue, fillColor.alpha);
       } else {
         attributes.drawInterior = false;
       }
@@ -169,7 +169,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       // Update the selected lineColor
       if (selectionStyle.lineColor) {
         selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-        highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+        highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
       } else {
         highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
       }
@@ -177,7 +177,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       // Update the selected fillColor
       if (selectionStyle.fillColor) {
         selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
-        highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.r, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+        highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.red, selectedFillColor.green, selectedFillColor.blue, selectedFillColor.alpha);
       } else {
         highlightAttributes.drawInterior = false;
       }
@@ -206,7 +206,7 @@ EMPWorldWind.editors.primitiveBuilders.constructAirControlMeasure = function(fea
 
   if (selectionStyle.fillColor) {
     selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
-    highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.r, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.red, selectedFillColor.green, selectedFillColor.blue, selectedFillColor.alpha);
   } else {
     highlightAttributes.interiorColor = WorldWind.Color.YELLOW;
   }
@@ -327,8 +327,8 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON = fun
   attributes = new WorldWind.ShapeAttributes();
   // SurfacePolyline uses the following attributes
   if (geoJSON.properties.strokeColor) {
-    color = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.strokeColor, geoJSON.properties.lineOpacity, true);
-    attributes.outlineColor = new WorldWind.Color(color.r, color.g, color.b, color.a);
+    color = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.strokeColor, geoJSON.properties.lineOpacity);
+    attributes.outlineColor = new WorldWind.Color(color.red, color.green, color.blue, color.alpha);
   } else {
     attributes.outlineColor = WorldWind.Color.BLACK;
   }
@@ -342,7 +342,7 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON = fun
   highlightAttributes = new WorldWind.ShapeAttributes();
   if (selectionStyle.lineColor) {
     selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-    highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
   } else {
     highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
   }
@@ -446,14 +446,14 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygonFromGeoJSON = func
   attributes = new WorldWind.ShapeAttributes();
   if (geoJSON.properties.strokeColor) {
     outlineColor = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.strokeColor);
-    attributes.outlineColor = new WorldWind.Color(outlineColor.r, outlineColor.g, outlineColor.b, outlineColor.a);
+    attributes.outlineColor = new WorldWind.Color(outlineColor.red, outlineColor.green, outlineColor.blue, outlineColor.alpha);
   } else {
     attributes.outlineColor = WorldWind.Color.BLACK;
   }
 
   if (geoJSON.properties.fillColor) {
     interiorColor = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.fillColor);
-    attributes.interiorColor = new WorldWind.Color(interiorColor.r, interiorColor.g, interiorColor.b, interiorColor.a);
+    attributes.interiorColor = new WorldWind.Color(interiorColor.red, interiorColor.green, interiorColor.blue, interiorColor.alpha);
   } else {
     attributes.drawInterior = false;
   }
@@ -562,7 +562,7 @@ EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON = function(geoJS
   highlightAttributes = new WorldWind.TextAttributes(attributes);
   if (selectionStyle.lineColor) {
     selectedColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-    highlightAttributes.color = new WorldWind.Color(selectedColor.r, selectedColor.g, selectedColor.b, selectedColor.a);
+    highlightAttributes.color = new WorldWind.Color(selectedColor.red, selectedColor.green, selectedColor.blue, selectedColor.alpha);
   } else {
     highlightAttributes.color = WorldWind.Color.YELLOW;
   }
