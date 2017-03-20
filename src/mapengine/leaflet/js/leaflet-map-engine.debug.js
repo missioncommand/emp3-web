@@ -1200,7 +1200,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             } catch (err) {
                 transaction.fail([new emp.typeLibrary.Error({
                         coreId: item.coreId,
-                        message: "An error occured while attempting to clear an overlay with the id " + item.coreId + " : ",
+                        message: "An error occurred while attempting to clear an overlay with the id " + item.coreId + " : ",
                         level: emp.typeLibrary.Error.level.MINOR,
                         jsError: err
                     })]);
@@ -1409,7 +1409,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
         } catch (err) {
             transaction.fail([new emp.typeLibrary.Error({
                     coreId: item.coreId,
-                    message: "An error occured while attempting to set the map view: ",
+                    message: "An error occurred while attempting to set the map view: ",
                     level: emp.typeLibrary.Error.level.MINOR,
                     jsError: err
                 })]);
@@ -2170,7 +2170,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             }
           }
           if (previousRenderSettings.enabled) {
-            // In both of these cases a change has occured from the previous state of the configuration attributes which
+            // In both of these cases a change has occurred from the previous state of the configuration attributes which
             // must trigger a re-render of the graphics. If previous attributes haven't changed then no re-render should
             // occur.
             if (!instanceInterface.renderingOptimization.enabled) {
@@ -2197,10 +2197,10 @@ emp.engineDefs.leafletMapEngine = function (args) {
           transaction.run();
         } catch (e) {
           transaction.fail(new emp.typeLibrary.Error({
-            coreId: item.coreId,
+            coreId: newConfig.coreId,
             level: emp.typeLibrary.Error.level.MAJOR,
-            message: Ex.name + ": " + Ex.message,
-            jsError: Ex
+            message: e.name + ": " + e.message,
+            jsError: e
           }));
           iIndex--;
         }

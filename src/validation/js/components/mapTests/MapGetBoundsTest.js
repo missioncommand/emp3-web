@@ -35,13 +35,12 @@ class MapGetBoundsTest extends Component {
   getBounds() {
     const map = _.find(this.props.maps, {geoId: this.state.selectedMapId});
 
-
     try {
-      var bounds = map.getBounds();
+      let bounds = map.getBounds();
       this.setState({
         currentBounds: bounds
       });
-      toastr.success("The Bounds are " + map.getBounds());
+      toastr.success("The Bounds are " + JSON.stringify(map.getBounds()));
     } catch (err) {
       toastr.error(err.message, 'Map.getBounds: Critical');
     }
