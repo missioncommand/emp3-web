@@ -176,6 +176,38 @@ EMPWorldWind.constants.LabelStyle = {
   ALL_LABELS: 'all_labels'
 };
 
+/**
+ * Modifiers for All labels to be displayed
+ * @enum {object}
+ * @constant
+ */
+EMPWorldWind.constants.AllLabels = {
+  "V": true,
+  "L": true,
+  "S": true,
+  "AA": true,
+  "AB": true,
+  "AC": true, 
+  "H": true,
+  "M": true,
+  "T": true,
+  "T1": true,
+  "CN": true,
+  "C": true,
+  "F": true,
+  "G": true,
+  "H1": true,
+  "H2": true,
+  "J": true,
+  "K": true,
+  "N": true,
+  "P": true,
+  "W": true,
+  "W1": true,
+  "X": true,
+  "Y": true,
+  "Z": true
+};
 
 /**
  * @namespace
@@ -223,6 +255,7 @@ EMPWorldWind.constants.RendererSettings.modifierLookup = {
   AZIMUTH: "azimuth",
   FILL_COLOR: "fillColor",
   LINE_COLOR: "lineColor",
+  TEXT_COLOR: "textColor",
   X_OFFSET: "xOffset",
   X_UNITS: "xUnits",
   Y_OFFSET: "yOffset",
