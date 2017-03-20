@@ -15561,6 +15561,21 @@ define('layer/RenderableLayer',[
                 this.addRenderable(renderables[i]);
             }
         };
+        
+        
+          //acevedo
+        RenderableLayer.prototype.removeRenderableById = function (renderableToRemove) {
+              for (var index = 0, len = this.renderables.length; index < len; index++) 
+              {
+                  var renderable = this.renderables[index];
+                  if (renderable.userProperties && renderable.userProperties.id && renderable.userProperties.id === renderableToRemove.userProperties.id  )
+                  {
+                        this.renderables.splice(index, 1);
+                        break;
+                  }
+              }
+        };
+
 
         /**
          * Removes a renderable from this layer.
@@ -15571,8 +15586,15 @@ define('layer/RenderableLayer',[
             if (index >= 0) {
                 this.renderables.splice(index, 1);
             }
+            else
+            {
+                //try removing the renderable by id
+                this.removeRenderableById(renderable);
+            }
         };
 
+
+      
         /**
          * Removes all renderables from this layer. Does not call dispose on those renderables.
          */

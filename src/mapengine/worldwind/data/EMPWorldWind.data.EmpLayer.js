@@ -7,9 +7,11 @@ EMPWorldWind.data = EMPWorldWind.data || {};
  * @class
  * @param {emp.typeLibrary.Overlay} overlay
  */
-EMPWorldWind.data.EmpLayer = function(overlay) {
+EMPWorldWind.data.EmpLayer = function(overlay, worldwind) {
   /** @type {Object.<string, EMPWorldWind.Data.EmpLayer>} */
   this.subLayers = {};
+  
+  this.worldwind = worldwind;
 
   /** @type {Object.<string, EMPWorldWind.Data.EmpFeature>} */
   this.featureKeys = {};
@@ -489,7 +491,12 @@ EMPWorldWind.data.EmpLayer.prototype.removeFeature = function(feature) {
         this.worldwind.removeLayer(shape);
       } else {
         // Handle normal primitives
+        shape.enabled = false;
+        this.layer.refresh();
         this.layer.removeRenderable(shape);
+         this.layer.refresh();
+        //shape.enabled = false;
+        shape = undefined;
       }
     }.bind(this));
 

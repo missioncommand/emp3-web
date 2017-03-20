@@ -210,7 +210,7 @@ EMPWorldWind.map.prototype.addLayer = function(empOverlay) {
   }
 
   // Create the layer
-  layer = new EMPWorldWind.data.EmpLayer(empOverlay);
+  layer = new EMPWorldWind.data.EmpLayer(empOverlay, this.worldWindow);
   this.rootOverlayId = empOverlay.overlayId;
   this.worldWindow.addLayer(layer.layer);
 
