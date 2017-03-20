@@ -851,7 +851,7 @@ emp.environment.owf = (function () {
       delete subscribedCallbacks[args.channel];
     } catch (e) {
       emp.typeLibrary.Error({
-        message: "An error occurred while attempting to unsubscribe to the " + args.channel + " channel in the EMP OWF environment",
+        message: "An error occured while attempting to unsubscribe to the " + args.channel + " channel in the EMP OWF environment",
         jsError: e
       });
     }
@@ -864,7 +864,7 @@ emp.environment.owf = (function () {
    * @method
    * @memberOf emp.environment.owf
    * @protected
-   * @param  {Window} win object for forwarding messages to. Assumed
+   * @param  {Window} Window object for forwarding messages to. Assumed
    *   to have EMP available to call.
    * @return {boolean}
    */
@@ -904,7 +904,7 @@ emp.environment.owf = (function () {
       }
     } catch (e) {
       emp.typeLibrary.Error({
-        message: "An error occurred while attempting to forward subscriptions in the EMP OWF environment",
+        message: "An error occured while attempting to forward subscriptions in the EMP OWF environment",
         jsError: e
       });
     }
@@ -935,7 +935,7 @@ emp.environment.owf = (function () {
       }
     } catch (e) {
       emp.typeLibrary.Error({
-        message: "An error occurred while attempting to stop forwarding in the EMP OWF environment",
+        message: "An error occured while attempting to stop forwarding in the EMP OWF environment",
         jsError: e
       });
     }

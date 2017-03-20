@@ -1394,7 +1394,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
         {
             failList.push(new emp.typeLibrary.Error({
                 coreId: transaction.coreId,
-                message: "An error occurred when attempting to stop the drawing.",
+                message: "An error occured when attempting to stop the drawing.",
                 level: emp.typeLibrary.Error.level.MINOR,
                 jsError: err
             }));
@@ -1851,7 +1851,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //
 //                // Assign the class level variable.
 //                empCesium.iconLabels = newIconLabelSettings;
-//                //check altitude range mode before calling the throttlering. If icon label option is none 
+//                //check altitude range mode before calling the throttlering. If icon label option is none
 //                //and the range mode is mid or high then there is no need to render because teh icons are already with no labels.
 //                if (empCesium.iconLabelOption === "none" && (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
 //                        empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)

@@ -93,7 +93,7 @@ module.exports = {
       expand: true,
       cwd: 'dist/docs/',
       src: ['**'],
-      dest: 'dist/devguide/docs'
+      dest: 'dist/devguide/docs/web'
     }]
   },
   licenses: {
