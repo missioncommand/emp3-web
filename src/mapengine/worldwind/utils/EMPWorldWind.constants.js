@@ -255,6 +255,7 @@ EMPWorldWind.constants.RendererSettings.modifierLookup = {
   AZIMUTH: "azimuth",
   FILL_COLOR: "fillColor",
   LINE_COLOR: "lineColor",
+  TEXT_COLOR: "textColor",
   X_OFFSET: "xOffset",
   X_UNITS: "xUnits",
   Y_OFFSET: "yOffset",
