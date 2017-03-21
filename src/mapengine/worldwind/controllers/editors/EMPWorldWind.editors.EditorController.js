@@ -409,7 +409,13 @@ EMPWorldWind.editors.EditorController = (function() {
 
       // Redraw the new shapes
       if (rc.success) {
+        // Update the empFeature stored in the wwFeature
+        wwFeature.feature = empFeature;
+
+        // Update the layer
         layer.addFeature(wwFeature);
+
+        // Setup the return
         rc.feature = wwFeature;
       }
 
