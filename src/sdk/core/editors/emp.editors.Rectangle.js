@@ -1,7 +1,7 @@
 /*global*/
 emp.editors = emp.editors || {};
 
-emp.editors.Square = function(args) {
+emp.editors.Rectangle = function(args) {
   this.width = undefined; // store the Vertex object for the width point
   this.height = undefined; // stores the Vertex object for the height point.
   this.azimuth = undefined; // stores the Vertex object for the azimuth rotation point.
@@ -11,13 +11,13 @@ emp.editors.Square = function(args) {
   emp.editors.EditorBase.call(this, args);
 };
 
-emp.editors.Square.prototype = Object.create(emp.editors.EditorBase.prototype);
-emp.editors.Square.prototype.constructor = emp.editors.Square;
+emp.editors.Rectangle.prototype = Object.create(emp.editors.EditorBase.prototype);
+emp.editors.Rectangle.prototype.constructor = emp.editors.Rectangle;
 
 /**
  * Adds the control points to the map for an edit or a draw.
  */
-emp.editors.Square.prototype.addControlPoints = function() {
+emp.editors.Rectangle.prototype.addControlPoints = function() {
 
   var controlPoint,
     transaction,
@@ -37,7 +37,7 @@ emp.editors.Square.prototype.addControlPoints = function() {
     azimuthFeature,
     x, y;
 
-  // We have an issue in that GEO_SQUARE uses GeoJSON Point, and all
+  // We have an issue in that GEO_RECTANGLE uses GeoJSON Point, and all
   // MIL-STD-2525 symbols use LineString, even though it is a single point.
   // So we store the x/y values so we can use them univerally throughout the
   // function.
@@ -49,7 +49,7 @@ emp.editors.Square.prototype.addControlPoints = function() {
     y = this.featureCopy.data.coordinates[0][1];
   }
 
-  // Create a feature on the map for the center of the square.  This is
+  // Create a feature on the map for the center of the rectangle.  This is
   // the center vertex.
   controlPoint = new emp.typeLibrary.Feature({
     overlayId: "vertices",
@@ -78,9 +78,9 @@ emp.editors.Square.prototype.addControlPoints = function() {
   items.push(controlPoint);
 
   // get the width, height, and azimuth for our calculations.  This properties will
-  // be different for a GEO_SQUARE and a GEO_MIL_SYMBOL.  Pull from the
+  // be different for a GEO_RECTANGLE and a GEO_MIL_SYMBOL.  Pull from the
   // correct properties.
-  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
     width = this.featureCopy.properties.width;
     height = this.featureCopy.properties.height;
     azimuth = this.featureCopy.properties.azimuth;
@@ -211,7 +211,7 @@ emp.editors.Square.prototype.addControlPoints = function() {
 /**
  * Occurs first when one of the control points is dragged.
  */
-emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer) {
+emp.editors.Rectangle.prototype.startMoveControlPoint = function(featureId, pointer) {
 
   var currentFeature,
     currentVertex,
@@ -232,7 +232,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     delta,
     x, y;
 
-  // Normal GEO_SQUARE will use GeoJSON type "Point", but MIL_STD_SYMBOL will
+  // Normal GEO_RECTANGLE will use GeoJSON type "Point", but MIL_STD_SYMBOL will
   // be GeoJson type "LineString".  Retrieve the coordinates so we do not have
   // to make this distinction later.
   if (this.featureCopy.data.type === 'Point') {
@@ -248,8 +248,8 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
   currentFeature = currentVertex.feature;
 
   // get the old azimuth.  The azimuth is stored in different properties
-  // for a GEO_SQUARE than a GEO_MIL_SYMBOL.
-  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+  // for a GEO_RECTANGLE than a GEO_MIL_SYMBOL.
+  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
     azimuth = this.featureCopy.properties.azimuth;
   } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
     azimuth = this.featureCopy.properties.modifiers.azimuth[0];
@@ -259,7 +259,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
   if (featureId === this.width.feature.featureId){
 
     // if the width moves, then we need to update the width and azimuth control points
-    // on both sides of the square.  We also will need to change the width
+    // on both sides of the rectangle.  We also will need to change the width
     // property on the feature we are editing.
 
     // calculate the new width.
@@ -270,8 +270,8 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
       this.center.feature.data.coordinates[0], "meters");
 
     // since we are measuring the distance between the edget and center we multiply
-    // the width by 2.  The width is stored differently for GEO_SQUARE and GEO_MIL_SYMBOL
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+    // the width by 2.  The width is stored differently for GEO_RECTANGLE and GEO_MIL_SYMBOL
+    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
       this.featureCopy.properties.width = widthDistance * 2;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       this.featureCopy.properties.modifiers.distance[0] = widthDistance * 2;
@@ -304,9 +304,9 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
-    // store the new height in the feature.  It is stored differently for GEO_SQUARE
+    // store the new height in the feature.  It is stored differently for GEO_RECTANGLE
     // and GEO_MIL_SYMBOL.
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
       this.featureCopy.properties.height = heightDistance * 2;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       this.featureCopy.properties.modifiers.distance[1] = heightDistance * 2;
@@ -362,7 +362,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     newAzimuth = azimuth + delta;
 
     // update our copy of the feature with the new azimuth parameter.
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
       this.featureCopy.properties.azimuth = newAzimuth;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       this.featureCopy.properties.modifiers.azimuth = [newAzimuth];
@@ -406,7 +406,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
 
     currentFeature.data.coordinates = [pointer.lon, pointer.lat];
 
-    // Normal GEO_SQUARE is stored as a GeoJSON Point, but MIL_STD_SYMBOL will be
+    // Normal GEO_RECTANGLE is stored as a GeoJSON Point, but MIL_STD_SYMBOL will be
     // of type GeoJSON LineString.  Get the coordinates once so we don't have to
     // keep checking this.
     if (this.featureCopy.data.type === 'Point') {
@@ -416,8 +416,8 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     }
 
     // Get the properties for width, height and azimuth.  They are stored
-    // in different locations in GEO_SQUARE than in GEO_MIL_SYMBOL.
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+    // in different locations in GEO_RECTANGLE than in GEO_MIL_SYMBOL.
+    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
       widthDistance = this.featureCopy.properties.width;
       heightDistance = this.featureCopy.properties.height;
       azimuth = this.featureCopy.properties.azimuth;
@@ -500,7 +500,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
  */
-emp.editors.Square.prototype.moveControlPoint = function(featureId, pointer) {
+emp.editors.Rectangle.prototype.moveControlPoint = function(featureId, pointer) {
 
   return this.startMoveControlPoint(featureId, pointer);
 
@@ -510,13 +510,13 @@ emp.editors.Square.prototype.moveControlPoint = function(featureId, pointer) {
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
  */
-emp.editors.Square.prototype.endMoveControlPoint = function(featureId, pointer) {
+emp.editors.Rectangle.prototype.endMoveControlPoint = function(featureId, pointer) {
   return this.startMoveControlPoint(featureId, pointer);
 };
 
 /**
  * Moves the entire feature, offsetting from the starting position.
  */
-emp.editors.Square.prototype.moveFeature = function() {
+emp.editors.Rectangle.prototype.moveFeature = function() {
 
 };
