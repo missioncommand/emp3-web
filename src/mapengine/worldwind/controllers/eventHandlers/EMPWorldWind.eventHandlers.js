@@ -108,9 +108,9 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function ()
         if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
                 feature.feature.data.type === "LineString")
         {
-            if (this.isShapeInViewRegion (feature.feature) && !EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3))
+            if (this.isMilStdMutlPointShapeInViewRegion (feature.feature) && !EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3))
             {
-                feature.feature.range = this.lastNavigator.range;
+                //feature.feature.range = this.lastNavigator.range;
                 this.plotFeature(feature);
             }
         }

@@ -1197,7 +1197,7 @@ EMPWorldWind.map.prototype.pickShapesInViewRegion = function ()
 //        }
 //    };
 
-EMPWorldWind.map.prototype.isShapeInViewRegion = function (empFeature)
+EMPWorldWind.map.prototype.isMilStdMutlPointShapeInViewRegion = function (empFeature)
 {
     var inView = false;
     // Highlight the items picked.
@@ -1211,8 +1211,8 @@ EMPWorldWind.map.prototype.isShapeInViewRegion = function (empFeature)
         if ( (coordinate[0] <= this.bounds.east  &&  coordinate[0] >= this.bounds.west) && (coordinate[1]> this.bounds.south &&  coordinate[1] < this.bounds.north) )
         {
            inView =  true;
-           break
+           break;
         }
-        return inView;
     }
+      return inView;
 };
