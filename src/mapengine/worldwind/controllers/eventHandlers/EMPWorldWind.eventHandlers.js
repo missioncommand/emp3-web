@@ -73,7 +73,8 @@ EMPWorldWind.eventHandlers.notifyViewChange = function (viewEventType)
     {
         this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
         this.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
-        this.shapesInViewArea = this.pickShapesInViewRegion();
+        this.bounds = this.getBounds();
+       // this.shapesInViewArea = this.pickShapesInViewRegion();
         EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
         this.lastNavigator.range = this.worldWindow.navigator.range;
         this.lastNavigator.tilt = this.worldWindow.navigator.tilt;
@@ -107,8 +108,9 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function ()
         if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
                 feature.feature.data.type === "LineString")
         {
-            if (this.isShapeInViewRegion (feature.id))
+            if (this.isShapeInViewRegion (feature.feature) && !EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3))
             {
+                feature.feature.range = this.lastNavigator.range;
                 this.plotFeature(feature);
             }
         }

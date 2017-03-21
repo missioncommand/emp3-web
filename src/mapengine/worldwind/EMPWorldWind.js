@@ -123,12 +123,13 @@ EMPWorldWind.map = function (wwd)
     this.singlePointAltitudeRanges.mid = 600000;//default
     this.singlePointAltitudeRanges.high = 1200000;// default
     this.singlePointAltitudeRangeMode = EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
-  
- //keep track of selections
-   this.empSelections = {};
+
+    //keep track of selections
+    this.empSelections = {};
     this.optimizationMapMoveEpsilon = EMPWorldWind.Math.EPSILON7;
     this.lastNavigator = {};
     this.shapesInViewArea;
+    this.bounds;
 
 };
 
@@ -456,7 +457,7 @@ EMPWorldWind.map.prototype.unplotFeature = function (feature)
     if (layer)
     {
         layer.removeFeatureById(feature.coreId);
-    this.removeFeatureSelection(feature.coreId);
+        this.removeFeatureSelection(feature.coreId);
         this.worldWindow.redraw();
         rc.success = true;
     }
@@ -483,8 +484,9 @@ EMPWorldWind.map.prototype.selectFeatures = function (empSelections)
         if (feature)
         {
             feature.selected = selectedFeature.select;
-      (feature.selected)? this.storeFeatureSelection(selectedFeature.featureId): this.removeFeatureSelection (selectedFeature.featureId);
-      //selected.push(feature);   
+            (feature.selected) ? this.storeFeatureSelection(selectedFeature.featureId) : this.removeFeatureSelection(selectedFeature.featureId);
+            //selected.push(feature);   
+        }
         else
         {
             failed.push(selectedFeature.featureId);
@@ -629,9 +631,9 @@ EMPWorldWind.map.prototype.getFeatureSelection = function (id)
  *
  * @param id
  */
- EMPWorldWind.map.prototype.storeFeatureSelection = function(id)
+EMPWorldWind.map.prototype.storeFeatureSelection = function (id)
 {
-     this.empSelections[id] = id;
+    this.empSelections[id] = id;
 };
 
 /**
@@ -1153,28 +1155,49 @@ EMPWorldWind.map.prototype.pickShapesInViewRegion = function ()
     //var bound = this.getBounds();
     //var boundRectangle = new this.worldwind.Rectangle(new WorldWind.Location(this.worldWindow.navigator.lookAtLocation.latitude, this.worldWindow.navigator.lookAtLocation.longitude), this.worldWindow.viewport.width -1 , this.worldWindow.viewport.height - 1);
     // this.worldWindow.viewport
+    var canvasCoordinates = this.worldWindow.canvasCoordinates(0, 0);
     //var screenLocation = new WorldWind.Location(this.worldWindow.navigator.lookAtLocation.latitude, this.worldWindow.navigator.lookAtLocation.longitude);
-    var boundRectangle  = new WorldWind.Rectangle(this.worldWindow.navigator.lookAtLocation.latitude, this.worldWindow.navigator.lookAtLocation.longitude, this.worldWindow.viewport.width -1 , this.worldWindow.viewport.height - 1);
+    var boundRectangle = new WorldWind.Rectangle(canvasCoordinates[0], canvasCoordinates[1], 5000, 4000);
+    //var boundRectangle  = new WorldWind.Rectangle(0, 0 ,this.worldWindow.viewport.width -1 , this.worldWindow.viewport.height - 1);
+    //var boundRectangle  = new WorldWind.Rectangle(this.worldWindow.canvas.width/2, this.worldWindow.canvas.height/2 ,this.worldWindow.viewport.width -1 , this.worldWindow.viewport.height - 1);
+
     shapes = this.worldWindow.pickShapesInRegion(boundRectangle);
     return shapes;
 };
 
 
-EMPWorldWind.map.prototype.isShapeInViewRegion = function (id)
+//EMPWorldWind.map.prototype.isShapeInViewRegion = function (id)
+//{
+//    
+//    // Highlight the items picked.
+//    
+//        for (var p = 0; p < this.shapesInViewArea .objects.length; p++)
+//        {
+//            if (!this.shapesInViewArea.objects[p].isTerrain && this.shapesInViewArea.objects[p].userProperties)
+//            {
+//                return (this.shapesInViewArea.objects[p].userProperties.id ===  id);
+//               // this.shapesInViewArea.objects[p].userObject.highlighted = true;
+//                //highlightedItems.push(pickList.objects[p].userObject);
+//            }
+//        }
+//    };
+
+EMPWorldWind.map.prototype.isShapeInViewRegion = function (empFeature)
 {
-    if (this.shapesInViewArea && this.shapesInViewArea.objects.length ===  0)
-    {
-       return false;
-    }
+    var inView = false;
     // Highlight the items picked.
-    
-        for (var p = 0; p < this.shapesInViewArea .objects.length; p++)
+    if (!this.bounds)
+    {
+        this.getBounds();
+    }
+    for (var p = 0; p <empFeature.coordinates.length; p++)
+    {
+        var coordinate = empFeature.coordinates[p];
+        if ( (coordinate[0] <= this.bounds.east  &&  coordinate[0] >= this.bounds.west) && (coordinate[1]> this.bounds.south &&  coordinate[1] < this.bounds.north) )
         {
-            if (!this.shapesInViewArea.objects[p].isTerrain && this.shapesInViewArea.objects[p].userProperties)
-            {
-                return (this.shapesInViewArea.objects[p].userProperties.id ===  id);
-               // this.shapesInViewArea.objects[p].userObject.highlighted = true;
-                //highlightedItems.push(pickList.objects[p].userObject);
-            }
+           inView =  true;
+           break
         }
-    };
+        return inView;
+    }
+};
