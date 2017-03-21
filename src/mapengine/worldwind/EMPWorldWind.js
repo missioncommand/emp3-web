@@ -123,7 +123,9 @@ EMPWorldWind.map = function (wwd)
     this.singlePointAltitudeRanges.mid = 600000;//default
     this.singlePointAltitudeRanges.high = 1200000;// default
     this.singlePointAltitudeRangeMode = EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
-
+  
+ //keep track of selections
+   this.empSelections = {};
     this.optimizationMapMoveEpsilon = EMPWorldWind.Math.EPSILON7;
     this.lastNavigator = {};
     this.shapesInViewArea;
@@ -454,6 +456,7 @@ EMPWorldWind.map.prototype.unplotFeature = function (feature)
     if (layer)
     {
         layer.removeFeatureById(feature.coreId);
+    this.removeFeatureSelection(feature.coreId);
         this.worldWindow.redraw();
         rc.success = true;
     }
@@ -480,8 +483,8 @@ EMPWorldWind.map.prototype.selectFeatures = function (empSelections)
         if (feature)
         {
             feature.selected = selectedFeature.select;
-            selected.push(feature);
-        }
+      (feature.selected)? this.storeFeatureSelection(selectedFeature.featureId): this.removeFeatureSelection (selectedFeature.featureId);
+      //selected.push(feature);   
         else
         {
             failed.push(selectedFeature.featureId);
@@ -625,11 +628,10 @@ EMPWorldWind.map.prototype.getFeatureSelection = function (id)
 /**
  *
  * @param id
- * @param deselectProperties
  */
-EMPWorldWind.map.prototype.storeFeatureSelection = function (id, deselectProperties)
+ EMPWorldWind.map.prototype.storeFeatureSelection = function(id)
 {
-    this.empSelections[id] = deselectProperties;
+     this.empSelections[id] = id;
 };
 
 /**
