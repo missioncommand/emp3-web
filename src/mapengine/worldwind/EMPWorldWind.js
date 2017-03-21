@@ -117,15 +117,30 @@ EMPWorldWind.map = function(wwd) {
     }
   };
 
-  // optimization for mil standard  single points.
+  // Optimization for mil standard  single points.
+  /**
+   * Object for holding render optimization params
+   */
   this.singlePointAltitudeRanges = {};
-  this.singlePointAltitudeRanges.mid = 600000;//default
-  this.singlePointAltitudeRanges.high = 1200000;// default
+  /**
+   * Mid-range optimization altitude
+   * @default
+   */
+  this.singlePointAltitudeRanges.mid = 600000; // default
+  /**
+   * High-range optimization altitude
+   * @default
+   */
+  this.singlePointAltitudeRanges.high = 1200000; // default
+  /**
+   * Current range mode
+   */
   this.singlePointAltitudeRangeMode = EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
-  
-  //keep track of selections
-   this.empSelections = {};
 
+  /**
+   * Current set of selected objects
+   */
+  this.empSelections = {};
 };
 
 // typedefs ============================================================================================================
@@ -427,7 +442,7 @@ EMPWorldWind.map.prototype.selectFeatures = function(empSelections) {
     var feature = this.features[selectedFeature.featureId];
     if (feature) {
       feature.selected = selectedFeature.select;
-      (feature.selected)? this.storeFeatureSelection(selectedFeature.featureId): this.removeFeatureSelection (selectedFeature.featureId);
+      (feature.selected) ? this.storeFeatureSelection(selectedFeature.featureId) : this.removeFeatureSelection(selectedFeature.featureId);
       //selected.push(feature);   
     } else {
       failed.push(selectedFeature.featureId);
