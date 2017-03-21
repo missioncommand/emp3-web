@@ -117,12 +117,30 @@ EMPWorldWind.map = function(wwd) {
     }
   };
 
-  // optimization for mil standard  single points.
+  // Optimization for mil standard  single points.
+  /**
+   * Object for holding render optimization params
+   */
   this.singlePointAltitudeRanges = {};
-  this.singlePointAltitudeRanges.mid = 600000;//default
-  this.singlePointAltitudeRanges.high = 1200000;// default
+  /**
+   * Mid-range optimization altitude
+   * @default
+   */
+  this.singlePointAltitudeRanges.mid = 600000; // default
+  /**
+   * High-range optimization altitude
+   * @default
+   */
+  this.singlePointAltitudeRanges.high = 1200000; // default
+  /**
+   * Current range mode
+   */
   this.singlePointAltitudeRangeMode = EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
 
+  /**
+   * Current set of selected objects
+   */
+  this.empSelections = {};
 };
 
 // typedefs ============================================================================================================
@@ -315,6 +333,10 @@ EMPWorldWind.map.prototype.lookAt = function(args) {
 
   var position = new WorldWind.Position(args.latitude, args.longitude, args.range);
 
+  /**
+   * @this {EMPWorldWind.map}
+   * @private
+   */
   function _completeLookAtMotion() {
     this.worldWindow.navigator.lookAtLocation.latitude = args.latitude;
     this.worldWindow.navigator.lookAtLocation.longitude = args.longitude;
@@ -338,8 +360,8 @@ EMPWorldWind.map.prototype.lookAt = function(args) {
 };
 
 /**
- * @param {emp.typeLibrary.Feature} feature
- * @param {PlotFeatureCB} callback
+ * @param {emp.typeLibrary.Feature|EMPWorldWind.data.EmpFeature} feature
+ * @param {PlotFeatureCB} [callback]
  */
 EMPWorldWind.map.prototype.plotFeature = function(feature, callback) {
   /**
@@ -361,6 +383,11 @@ EMPWorldWind.map.prototype.plotFeature = function(feature, callback) {
       callback(cbArgs);
     }
   }.bind(this);
+
+  // Check if we are using a EMPWorldWind feature internally
+  if (feature instanceof EMPWorldWind.data.EmpFeature) {
+    feature = feature.feature;
+  }
 
   if (feature.featureId in this.features) {
     // Update an existing feature
@@ -393,6 +420,7 @@ EMPWorldWind.map.prototype.unplotFeature = function(feature) {
   layer = this.getLayer(feature.parentCoreId);
   if (layer) {
     layer.removeFeatureById(feature.coreId);
+    this.removeFeatureSelection(feature.coreId);
     this.worldWindow.redraw();
     rc.success = true;
   } else {
@@ -414,7 +442,8 @@ EMPWorldWind.map.prototype.selectFeatures = function(empSelections) {
     var feature = this.features[selectedFeature.featureId];
     if (feature) {
       feature.selected = selectedFeature.select;
-      selected.push(feature);
+      (feature.selected) ? this.storeFeatureSelection(selectedFeature.featureId) : this.removeFeatureSelection(selectedFeature.featureId);
+      //selected.push(feature);   
     } else {
       failed.push(selectedFeature.featureId);
     }
@@ -521,7 +550,7 @@ EMPWorldWind.map.prototype.removeWMS = function(wms) {
  * @returns {boolean}
  */
 EMPWorldWind.map.prototype.isFeatureSelected = function(id) {
-  return !!this.empSelections.hasOwnProperty(id);
+  return this.empSelections.hasOwnProperty(id);
 };
 
 /**
@@ -540,10 +569,9 @@ EMPWorldWind.map.prototype.getFeatureSelection = function(id) {
 /**
  *
  * @param id
- * @param deselectProperties
  */
-EMPWorldWind.map.prototype.storeFeatureSelection = function(id, deselectProperties) {
-  this.empSelections[id] = deselectProperties;
+EMPWorldWind.map.prototype.storeFeatureSelection = function(id) {
+  this.empSelections[id] = id;
 };
 
 /**
