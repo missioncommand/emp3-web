@@ -17,7 +17,7 @@ EMPWorldWind.editors.EditorController = (function ()
     function _constructSinglePointMilStdSymbol(feature, modifiers, selectionStyle)
     {
         var placemark, attributes, highlightAttributes, position, imageInfo, imageCenter, imageBounds, imageOffset,
-                selectedImage, symbolCode,
+      selectedImage, symbolCode, selectedModifiers,
                 eyeDistanceScaling = false;
 
         attributes = new WorldWind.PlacemarkAttributes();
@@ -65,14 +65,15 @@ EMPWorldWind.editors.EditorController = (function ()
             attributes.imageSource = imageInfo.toDataUrl();
 
             // Highlight attributes
-            highlightAttributes = new WorldWind.PlacemarkAttributes();
+      highlightAttributes = new WorldWind.PlacemarkAttributes(attributes);
             highlightAttributes.imageColor = WorldWind.Color.WHITE;
             highlightAttributes.imageOffset = imageOffset;
 
             // Note that this is done statically, if the selection style changes a bulk update to every feature will need to be done
-            modifiers.LINECOLOR = selectionStyle.lineColor;
-            modifiers.FILLCOLOR = selectionStyle.fillColor;
-            selectedImage = armyc2.c2sd.renderer.MilStdIconRenderer.Render(feature.symbolCode, modifiers).toDataUrl();
+      selectedModifiers = Object.assign({}, modifiers);
+      selectedModifiers.LINECOLOR = selectionStyle.lineColor;
+      selectedModifiers.FILLCOLOR = selectionStyle.fillColor;
+      selectedImage = armyc2.c2sd.renderer.MilStdIconRenderer.Render(feature.symbolCode, selectedModifiers).toDataUrl();
             highlightAttributes.imageSource = selectedImage;
         }
 
@@ -137,10 +138,15 @@ EMPWorldWind.editors.EditorController = (function ()
         for (i = 0; i < imageInfo.features.length; i++)
         {
             componentFeature = imageInfo.features[i];
-            switch (componentFeature.geometry.type)
-            {
-                case "MultiLineString":
-                    lineCount = componentFeature.geometry.coordinates.length;
+
+      // TODO have the renderer return the proper width, manually overwriting the line width for now
+      componentFeature.properties.strokeWidth = 1;
+      componentFeature.properties.strokeWeight = 1;
+
+                
+      switch (componentFeature.geometry.type) {
+        case "MultiLineString":
+          lineCount = componentFeature.geometry.coordinates.length;
 
                     for (j = 0; j < lineCount; j++)
                     {
@@ -181,10 +187,10 @@ EMPWorldWind.editors.EditorController = (function ()
         {
             modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, this.state.labelStyles, this.state.pixelSize);
         }
-        else
-        {
-            modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, {}, this.state.pixelSize);
-        }
+        else {
+      modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, EMPWorldWind.constants.AllLabels, this.state.pixelSize);
+      }
+       
 
         modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, ((this.state.labelStyles.CN === true) && feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE));
 

@@ -318,6 +318,10 @@ EMPWorldWind.map.prototype.lookAt = function(args) {
 
   var position = new WorldWind.Position(args.latitude, args.longitude, args.range);
 
+  /**
+   * @this {EMPWorldWind.map}
+   * @private
+   */
   function _completeLookAtMotion() {
     this.worldWindow.navigator.lookAtLocation.latitude = args.latitude;
     this.worldWindow.navigator.lookAtLocation.longitude = args.longitude;
@@ -341,8 +345,8 @@ EMPWorldWind.map.prototype.lookAt = function(args) {
 };
 
 /**
- * @param {emp.typeLibrary.Feature} feature
- * @param {PlotFeatureCB} callback
+ * @param {emp.typeLibrary.Feature|EMPWorldWind.data.EmpFeature} feature
+ * @param {PlotFeatureCB} [callback]
  */
 EMPWorldWind.map.prototype.plotFeature = function(feature, callback) {
   /**
@@ -364,6 +368,11 @@ EMPWorldWind.map.prototype.plotFeature = function(feature, callback) {
       callback(cbArgs);
     }
   }.bind(this);
+
+  // Check if we are using a EMPWorldWind feature internally
+  if (feature instanceof EMPWorldWind.data.EmpFeature) {
+    feature = feature.feature;
+  }
 
   if (feature.featureId in this.features) {
     // Update an existing feature

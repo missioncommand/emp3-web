@@ -8,6 +8,66 @@ EMPWorldWind.editors = EMPWorldWind.editors || {};
 EMPWorldWind.editors.primitiveBuilders = EMPWorldWind.editors.primitiveBuilders || {};
 
 /**
+ * @param {emp.typeLibrary.Feature | object} feature
+ * @returns {WorldWind.TextAttributes}
+ */
+EMPWorldWind.editors.primitiveBuilders.createTextAttributes = function(feature) {
+  var textColor, size,
+    attributes = new WorldWind.TextAttributes();
+
+  // Set the offset
+  attributes.offset = new WorldWind.Offset(
+    WorldWind.OFFSET_FRACTION, -0.05, // To the right of the point by default
+    WorldWind.OFFSET_FRACTION, 0.5 // Center Y be default
+  );
+
+  // Should not be occluded by terrain or objects when false
+  attributes.depthTest = false;
+
+  // Label Color
+  if (feature.properties.labelStyle && feature.properties.labelStyle.color) {
+    textColor = EMPWorldWind.utils.normalizeRGBAColor(feature.properties.labelStyle.color);
+  } else if (feature.properties.fontColor) {
+    textColor = EMPWorldWind.utils.hexToRGBA(feature.properties.fontColor);
+  } else {
+    textColor = EMPWorldWind.utils.hexToRGBA(EMPWorldWind.constants.propertyDefaults.FILL_COLOR_HEX);
+  }
+  attributes.color = new WorldWind.Color(textColor.red, textColor.green, textColor.blue, textColor.alpha);
+
+  // Font Family
+  if (feature.properties.labelStyle && feature.properties.labelStyle.family) {
+    attributes.font.family = feature.properties.labelStyle.family;
+  } else if (feature.properties.fontFamily) {
+    attributes.font.family = feature.properties.fontFamily;
+  }
+
+  // Justification
+  if (feature.properties.labelStyle && feature.properties.labelStyle.justification) {
+    attributes.font.horizontalAlignment = feature.properties.labelStyle.justification;
+  } else if (feature.properties.labelAlign) {
+    attributes.font.horizontalAlignment = feature.properties.labelAlign;
+  }
+
+  // Font size
+  if (feature.properties.labelStyle && feature.properties.labelStyle.size) {
+    attributes.font.size = feature.properties.labelStyle.size;
+  } else if (feature.properties.fontSize) {
+    size = feature.properties.fontSize;
+    size = size.substring(0, size.length - 2);
+    if (!isNaN(size)) {
+      attributes.font.size = parseInt(feature.properties.fontSize);
+    }
+  }
+
+  // Label Scale
+  if (feature.properties.labelStyle && feature.properties.labelStyle.scale) {
+    attributes.scale = feature.properties.labelStyle.scale;
+  }
+
+  return attributes;
+};
+
+/**
  * Wrapper function for generating the appropriate attributes based on the given feature and selection style
  * @param {emp.typeLibrary.Feature | object} feature
  * @param {SelectionStyle} selectionStyle
@@ -15,7 +75,7 @@ EMPWorldWind.editors.primitiveBuilders = EMPWorldWind.editors.primitiveBuilders 
  */
 EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature, selectionStyle) {
   var lineColor, fillColor, highlightAttributes,
-    selectedLineColor, selectedFillColor, labelColor, selectedLabelColor;
+    selectedLineColor, selectedFillColor, selectedLabelColor;
 
   var attributes = new WorldWind.ShapeAttributes();
 
@@ -30,11 +90,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       attributes.imageSource = feature.properties.iconUrl || WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
 
       // Create the label attributes
-      attributes.labelAttributes = new WorldWind.TextAttributes();
-      attributes.labelAttributes.offset = new WorldWind.Offset(
-        WorldWind.OFFSET_FRACTION, -0.5,
-        WorldWind.OFFSET_FRACTION, 1.5
-      );
+      attributes.labelAttributes = EMPWorldWind.editors.primitiveBuilders.createTextAttributes(feature);
 
       // Create the highlight attributes
       highlightAttributes = new WorldWind.PlacemarkAttributes(attributes);
@@ -49,7 +105,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
 
       if (selectionStyle.lineColor) {
         selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-        highlightAttributes.imageColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+        highlightAttributes.imageColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
       } else {
         highlightAttributes.imageColor = WorldWind.Color.YELLOW;
       }
@@ -60,45 +116,13 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       break;
     case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
       // GeographicText requires TextAttributes instead
-      attributes = new WorldWind.TextAttributes();
-
-      // Should not be occluded by terrain or objects when false
-      attributes.depthTest = false;
-
-      // Label Color
-      if (feature.properties.labelStyle && feature.properties.labelStyle.color) {
-        labelColor = feature.properties.labelStyle.color;
-        attributes.color = new WorldWind.Color(labelColor.red, labelColor.green, labelColor.blue, labelColor.alpha);
-      } else {
-        labelColor = EMPWorldWind.utils.hexToRGBA(EMPWorldWind.constants.propertyDefaults.FILL_COLOR_HEX);
-        attributes.color = new WorldWind.Color(labelColor.r, labelColor.g, labelColor.b, labelColor.a);
-      }
-
-      // Font Family
-      if (feature.properties.labelStyle && feature.properties.labelStyle.family) {
-        attributes.font.family = feature.properties.labelStyle.family;
-      }
-
-      // Justification
-      if (feature.properties.labelStyle && feature.properties.labelStyle.justification) {
-        attributes.font.horizontalAlignment = feature.properties.labelStyle.justification;
-      }
-
-      // Font size
-      if (feature.properties.labelStyle && feature.properties.labelStyle.size) {
-        attributes.font.size = feature.properties.labelStyle.size;
-      }
-
-      // Label Scale
-      if (feature.properties.labelStyle && feature.properties.labelStyle.scale) {
-        attributes.scale = feature.properties.labelStyle.scale;
-      }
+      attributes = EMPWorldWind.editors.primitiveBuilders.createTextAttributes(feature);
 
       // Create highlight attributes from the regular attributes, only update highlight color
       highlightAttributes = new WorldWind.TextAttributes(attributes);
       if (selectionStyle.lineColor) {
         selectedLabelColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-        highlightAttributes.color = new WorldWind.Color(selectedLabelColor.r, selectedLabelColor.g, selectedLabelColor.b, selectedLabelColor.a);
+        highlightAttributes.color = new WorldWind.Color(selectedLabelColor.red, selectedLabelColor.green, selectedLabelColor.blue, selectedLabelColor.alpha);
       } else {
         highlightAttributes.color = WorldWind.Color.YELLOW;
       }
@@ -112,7 +136,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
     default:
       // Set stroke color
       if (feature.properties.strokeStyle && feature.properties.strokeStyle.strokeColor) {
-        lineColor = feature.properties.strokeStyle.strokeColor;
+        lineColor = EMPWorldWind.utils.normalizeRGBAColor(feature.properties.strokeStyle.strokeColor);
         attributes.outlineColor = new WorldWind.Color(lineColor.red, lineColor.green, lineColor.blue, lineColor.alpha);
       } else {
         attributes.outlineColor = WorldWind.Color.BLACK;
@@ -121,7 +145,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       // Set fill color
       if (feature.properties.fillColor) {
         fillColor = EMPWorldWind.utils.hexToRGBA(feature.properties.fillColor);
-        attributes.interiorColor = new WorldWind.Color(fillColor.r, fillColor.g, fillColor.b, fillColor.a);
+        attributes.interiorColor = new WorldWind.Color(fillColor.red, fillColor.green, fillColor.blue, fillColor.alpha);
       } else {
         attributes.drawInterior = false;
       }
@@ -143,7 +167,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       // Update the selected lineColor
       if (selectionStyle.lineColor) {
         selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-        highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+        highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
       } else {
         highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
       }
@@ -151,7 +175,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function(feature,
       // Update the selected fillColor
       if (selectionStyle.fillColor) {
         selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
-        highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.r, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+        highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.red, selectedFillColor.green, selectedFillColor.blue, selectedFillColor.alpha);
       } else {
         highlightAttributes.drawInterior = false;
       }
@@ -180,7 +204,7 @@ EMPWorldWind.editors.primitiveBuilders.constructAirControlMeasure = function(fea
 
   if (selectionStyle.fillColor) {
     selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
-    highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.r, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.red, selectedFillColor.green, selectedFillColor.blue, selectedFillColor.alpha);
   } else {
     highlightAttributes.interiorColor = WorldWind.Color.YELLOW;
   }
@@ -301,8 +325,8 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON = fun
   attributes = new WorldWind.ShapeAttributes();
   // SurfacePolyline uses the following attributes
   if (geoJSON.properties.strokeColor) {
-    color = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.strokeColor, geoJSON.properties.lineOpacity, true);
-    attributes.outlineColor = new WorldWind.Color(color.r, color.g, color.b, color.a);
+    color = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.strokeColor, geoJSON.properties.lineOpacity);
+    attributes.outlineColor = new WorldWind.Color(color.red, color.green, color.blue, color.alpha);
   } else {
     attributes.outlineColor = WorldWind.Color.BLACK;
   }
@@ -316,7 +340,7 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON = fun
   highlightAttributes = new WorldWind.ShapeAttributes();
   if (selectionStyle.lineColor) {
     selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-    highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.r, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
   } else {
     highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
   }
@@ -420,14 +444,14 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygonFromGeoJSON = func
   attributes = new WorldWind.ShapeAttributes();
   if (geoJSON.properties.strokeColor) {
     outlineColor = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.strokeColor);
-    attributes.outlineColor = new WorldWind.Color(outlineColor.r, outlineColor.g, outlineColor.b, outlineColor.a);
+    attributes.outlineColor = new WorldWind.Color(outlineColor.red, outlineColor.green, outlineColor.blue, outlineColor.alpha);
   } else {
     attributes.outlineColor = WorldWind.Color.BLACK;
   }
 
   if (geoJSON.properties.fillColor) {
     interiorColor = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.fillColor);
-    attributes.interiorColor = new WorldWind.Color(interiorColor.r, interiorColor.g, interiorColor.b, interiorColor.a);
+    attributes.interiorColor = new WorldWind.Color(interiorColor.red, interiorColor.green, interiorColor.blue, interiorColor.alpha);
   } else {
     attributes.drawInterior = false;
   }
@@ -440,13 +464,13 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygonFromGeoJSON = func
   highlightAttributes = new WorldWind.ShapeAttributes();
   if (selectionStyle.lineColor) {
     selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-    highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.a, selectedLineColor.g, selectedLineColor.b, selectedLineColor.a);
+    highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
   } else {
     highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
   }
   if (selectionStyle.fillColor) {
     selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
-    highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.a, selectedFillColor.g, selectedFillColor.b, selectedFillColor.a);
+    highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.red, selectedFillColor.green, selectedFillColor.blue, selectedFillColor.alpha);
   } else {
     highlightAttributes.drawInterior = false;
   }
@@ -504,16 +528,19 @@ EMPWorldWind.editors.primitiveBuilders.constructSurfaceRectangle = function(feat
  * @returns {WorldWind.Text}
  */
 EMPWorldWind.editors.primitiveBuilders.constructText = function(feature, selectionStyle) {
-  var attributes, location, textPrimitive;
+  var attributes, position, textPrimitive;
 
   // Construct circle attributes
   attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
 
-  // Set the location
-  location = new WorldWind.Location(feature.coordinates[1], feature.coordinates[0]);
+  // Set the position
+  position = new WorldWind.Position(
+    feature.coordinates[1], // Latitude
+    feature.coordinates[0], // Longitude
+    feature.coordinates[2] ? feature.coordinates[2] : 0); // Altitude
 
   // Construct the text
-  textPrimitive = new WorldWind.GeographicText(location, feature.name);
+  textPrimitive = new WorldWind.GeographicText(position, feature.name);
 
   // Set the primitive properties
   textPrimitive.attributes = attributes.attributes;
@@ -529,45 +556,30 @@ EMPWorldWind.editors.primitiveBuilders.constructText = function(feature, selecti
  * @returns {WorldWind.Text}
  */
 EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON = function(geoJSON, selectionStyle) {
-  var textPrimitive, attributes, highlightAttributes, color, selectedColor, location;
+  var textPrimitive, attributes, highlightAttributes, selectedColor, position;
 
-  attributes = new WorldWind.TextAttributes(null);
-  attributes.depthTest = false;
+  // Create the attributes
+  attributes = EMPWorldWind.editors.primitiveBuilders.createTextAttributes(geoJSON);
 
-  if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.color) {
-    color = EMPWorldWind.utils.hexToRGBA(geoJSON.properties.labelStyle.color);
-    attributes.color = new WorldWind.Color(color.r, color.g, color.b, color.a);
-  } else {
-    attributes.color = WorldWind.Color.BLACK;
-  }
-
-  if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.family) {
-    attributes.font.family = geoJSON.properties.labelStyle.family;
-  }
-
-  if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.justification) {
-    attributes.font.horizontalAlignment = geoJSON.properties.labelStyle.justification;
-  }
-
-  if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.size) {
-    attributes.font.size = geoJSON.properties.labelStyle.size;
-  }
-
-  if (geoJSON.properties.labelStyle && geoJSON.properties.labelStyle.scale) {
-    attributes.scale = geoJSON.properties.labelStyle.scale;
-  }
-
-  highlightAttributes = new WorldWind.TextAttributes();
+  // Create the highlight attributes
+  highlightAttributes = new WorldWind.TextAttributes(attributes);
   if (selectionStyle.lineColor) {
     selectedColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-    highlightAttributes.color = new WorldWind.Color(selectedColor.r, selectedColor.g, selectedColor.b, selectedColor.a);
+    highlightAttributes.color = new WorldWind.Color(selectedColor.red, selectedColor.green, selectedColor.blue, selectedColor.alpha);
   } else {
     highlightAttributes.color = WorldWind.Color.YELLOW;
   }
 
-  location = new WorldWind.Location(geoJSON.geometry.coordinates[1], geoJSON.geometry.coordinates[0]);
+  // Set the position
+  position = new WorldWind.Position(
+    geoJSON.geometry.coordinates[1], // Latitude
+    geoJSON.geometry.coordinates[0], // Longitude
+    geoJSON.geometry.coordinates[2] ? geoJSON.geometry.coordinates[0] : 0); // Altitude
 
-  textPrimitive = new WorldWind.GeographicText(location, geoJSON.properties.label);
+  // Construct the primitive
+  textPrimitive = new WorldWind.GeographicText(position, geoJSON.properties.label);
+
+  // Set the attributes
   textPrimitive.attributes = attributes;
   textPrimitive.altitudeMode = geoJSON.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
   textPrimitive.highlightAttributes = highlightAttributes;
