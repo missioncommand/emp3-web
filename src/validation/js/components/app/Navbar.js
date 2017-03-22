@@ -1,6 +1,5 @@
 import React, {Component, PropTypes} from 'react';
 import ReactTooltip from 'react-tooltip';
-import {guid} from '../../util';
 import assign from 'object-assign';
 
 //======================================================================================================================
@@ -63,7 +62,7 @@ class Navbar extends Component {
 
   render() {
     const {clearTest, prevTest, nextTest, scripts, setActiveScript, executeScript, activeScript} = this.props;
-    const {createMap, createOverlay, showResults, toggleSettings, isSettingsOpen, goto} = this.props;
+    const {createOverlay, showResults, toggleSettings, isSettingsOpen, goto, addMapContainer} = this.props;
 
     return (
       <div role='navigation' id='navbar'>
@@ -92,17 +91,14 @@ class Navbar extends Component {
 
         <NavbarItem>
           <ul>
-            <li onClick={() => createMap({
-              geoId: guid(),
-              east: 50,
-              west: 40,
-              north: 50,
-              south: 40
-            }, undefined, undefined)}>
+            {/* Button to add a new map container */}
+            <li onClick={addMapContainer}>
               <i data-tip data-for='quickMapBtn' aria-hidden='true' className='fa fa-globe'/>
               <ReactTooltip id='quickMapBtn' place='bottom'
-                            delayShow={1000}>Add a quick map at [40,40]</ReactTooltip>
+                            delayShow={1000}>Create a new map container</ReactTooltip>
             </li>
+
+            {/* Button to add an overlay to the first map */}
             <li onClick={() => createOverlay()}>
               <i data-tip data-for='quickOverlayBtn' aria-hidden='true' className='fa fa-map-o'/>
               <ReactTooltip id='quickOverlayBtn' place='bottom'
@@ -147,7 +143,11 @@ class Navbar extends Component {
         <Separator right/>
 
         <NavbarItem style={{padding: '2px 8px 0 0'}} right>
-          <form onSubmit={() => {goto(this.state.goto); return false;}} noValidate>
+          <form onSubmit={(event) => {
+            event.preventDefault();
+            goto(this.state.goto);
+            return false;
+          }} noValidate>
             <a href="#"
                style={{padding: '0 8px'}}
                onClick={() => goto(this.state.goto)}>
@@ -173,7 +173,7 @@ Navbar.propTypes = {
   activeScript: PropTypes.string,
   setActiveScript: PropTypes.func.isRequired,
   executeScript: PropTypes.func.isRequired,
-  createMap: PropTypes.func.isRequired,
+  addMapContainer: PropTypes.func.isRequired,
   createOverlay: PropTypes.func.isRequired,
   showResults: PropTypes.func.isRequired,
   toggleSettings: PropTypes.func.isRequired,
