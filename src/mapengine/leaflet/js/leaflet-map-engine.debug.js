@@ -175,6 +175,12 @@ emp.engineDefs.leafletMapEngine = function (args) {
         oEditTransaction: undefined,
         oTransactionList: {},
         lockState: undefined,
+        smartLockPanning: {
+          up: false,
+          down: false,
+          left: false,
+          right: false
+        },
         setLockState: function (lockState) {
             instanceInterface.lockState = lockState;
         },
@@ -642,16 +648,16 @@ emp.engineDefs.leafletMapEngine = function (args) {
             coreId: emp.helpers.id.newGUID()
         });
 
-        // oLayerEntry = new emp.typeLibrary.Static({
-        //     name: 'Scale Bar',
-        //     featureId: oControl.getCoreId(),
-        //     overlayId: sCoreId,
-        //     visible: true,
-        //     coreId: oControl.getCoreId(),
-        //     coreParent: sCoreId
-        // });
-        // oLayerList.push(oLayerEntry);
-        //
+        oLayerEntry = new emp.typeLibrary.Static({
+            name: 'Scale Bar',
+            featureId: oControl.getCoreId(),
+            overlayId: sCoreId,
+            visible: true,
+            coreId: oControl.getCoreId(),
+            coreParent: sCoreId
+        });
+        oLayerList.push(oLayerEntry);
+
         instanceInterface.addEmpObject(oControl);
         instanceInterface.leafletInstance.addControl(oControl);
 
@@ -817,34 +823,86 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
     function setupEventListeners() {
       function onMouseMove(event) {
-        var eventData = {};
+        var eventData = {},
+            smartLockBuffer = 0.05,
+            originalEvent = event.originalEvent,
+            element = originalEvent.srcElement || originalEvent.originalTarget,
+            elementBounds = element.getBoundingClientRect(),
+            vertical = 0,
+            horizontal = 0,
+            step,
+            geographicMapCenter,
+            panToLat,
+            panToLng;
 
         eventData.lat = event.latlng.lat;
         eventData.lon = leafLet.utils.normilizeLongitude(event.latlng.lng);
         eventData.mgrs = emp.geoLibrary.ddToMGRS(eventData.lat, eventData.lon);
         eventData.type = emp.typeLibrary.Pointer.EventType.MOVE;
         instanceInterface.empMapInstance.eventing.Pointer(eventData);
+        // Smart Motion lock functionality is implemented below. If other future requirements reagrding mouse move
+        // in combination with buttons arise
+        switch (originalEvent.buttons) {
+          case 1:
+            switch (instanceInterface.getLockState()) {
+              case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
+                instanceInterface.smartLockPanning.left = originalEvent.offsetX < elementBounds.width * smartLockBuffer;
+                instanceInterface.smartLockPanning.right = originalEvent.offsetX > elementBounds.width - (elementBounds.width * smartLockBuffer);
+                instanceInterface.smartLockPanning.up = originalEvent.offsetY < elementBounds.height * smartLockBuffer;
+                instanceInterface.smartLockPanning.down = originalEvent.offsetY > elementBounds.height - (elementBounds.height * smartLockBuffer);
+                step = instanceInterface.getView().altitude / (L.CRS.Earth.R);
+                if (instanceInterface.smartLockPanning.up) {
+                  vertical = step;
+                } else if (instanceInterface.smartLockPanning.down) {
+                  vertical = -step;
+                }
+                if (instanceInterface.smartLockPanning.left) {
+                  horizontal = -step;
+                } else if (instanceInterface.smartLockPanning.right) {
+                  horizontal = step;
+                }
+                if (vertical !== 0 || horizontal !== 0) {
+                  geographicMapCenter = instanceInterface.leafletInstance.getCenter();
+                  panToLat = geographicMapCenter.lat + vertical;
+                  panToLng = geographicMapCenter.lng + horizontal;
+                  instanceInterface.leafletInstance.panTo(L.latLng(panToLat, panToLng));
+                }
+                instanceInterface.smartLockPanning.left = false;
+                instanceInterface.smartLockPanning.right = false;
+                instanceInterface.smartLockPanning.up = false;
+                instanceInterface.smartLockPanning.down = false;
+                break;
+              default:
+                break;
+            }
+            break;
+          default:
+            break;
+        }
       }
 
       function onMoveEnd(event) {
         var center,
             view,
-            lookAt;
+            lookAt,
+            lockState = instanceInterface.getLockState();
 
-        checkMapCenter();
-        center = instanceInterface.leafletInstance.getCenter();
-        if ((center.lng < -180.0) || (center.lng > 180.0)) {
-          instanceInterface.leafletInstance.setView(center.wrap());
-          return;
+        if (lockState !== emp3.api.enums.MapMotionLockEnum.NO_MOTION) {
+          checkMapCenter();
+          center = instanceInterface.leafletInstance.getCenter();
+          if ((center.lng < -180.0) || (center.lng > 180.0)) {
+            instanceInterface.leafletInstance.setView(center.wrap());
+            return;
+          }
+          if (instanceInterface.renderingOptimization.enabled) {
+            instanceInterface.renderingOptimization.refreshZone();
+          }
+          view = instanceInterface.getView();
+          lookAt = instanceInterface.viewToLookAt(view);
+          instanceInterface.scheduleRendering(view);
+          instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
+          instanceInterface.processViewSetTrans();
         }
-        if (instanceInterface.renderingOptimization.enabled) {
-          instanceInterface.renderingOptimization.refreshZone();
-        }
-        view = instanceInterface.getView();
-        lookAt = instanceInterface.viewToLookAt(view);
-        instanceInterface.scheduleRendering(view);
-        instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-        instanceInterface.processViewSetTrans();
       }
 
       function onMapClick(event) {
@@ -863,16 +921,6 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
       function onZoomEnd(event) {
         checkMapWidth();
-        //var view = instanceInterface.getView();
-        // lookAt = instanceInterface.viewToLookAt(view);
-
-        //instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-        //instanceInterface.processViewSetTrans();
-      }
-
-      function onViewReset(event) {
-        //checkMapWidth();
-        //instanceInterface.scheduleRendering();
       }
 
       function onMouseUpDown(event) {
@@ -886,7 +934,6 @@ emp.engineDefs.leafletMapEngine = function (args) {
       instanceInterface.leafletInstance.on('mouseup', onMouseUpDown);
       instanceInterface.leafletInstance.on('contextmenu', onMapClick);
       instanceInterface.leafletInstance.on('click', onMapClick);
-      instanceInterface.leafletInstance.on('viewreset', onViewReset);
       instanceInterface.leafletInstance.on('zoomend', onZoomEnd);
     }
     /*
@@ -1365,7 +1412,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
       try {
         if (instanceInterface.getLockState() === emp3.api.enums.MapMotionLockEnum.NO_MOTION) {
-          throw new Error("The current lock state is set to \"NO_MOTION\".");
+          throw new Error("The current lock state is set to 'NO_MOTION'.");
         } else {
           if (item.location) {
             oMap.setView(new L.LatLng(item.location.lat, item.location.lon), level, {animate: false});
@@ -1417,6 +1464,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
       } catch (err) {
         transaction.fail([new emp.typeLibrary.Error({
+          coreId: transaction.items[0].coreId,
           message: "An error occurred while attempting to set the map view: ",
           level: emp.typeLibrary.Error.level.MINOR,
           jsError: err
@@ -2204,6 +2252,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
       } catch (err) {
         transaction.fail([new emp.typeLibrary.Error({
+          coreId: transaction.items[0].coreId,
           message: "An error occurred while attempting to set the lookAt object: ",
           level: emp.typeLibrary.Error.level.MAJOR,
           jsError: err
@@ -2433,7 +2482,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             } else {
                 center = new L.LatLng(0, 0);
                 var southWest = L.latLng(args.initialExtent.south, args.initialExtent.west),
-                        northEast = L.latLng(args.initialExtent.north, args.initialExtent.east);
+                    northEast = L.latLng(args.initialExtent.north, args.initialExtent.east);
 
                 bounds = L.latLngBounds(southWest, northEast);
             }
@@ -2459,7 +2508,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
         if ((instanceInterface.leafletInstance === undefined) || (instanceInterface.leafletInstance === null)) {
             throw "Leaflet creation failed.";
         }
-        // Place the zoom control on the right side of the map to remain consistent.
+        // Place the zoom control on the right side of the map to remain consistent with other engines.
         instanceInterface.leafletInstance.zoomControl.setPosition('topright');
         instanceInterface.leafletInstance.whenReady(function () {
             setTimeout(engineInterface.initialize.succeed, 100);
