@@ -78,6 +78,12 @@ class ValidationApp extends Component {
     document.removeEventListener('mouseup', this.handleMouseUp);
   }
 
+  componentWillReceiveProps(props) {
+    if (props.maps.length < this.state.mapContainers) {
+      this.setState({mapContainers: Math.max(props.maps.length, 1)});
+    }
+  }
+
   // EMP functions =====================================================================================================
   showResults() {
     this.setState({isResultsOpen: true});
@@ -216,8 +222,6 @@ class ValidationApp extends Component {
   }
 
   render() {
-    const {maps} = this.props;
-
     const ghostbar =
       <div id='ghostbar' className='dragbar' style={{
         left: this.state.ghostWidth + 'px',
@@ -225,45 +229,56 @@ class ValidationApp extends Component {
       }}>
       </div>;
 
-    const dragbar =
+    const dragbar = (
       <div id='dragbar' className='dragbar'
            onMouseDown={this.handleDragBarMouseDown.bind(this)}
            style={{left: (this.state.width + 3) + 'px'}}>
-      </div>;
+      </div>);
 
-    let topRowStyle = {height: '100%', width: '100%'};
-    let bottomRowStyle = {height: '50%', width: '100%'};
-    switch (this.state.mapContainers) {
-      case 2: {
-        topRowStyle.height = '50%';
-        break;
-      }
-      case 3: {
-        topRowStyle.height = '50%';
-        topRowStyle.width = '50%';
-        break;
-      }
-      case 4: {
-        topRowStyle.height = '50%';
-        topRowStyle.width = '50%';
-        bottomRowStyle.width = '50%';
-        break;
-      }
-    }
+    // Set up grid of maps
+    let baseMapStyle = {position: 'absolute', top: 0, bottom: 0, left: 0, right: 0};
 
     const mapContainers = [];
     for (let iMap = 0; iMap < this.state.mapContainers; iMap++) {
       let mapId = 'map' + iMap;
-      let mapStyle = _.clone(iMap < 2 ? topRowStyle : bottomRowStyle);
-      if (maps.length > 1) {
-        mapStyle.backgroundColor = (mapId === this.state.activeMap) ? 'green' : 'transparent';
+      let mapStyle = _.clone(baseMapStyle);
+
+      // Remember iMap is offset by 1
+      if (this.state.mapContainers === 4) {
+        // map0,1 on top; map2,3 on the bottom
+        mapStyle.top = iMap >= 2 ? '50%' : 0;
+        mapStyle.bottom = iMap >= 2 ? 0 : '50%';
+
+        // map0,3 are on the left, map1,3 on the right
+        if (iMap === 0 || iMap === 2) {
+          mapStyle.left = 0;
+          mapStyle.right = '50%';
+        } else {
+          mapStyle.left = '50%';
+          mapStyle.right = 0;
+        }
+
+      } else if (this.state.mapContainers > 1) {
+        // map0 on top; map1,2 on the bottom
+        mapStyle.top = iMap >= 1 ? '50%' : 0;
+        mapStyle.bottom = iMap >= 1 ? 0 : '50%';
+
+        if (iMap === 0 || this.state.mapContainers < 3) {
+          mapStyle.left = 0;
+          mapStyle.right = 0;
+        } else if (iMap === 1) {
+          mapStyle.left = 0;
+          mapStyle.right = '50%';
+        } else {
+          mapStyle.left = '50%';
+          mapStyle.right = 0;
+        }
       }
-      mapContainers.push(<Map id={mapId}
-                              selectMap={() => toastr.info('im selected')}
+
+      mapContainers.push(<Map mapId={mapId}
                               key={'mapContainer_' + iMap}
                               style={mapStyle}/>);
     }
-
 
     return (
       <div className='mdl-layout mdl-js-layout'>

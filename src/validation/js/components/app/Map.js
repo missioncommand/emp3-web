@@ -180,22 +180,21 @@ class Map extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      mapCreationPending: false
+      hideSelector: false,
+      mapId: ''
     };
   }
 
   componentWillReceiveProps(props) {
+    let hideSelector = false;
     if (props.maps.length) {
-      let hideSelector = false;
       props.maps.forEach(map => {
-        if (map.container === props.id) {
+        if (map.container === props.mapId) {
           hideSelector = true;
         }
       });
-      if (hideSelector) {
-        this.setState({mapCreationPending: true});
-      }
     }
+    this.setState({hideSelector: hideSelector});
   }
 
   /**
@@ -213,7 +212,7 @@ class Map extends Component {
       brightness = 50,
       midDistanceThreshold = 2e4,
       farDistanceThreshold = 6e5;
-    const {maps, addMap, addResult, addError} = this.props;
+    const {mapId, addMap, addResult, addError} = this.props;
 
     let config = empConfig;
 
@@ -229,7 +228,7 @@ class Map extends Component {
     try {
       let engine = _.find(config.engines, {mapEngineId: mapEngineId || config.startMapEngineId});
       empConfig.startMapEngineId = engine.mapEngineId;
-      let containerId = 'map' + maps.length;
+      let containerId = mapId;
       let environment = config.environment;
       let envOverride = false;
       (function() {
@@ -286,21 +285,20 @@ class Map extends Component {
     }
   }
 
-
   render() {
-    const {connectDropTarget, id, style, maps} = this.props;
-    const map = _.find(maps, {container: id});
+    const {connectDropTarget, mapId, style, maps} = this.props;
+    const map = _.find(maps, {container: mapId});
 
     return (
       <div className="map" style={style}>
         {/* Map or a map selection dialog */}
         {connectDropTarget(
-          <div id={id} style={{height: '100%', width: '100%'}}>
-            {this.state.mapCreationPending ? null :
+          <div id={mapId} style={{height: '100%', width: '100%'}}>
+            {this.state.hideSelector || map ? null :
               <div style={{height: '100%'}}>
                 <div style={{height: '40%'}}/>
                 <MapSelection
-                  selectEngine={(engine) => this.setState({mapCreationPending: true}, () => this.createMap(engine))}/>
+                  selectEngine={(engine) => this.setState({hideSelector: true}, () => this.createMap(engine))}/>
               </div>
             }
           </div>)}
@@ -325,7 +323,7 @@ Map.propTypes = {
   isOver: PropTypes.bool,
   canDrop: PropTypes.bool,
   style: PropTypes.object,
-  id: PropTypes.string.isRequired,
+  mapId: PropTypes.string.isRequired,
   addResult: PropTypes.func,
   addError: PropTypes.func,
   addMap: PropTypes.func
