@@ -156,6 +156,7 @@ EMPWorldWind.map = function(wwd) {
  * Creates the initial layers
  * @param {object} args
  * @param {Bounds} [args.extent]
+ * @param {object} [args.configProperties]
  * @param {emp.map} args.mapInstance
  */
 EMPWorldWind.map.prototype.initialize = function(args) {
@@ -227,6 +228,19 @@ EMPWorldWind.map.prototype.initialize = function(args) {
         altitude: 1e7
       });
     }
+  }
+
+  // Update any other config properties passed in
+  if (EMPWorldWind.utils.defined(args.configProperties.midDistanceThreshold)) {
+    this.singlePointAltitudeRanges.mid = args.configProperties.midDistanceThreshold;
+  }
+
+  if (EMPWorldWind.utils.defined(args.configProperties.farDistanceThreshold)) {
+    this.singlePointAltitudeRanges.far = args.configProperties.farDistanceThreshold;
+  }
+
+  if (EMPWorldWind.utils.defined(args.configProperties.brightness)) {
+    this.setContrast(args.configProperties.brightness);
   }
 
   // Trigger an initial camera update to update EMP

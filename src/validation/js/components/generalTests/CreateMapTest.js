@@ -189,7 +189,6 @@ class CreateMapTest extends Component {
 
     this.createMap(bounds,
       this.state.engineId === '' ? undefined : this.state.engineId,
-      false,
       this.state.recorder,
       parseInt(this.state.brightness),
       parseInt(this.state.midDistanceThreshold),
