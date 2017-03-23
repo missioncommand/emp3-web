@@ -154,14 +154,16 @@ EMPWorldWind.map = function(wwd) {
 
 /**
  * Creates the initial layers
- * @param {emp.map} empMapInstance
+ * @param {object} args
+ * @param {Bounds} [args.bounds]
+ * @param {emp.map} args.empMapInstance
  */
-EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
+EMPWorldWind.map.prototype.initialize = function(args) {
   /**
    * @memberof EMPWorldWind.map#
    * @type {emp.map}
    */
-  this.empMapInstance = empMapInstance;
+  this.empMapInstance = args.empMapInstance;
 
   // Create the contrast layers
   var blackContrastLayer = new WorldWind.SurfaceSector(WorldWind.Sector.FULL_SPHERE, null);
@@ -202,6 +204,13 @@ EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
         }
       }
     }
+  }
+
+  if (args.extent) {
+    this.centerOnLocation({
+      latitude: (args.extent.north + args.extent.south) / 2,
+      longitude: (args.extent.east + args.extent.west) / 2
+    });
   }
 
   EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
