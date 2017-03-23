@@ -661,25 +661,6 @@ emp.engineDefs.leafletMapEngine = function (args) {
         instanceInterface.addEmpObject(oControl);
         instanceInterface.leafletInstance.addControl(oControl);
 
-        // oControl = new L.Control.Zoom({
-        //     position: 'topright',
-        //     objectType: leafLet.typeLibrary.objectType.LL_CONTROL,
-        //     coreId: emp.helpers.id.newGUID()
-        // });
-
-        // oLayerEntry = new emp.typeLibrary.Static({
-        //     name: 'Zoom Buttons',
-        //     featureId: oControl.getCoreId(),
-        //     overlayId: sCoreId,
-        //     visible: true,
-        //     coreId: oControl.getCoreId(),
-        //     coreParent: sCoreId
-        // });
-        // oLayerList.push(oLayerEntry);
-        //
-        // instanceInterface.addEmpObject(oControl);
-        // instanceInterface.leafletInstance.addControl(oControl);
-
         if (instanceInterface.engineParameters.tileLayer.path
                 && !emp.helpers.isEmptyString(instanceInterface.engineParameters.tileLayer.path)) {
             var oMainMap;
