@@ -306,7 +306,14 @@ class Map extends Component {
           </div>)}
 
         {/* Coordinates for the map or nothing */}
-        {map ? <CoordinatesWindow map={map}/> : null }
+        {map ? <CoordinatesWindow map={map}
+                                  ref={"coords"}
+                                  style={{
+                                    position: 'absolute',
+                                    bottom: 0,
+                                    left: 0
+                                  }}
+                                  id={map.geoId + '_coordsWindow'}/> : null }
       </div>
     );
   }
