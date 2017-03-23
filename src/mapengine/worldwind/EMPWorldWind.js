@@ -154,14 +154,17 @@ EMPWorldWind.map = function(wwd) {
 
 /**
  * Creates the initial layers
- * @param {emp.map} empMapInstance
+ * @param {object} args
+ * @param {Bounds} [args.extent]
+ * @param {object} [args.configProperties]
+ * @param {emp.map} args.mapInstance
  */
-EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
+EMPWorldWind.map.prototype.initialize = function(args) {
   /**
    * @memberof EMPWorldWind.map#
    * @type {emp.map}
    */
-  this.empMapInstance = empMapInstance;
+  this.empMapInstance = args.mapInstance;
 
   // Create the contrast layers
   var blackContrastLayer = new WorldWind.SurfaceSector(WorldWind.Sector.FULL_SPHERE, null);
@@ -204,6 +207,43 @@ EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
     }
   }
 
+  // If an initial extent is passed in set the view
+  if (args.extent) {
+    if (!isNaN(args.extent.north) && !isNaN(args.extent.south) && !isNaN(args.extent.east) && !isNaN(args.extent.west)) {
+      // Get approximate height from the width of the extent
+      var alt = Math.PI * WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
+          new WorldWind.Location(args.extent.north, args.extent.west),
+          new WorldWind.Location(args.extent.south, args.extent.east));
+
+      this.centerOnLocation({
+        latitude: (args.extent.north + args.extent.south) / 2,
+        longitude: (args.extent.east + args.extent.west) / 2,
+        altitude: alt
+      });
+    } else if (!isNaN(args.extent.centerLat) && !isNaN(args.extent.centerLon)) {
+      // Arbitrarily use 1e7 as altitude
+      this.centerOnLocation({
+        latitude: args.extent.centerLat,
+        longitude: args.extent.centerLon,
+        altitude: 1e7
+      });
+    }
+  }
+
+  // Update any other config properties passed in
+  if (EMPWorldWind.utils.defined(args.configProperties.midDistanceThreshold)) {
+    this.singlePointAltitudeRanges.mid = args.configProperties.midDistanceThreshold;
+  }
+
+  if (EMPWorldWind.utils.defined(args.configProperties.farDistanceThreshold)) {
+    this.singlePointAltitudeRanges.far = args.configProperties.farDistanceThreshold;
+  }
+
+  if (EMPWorldWind.utils.defined(args.configProperties.brightness)) {
+    this.setContrast(args.configProperties.brightness);
+  }
+
+  // Trigger an initial camera update to update EMP
   EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
 };
 
