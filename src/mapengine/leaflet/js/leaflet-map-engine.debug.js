@@ -1389,7 +1389,8 @@ emp.engineDefs.leafletMapEngine = function (args) {
           bounds,
           oEmpObject,
           oEmpBounds,
-          oCenter;
+          oCenter,
+          meters = 16093;
 
       try {
         if (instanceInterface.getLockState() === emp3.api.enums.MapMotionLockEnum.NO_MOTION) {
@@ -1427,8 +1428,8 @@ emp.engineDefs.leafletMapEngine = function (args) {
               oEmpBounds = oEmpObject.getFeatureBounds();
               if (oEmpBounds) {
                 if (bZoom) {
-                  if (oEmpBounds.getCenterWidth() < 16093) {
-                    oEmpBounds.setCenterWidth(16093);
+                  if (oEmpBounds.getCenterWidth() < meters) {
+                    oEmpBounds.setCenterWidth(meters);
                   }
                   oMap.fitBounds(new L.LatLngBounds(oEmpBounds.getSouthWest(), oEmpBounds.getNorthEast()), {animate: false});
                 } else {
