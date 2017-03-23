@@ -9,6 +9,7 @@ emp.editors.Vertices = function() {
   this.tail = null;
   this.list = [];
   this.length = 0;
+  this.vertexLength = 0;
 };
 
 /**
@@ -42,6 +43,10 @@ emp.editors.Vertices.prototype.push = function(vertex) {
     this.list[vertex.feature.featureId] = vertex;
 
     this.length++;
+
+    if (vertex.type === "vertex") {
+      this.vertexLength++;
+    }
   }
 };
 
@@ -97,6 +102,10 @@ emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
     this.list[vertex.feature.featureId] = vertex;
 
     this.length++;
+
+    if (vertex.type === "vertex") {
+      this.vertexLength++;
+    }
   }
 };
 
@@ -122,6 +131,10 @@ emp.editors.Vertices.prototype.append = function(featureId, vertex) {
     this.list[vertex.feature.featureId] = vertex;
 
     this.length++;
+
+    if (vertex.type === "vertex") {
+      this.vertexLength++;
+    }
   }
 
 };
@@ -205,6 +218,7 @@ emp.editors.Vertices.prototype.clear = function() {
   this.tail = null;
   this.list = [];
   this.length = 0;
+  this.vertexLength = 0;
 };
 
 /**
