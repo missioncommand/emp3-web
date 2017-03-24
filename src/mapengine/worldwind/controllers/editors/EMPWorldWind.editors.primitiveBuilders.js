@@ -120,6 +120,15 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function (feature
             
              // Set the imageURL
             attributes.imageSource = url || WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+      if (feature.properties.iconUrl) {
+        attributes.imageSource = feature.properties.iconUrl;
+        if (feature.properties.useProxy) {
+          attributes.imageSource = emp3.api.global.configuration.urlProxy + "?url=" + attributes.imageSource;
+        }
+      } else {
+        attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+      }
+
 
             // Create the label attributes
             attributes.labelAttributes = EMPWorldWind.editors.primitiveBuilders.createTextAttributes(feature);

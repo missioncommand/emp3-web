@@ -9,6 +9,7 @@ EMPWorldWind.data = EMPWorldWind.data || {};
  */
 EMPWorldWind.data.EmpWMSLayer = function (wms)
 {
+  var layerNames, config, url;
     var layerNames, useProxy, url, config;
 
     this.id = wms.coreId;
@@ -26,20 +27,16 @@ EMPWorldWind.data.EmpWMSLayer = function (wms)
 
     layerNames = wms.activeLayers.join();
     
-    if (wms.useProxy)
-    {
-        useProxy = wms.useProxy;
-    }
-    if (useProxy === true)
-    {
-        url = emp3.api.global.configuration.urlProxy + "?url=" + wms.url;
-    }
-    else
-    {
-        url = wms.url;
-    }
+  // Set the URL to the service
+  if (wms.useProxy) {
+    url = emp3.api.global.configuration.urlProxy + "?url=" + wms.url;
+  } else {
+    url = wms.url;
+  }
+
+   
     config = {
-        service: url,
+    service: url,
         layerNames: layerNames,
         sector: WorldWind.Sector.FULL_SPHERE,
         levelZeroDelta: new WorldWind.Location(36, 36),
