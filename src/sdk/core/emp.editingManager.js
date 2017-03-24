@@ -135,6 +135,26 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       }
+      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
+        // This is a circle defined by a point and radius.  It uses a GEOJSON point and
+        // a distance in meters to represent
+        // itself.
+        activeEditor = new emp.editors.Circle({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
+      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
+        // This is a circle defined by a point and radius.  It uses a GEOJSON point and
+        // a distance in meters to represent
+        // itself.
+        activeEditor = new emp.editors.Rectangle({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
       else {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.EditorBase({

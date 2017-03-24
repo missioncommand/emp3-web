@@ -178,6 +178,26 @@ emp.editors.Vertices.prototype.getVerticesAsLineString = function() {
 };
 
 /**
+ * Return only the vertices of this object as a geojson polygon array.
+ */
+emp.editors.Vertices.prototype.getVerticesAsPolygon = function() {
+  var coordinates = [];
+  var currentVertex;
+  currentVertex = this.head;
+
+  // loop through the coordinates starting at the beginning.
+  // only get the coordinates that are a vertex.
+  while (currentVertex !== null) {
+    if (currentVertex.type === "vertex") {
+      coordinates.push(currentVertex.feature.data.coordinates);
+    }
+    currentVertex = currentVertex.next;
+  }
+
+  return [coordinates];
+};
+
+/**
  * Removes all the control points out of vertices.
  */
 emp.editors.Vertices.prototype.clear = function() {
