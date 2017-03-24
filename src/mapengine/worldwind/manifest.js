@@ -93,7 +93,7 @@ function initializeWorldwind(args) {
       }
 
       var empWorldWind = new EMPWorldWind.map(wwd);
-      empWorldWind.initialize(instArgs.mapInstance);
+      empWorldWind.initialize(instArgs);
       instArgs.mapInstance.engine.initialize.succeed(empWorldWind);
     } catch (err) {
       instArgs.mapInstance.engine.initialize.fail(err);
