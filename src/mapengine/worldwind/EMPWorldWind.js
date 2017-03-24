@@ -117,12 +117,30 @@ EMPWorldWind.map = function(wwd) {
     }
   };
 
-  // optimization for mil standard  single points.
+  // Optimization for mil standard  single points.
+  /**
+   * Object for holding render optimization params
+   */
   this.singlePointAltitudeRanges = {};
-  this.singlePointAltitudeRanges.mid = 600000;//default
-  this.singlePointAltitudeRanges.high = 1200000;// default
+  /**
+   * Mid-range optimization altitude
+   * @default
+   */
+  this.singlePointAltitudeRanges.mid = 600000; // default
+  /**
+   * High-range optimization altitude
+   * @default
+   */
+  this.singlePointAltitudeRanges.high = 1200000; // default
+  /**
+   * Current range mode
+   */
   this.singlePointAltitudeRangeMode = EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
 
+  /**
+   * Current set of selected objects
+   */
+  this.empSelections = {};
 };
 
 // typedefs ============================================================================================================
@@ -136,14 +154,17 @@ EMPWorldWind.map = function(wwd) {
 
 /**
  * Creates the initial layers
- * @param {emp.map} empMapInstance
+ * @param {object} args
+ * @param {Bounds} [args.extent]
+ * @param {object} [args.configProperties]
+ * @param {emp.map} args.mapInstance
  */
-EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
+EMPWorldWind.map.prototype.initialize = function(args) {
   /**
    * @memberof EMPWorldWind.map#
    * @type {emp.map}
    */
-  this.empMapInstance = empMapInstance;
+  this.empMapInstance = args.mapInstance;
 
   // Create the contrast layers
   var blackContrastLayer = new WorldWind.SurfaceSector(WorldWind.Sector.FULL_SPHERE, null);
@@ -186,6 +207,43 @@ EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
     }
   }
 
+  // If an initial extent is passed in set the view
+  if (args.extent) {
+    if (!isNaN(args.extent.north) && !isNaN(args.extent.south) && !isNaN(args.extent.east) && !isNaN(args.extent.west)) {
+      // Get approximate height from the width of the extent
+      var alt = Math.PI * WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
+          new WorldWind.Location(args.extent.north, args.extent.west),
+          new WorldWind.Location(args.extent.south, args.extent.east));
+
+      this.centerOnLocation({
+        latitude: (args.extent.north + args.extent.south) / 2,
+        longitude: (args.extent.east + args.extent.west) / 2,
+        altitude: alt
+      });
+    } else if (!isNaN(args.extent.centerLat) && !isNaN(args.extent.centerLon)) {
+      // Arbitrarily use 1e7 as altitude
+      this.centerOnLocation({
+        latitude: args.extent.centerLat,
+        longitude: args.extent.centerLon,
+        altitude: 1e7
+      });
+    }
+  }
+
+  // Update any other config properties passed in
+  if (EMPWorldWind.utils.defined(args.configProperties.midDistanceThreshold)) {
+    this.singlePointAltitudeRanges.mid = args.configProperties.midDistanceThreshold;
+  }
+
+  if (EMPWorldWind.utils.defined(args.configProperties.farDistanceThreshold)) {
+    this.singlePointAltitudeRanges.far = args.configProperties.farDistanceThreshold;
+  }
+
+  if (EMPWorldWind.utils.defined(args.configProperties.brightness)) {
+    this.setContrast(args.configProperties.brightness);
+  }
+
+  // Trigger an initial camera update to update EMP
   EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
 };
 
@@ -402,6 +460,7 @@ EMPWorldWind.map.prototype.unplotFeature = function(feature) {
   layer = this.getLayer(feature.parentCoreId);
   if (layer) {
     layer.removeFeatureById(feature.coreId);
+    this.removeFeatureSelection(feature.coreId);
     this.worldWindow.redraw();
     rc.success = true;
   } else {
@@ -423,7 +482,8 @@ EMPWorldWind.map.prototype.selectFeatures = function(empSelections) {
     var feature = this.features[selectedFeature.featureId];
     if (feature) {
       feature.selected = selectedFeature.select;
-      selected.push(feature);
+      (feature.selected) ? this.storeFeatureSelection(selectedFeature.featureId) : this.removeFeatureSelection(selectedFeature.featureId);
+      //selected.push(feature);   
     } else {
       failed.push(selectedFeature.featureId);
     }
@@ -621,7 +681,7 @@ EMPWorldWind.map.prototype.removeWmtsFromMap = function(/* empWMTS */) {
  * @returns {boolean}
  */
 EMPWorldWind.map.prototype.isFeatureSelected = function(id) {
-  return !!this.empSelections.hasOwnProperty(id);
+  return this.empSelections.hasOwnProperty(id);
 };
 
 /**
@@ -640,10 +700,9 @@ EMPWorldWind.map.prototype.getFeatureSelection = function(id) {
 /**
  *
  * @param id
- * @param deselectProperties
  */
-EMPWorldWind.map.prototype.storeFeatureSelection = function(id, deselectProperties) {
-  this.empSelections[id] = deselectProperties;
+EMPWorldWind.map.prototype.storeFeatureSelection = function(id) {
+  this.empSelections[id] = id;
 };
 
 /**

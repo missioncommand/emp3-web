@@ -2,6 +2,7 @@
  * @namespace
  */
 cmapi = cmapi || {};
+
 /**
  * @namespace
  */
@@ -92,16 +93,7 @@ cmapi.IGeoAltitudeMode = function(args) {
     }
   });
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -154,16 +146,7 @@ cmapi.IGeoTimeSpan = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -237,16 +220,7 @@ cmapi.IGeoPosition = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -320,16 +294,7 @@ cmapi.IGeoPositionGroup = function(args) {
     }
   });
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -361,16 +326,7 @@ cmapi.IGeoPositionHistory = function(args) {
     }
   });
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -523,16 +479,7 @@ cmapi.IGeoCamera = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -685,17 +632,7 @@ cmapi.IGeoLookAt = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
-
+  this.patchProps = cmapi.patchProps;
   if (args) {
     this.patchProps(args);
   }
@@ -783,16 +720,7 @@ cmapi.IGeoBounds = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -882,16 +810,7 @@ cmapi.IGeoView = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -984,16 +903,7 @@ cmapi.IGeoColor = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1101,16 +1011,7 @@ cmapi.IGeoStrokeStyle = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1182,16 +1083,7 @@ cmapi.IGeoFillStyle = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1279,16 +1171,7 @@ cmapi.IGeoIconStyle = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1433,16 +1316,7 @@ cmapi.IGeoLabelStyle = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1547,16 +1421,7 @@ cmapi.IGeoBase = function(args) {
     }
   });
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1595,16 +1460,7 @@ cmapi.IGeoContainer = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1833,16 +1689,7 @@ cmapi.IGeoRenderable = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1899,16 +1746,7 @@ cmapi.IGeoPoint = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1928,16 +1766,7 @@ cmapi.IGeoText = function(args) {
   cmapi.inherit(new cmapi.IGeoRenderable(), this);
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1957,16 +1786,7 @@ cmapi.IGeoPolygon = function(args) {
   cmapi.inherit(new cmapi.IGeoRenderable(), this);
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -1986,16 +1806,7 @@ cmapi.IGeoPath = function(args) {
   cmapi.inherit(new cmapi.IGeoRenderable(), this);
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2040,16 +1851,7 @@ cmapi.IGeoCircle = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2117,16 +1919,7 @@ cmapi.IGeoEllipse = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2194,16 +1987,7 @@ cmapi.IGeoRectangle = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2247,16 +2031,7 @@ cmapi.IGeoSquare = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2295,16 +2070,7 @@ cmapi.IGeoImageOverlay = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2431,16 +2197,7 @@ cmapi.IGeoMilSymbol = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2497,16 +2254,7 @@ cmapi.IGeoAirControlMeasure = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2564,16 +2312,7 @@ cmapi.IGeoDocument = function(args) {
   });
 
 
-  this.patchProps = function(update) {
-    var prop,
-      propVal;
-    for (prop in update) {
-      propVal = update[prop];
-      if (propVal !== undefined && propVal !== 'undefined') {
-        this[prop] = propVal;
-      }
-    }
-  };
+  this.patchProps = cmapi.patchProps;
 
   if (args) {
     this.patchProps(args);
@@ -2614,4 +2353,25 @@ cmapi.randomUUID = function() {
     // s(4) + s(4) + s(4),
     Date.now().toString(16).slice(-10) + s(2) // Use timestamp to avoid collisions
   ].join('-');
+};
+
+/**
+ * Sets properties on the object
+ * @param update
+ */
+cmapi.patchProps = function(update) {
+  var prop,
+    propVal;
+  for (prop in update) {
+    if (update.hasOwnProperty(prop)) {
+      propVal = update[prop];
+      if (propVal !== undefined && propVal !== 'undefined') {
+        // Handle special case of blank geoId, other properties may be blank
+        if (!propVal && prop === 'geoId') {
+          continue;
+        }
+        this[prop] = propVal;
+      }
+    }
+  }
 };
