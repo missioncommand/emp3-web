@@ -2928,6 +2928,74 @@ emp.storage.feature.validateAdd = function(oTransaction) {
           break;
       }
     }
+
+    if (!oItem.properties) {
+      oItem.properties = {};
+    }
+
+    // if the feature is a MIL-STD-2525 symbol, and it does not have required modifiers
+    // create some fake ones just so it appears on the map.
+    if (oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+      var drawCategory = emp.util.getDrawCategory(oItem);
+
+      if (!oItem.properties.modifiers) {
+        oItem.properties.modifiers = {};
+      }
+
+      switch (drawCategory) {
+        case armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE:
+          if (!oItem.properties.modifiers.distance) {
+            oItem.properties.modifiers.distance = [10000];
+          }
+          break;
+        case armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE:
+          if (!oItem.properties.modifiers.distance) {
+            oItem.properties.modifiers.distance = [10000, 20000];
+          }
+          break;
+        case armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE:
+          if (!oItem.properties.modifiers.distance) {
+            oItem.properties.modifiers.distance = [10000, 20000];
+          }
+          if (!oItem.properties.modifiers.azimuth) {
+            oItem.properties.modifiers.azimuth = [-45, 45];
+          }
+          break;
+        case armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE:
+          if (!oItem.properties.modifiers.distance) {
+            oItem.properties.modifiers.distance = [10000, 20000];
+          }
+          break;
+        case armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWO_POINT_RECT_PARAMETERED_AUTOSHAPE:
+          if (!oItem.properties.modifiers.distance) {
+            oItem.properties.modifiers.distance = [10000];
+          }
+          break;
+      }
+    } else if (oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) {
+      if (!oItem.properties.radius) {
+        oItem.properties.radius = 10000;
+      }
+    } else if (oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
+      if (!oItem.properties.width) {
+        oItem.properties.width = 20000;
+      }
+      if (!oItem.properties.height) {
+        oItem.properties.height = 10000;
+      }
+    } else if (oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+      if (!oItem.properties.width) {
+        oItem.properties.width = 10000;
+      }
+    } else if (oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE) {
+      if (!oItem.properties.semiMajor) {
+        oItem.properties.semiMajor = 10000;
+      }
+      if (!oItem.properties.semiMinor) {
+        oItem.properties.semiMinor = 20000;
+      }
+    }
+
     iIndex++;
   }
 };
