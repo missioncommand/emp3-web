@@ -221,6 +221,46 @@ emp.util.each = function (collection, func) {
 };
 
 /**
+ * Retrieves the drawCategory of a feature id if it is a MIL-STD-2525 feature.
+ */
+emp.util.getDrawCategory = function(feature) {
+
+  // get the symbolCode of the MIL Std feature
+  var symbolCode = feature.data.symbolCode;
+  var standard,
+    basicCode,
+    symbolDef,
+    unitDef,
+    drawCategory;
+
+  if (symbolCode) {
+
+    // Get which standard the symbol is using, by default it is MIL-STD-2525C.
+    if (feature.properties && feature.properties.modifiers) {
+      standard = feature.properties.modifiers.standard || 1;
+    }
+
+    basicCode = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(symbolCode, standard);
+
+    // Determine the draw category.  We do this using our renderer's utility
+    // methods.  The draw category tells us what type of editor to use.
+    if (armyc2.c2sd.renderer.utilities.SymbolDefTable.hasSymbolDef(basicCode, standard)) {
+      symbolDef = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(basicCode, standard);
+      if (symbolDef) {
+        drawCategory = symbolDef.drawCategory;
+      }
+    } else {
+      unitDef = armyc2.c2sd.renderer.utilities.UnitDefTable.getUnitDef(basicCode, standard);
+      if (unitDef) {
+        drawCategory = unitDef.drawCategory;
+      }
+    }
+  }
+
+  return drawCategory;
+};
+
+/**
  * This callback handles the each function.
  * @callback emp.util.each~Callback
  * @param {*} elem

@@ -538,6 +538,7 @@ emp3.api.getProperties = function (feature) {
   properties.extrude = feature.extrude;
   properties.tessellate = feature.tessellate;
   properties.altitudeMode = emp3.api.convertAltitudeMode(feature.altitudeMode);
+  properties.useProxy = feature.useProxy;
 
   if (feature.labelStyle) {
     properties.labelStyle = feature.labelStyle;
@@ -665,6 +666,7 @@ emp3.api.convertCMAPIPropertiesToFeature = function (feature, properties) {
   feature.timeStamp = properties.timeStamp;
   feature.extrude = properties.extrude;
   feature.tessellate = properties.tessellate;
+  feature.useProxy = properties.useProxy;
 
   // Handle type specific properties
   switch (properties.featureType) {
