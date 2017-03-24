@@ -10,7 +10,6 @@ EMPWorldWind.data = EMPWorldWind.data || {};
 EMPWorldWind.data.EmpWMSLayer = function (wms)
 {
   var layerNames, config, url;
-    var layerNames, useProxy, url, config;
 
     this.id = wms.coreId;
 
