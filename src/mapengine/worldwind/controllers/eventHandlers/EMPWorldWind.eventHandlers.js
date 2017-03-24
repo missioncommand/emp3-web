@@ -69,6 +69,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function (viewEventType)
         longitude: this.worldWindow.navigator.lookAtLocation.longitude
     };
 
+    //optimization . isMapMoving uses an epsilon to reduce the calls to triggerRenderUpdate function.
     if (this.isMapMoving())
     {
         this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
@@ -108,9 +109,10 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function ()
         if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
                 feature.feature.data.type === "LineString")
         {
-            if (this.isMilStdMutlPointShapeInViewRegion (feature.feature) && !EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3))
+            if (this.isMilStdMutlPointShapeInViewRegion (feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
+                    feature.feature.wasClipped))
             {
-                //feature.feature.range = this.lastNavigator.range;
+                // optimization - update feature only if inside view region and  (range outside range epsilon or was cliiped)
                 this.plotFeature(feature);
             }
         }
