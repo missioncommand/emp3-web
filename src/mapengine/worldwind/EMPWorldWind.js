@@ -165,7 +165,6 @@ EMPWorldWind.map = function (wwd)
  * @param {emp.map} args.mapInstance
  */
 EMPWorldWind.map.prototype.initialize = function (args)
-{
     {
         /**
          * @memberof EMPWorldWind.map#
@@ -1195,7 +1194,10 @@ EMPWorldWind.map.prototype.initialize = function (args)
         this.worldWindow = undefined;
     };
 
-
+      /**
+     * checks is map is moving outside an epsilon. This function is used 
+     * to reduce the calls to update the features of the map.
+     */
     EMPWorldWind.map.prototype.isMapMoving = function ()
     {
         if ((!EMPWorldWind.Math.equalsEpsilon(this.worldWindow.navigator.lookAtLocation.latitude, this.lastNavigator.lookAtLocation.latitude, this.optimizationMapMoveEpsilon)) ||
@@ -1247,6 +1249,10 @@ EMPWorldWind.map.prototype.initialize = function (args)
 //        }
 //    };
 
+     /**
+     * checks if feature is within view area of map.
+     * @param {empFeature} emp object representing a feature (not a ww feature).
+     */
     EMPWorldWind.map.prototype.isMilStdMutlPointShapeInViewRegion = function (empFeature)
     {
         var inView = false;
@@ -1266,4 +1272,4 @@ EMPWorldWind.map.prototype.initialize = function (args)
         }
         return inView;
     };
-};
+ 

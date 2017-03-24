@@ -125,6 +125,8 @@ EMPWorldWind.editors.EditorController = (function() {
       bbox,
       modifiers,
       EMPWorldWind.constants.MultiPointRenderType.GEOJSON));
+      
+      feature.wasClipped = imageInfo.properties.wasClipped;
 
     // Generate primitives from the geoJSON
     for (i = 0; i < imageInfo.features.length; i++) {
