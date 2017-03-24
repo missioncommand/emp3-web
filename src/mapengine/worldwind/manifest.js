@@ -97,6 +97,7 @@ function initializeWorldwind(args) {
       instArgs.mapInstance.engine.initialize.succeed(empWorldWind);
     } catch (err) {
       instArgs.mapInstance.engine.initialize.fail(err);
+      window.console.log("+++++++++++++error initilaizing engine: " + err);
     }
   }
 
