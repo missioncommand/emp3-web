@@ -83,7 +83,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
     // TODO check if the symbol is visible first
     if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "LineString") {
-      this.plotFeature(feature.feature);
+      this.plotFeature(feature);
     } else if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "Point") {
       //optimization
@@ -114,7 +114,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
         feature.singlePointAltitudeRangeChanged = false;
       }
       if (callRenderer) {
-        this.plotFeature(feature.feature);
+        this.plotFeature(feature);
       }
     }
   }.bind(this));
@@ -127,11 +127,11 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
  * @param empEventingArgs
  */
 EMPWorldWind.eventHandlers.extractFeatureFromEvent = function(mouseEvent, empEventingArgs) {
-  var obj, len,
-    pickList = this.worldWindow.pick(this.worldWindow.canvasCoordinates(mouseEvent.clientX, mouseEvent.clientY));
+  var obj, i,
+    pickList = this.worldWindow.pick(this.worldWindow.canvasCoordinates(mouseEvent.clientX, mouseEvent.clientY)),
+    len = pickList.objects.length;
 
-  len = pickList.objects.length;
-  for (var i = 0; i < len; i++) {
+  for (i = 0; i < len; i++) {
     obj = pickList.objects[i];
     if (!obj.isTerrain) {
       if (obj.userObject.userProperties && obj.userObject.userProperties.id) {
