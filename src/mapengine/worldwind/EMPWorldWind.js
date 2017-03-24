@@ -201,7 +201,9 @@ EMPWorldWind.map.prototype.initialize = function(args) {
       eventClass = EMPWorldWind.eventHandlers[eventClass];
       for (eventHandler in eventClass) {
         if (eventClass.hasOwnProperty(eventHandler)) {
-          this.worldWindow.addEventListener(eventHandler, eventClass[eventHandler].bind(this));
+          this.worldWindow.addEventListener(eventHandler,
+            EMPWorldWind.eventHandlers.throttle(eventClass[eventHandler].bind(this), 100, this)
+          );
         }
       }
     }
