@@ -94,7 +94,6 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function (feature
 {
     var lineColor, fillColor, highlightAttributes,
             selectedLineColor, selectedFillColor, selectedLabelColor, url, useProxy = false;
-    ;
 
     var attributes = new WorldWind.ShapeAttributes();
 
@@ -110,7 +109,7 @@ EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function (feature
             {
                 useProxy = feature.properties.useProxy;
             }
-            if (useProxy === true && feature.properties.iconUrl)
+            if (useProxy  && feature.properties.iconUrl)
             {
                 url = emp3.api.global.configuration.urlProxy + "?url=" + feature.properties.iconUrl;
             }
