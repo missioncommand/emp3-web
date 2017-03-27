@@ -1114,7 +1114,7 @@ EMPWorldWind.map.prototype.isMilStdMultiPointShapeInViewRegion = function(empFea
     inView = false;
 
   // Highlight the items picked.
-  if (this.bounds) {
+  if (!this.bounds) {
     this.bounds = this.getBounds();
   }
 
