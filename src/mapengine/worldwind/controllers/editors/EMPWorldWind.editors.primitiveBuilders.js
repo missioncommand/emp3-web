@@ -93,7 +93,7 @@ EMPWorldWind.editors.primitiveBuilders.createTextAttributes = function (feature)
 EMPWorldWind.editors.primitiveBuilders.createShapeAttributes = function (feature, selectionStyle)
 {
     var lineColor, fillColor, highlightAttributes,
-            selectedLineColor, selectedFillColor, selectedLabelColor, url, useProxy = false;
+            selectedLineColor, selectedFillColor, selectedLabelColor, url;
 
     var attributes = new WorldWind.ShapeAttributes();
 
