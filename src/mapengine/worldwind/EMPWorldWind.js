@@ -199,6 +199,7 @@ EMPWorldWind.map.prototype.initialize = function(args) {
   }.bind(this));
 
   // Register DOM event handlers
+  var throttleValue = 50; // throttle on event calls in ms
   var eventClass, eventHandler;
   for (eventClass in EMPWorldWind.eventHandlers) {
     if (EMPWorldWind.eventHandlers.hasOwnProperty(eventClass)) {
@@ -206,7 +207,7 @@ EMPWorldWind.map.prototype.initialize = function(args) {
       for (eventHandler in eventClass) {
         if (eventClass.hasOwnProperty(eventHandler)) {
           this.worldWindow.addEventListener(eventHandler,
-            EMPWorldWind.eventHandlers.throttle(eventClass[eventHandler].bind(this), 100, this)
+            EMPWorldWind.eventHandlers.throttle(eventClass[eventHandler].bind(this), throttleValue, this)
           );
         }
       }
