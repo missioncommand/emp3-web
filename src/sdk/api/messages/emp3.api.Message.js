@@ -25,6 +25,7 @@ emp3.api.Message = function(channel, transactionId) {
 /**
  * Returns a transaction object only if the message specifically requires it
  * @returns {emp3.api.Transaction|undefined}
+ * @deprecated since 2.3.0
  */
 emp3.api.Message.prototype.transaction = function() {};
 

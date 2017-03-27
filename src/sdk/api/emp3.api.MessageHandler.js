@@ -296,9 +296,6 @@ emp3.api.MessageHandler = (function() {
      * arguments to the source object's method, user data
      */
     this.sendMessage = function(message, callInfo) {
-
-      var transaction;
-
       // Check to see if we are waiting for a map to spawn.  If we
       // are not, then just send the message.  Otherwise the message is
       // queued already and will be sent after the map status changes.
@@ -307,18 +304,16 @@ emp3.api.MessageHandler = (function() {
       if (callInfo.hasOwnProperty("map")) {
         // Now check to see if that map is ready.
         if (callInfo.map.status === emp3.api.enums.MapStateEnum.MAP_READY) {
-          transaction = this.publish(message, callInfo);
+          this.publish(message, callInfo);
         }
       }
       // else check to see if any map is ready.
       else if (this.isAMapReady()) {
-        transaction = this.publish(message, callInfo);
+        this.publish(message, callInfo);
       }
       else {
         throw new Error('There is no map engine available to publish messages to');
       }
-
-      return transaction;
     };
 
     /**
@@ -327,9 +322,7 @@ emp3.api.MessageHandler = (function() {
      * @param  {CallInfo} callInfo Information about the original callers and its parameters.
      */
     this.publish = function(message, callInfo) {
-      var transactionId,
-        transaction,
-        returnedTransaction;
+      var transactionId, transaction, payload;
 
       // In order to track callbacks in response to specific messages, we need to keep
       // track of which message this call is.  Create an id to represent this
@@ -418,10 +411,10 @@ emp3.api.MessageHandler = (function() {
       this.messageCallbackHash.setItem(transactionId, transaction);
 
       // Create appropriate channel payload constructor
-      var payload = emp3.api.MessageFactory.constructPayload(message, callInfo, transactionId);
+      payload = emp3.api.MessageFactory.constructPayload(message, callInfo, transactionId);
       if (payload) {
         validatePayload(payload, callInfo); // This also publishes it
-        return payload.transaction();
+        return;
       }
 
       // Handle cases not yet converted and synchronous calls
@@ -459,7 +452,7 @@ emp3.api.MessageHandler = (function() {
           this.lookAtLocation(callInfo, message, transactionId);
           break;
         case emp3.api.enums.channel.featureEdit:
-          returnedTransaction = this.featureEdit(callInfo, message, transactionId);
+          this.featureEdit(callInfo, message, transactionId);
           break;
         case emp3.api.enums.channel.styleOverlay:
           this.styleOverlay(callInfo, message, transactionId);
@@ -517,11 +510,7 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.swap:
           this.mapSwap(callInfo, message, transactionId);
           break;
-        default:
-          break;
       }
-
-      return returnedTransaction;
     };
 
     /**
