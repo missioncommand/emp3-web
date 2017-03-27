@@ -187,7 +187,7 @@ EMPWorldWind.map.prototype.initialize = function(args) {
   this.contrastLayer.addRenderable(blackContrastLayer);
 
   // Create the goTo manipulator
-  /** @member {WorldWind.GoToAnimator */
+  /** @member {WorldWind.GoToAnimator} */
   this.goToAnimator = new WorldWind.GoToAnimator(this.worldWindow);
 
   // Register drag event handlers
@@ -1105,34 +1105,20 @@ EMPWorldWind.map.prototype.pickShapesInViewRegion = function() {
   return shapes;
 };
 
-
-//EMPWorldWind.map.prototype.isShapeInViewRegion = function (id)
-//{
-//    
-//    // Highlight the items picked.
-//    
-//        for (var p = 0; p < this.shapesInViewArea .objects.length; p++)
-//        {
-//            if (!this.shapesInViewArea.objects[p].isTerrain && this.shapesInViewArea.objects[p].userProperties)
-//            {
-//                return (this.shapesInViewArea.objects[p].userProperties.id ===  id);
-//               // this.shapesInViewArea.objects[p].userObject.highlighted = true;
-//                //highlightedItems.push(pickList.objects[p].userObject);
-//            }
-//        }
-//    };
-
 /**
  * checks if feature is within view area of map.
- * @param {empFeature} emp object representing a feature (not a ww feature).
+ * @param {emp.typeLibrary.Feature} empFeature object representing a feature (not a ww feature).
  */
-EMPWorldWind.map.prototype.isMilStdMutlPointShapeInViewRegion = function(empFeature) {
-  var inView = false;
+EMPWorldWind.map.prototype.isMilStdMultiPointShapeInViewRegion = function(empFeature) {
+  var p,
+    inView = false;
+
   // Highlight the items picked.
-  if (!this.bounds) {
-    this.getBounds();
+  if (this.bounds) {
+    this.bounds = this.getBounds();
   }
-  for (var p = 0; p < empFeature.coordinates.length; p++) {
+
+  for (p = 0; p < empFeature.coordinates.length; p++) {
     var coordinate = empFeature.coordinates[p];
     if ((coordinate[0] <= this.bounds.east && coordinate[0] >= this.bounds.west) && (coordinate[1] > this.bounds.south && coordinate[1] < this.bounds.north)) {
       inView = true;
