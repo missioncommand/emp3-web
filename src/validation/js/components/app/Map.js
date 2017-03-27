@@ -7,6 +7,8 @@ import {CoordinatesWindow} from '../windows';
 
 import {addMap} from '../../actions/MapActions';
 import {addResult, addError} from '../../actions/ResultActions';
+import {addFeature} from '../../actions/FeatureActions';
+import {addOverlay} from '../../actions/OverlayActions';
 
 //======================================================================================================================
 class MapSelection extends Component {
@@ -65,14 +67,14 @@ const spec = {
       return;
     }
 
-    const {addFeature, addOverlay, maps, id} = props;
+    const {addFeature, addOverlay, maps, mapId} = props;
 
     const clientOffset = monitor.getClientOffset();
     const componentRect = findDOMNode(component).getBoundingClientRect();
     const featureArgs = {...monitor.getItem()}; // use a copy
 
     /** @type emp3.api.Map */
-    const map = _.find(maps, {container: id});
+    const map = _.find(maps, {container: mapId});
 
     let standard = featureArgs.symbolStandard || '2525c';
     let basicSymbol = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(featureArgs.symbolCode, standard);
@@ -149,7 +151,7 @@ const spec = {
             onSuccess: addFeatureToApp
           });
         } else {
-          let overlay = new emp3.api.Overlay({name: 'sandbox', geoId: 'sandbox_' + id});
+          let overlay = new emp3.api.Overlay({name: 'sandbox', geoId: 'sandbox_' + mapId});
           map.addOverlay({
             overlay: overlay,
             onSuccess: () => {
@@ -326,7 +328,8 @@ Map.propTypes = {
   mapId: PropTypes.string.isRequired,
   addResult: PropTypes.func,
   addError: PropTypes.func,
-  addMap: PropTypes.func
+  addMap: PropTypes.func,
+  addOverlay: PropTypes.func
 };
 
 Map.defaultProps = {
@@ -352,6 +355,12 @@ const mapDispatchToProps = dispatch => {
     },
     addMap: map => {
       dispatch(addMap(map));
+    },
+    addOverlay: overlay => {
+      dispatch(addOverlay(overlay));
+    },
+    addFeature: feature => {
+      dispatch(addFeature(feature));
     }
   };
 };
