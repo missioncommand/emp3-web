@@ -1105,6 +1105,7 @@ EMPWorldWind.map.prototype.pickShapesInViewRegion = function() {
   return shapes;
 };
 
+
 /**
  * checks if feature is within view area of map.
  * @param {emp.typeLibrary.Feature} empFeature object representing a feature (not a ww feature).
