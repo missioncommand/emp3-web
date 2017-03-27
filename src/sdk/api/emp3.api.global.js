@@ -15,8 +15,7 @@ if (!window.emp3.api) {
  * and other map service related requests.
  */
 emp3.api.global = emp3.api.global || {
-
-    version: "2.0.0",
+    version: "2.3.0",
     /**
      * @name emp3.api.global#configuration
      */
