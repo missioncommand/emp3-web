@@ -109,7 +109,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function ()
         if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
                 feature.feature.data.type === "LineString")
         {
-            if (this.isMilStdMutlPointShapeInViewRegion (feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
+            if (this.isMilStdMultiPointShapeInViewRegion (feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
                     feature.feature.wasClipped))
             {
                 // optimization - update feature only if inside view region and  (range outside range epsilon or was cliiped)
