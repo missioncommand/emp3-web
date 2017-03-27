@@ -30,13 +30,31 @@ emp.editors.Point.prototype.isControlPoint = function() {
 };
 
 /**
+ * Occurs first when the control point is moved.  This method is called prior
+ * to move control point.  It is a move, but allows us to initialize the
+ * behavior of what happens prior to the move.
+ */
+emp.editors.Point.prototype.startMoveControlPoint = function() {
+  // there is no control point, override default impl.  do not use.
+};
+
+/**
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
  */
 emp.editors.Point.prototype.moveControlPoint = function() {
 
   // do nothing, there are no control points.
-},
+};
+
+/**
+ * Occurs after the control point has finished being moved.
+ */
+emp.editors.Point.prototype.endMoveControlPoint = function() {
+  // there is no control point, override default impl.  do not use.
+};
+
+
 
 /**
  * Moves the entire feature, offsetting from the starting position.

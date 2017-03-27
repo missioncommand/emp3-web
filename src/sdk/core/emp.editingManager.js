@@ -135,6 +135,32 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       }
+      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
+        // This is a circle defined by a point and radius.  It uses a GEOJSON point and
+        // a distance in meters to represent
+        // itself.
+        activeEditor = new emp.editors.Circle({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
+      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
+        // This is a rectangle defined by a point, width, height and azimuth.
+        activeEditor = new emp.editors.Rectangle({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
+      else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
+        // This is an axis of advance defined by a line.  The last point of the line in relation to the first point
+        // decides the width of the axis of advance.
+        activeEditor = new emp.editors.AxisOfAdvance({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
       else {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.EditorBase({
@@ -269,7 +295,7 @@ emp.editingManager = function(args) {
         activeEditor.isControlPoint(featureId)) {
 
         mapLock = new emp.typeLibrary.Lock({
-          lock: emp3.api.enums.MapMotionLockEnum.NO_MOTION
+          lock: emp3.api.enums.MapMotionLockEnum.SMART_MOTION
         });
 
         // first lock the map in place so the map does not pan.

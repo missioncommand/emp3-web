@@ -134,33 +134,6 @@ emp.editors.Polygon.prototype.addControlPoints = function() {
 
 };
 
-
-emp.editors.Polygon.prototype.removeControlPoints = function() {
-
-  // do nothing
-  var transaction;
-  var items;
-  var vertices = this.vertices.getFeatures();
-  items = vertices;
-
-  transaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
-    mapInstanceId: this.mapInstance.mapInstanceId,
-    transactionId: null,
-    sender: this.mapInstance.mapInstanceId,
-    originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-    source: emp.api.cmapi.SOURCE,
-    messageOriginator: this.mapInstance.mapInstanceId,
-    originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-    items: items
-  });
-
-  this.vertices.clear();
-
-  // Hide the control points
-  transaction.run();
-};
-
 /**
  * Begins moving the one of the control points.  Determines if the item
  * is a vertex or an add control point.  If it is an add point, it will create
