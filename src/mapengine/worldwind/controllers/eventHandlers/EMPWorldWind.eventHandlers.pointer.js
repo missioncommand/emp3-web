@@ -51,8 +51,6 @@ EMPWorldWind.eventHandlers.pointer = {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
     coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
 
-    // TODO speed this up somehow
-    EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, coords);
     if (coords.lat !== undefined) {
       this.empMapInstance.eventing.Pointer(coords);
     }
