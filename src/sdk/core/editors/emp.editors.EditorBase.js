@@ -93,6 +93,11 @@ emp.editors.EditorBase.prototype.addControlPoints = function() {
   transaction.run();
 };
 
+/**
+ * Removes control points added by the addControlPoints method from
+ * the map.  This usually occurs at the end of and edit in response
+ * to a cancel or a complete.
+ */
 emp.editors.EditorBase.prototype.removeControlPoints = function() {
   // do nothing
   var transaction;
@@ -119,9 +124,14 @@ emp.editors.EditorBase.prototype.removeControlPoints = function() {
 };
 
 /**
- * Determine if the featureId is a controlPoint or if it is a feature.
- * This is useful for determining if a featureDrag event should be staticContent
- * out or not.
+ * Determine if the featureId is a control point or if it is a feature.  control
+ * points are the points that alter a feature during an edit.   Control points
+ * are added during the initial addControlPoints call.
+ * <p>
+ * This is useful for determining if a featureDrag event should occur.
+ *
+ * @return boolean Returns true if the feature passed in is a control point.
+ *
  */
 emp.editors.EditorBase.prototype.isControlPoint = function(featureId) {
   var result = false;
@@ -136,6 +146,9 @@ emp.editors.EditorBase.prototype.isControlPoint = function(featureId) {
 /**
  * Return true if the featureId passed in is the feature that is
  * being edited.
+ *
+ * @return Returns true only if the featureId that is passed in is the
+ * feature that is beging edited.
  */
 emp.editors.EditorBase.prototype.isFeature = function(featureId) {
   var result = false;
@@ -148,9 +161,23 @@ emp.editors.EditorBase.prototype.isFeature = function(featureId) {
 };
 
 /**
+ * @typedef {Object} CoreEditUpdateData An object that attempts to describe
+ * the change that occurred when a control point moved during an edit.
+ *
+ * @property {coordinateUpdate} coordinateUpdate - Contains the information
+ * about the index of the coordinate that was modified, the type of modification,
+ * and the new coordinates.
+ * @property {properties} properties - Contains the new properties object that
+ * may contain additional important changes that may modify the symbol.
+ */
+
+/**
  * Occurs first when the control point is moved.  This method is called prior
- * to move control point.  It is a move, but allows us to initialize the
+ * to moveControlPoint.  It allows us to initialize the
  * behavior of what happens prior to the move.
+ *
+ * @return {CoreEditUpdataData} Contains information about the changes that
+ * occurred during the movement of a control point.
  */
 emp.editors.EditorBase.prototype.startMoveControlPoint = function(featureId, pointer) {
 
@@ -237,6 +264,9 @@ emp.editors.EditorBase.prototype.startMoveControlPoint = function(featureId, poi
 /**
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
+ *
+ * @return {CoreEditUpdataData} Contains information about the changes that
+ * occurred during the movement of a control point.
  */
 emp.editors.EditorBase.prototype.moveControlPoint = function(featureId, pointer) {
   return this.startMoveControlPoint(featureId, pointer);
@@ -245,6 +275,9 @@ emp.editors.EditorBase.prototype.moveControlPoint = function(featureId, pointer)
 
 /**
  * Occurs after the control point has finished being moved.
+ *
+ * @return {CoreEditUpdataData} Contains information about the changes that
+ * occurred during the movement of a control point.
  */
 emp.editors.EditorBase.prototype.endMoveControlPoint = function(featureId, pointer) {
   return this.startMoveControlPoint(featureId, pointer);
