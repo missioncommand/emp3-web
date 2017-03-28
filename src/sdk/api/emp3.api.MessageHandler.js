@@ -514,9 +514,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.getVisibility:
           this.getVisibility(callInfo, message, transactionId);
           break;
-        case emp3.api.enums.channel.swap:
-          this.mapSwap(callInfo, message, transactionId);
-          break;
         default:
           break;
       }
@@ -4014,25 +4011,6 @@ emp3.api.MessageHandler = (function() {
       };
 
       this.validate(emp3.api.enums.channel.getVisibility, payload, callInfo);
-    };
-
-    /**
-     * Sends the message required to swap a map engine.
-     *
-     * @private
-     * @param {object} callInfo - Object containing information related to the original call.
-     * @param {string} message - Object containing information for the payload
-     * being sent over the emp3.api.enums.channel.swap channel
-     */
-    this.mapSwap = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        mapId: callInfo.mapId,
-        engine: message.engine,
-        messageId: transactionId
-      };
-      this.validate(emp3.api.enums.channel.swap, payload, callInfo);
     };
 
     /**
