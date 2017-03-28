@@ -199,16 +199,21 @@ EMPWorldWind.map.prototype.initialize = function(args) {
   }.bind(this));
 
   // Register DOM event handlers
-  var throttleValue = 50; // throttle on event calls in ms
+  // var throttleValue = 50; // throttle on event calls in ms
   var eventClass, eventHandler;
   for (eventClass in EMPWorldWind.eventHandlers) {
     if (EMPWorldWind.eventHandlers.hasOwnProperty(eventClass)) {
       eventClass = EMPWorldWind.eventHandlers[eventClass];
       for (eventHandler in eventClass) {
         if (eventClass.hasOwnProperty(eventHandler)) {
-          this.worldWindow.addEventListener(eventHandler,
-            EMPWorldWind.eventHandlers.throttle(eventClass[eventHandler].bind(this), throttleValue, this)
-          );
+
+          // TODO remove this once throttling works again
+          this.worldWindow.addEventListener(eventHandler, eventClass[eventHandler].bind(this));
+
+          // TODO fix throttling is getting the way of event interception, affecting maplock
+          // this.worldWindow.addEventListener(eventHandler,
+          //   EMPWorldWind.eventHandlers.throttle(eventClass[eventHandler].bind(this), throttleValue, this)
+          // );
         }
       }
     }
