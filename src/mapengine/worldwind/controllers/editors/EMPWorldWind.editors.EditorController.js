@@ -172,7 +172,7 @@ EMPWorldWind.editors.EditorController = (function() {
    * @param {emp.typeLibrary.Feature} feature
    */
   function processModifiers(feature) {
-    var modifiers, enhancedModifiers, override, lowRangeMode;
+    var modifiers, enhancedModifiers, override;//, lowRangeMode;
     if (feature.data.type === "Point") {
       modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(
         feature.properties,
@@ -187,10 +187,10 @@ EMPWorldWind.editors.EditorController = (function() {
         this.state.pixelSize);
     }
 
-    lowRangeMode = feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
-    modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(
-      modifiers,
-      ((this.state.labelStyles.CN === true) && lowRangeMode));
+    // TODO restore the optimization
+    //lowRangeMode = feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
+    //modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, ((this.state.labelStyles.CN === true) && lowRangeMode));
+    modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, true);
 
     enhancedModifiers = EMPWorldWind.utils.milstd.checkForRequiredModifiers(feature);
 
