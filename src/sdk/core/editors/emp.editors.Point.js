@@ -135,13 +135,11 @@ emp.editors.Point.prototype.moveFeature = function(startX, startY, pointer) {
  * In the case of the point, the point is added to the map.
  */
 emp.editors.Point.prototype.drawStart = function(pointer) {
-  var item,
-    transaction;
-
+  var transaction;
 
   // Update the feature, only internally -- we don't want events sent out
   // from this.
-  item = new emp.typeLibrary.Feature({
+  this.featureCopy = new emp.typeLibrary.Feature({
       overlayId: this.featureCopy.overlayId,
       featureId: this.featureCopy.featureId,
       format: this.featureCopy.format,
@@ -161,7 +159,7 @@ emp.editors.Point.prototype.drawStart = function(pointer) {
       source: emp.api.cmapi.SOURCE,
       messageOriginator: this.mapInstance.mapInstanceId,
       originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: [item]
+      items: [this.featureCopy]
   });
 
   transaction.run();
