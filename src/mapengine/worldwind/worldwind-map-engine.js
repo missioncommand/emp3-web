@@ -424,7 +424,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           }
 
           if (bRangeChanged) {
-            empWorldWind.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(empWorldWind.worldWind.navigator.range, empWorldWind.singlePointAltitudeRanges);
+            empWorldWind.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(empWorldWind.worldWindow.navigator.range, empWorldWind.singlePointAltitudeRanges);
             // force a render update when the altitude range changes
             empWorldWind.refresh();
           }
