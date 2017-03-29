@@ -1,5 +1,5 @@
-/* globals emp */
-
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
 
 /**
  * @memberof emp.typeLibrary

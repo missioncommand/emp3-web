@@ -13,7 +13,7 @@ emp.helpers = {};
  * @method
  * @description This function makes a copy of an object by stringifying and parsing it.
  */
-emp.helpers.copyObject = function (oFrom) {
+emp.helpers.copyObject = function(oFrom) {
   if ((oFrom instanceof Array) || (typeof(oFrom) === 'object')) {
     var sStr = JSON.stringify(oFrom);
     return JSON.parse(sStr);
@@ -47,7 +47,7 @@ emp.helpers.id.get = {}; // stub
  * @inner
  * @deprecated
  */
-emp.helpers.id.get.coreId = function (args) {
+emp.helpers.id.get.coreId = function(args) {
 
   var sOverlayId = args.overlayId;
   var sFeatureId = args.featureId || args.id;
@@ -69,7 +69,7 @@ emp.helpers.id.get.coreId = function (args) {
  * @param  {object} args
  * @return {string}
  */
-emp.helpers.id.get.coreParent = function (args) {
+emp.helpers.id.get.coreParent = function(args) {
 
   if (args !== undefined && args !== null) {
     if (args.coreId !== undefined && args.coreId !== null) {
@@ -91,7 +91,7 @@ emp.helpers.id.get.coreParent = function (args) {
  * @param  {string} sId
  * @return {undefined|string}
  */
-emp.helpers.id.get.setId = function (sId) {
+emp.helpers.id.get.setId = function(sId) {
   if (sId === undefined) {
     return;
   } else if (sId === null) {
@@ -107,7 +107,7 @@ emp.helpers.id.get.setId = function (sId) {
  * @param  {string} sId
  * @return {boolean}
  */
-emp.helpers.id.get.isId = function (sId) {
+emp.helpers.id.get.isId = function(sId) {
   if (sId === undefined) {
     return false;
   } else if (sId === null) {
@@ -122,7 +122,7 @@ emp.helpers.id.get.isId = function (sId) {
  *
  * @returns {string}
  */
-emp.helpers.id.newGUID = function () {
+emp.helpers.id.newGUID = function() {
   //this needs to be checked against table of used ID's to avoid collisions
   var lut = emp.helpers.id.newGUID.lut;
   var d0 = Math.random() * 0xffffffff | 0;
@@ -139,7 +139,7 @@ emp.helpers.id.newGUID = function () {
 /**
  *
  */
-emp.helpers.id.newGUID.lut = function () {
+emp.helpers.id.newGUID.lut = function() {
   var lut = [];
   for (var i = 0; i < 256; i++) {
     lut[i] = (i < 16 ? '0' : '') + (i).toString(16);
@@ -157,7 +157,7 @@ emp.helpers.isAirspaceSymbol = emp.util.isAirspaceSymbol;
  * @param oData
  * @returns {string}
  */
-emp.helpers.coordinatesToString = function (oData) {
+emp.helpers.coordinatesToString = function(oData) {
   var sCoord = "",
     iIndex,
     iPolygonIndex;
@@ -210,7 +210,7 @@ emp.helpers.coordinatesToString = function (oData) {
  * @param oItem
  * @returns {boolean}
  */
-emp.helpers.isAOI = function (oItem) {
+emp.helpers.isAOI = function(oItem) {
   var bRet = false;
   var oGeoJson = oItem.data;
 
@@ -230,7 +230,7 @@ emp.helpers.isAOI = function (oItem) {
  * @param oEmpFeature
  * @returns {boolean}
  */
-emp.helpers.canMapEngineEditFeature = function (mapInstanceId, oEmpFeature) {
+emp.helpers.canMapEngineEditFeature = function(mapInstanceId, oEmpFeature) {
   var bRet = false;
   var oProperties;
   var mapInstance = emp.instanceManager.getInstance(mapInstanceId);
@@ -400,7 +400,7 @@ emp.helpers.canMapEngineEditFeature = function (mapInstanceId, oEmpFeature) {
  * @param oEmpFeature
  * @returns {boolean}
  */
-emp.helpers.canMapEnginePlotFeature = function (mapInstanceId, oEmpFeature) {
+emp.helpers.canMapEnginePlotFeature = function(mapInstanceId, oEmpFeature) {
   var bRet = false;
   var oProperties;
   var mapInstance = emp.instanceManager.getInstance(mapInstanceId);
@@ -573,7 +573,7 @@ emp.helpers.canMapEnginePlotFeature = function (mapInstanceId, oEmpFeature) {
  * @param {type} fieldValue This parameters contains the value to match with the property.
  * @returns {Number} It return the 0 base index of the elements found or -1 if a match is not found.
  */
-emp.helpers.findIndexOf = function (oArray, fieldName, fieldValue) {
+emp.helpers.findIndexOf = function(oArray, fieldName, fieldValue) {
   for (var iIndex = 0; iIndex < oArray.length; iIndex++) {
     if (oArray[iIndex].hasOwnProperty(fieldName) &&
       (oArray[iIndex][fieldName] === fieldValue))
@@ -593,7 +593,7 @@ emp.helpers.associativeArray = {};
  * @param aArray
  * @returns {number}
  */
-emp.helpers.associativeArray.size = function (aArray) {
+emp.helpers.associativeArray.size = function(aArray) {
   var size = 0,
     key;
   for (key in aArray) {
@@ -609,7 +609,7 @@ emp.helpers.associativeArray.size = function (aArray) {
  * @param aArray
  * @returns {boolean}
  */
-emp.helpers.associativeArray.isEmpty = function (aArray) {
+emp.helpers.associativeArray.isEmpty = function(aArray) {
   var key;
   for (key in aArray) {
     if (aArray.hasOwnProperty(key)) {
@@ -624,7 +624,7 @@ emp.helpers.associativeArray.isEmpty = function (aArray) {
  * @param aArray
  * @returns {Array}
  */
-emp.helpers.associativeArray.getKeys = function (aArray) {
+emp.helpers.associativeArray.getKeys = function(aArray) {
   var aKeys = [];
   var key;
   for (key in aArray) {
@@ -636,7 +636,7 @@ emp.helpers.associativeArray.getKeys = function (aArray) {
   return aKeys;
 };
 // Append the window location to a relative path to turn it into an absolute path
-emp.helpers.relToAbs = function (url) {
+emp.helpers.relToAbs = function(url) {
   /* Only accept commonly trusted protocols:
    * Only data-image URLs are accepted, Exotic flavours (escaped slash,
    * html-entitied characters) are not supported to keep the function fast */
@@ -676,7 +676,7 @@ emp.helpers.relToAbs = function (url) {
  * The function must be of the form function(sParam) and must return a string.
  * @returns {String}
  */
-emp.helpers.getReplacementString = function (sStr, fnCallback) {
+emp.helpers.getReplacementString = function(sStr, fnCallback) {
   var sStrCopy = sStr;
   var sParam;
   var sValue;
@@ -747,7 +747,7 @@ emp.helpers.getReplacementString = function (sStr, fnCallback) {
  * @argument {String=} oArgs.sText Optional text, which if provided will be centered
  * in the circle.
  */
-emp.helpers.createCircleCanvas = function (oArgs) {
+emp.helpers.createCircleCanvas = function(oArgs) {
   var iRadius = oArgs.iRadius;
   var dOpacity = oArgs.dOpacity;
   var sStrokeColor = oArgs.sStrokeColor;
@@ -893,7 +893,7 @@ emp.helpers.createCircleCanvas = function (oArgs) {
  * This will validate an absolute URL.
  * Relative URL will fail.
  */
-emp.helpers.isUrl = function (s) {
+emp.helpers.isUrl = function(s) {
   var regexp = /^(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
   return regexp.test(s);
 };
@@ -908,7 +908,7 @@ emp.helpers.oHiddenSpan = null;
  * @param sFontWeight
  * @returns {{width, height}}
  */
-emp.helpers.getStringPixelDimensions = function (sText, sFontFamily, sFontSize, sFontWeight) {
+emp.helpers.getStringPixelDimensions = function(sText, sFontFamily, sFontSize, sFontWeight) {
   var iWidth = 0;
   var iHeight = 0;
 
@@ -929,10 +929,10 @@ emp.helpers.getStringPixelDimensions = function (sText, sFontFamily, sFontSize, 
   }
 
   if (emp.helpers.oHiddenSpan !== null) {
-      emp.helpers.oHiddenSpan.innerHTML = sText;
+    emp.helpers.oHiddenSpan.innerHTML = sText;
 
-      iWidth = emp.helpers.oHiddenSpan.width;
-      iHeight = emp.helpers.oHiddenSpan.height;
+    iWidth = emp.helpers.oHiddenSpan.width;
+    iHeight = emp.helpers.oHiddenSpan.height;
   }
 
   return {
@@ -946,7 +946,7 @@ emp.helpers.getStringPixelDimensions = function (sText, sFontFamily, sFontSize, 
  * @param sSymbolCode
  * @returns {string}
  */
-emp.helpers.getAffiliationColor = function (sSymbolCode) {
+emp.helpers.getAffiliationColor = function(sSymbolCode) {
   var sColor = '000000';
   var sAffiliation = sSymbolCode.charAt(1);
 
@@ -983,7 +983,7 @@ emp.helpers.getAffiliationColor = function (sSymbolCode) {
  * @param sSymbolCode
  * @returns {string}
  */
-emp.helpers.get3DMilStdAffiliationColor = function (sSymbolCode) {
+emp.helpers.get3DMilStdAffiliationColor = function(sSymbolCode) {
   var sColor = '000000';
   var sAffiliation = sSymbolCode.charAt(1);
 
@@ -1021,7 +1021,7 @@ emp.helpers.get3DMilStdAffiliationColor = function (sSymbolCode) {
  * @param str
  * @returns {boolean}
  */
-emp.helpers.isEmptyString = function (str) {
+emp.helpers.isEmptyString = function(str) {
   var isEmpty = false;
   if (str === undefined ||
     str === null ||
@@ -1037,8 +1037,8 @@ emp.helpers.isEmptyString = function (str) {
 /**
  *
  */
-emp.helpers.GeoJsonHasAltitude = (function () {
-  var coordinateHasAltitude = function (oGeoJsonCoord) {
+emp.helpers.GeoJsonHasAltitude = (function() {
+  var coordinateHasAltitude = function(oGeoJsonCoord) {
     var bRet = false;
 
     if (Array.isArray(oGeoJsonCoord) && (oGeoJsonCoord.length > 2)) {
@@ -1047,7 +1047,7 @@ emp.helpers.GeoJsonHasAltitude = (function () {
     return bRet;
   };
 
-  var coordinateArrayHasAltitude = function (oGeoJsonCoord) {
+  var coordinateArrayHasAltitude = function(oGeoJsonCoord) {
     var iIndex;
     var bRet = false;
 
@@ -1064,7 +1064,7 @@ emp.helpers.GeoJsonHasAltitude = (function () {
     return bRet;
   };
 
-  var polygonCoordinateHasAltitude = function (oGeoJsonCoord) {
+  var polygonCoordinateHasAltitude = function(oGeoJsonCoord) {
     var iIndex;
     var bRet = false;
 
@@ -1081,7 +1081,7 @@ emp.helpers.GeoJsonHasAltitude = (function () {
     return bRet;
   };
 
-  var multiPolygonCoordinateHasAltitude = function (oGeoJsonCoord) {
+  var multiPolygonCoordinateHasAltitude = function(oGeoJsonCoord) {
     var iIndex;
     var bRet = false;
 
@@ -1098,7 +1098,7 @@ emp.helpers.GeoJsonHasAltitude = (function () {
     return bRet;
   };
 
-  var publicInterface = function (oGeoJsonData) {
+  var publicInterface = function(oGeoJsonData) {
     var iIndex;
     var bRet = false;
 
@@ -1160,8 +1160,8 @@ emp.helpers.GeoJsonHasAltitude = (function () {
 /**
  *
  */
-emp.helpers.isCompoundGeoJson = (function () {
-  var publicInterface = function (oGeoJsonData) {
+emp.helpers.isCompoundGeoJson = (function() {
+  var publicInterface = function(oGeoJsonData) {
     var bRet = false;
 
     if (!oGeoJsonData.hasOwnProperty('type')) {
@@ -1215,9 +1215,9 @@ emp.helpers.isCompoundGeoJson = (function () {
  * Returns true if multiple `coordinates` nodes are found
  * @returns {boolean}
  */
-emp.helpers.isCompoundKML = (function () {
+emp.helpers.isCompoundKML = (function() {
 
-  var publicInterface = function (sKMLData) {
+  var publicInterface = function(sKMLData) {
     var bRet = false;
 
     try {
