@@ -10,10 +10,10 @@ emp.typeLibrary = emp.typeLibrary || {};
  * @description This class represent a lock on a particular item.  Locking
  * an item means it cannot be moved or interacted with.
  */
-emp.typeLibrary.Lock = function (args) {
-    /**
-     * @type emp3.api.enums.MapMotionLockEnum
-     * @description This property contains a boolean indicating if we want to lock or unlock
-     */
-    this.lock = args.lock;
+emp.typeLibrary.Lock = function(args) {
+  /**
+   * @type emp3.api.enums.MapMotionLockEnum
+   * @description This property contains a boolean indicating if we want to lock or unlock
+   */
+  this.lock = args.lock;
 };

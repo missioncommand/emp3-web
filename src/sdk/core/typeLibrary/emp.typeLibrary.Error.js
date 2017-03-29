@@ -1,4 +1,5 @@
-/* globals emp */
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
 
 /**
  * @memberOf emp.typeLibrary
@@ -10,33 +11,33 @@
  * @param {string} [args.coreId]
  * @param {object} [args.jsError]
  */
-emp.typeLibrary.Error = function (args) {
+emp.typeLibrary.Error = function(args) {
 
-    var returnValue;
+  var returnValue;
 
-/*
-    var schema = {
-        "title": "error-schema",
-        "type": "object",
-        "properties": {
-            "message": {
-                "type": "string"
-            }
-        },
-        "required": ["message"]
-    };
-*/
+  /*
+   *  var schema = {
+   *    "title": "error-schema",
+   *    "type": "object",
+   *    "properties": {
+   *      "message": {
+   *        "type": "string"
+   *      }
+   *    },
+   *    "required": ["message"]
+   *  };
+   */
 
-    returnValue = {
-        date: new Date(),
-        message: args.message || "",
-        level : args.level || 0,
-        coreId : args.coreId || "",
-        jsError : args.jsError || {}
-    };
+  returnValue = {
+    date: new Date(),
+    message: args.message || "",
+    level: args.level || 0,
+    coreId: args.coreId || "",
+    jsError: args.jsError || {}
+  };
 
-    emp.errorHandler.log(returnValue);
-    return returnValue;
+  emp.errorHandler.log(returnValue);
+  return returnValue;
 };
 
 /**
@@ -45,31 +46,31 @@ emp.typeLibrary.Error = function (args) {
  * @readonly
  */
 emp.typeLibrary.Error.level = {
-    /**
-     * @constant
-     * @type number
-     * @description This value indicates an informative messages.
-     */
-    INFO: 0,
-    /**
-     * @constant
-     * @type number
-     * @description This value indicates a minor error has occurred.
-     */
-    MINOR: 1,
-    /**
-     * @constant
-     * @type number
-     * @description This value indicates a major error has occurred.
-     */
-    MAJOR: 2,
-    /**
-     * @constant
-     * @type number
-     * @description This value indicates a catastrophic error has occurred. The
-     * system may behave erratically or not at all.
-     */
-    CATASTROPHIC: 3
+  /**
+   * @constant
+   * @type number
+   * @description This value indicates an informative messages.
+   */
+  INFO: 0,
+  /**
+   * @constant
+   * @type number
+   * @description This value indicates a minor error has occurred.
+   */
+  MINOR: 1,
+  /**
+   * @constant
+   * @type number
+   * @description This value indicates a major error has occurred.
+   */
+  MAJOR: 2,
+  /**
+   * @constant
+   * @type number
+   * @description This value indicates a catastrophic error has occurred. The
+   * system may behave erratically or not at all.
+   */
+  CATASTROPHIC: 3
 };
 
 /**
