@@ -1,4 +1,5 @@
-/* global emp */
+var emp = window.emp || {};
+
 /**
  *
  * @namespace
@@ -15,132 +16,132 @@ emp.typeLibrary = {};
  * the type library. The values are used to populate the globalType field of the classes.
  */
 emp.typeLibrary.types = {
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a draw class.
-     */
-    DRAW : "draw",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a edit class.
-     */
-    EDIT:"edit",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a error class.
-     */
-    ERROR:"error",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a feature class.
-     */
-    FEATURE:"feature",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a menu class.
-     */
-    MENU:"menu",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a overlay class.
-     */
-    OVERLAY:"overlay",
-    /**
-     * @public
-     * @type string
-     * @constant
-     * @description This value identifies the object as a pointer class.
-     */
-    POINTER:"pointer",
-    /**
-     * @public
-     * @type string
-     * @constant
-     * @description This value identifies the object as a selection class.
-     */
-    SELECTION:"selection",
-    /**
-     * @public
-     * @type string
-     * @constant
-     * @description This value identifies the object as a selectionBox class.
-     */
-    SELECTION_BOX:"selectionBox",
-    /**
-     * @public
-     * @type string
-     * @constant
-     * @description This value identifies the object as a static class.
-     */
-    STATIC:"static",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a status class.
-     */
-    STATUS:"status",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a transaction class.
-     */
-    TRANSACTION:"transaction",
-    /**
-     * @public
-     * @type string
-     * @constant
-     * @description This value identifies the object as a view class.
-     */
-    VIEW:"view",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a lookAt class.
-     */
-    LOOKAT:"lookAt",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a WMS class.
-     */
-    WMS:"wms",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a WMTS class.
-     */
-    WMTS: "wmts",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as a KML layer class.
-     */
-    KML: "kmllayer",
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value identifies the object as an Overlay Cluster class.
-     */
-    OVERLAY_CLUSTER: "overlayCluster"
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a draw class.
+   */
+  DRAW: "draw",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a edit class.
+   */
+  EDIT: "edit",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a error class.
+   */
+  ERROR: "error",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a feature class.
+   */
+  FEATURE: "feature",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a menu class.
+   */
+  MENU: "menu",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a overlay class.
+   */
+  OVERLAY: "overlay",
+  /**
+   * @public
+   * @type string
+   * @constant
+   * @description This value identifies the object as a pointer class.
+   */
+  POINTER: "pointer",
+  /**
+   * @public
+   * @type string
+   * @constant
+   * @description This value identifies the object as a selection class.
+   */
+  SELECTION: "selection",
+  /**
+   * @public
+   * @type string
+   * @constant
+   * @description This value identifies the object as a selectionBox class.
+   */
+  SELECTION_BOX: "selectionBox",
+  /**
+   * @public
+   * @type string
+   * @constant
+   * @description This value identifies the object as a static class.
+   */
+  STATIC: "static",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a status class.
+   */
+  STATUS: "status",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a transaction class.
+   */
+  TRANSACTION: "transaction",
+  /**
+   * @public
+   * @type string
+   * @constant
+   * @description This value identifies the object as a view class.
+   */
+  VIEW: "view",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a lookAt class.
+   */
+  LOOKAT: "lookAt",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a WMS class.
+   */
+  WMS: "wms",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a WMTS class.
+   */
+  WMTS: "wmts",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as a KML layer class.
+   */
+  KML: "kmllayer",
+  /**
+   * @public
+   * @constant
+   * @type string
+   * @description This value identifies the object as an Overlay Cluster class.
+   */
+  OVERLAY_CLUSTER: "overlayCluster"
 };
 
 /**
@@ -151,28 +152,28 @@ emp.typeLibrary.types = {
  * @description Contains the event types defined for the updates generated by a map engine when an item is placed in draw or edit mode.
  */
 emp.typeLibrary.UpdateEventType = {
-    /**
-     * @constant
-     * @type string
-     * @description Event type indicating that the event contains updated data. The update is
-     * not the the final update.
-     */
-    UPDATE: "update",
-    /**
-     * @constant
-     * @type string
-     * @description Event type indicating that the event contains updated data and the update is
-     * the the final update. All map engines must generate the last update with this event type.
-     */
-    COMPLETE: "complete",
-    /**
-     * @constant
-     * @type string
-     * @description Event type indicating that the feature has been placed in edit/draw mode.
-     * The data in the event contains any default data applied to the feature that was not provided by the originator.
-     * All map engine must generate the first update event with this event type.
-     */
-    START: "start"
+  /**
+   * @constant
+   * @type string
+   * @description Event type indicating that the event contains updated data. The update is
+   * not the the final update.
+   */
+  UPDATE: "update",
+  /**
+   * @constant
+   * @type string
+   * @description Event type indicating that the event contains updated data and the update is
+   * the the final update. All map engines must generate the last update with this event type.
+   */
+  COMPLETE: "complete",
+  /**
+   * @constant
+   * @type string
+   * @description Event type indicating that the feature has been placed in edit/draw mode.
+   * The data in the event contains any default data applied to the feature that was not provided by the originator.
+   * All map engine must generate the first update event with this event type.
+   */
+  START: "start"
 };
 
 /**
@@ -182,27 +183,27 @@ emp.typeLibrary.UpdateEventType = {
  * @description This type enumerates the valid values for the update field of the Draw and Edit update events.
  */
 emp.typeLibrary.CoordinateUpdateType = {
-    /**
-     * @constant
-     * @type string
-     * @description This value indicates that a control point has been moved.
-     * The index of the control point is contained in the indices array field.
-     */
-    UPDATE: "update",
-    /**
-     * @constant
-     * @type string
-     * @description This value indicates that a control point has been removed.
-     * The index of the control point is contained in the indices array field.
-     */
-    REMOVE: "remove",
-    /**
-     * @constant
-     * @type string
-     * @description This value indicates that a control point has been added.
-     * The index of the control point is contained in the indices array field.
-     */
-    ADD: "add"
+  /**
+   * @constant
+   * @type string
+   * @description This value indicates that a control point has been moved.
+   * The index of the control point is contained in the indices array field.
+   */
+  UPDATE: "update",
+  /**
+   * @constant
+   * @type string
+   * @description This value indicates that a control point has been removed.
+   * The index of the control point is contained in the indices array field.
+   */
+  REMOVE: "remove",
+  /**
+   * @constant
+   * @type string
+   * @description This value indicates that a control point has been added.
+   * The index of the control point is contained in the indices array field.
+   */
+  ADD: "add"
 };
 
 /**
@@ -211,7 +212,7 @@ emp.typeLibrary.CoordinateUpdateType = {
  * @typedef {object} LatLonCoordinates
  * @property {number} lat This property contains the latitude value of the coordinate.
  * @property {number} lon This property contains the longitude value of the coordinate.
- * @property {number=} alt This property contains the altitude value of the coordinate if applicable.
+ * @property {number} [alt] This property contains the altitude value of the coordinate if applicable.
  */
 
 /**
@@ -228,67 +229,87 @@ emp.typeLibrary.CoordinateUpdateType = {
  * array of all the feature coordinates {@link emp.typeLibrary.LatLonCoordinates}.
  */
 
+/**
+ * @borrows emp.constant.featureFormatType as featureFormatType
+ */
 emp.typeLibrary.featureFormatType = emp.constant.featureFormatType;
 
+/**
+ * @borrows emp.constant.featureMilStdVersionType as featureMilStdVersionType
+ */
 emp.typeLibrary.featureMilStdVersionType = emp.constant.featureMilStdVersionType;
 
+/**
+ * @borrows emp.constant.featureAltitudeModeType as featureAltitudeModeType
+ */
 emp.typeLibrary.featureAltitudeModeType = emp.constant.featureAltitudeModeType;
 
+/**
+ * @borrows emp.constant.orbitTurnType as orbitTurnType
+ */
 emp.typeLibrary.orbitTurnType = emp.constant.orbitTurnType;
 
 /**
  * @class
  * @description This type defines the bounding box of an area.
  */
-emp.typeLibrary.BoundingBoxType = function(args){
-    /**
-     * @field
-     * @type number
-     * @description This field contains the east coordinate of the bounding box in degrees.
-     */
-    this.east = args.east;
-    /**
-     * @field
-     * @type number
-     * @description This field contains the north coordinate of the bounding box in degrees.
-     */
-    this.north = args.north;
-    /**
-     * @field
-     * @type number
-     * @description This field contains the west coordinate of the bounding box in degrees.
-     */
-    this.west = args.west;
-    /**
-     * @field
-     * @type number
-     * @description This field contains the south coordinate of the bounding box in degrees.
-     */
-    this.south = args.south;
+emp.typeLibrary.BoundingBoxType = function(args) {
+  /**
+   * @field
+   * @type number
+   * @description This field contains the east coordinate of the bounding box in degrees.
+   */
+  this.east = args.east;
+  /**
+   * @field
+   * @type number
+   * @description This field contains the north coordinate of the bounding box in degrees.
+   */
+  this.north = args.north;
+  /**
+   * @field
+   * @type number
+   * @description This field contains the west coordinate of the bounding box in degrees.
+   */
+  this.west = args.west;
+  /**
+   * @field
+   * @type number
+   * @description This field contains the south coordinate of the bounding box in degrees.
+   */
+  this.south = args.south;
 };
 
+/**
+ * @borrows emp.constant.airspaceSymbolCode as airspaceSymbolCode
+ */
 emp.typeLibrary.airspaceSymbolCode = emp.constant.airspaceSymbolCode;
 
 /**
  * @private
  */
-emp.typeLibrary.parentRelationship = function(args)
-{
-    /**
-     * @description A reference to the parent object.
-     */
-    this.parent = args.parent;
-    /**
-     * @description The visibility of the child under this parent.
-     */
-    this.visible = args.visible;
-    /**
-     * @description The visibility setting of the child under this parent as
-     * set by the user or client.
-     */
-    this.visibilitySetting = args.visibilitySetting;
+emp.typeLibrary.parentRelationship = function(args) {
+  /**
+   * @description A reference to the parent object.
+   */
+  this.parent = args.parent;
+  /**
+   * @description The visibility of the child under this parent.
+   */
+  this.visible = args.visible;
+  /**
+   * @description The visibility setting of the child under this parent as
+   * set by the user or client.
+   */
+  this.visibilitySetting = args.visibilitySetting;
 };
 
+/**
+ * @borrows emp.constant.AOIType as AOIType
+ */
 emp.typeLibrary.AOIType = emp.constant.AOIType;
 
+/**
+ * @borrows emp.constant.OutlineStyleType as OutlineStyleType
+ */
 emp.typeLibrary.OutlineStyleType = emp.constant.OutlineStyleType;

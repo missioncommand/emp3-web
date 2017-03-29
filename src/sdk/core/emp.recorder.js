@@ -1,6 +1,4 @@
-if (!window.emp) {
-    window.emp = {};
-}
+var emp = window.emp || {};
 
 /**
  * Mechanism for recording all calls made and exporting them for playback or debugging purposes.
