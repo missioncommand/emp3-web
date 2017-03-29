@@ -390,11 +390,11 @@ emp.engineDefs.worldWindMapEngine = function(args) {
 
           value = config[prop];
 
-          switch (prop.toLowerCase()) {
+          switch (prop) {
             case "brightness":
               empWorldWind.setContrast(value);
               break;
-            case "milstdlabels":
+            case "milStdIconLabels":
               empWorldWind.setLabelStyle(value);
               break;
             case "renderingOptimization":
