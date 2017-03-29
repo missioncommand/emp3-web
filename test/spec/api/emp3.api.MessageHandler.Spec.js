@@ -148,44 +148,6 @@ describe('emp3.api.MessageHandler', function () {
     });
   });
 
-  describe('getVisibility', function () {
-    it('sends a getVisibility message to the validator', function () {
-
-      var callInfo = {
-        mapId: "mapId",
-        source: new emp3.api.Map({
-          engine: engine,
-          container: containerId
-        }),
-        method: 'Map.getVisibility',
-        args: {}
-      };
-
-      var message = {
-        target: {
-          geoId: "overlay1"
-        },
-        parent: {
-          geoId: "overlay2"
-        }
-      };
-
-      var transactionId = "flarbagarba1";
-
-      var validateStub = sandbox.stub(emp3.api.MessageHandler.getInstance(), 'validate');
-
-      emp3.api.MessageHandler.getInstance().getVisibility(callInfo, message, transactionId);
-
-      validateStub.should.have.been.calledWithMatch(emp3.api.enums.channel.getVisibility,
-        {
-          targetId: message.target.geoId,
-          parentId: message.parent.geoId,
-          messageId: transactionId
-        },
-        callInfo);
-    });
-  });
-
   describe('handleGetVisibilityTransactionComplete', function () {
     it('runs success callback for Map.getVisibility calls when no errors are present', function () {
 

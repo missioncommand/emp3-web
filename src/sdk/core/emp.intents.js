@@ -1,10 +1,5 @@
 /*global emp, cmapi */
-
-/**
- * emp Name Space
- * @namespace  emp
- * @type {Object}
- */
+var emp = window.emp || {};
 
 /**
  * emp.intents Name Space

@@ -1,4 +1,5 @@
 var emp = window.emp || {};
+
 /**
  * @namespace constant
  * @memberof emp

@@ -1,3 +1,6 @@
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
+
 /**
  * @class
  * @description The class represents a view change request or a view change event.
@@ -35,7 +38,7 @@ emp.typeLibrary.LookAt.prototype.validate = emp.typeLibrary.base.validate;
 
 /**
  * @typedef {object} emp.typeLibrary.LookAt.ParameterType
- * 
+ *
  * @property {string} overlayId - The overlayId is the id for the overlay to be centered on.
  * @property {number} [range=100000] - The distance at which the view point should be placed.
  * @property {number} [tilt=0] - The tilt is the camera's angle on the x-axis.

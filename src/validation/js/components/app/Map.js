@@ -167,6 +167,12 @@ const spec = {
     });
 
     return {dropped: true};
+  },
+  canDrop: props => {
+    const {maps, mapId} = props;
+
+    // If the map exists we can drop
+    return Boolean(_.find(maps, {container: mapId}));
   }
 };
 

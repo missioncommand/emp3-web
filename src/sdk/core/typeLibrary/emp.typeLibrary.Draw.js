@@ -1,6 +1,7 @@
-/* globals emp */
+/* global armyc2 */
 
-/* global emp, armyc2 */
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
 
 /**
  * @memberOf emp.typeLibrary
@@ -276,7 +277,7 @@ emp.typeLibrary.Draw = function (args) {
      * @private
      */
     this.end = function () {
-
+      // Intentionally empty
     };
 
     /**
@@ -345,7 +346,7 @@ emp.typeLibrary.Draw = function (args) {
                 items: [this.originFeature]
             });
 
-            // We pospone the execusion of the transaction because we don't know
+            // We postpone the execution of the transaction because we don't know
             // if the map will delete the feature before calling the end event or after.
             setTimeout(function(){
                 oToMapTran.run();
