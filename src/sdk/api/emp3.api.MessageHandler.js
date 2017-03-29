@@ -511,9 +511,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.mapShutdown:
           this.mapShutdown(callInfo, message, transactionId);
           break;
-        case emp3.api.enums.channel.getVisibility:
-          this.getVisibility(callInfo, message, transactionId);
-          break;
         default:
           break;
       }
@@ -3996,21 +3993,6 @@ emp3.api.MessageHandler = (function() {
 
       var rc = environment.pubSub.publishSync(publishData);
       return rc.hasChildren;
-    };
-
-    /**
-     * Retrieves the visibility state of a container or container instance.
-     */
-    this.getVisibility = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        targetId: message.target.geoId,
-        parentId: (message.parent) ? message.parent.geoId : undefined,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.getVisibility, payload, callInfo);
     };
 
     /**

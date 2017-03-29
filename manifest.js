@@ -271,6 +271,7 @@ var manifest = {
     'src/sdk/api/messages/cmapi2.map.config.Message.js',
     'src/sdk/api/messages/cmapi2.map.freehand.start.Message.js',
     'src/sdk/api/messages/cmapi2.map.freehand.stop.Message.js',
+    'src/sdk/api/messages/cmapi2.visibility.get.Message.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBrokerFactory.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.js',
     'src/sdk/api/responseBrokers/emp3.api.ResponseBroker.plotFeatureTransactionComplete.js',
