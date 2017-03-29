@@ -485,14 +485,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.statusRequest:
           this.statusRequest(callInfo, transaction, transactionId);
           break;
-        case emp3.api.enums.channel.menuDrawingCreate:
-          // TODO delete this
-          //returnedTransaction = this.menuDrawingCreate(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.menuDrawingRemove:
-          // TODO delete this
-          //returnedTransaction = this.menuDrawingRemove(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.clearMap:
           this.clearMap(callInfo, message, transactionId);
           break;

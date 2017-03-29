@@ -328,3 +328,25 @@ emp.editors.EditorBase.prototype.moveFeature = function(startX, startY, pointer)
   //  }
 
 };
+
+/**
+ * Occurs when the map is clicked for the frist time after the draw has started.
+ */
+emp.editors.Point.prototype.drawStart = function(/*pointer*/) {
+  // do nothing
+};
+
+/**
+ * Occurs when the map is clicked after the draw has started.
+ */
+emp.editors.Point.prototype.drawClick = function(/*pointer*/) {
+  // do nothing
+};
+
+/**
+ * Occurs after the draw has started and user is moving mouse.
+ * Animation should occur here.
+ */
+emp.editors.Point.prototype.drawMove = function(/*pointer*/) {
+
+};

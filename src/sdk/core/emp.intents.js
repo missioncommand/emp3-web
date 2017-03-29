@@ -361,6 +361,32 @@ emp.intents.control.useNewEditing = function(args) {
   return result;
 };
 
+/**
+ * Determine if we will use the old drawing from v2 or the new.  The new
+ * drawing is controlled by the map core code, the old drawing is done in
+ * each engine.
+ */
+emp.intents.control.useNewDrawing = function(args) {
+  var result = false;
+
+  // At this point we need to decide if we are doing this the
+  // old way or new way.  Until all the editors or done, we must
+  // support both.
+  //
+  // In this case we need the format and drawCategory (if it's a MILSymbol)
+  // This will tell me if this is something the new core editors
+  // handle
+  //
+  // remove this code after all core editors have been complete.
+  var item = args.items[0];
+
+  if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POINT) {
+    result = true;
+  }
+
+  return result;
+};
+
 emp.intents.control.intentSequenceMapper = (function() {
   /*
    * This var contains the intent sequence mapping.
@@ -992,9 +1018,21 @@ emp.intents.control.intentSequenceMapper = (function() {
         emp.storage.editBegin,
         function(args) {
           var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
+          var useNewEditing;
 
-          if (oMapInstance && oMapInstance.engine) {
-            oMapInstance.engine.draw.begin(args);
+          // Check to see if we are using the new editing for this feature.
+          useNewEditing = emp.intents.control.useNewDrawing(args);
+
+          if (useNewEditing) {
+            // new editing.
+            if (oMapInstance && oMapInstance.editingManager) {
+              oMapInstance.editingManager.get().draw(args);
+            }
+          } else {
+              // old editing.
+            if (oMapInstance && oMapInstance.engine) {
+              oMapInstance.engine.draw.begin(args);
+            }
           }
 
           if (args.failures.length > 0) {
