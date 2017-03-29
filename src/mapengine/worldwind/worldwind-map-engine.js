@@ -4,7 +4,7 @@ emp.engineDefs = emp.engineDefs || {};
 
 
 
-/**test
+/**
  * @classdesc EMP3 WorldWind Map Engine Interface
  *
  * @class Instantiates a WorldWind map for EMP
