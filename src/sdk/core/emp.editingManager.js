@@ -10,7 +10,9 @@ emp.editingManager = function(args) {
     feature, // the current state of the feature.
     activeEditor, // The editor chosen based on the format and or draw type.
     updateData, // The most recent change to the feature, includes metadata about the vertex move/removal and updates.
-    originalFeature;
+    originalFeature,
+    editing = false,
+    drawing = false;
 
   var getEditor = function(feature) {
     var symbol = false,
@@ -238,6 +240,9 @@ emp.editingManager = function(args) {
     draw: function(transaction) {
       var item;
 
+      // let the editor know this is a draw.
+      drawing = true;
+
       //pause the transaction
       transaction.pause();
 
@@ -297,10 +302,18 @@ emp.editingManager = function(args) {
       }));
 
       editTransaction.items[0].originFeature = originalFeature;
-      mapInstance.eventing.EditEnd({
-        transaction: editTransaction,
-        failures: initFailList
-      });
+
+      if (this.drawing) {
+        mapInstance.eventing.DrawEnd({
+          transaction: editTransaction,
+          failures: initFailList
+        });
+      } else {
+        mapInstance.eventing.EditEnd({
+          transaction: editTransaction,
+          failures: initFailList
+        });
+      }
 
       // remove editing control points from the map.
       activeEditor.removeControlPoints();
@@ -343,9 +356,15 @@ emp.editingManager = function(args) {
 
       editTransaction.items[0].updatedFeature = activeEditor.featureCopy;
 
-      mapInstance.eventing.EditEnd({
-        transaction: editTransaction
-      });
+      if (this.drawing) {
+        mapInstance.eventing.DrawEnd({
+          transaction: editTransaction
+        });
+      } else {
+        mapInstance.eventing.EditEnd({
+          transaction: editTransaction
+        });
+      }
 
       // remove editing control points from the map.
       activeEditor.removeControlPoints();
