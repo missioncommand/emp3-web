@@ -1,7 +1,5 @@
-/* globals emp */
-
-
-/* global emp */
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
 
 /**
  * @memberOf emp.typeLibrary
@@ -258,8 +256,12 @@ emp.typeLibrary.Edit = function(args) {
   // In the event of a cancel a map engine must revert the feature back
   // to its original version. So here we create a duplicated of the
   // feature as it is before editing.
-  this.originFeature;
+  this.originFeature = undefined;
 
+  /**
+   *
+   * @param args
+   */
   this.end = function(args) {
     var feature = this.updatedFeature;
     var storageEntry = emp.storage.findFeature(null, feature.featureId);
@@ -288,6 +290,10 @@ emp.typeLibrary.Edit = function(args) {
     e.run();
   };
 
+  /**
+   *
+   * @param args
+   */
   this.cancel = function(args) {
 
     var outBoundTrans = new emp.typeLibrary.Transaction({

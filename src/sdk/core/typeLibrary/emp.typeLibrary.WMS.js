@@ -1,4 +1,5 @@
-/*global emp */
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
 
 /**
  * @class
@@ -114,7 +115,7 @@ emp.typeLibrary.WMS = function(args) {
 
   /**
    * @field
-   * @type {string=}
+   * @type {string}
    * @description This optional field contains the unique identifier of the overlay
    * the WMS service is to be created under.
    */
@@ -137,18 +138,18 @@ emp.typeLibrary.WMS = function(args) {
    * make active (visible).
    */
   this.activeLayers = args.activeLayers || (function(args) {
-    var aTemp = [];
+      var aTemp = [];
 
-    if ((args.layers === undefined) || (args.layers === null)) {
+      if ((args.layers === undefined) || (args.layers === null)) {
+        return aTemp;
+      }
+
+      for (var iIndex = 0; iIndex < args.layers.length; iIndex++) {
+        aTemp.push(args.layers[iIndex]);
+      }
+
       return aTemp;
-    }
-
-    for (var iIndex = 0; iIndex < args.layers.length; iIndex++) {
-      aTemp.push(args.layers[iIndex]);
-    }
-
-    return aTemp;
-  })(this);
+    })(this);
 
   /**
    * @private
@@ -410,15 +411,15 @@ emp.typeLibrary.WMS = function(args) {
    * @description This field contains the primary key of the parent object.
    */
   this.coreParent = args.coreParent || (function(args) {
-    if (emp.helpers.id.get.isId(args.overlayId)) {
-      return args.overlayId;
-    }
-    else if (emp.hasOwnProperty('storage')) {
-      return emp.storage.getRootGuid();
-    }
+      if (emp.helpers.id.get.isId(args.overlayId)) {
+        return args.overlayId;
+      }
+      else if (emp.hasOwnProperty('storage')) {
+        return emp.storage.getRootGuid();
+      }
 
-    return undefined;
-  })(this);
+      return undefined;
+    })(this);
 
   this.parentCoreId = args.parentCoreId || this.coreParent;
 
@@ -484,6 +485,10 @@ emp.typeLibrary.WMS = function(args) {
     oTransaction.items.push(oItem);
   };
 
+  /**
+   *
+   * @returns {Array}
+   */
   this.getAllLayer = function() {
     var oaLayers = [];
 
@@ -515,6 +520,9 @@ emp.typeLibrary.WMS = function(args) {
     return oaLayers;
   };
 
+  /**
+   *
+   */
   this.getAllNamedFolders = function() {
 
     var getNamedFolders = function(oFolders) {
@@ -536,19 +544,38 @@ emp.typeLibrary.WMS = function(args) {
     return getNamedFolders(this.layerHierarchy.folders);
   };
 
+  /**
+   * @private
+   */
   this.oaFoldersSelected = [];
+  /**
+   * @private
+   */
   this.oaLayersSelected = [];
 
+  /**
+   *
+   * @param sFolderName
+   */
   this.selectFolder = function(sFolderName) {
     if (this.oaFoldersSelected.indexOf(sFolderName) === -1) {
       this.oaFoldersSelected.push(sFolderName);
     }
   };
 
+  /**
+   *
+   * @param sFolderName
+   * @returns {boolean}
+   */
   this.isFolderSelected = function(sFolderName) {
     return (this.oaFoldersSelected.indexOf(sFolderName) !== -1);
   };
 
+  /**
+   *
+   * @param sFolderName
+   */
   this.unselectFolder = function(sFolderName) {
     var iIndex = this.oaFoldersSelected.indexOf(sFolderName);
     if (iIndex !== -1) {
@@ -556,26 +583,45 @@ emp.typeLibrary.WMS = function(args) {
     }
   };
 
+  /**
+   *
+   */
   this.selectAllFolders = function() {
     this.oaFoldersSelected = this.getAllNamedFolders();
   };
 
+  /**
+   *
+   */
   this.unselectAllFolders = function() {
     if (this.oaFoldersSelected.length > 0) {
       this.oaFoldersSelected.splice(0, this.oaFoldersSelected.length);
     }
   };
 
+  /**
+   *
+   * @param sLayerName
+   */
   this.selectLayer = function(sLayerName) {
     if (this.oaLayersSelected.indexOf(sLayerName) === -1) {
       this.oaLayersSelected.push(sLayerName);
     }
   };
 
+  /**
+   *
+   * @param sLayerName
+   * @returns {boolean}
+   */
   this.isLayerSelected = function(sLayerName) {
     return (this.oaLayersSelected.indexOf(sLayerName) !== -1);
   };
 
+  /**
+   *
+   * @param sLayerName
+   */
   this.unselectLayer = function(sLayerName) {
     var iIndex = this.oaLayersSelected.indexOf(sLayerName);
     if (iIndex !== -1) {
@@ -583,17 +629,27 @@ emp.typeLibrary.WMS = function(args) {
     }
   };
 
+  /**
+   *
+   */
   this.selectAllLayers = function() {
     this.oaLayersSelected = this.getAllLayer();
     this.activeLayers = this.oaLayersSelected;
   };
 
+  /**
+   *
+   */
   this.unselectAllLayers = function() {
     if (this.oaLayersSelected.length > 0) {
       this.oaLayersSelected.splice(0, this.oaLayersSelected.length);
     }
   };
 
+  /**
+   *
+   * @returns {{id: *, overlayId: *, name: *, url: *, format: *}}
+   */
   this.getObjectData = function() {
     var oObj = {
       id: this.id,
@@ -610,6 +666,10 @@ emp.typeLibrary.WMS = function(args) {
     return oObj;
   };
 
+  /**
+   *
+   * @returns {emp.typeLibrary.WMS}
+   */
   this.createDuplicate = function() {
     var oNewWMS;
     var oNodes = this.nodes;
@@ -635,6 +695,9 @@ emp.typeLibrary.WMS = function(args) {
     return oNewWMS;
   };
 
+  /**
+   *
+   */
   this.prepForExecution = function() {
     // We dont need to do anything.
   };
@@ -674,33 +737,33 @@ emp.typeLibrary.WMS = function(args) {
 
 emp.typeLibrary.WMS.prototype.validate = emp.typeLibrary.base.validate;
 /*
-emp.typeLibrary.WMS.prototype.hasChildren = emp.typeLibrary.base.hasChildren;
-emp.typeLibrary.WMS.prototype.hasParents = emp.typeLibrary.base.hasParents;
-emp.typeLibrary.WMS.prototype.removeChild = emp.typeLibrary.base.removeChild;
-emp.typeLibrary.WMS.prototype.addParent = emp.typeLibrary.base.addParent;
-emp.typeLibrary.WMS.prototype.addChild = emp.typeLibrary.base.addChild;
-emp.typeLibrary.WMS.prototype.getChildrenCoreIds = emp.typeLibrary.base.getChildrenCoreIds;
-emp.typeLibrary.WMS.prototype.getParentCoreIds = emp.typeLibrary.base.getParentCoreIds;
-emp.typeLibrary.WMS.prototype.childrenCount = emp.typeLibrary.base.childrenCount;
-emp.typeLibrary.WMS.prototype.parentCount = emp.typeLibrary.base.parentCount;
-emp.typeLibrary.WMS.prototype.getChild = emp.typeLibrary.base.getChild;
-emp.typeLibrary.WMS.prototype.getParent = emp.typeLibrary.base.getParent;
-emp.typeLibrary.WMS.prototype.isMultiParentRequired = emp.typeLibrary.base.isMultiParentRequired;
-emp.typeLibrary.WMS.prototype.hasChildNodes = emp.typeLibrary.base.hasChildNodes;
-emp.typeLibrary.WMS.prototype.getChildNodesCoreIds = emp.typeLibrary.base.getChildNodesCoreIds;
-emp.typeLibrary.WMS.prototype.removeFromAllParent = emp.typeLibrary.base.removeFromAllParent;
-emp.typeLibrary.WMS.prototype.getVisibilityWithParent = emp.typeLibrary.base.getVisibilityWithParent;
-emp.typeLibrary.WMS.prototype.setVisibilityWithParent = emp.typeLibrary.base.setVisibilityWithParent;
-emp.typeLibrary.WMS.prototype.getRootParent = emp.typeLibrary.base.getRootParent;
-emp.typeLibrary.WMS.prototype.getVisibilityCount = emp.typeLibrary.base.getVisibilityCount;
-emp.typeLibrary.WMS.prototype.getRootCoreId = emp.typeLibrary.base.getRootCoreId;
-emp.typeLibrary.WMS.prototype.addAffectedChildren = emp.typeLibrary.base.addAffectedChildren;
-emp.typeLibrary.WMS.prototype.isVisible = emp.typeLibrary.base.isVisible;
-emp.typeLibrary.WMS.prototype.isUnderParent = emp.typeLibrary.base.isUnderParent;
-emp.typeLibrary.WMS.prototype.addToOverlayFeatureList = emp.typeLibrary.base.addToOverlayFeatureList;
-emp.typeLibrary.WMS.prototype.removeFromOverlayFeatureList = emp.typeLibrary.base.removeFromOverlayFeatureList;
-emp.typeLibrary.WMS.prototype.removeAllChildrenFromOverlayFeatureList = emp.typeLibrary.base.removeAllChildrenFromOverlayFeatureList;
-emp.typeLibrary.WMS.prototype.addAllChildrenToOverlayFeatureList = emp.typeLibrary.base.addAllChildrenToOverlayFeatureList;
-emp.typeLibrary.WMS.prototype.isVisibilityAffected = emp.typeLibrary.base.isVisibilityAffected;
-emp.typeLibrary.WMS.prototype.getVisibilitySettingWithParent = emp.typeLibrary.base.getVisibilitySettingWithParent;
-*/
+ emp.typeLibrary.WMS.prototype.hasChildren = emp.typeLibrary.base.hasChildren;
+ emp.typeLibrary.WMS.prototype.hasParents = emp.typeLibrary.base.hasParents;
+ emp.typeLibrary.WMS.prototype.removeChild = emp.typeLibrary.base.removeChild;
+ emp.typeLibrary.WMS.prototype.addParent = emp.typeLibrary.base.addParent;
+ emp.typeLibrary.WMS.prototype.addChild = emp.typeLibrary.base.addChild;
+ emp.typeLibrary.WMS.prototype.getChildrenCoreIds = emp.typeLibrary.base.getChildrenCoreIds;
+ emp.typeLibrary.WMS.prototype.getParentCoreIds = emp.typeLibrary.base.getParentCoreIds;
+ emp.typeLibrary.WMS.prototype.childrenCount = emp.typeLibrary.base.childrenCount;
+ emp.typeLibrary.WMS.prototype.parentCount = emp.typeLibrary.base.parentCount;
+ emp.typeLibrary.WMS.prototype.getChild = emp.typeLibrary.base.getChild;
+ emp.typeLibrary.WMS.prototype.getParent = emp.typeLibrary.base.getParent;
+ emp.typeLibrary.WMS.prototype.isMultiParentRequired = emp.typeLibrary.base.isMultiParentRequired;
+ emp.typeLibrary.WMS.prototype.hasChildNodes = emp.typeLibrary.base.hasChildNodes;
+ emp.typeLibrary.WMS.prototype.getChildNodesCoreIds = emp.typeLibrary.base.getChildNodesCoreIds;
+ emp.typeLibrary.WMS.prototype.removeFromAllParent = emp.typeLibrary.base.removeFromAllParent;
+ emp.typeLibrary.WMS.prototype.getVisibilityWithParent = emp.typeLibrary.base.getVisibilityWithParent;
+ emp.typeLibrary.WMS.prototype.setVisibilityWithParent = emp.typeLibrary.base.setVisibilityWithParent;
+ emp.typeLibrary.WMS.prototype.getRootParent = emp.typeLibrary.base.getRootParent;
+ emp.typeLibrary.WMS.prototype.getVisibilityCount = emp.typeLibrary.base.getVisibilityCount;
+ emp.typeLibrary.WMS.prototype.getRootCoreId = emp.typeLibrary.base.getRootCoreId;
+ emp.typeLibrary.WMS.prototype.addAffectedChildren = emp.typeLibrary.base.addAffectedChildren;
+ emp.typeLibrary.WMS.prototype.isVisible = emp.typeLibrary.base.isVisible;
+ emp.typeLibrary.WMS.prototype.isUnderParent = emp.typeLibrary.base.isUnderParent;
+ emp.typeLibrary.WMS.prototype.addToOverlayFeatureList = emp.typeLibrary.base.addToOverlayFeatureList;
+ emp.typeLibrary.WMS.prototype.removeFromOverlayFeatureList = emp.typeLibrary.base.removeFromOverlayFeatureList;
+ emp.typeLibrary.WMS.prototype.removeAllChildrenFromOverlayFeatureList = emp.typeLibrary.base.removeAllChildrenFromOverlayFeatureList;
+ emp.typeLibrary.WMS.prototype.addAllChildrenToOverlayFeatureList = emp.typeLibrary.base.addAllChildrenToOverlayFeatureList;
+ emp.typeLibrary.WMS.prototype.isVisibilityAffected = emp.typeLibrary.base.isVisibilityAffected;
+ emp.typeLibrary.WMS.prototype.getVisibilitySettingWithParent = emp.typeLibrary.base.getVisibilitySettingWithParent;
+ */

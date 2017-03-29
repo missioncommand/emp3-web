@@ -1,4 +1,5 @@
-/*global Storage, localStorage */
+/* global Storage, localStorage */
+var emp = window.emp || {};
 
 /**
  * @private
@@ -32,6 +33,7 @@ emp.prefs = (function() {
 
     return value;
   }
+
   /**
    * @protected
    * @memberOf emp.prefs
@@ -55,6 +57,7 @@ emp.prefs = (function() {
     }
     return success;
   }
+
   /**
    * @memberOf emp.prefs
    * @protected
