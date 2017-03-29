@@ -10,9 +10,6 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  * Pointer events are currently aliases for their mouseevent counterparts
  *
  * @namespace
- * @borrows EMPWorldWind.eventHandlers.mouse.mousedown as pointerdown
- * @borrows EMPWorldWind.eventHandlers.mouse.mouseup as pointerup
- * @borrows EMPWorldWind.eventHandlers.mouse.mousemove as pointermove
  */
 EMPWorldWind.eventHandlers.pointer = {
   /**

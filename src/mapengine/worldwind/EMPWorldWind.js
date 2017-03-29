@@ -116,6 +116,35 @@ EMPWorldWind.map = function(wwd) {
       "Z": false
     }
   };
+
+  // Optimization for mil standard  single points.
+  /**
+   * Object for holding render optimization params
+   */
+  this.singlePointAltitudeRanges = {};
+  /**
+   * Mid-range optimization altitude
+   * @default
+   */
+  this.singlePointAltitudeRanges.mid = 600000; // default
+  /**
+   * High-range optimization altitude
+   * @default
+   */
+  this.singlePointAltitudeRanges.high = 1200000; // default
+  /**
+   * Current range mode
+   */
+  this.singlePointAltitudeRangeMode = EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
+
+  /**
+   * Current set of selected objects
+   */
+  this.empSelections = {};
+  this.optimizationMapMoveEpsilon = EMPWorldWind.Math.EPSILON7;
+  this.lastNavigator = {};
+  this.shapesInViewArea;
+  this.bounds;
 };
 
 // typedefs ============================================================================================================
@@ -129,14 +158,17 @@ EMPWorldWind.map = function(wwd) {
 
 /**
  * Creates the initial layers
- * @param {emp.map} empMapInstance
+ * @param {object} args
+ * @param {Bounds} [args.extent]
+ * @param {object} [args.configProperties]
+ * @param {emp.map} args.mapInstance
  */
-EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
+EMPWorldWind.map.prototype.initialize = function(args) {
   /**
    * @memberof EMPWorldWind.map#
    * @type {emp.map}
    */
-  this.empMapInstance = empMapInstance;
+  this.empMapInstance = args.mapInstance;
 
   // Create the contrast layers
   var blackContrastLayer = new WorldWind.SurfaceSector(WorldWind.Sector.FULL_SPHERE, null);
@@ -155,7 +187,7 @@ EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
   this.contrastLayer.addRenderable(blackContrastLayer);
 
   // Create the goTo manipulator
-  /** @member {WorldWind.GoToAnimator */
+  /** @member {WorldWind.GoToAnimator} */
   this.goToAnimator = new WorldWind.GoToAnimator(this.worldWindow);
 
   // Register drag event handlers
@@ -167,20 +199,76 @@ EMPWorldWind.map.prototype.initialize = function(empMapInstance) {
   }.bind(this));
 
   // Register DOM event handlers
+  // var throttleValue = 50; // throttle on event calls in ms
   var eventClass, eventHandler;
   for (eventClass in EMPWorldWind.eventHandlers) {
     if (EMPWorldWind.eventHandlers.hasOwnProperty(eventClass)) {
       eventClass = EMPWorldWind.eventHandlers[eventClass];
       for (eventHandler in eventClass) {
         if (eventClass.hasOwnProperty(eventHandler)) {
+
+          // TODO remove this once throttling works again
           this.worldWindow.addEventListener(eventHandler, eventClass[eventHandler].bind(this));
+
+          // TODO fix throttling is getting the way of event interception, affecting maplock
+          // this.worldWindow.addEventListener(eventHandler,
+          //   EMPWorldWind.eventHandlers.throttle(eventClass[eventHandler].bind(this), throttleValue, this)
+          // );
         }
       }
     }
   }
 
+  // If an initial extent is passed in set the view
+  if (args.extent) {
+    if (!isNaN(args.extent.north) && !isNaN(args.extent.south) && !isNaN(args.extent.east) && !isNaN(args.extent.west)) {
+      // Get approximate height from the width of the extent
+      var alt = Math.PI * WorldWind.EARTH_RADIUS * WorldWind.Location.greatCircleDistance(
+          new WorldWind.Location(args.extent.north, args.extent.west),
+          new WorldWind.Location(args.extent.south, args.extent.east));
+
+      this.centerOnLocation({
+        latitude: (args.extent.north + args.extent.south) / 2,
+        longitude: (args.extent.east + args.extent.west) / 2,
+        altitude: alt
+      });
+    }
+    else if (!isNaN(args.extent.centerLat) && !isNaN(args.extent.centerLon)) {
+      // Arbitrarily use 1e7 as altitude
+      this.centerOnLocation({
+        latitude: args.extent.centerLat,
+        longitude: args.extent.centerLon,
+        altitude: 1e7
+      });
+    }
+  }
+
+  if (this.worldWindow.navigator) {
+    this.lastNavigator.range = this.worldWindow.navigator.range;
+    this.lastNavigator.tilt = this.worldWindow.navigator.tilt;
+    this.lastNavigator.roll = this.worldWindow.navigator.roll;
+    this.lastNavigator.heading = this.worldWindow.navigator.heading;
+    this.lastNavigator.lookAtLocation = emp.helpers.copyObject(this.worldWindow.navigator.lookAtLocation);
+  }
+
+
+  // Update any other config properties passed in
+  if (EMPWorldWind.utils.defined(args.configProperties.midDistanceThreshold)) {
+    this.singlePointAltitudeRanges.mid = args.configProperties.midDistanceThreshold;
+  }
+
+  if (EMPWorldWind.utils.defined(args.configProperties.farDistanceThreshold)) {
+    this.singlePointAltitudeRanges.far = args.configProperties.farDistanceThreshold;
+  }
+
+  if (EMPWorldWind.utils.defined(args.configProperties.brightness)) {
+    this.setContrast(args.configProperties.brightness);
+  }
+
+  // Trigger an initial camera update to update EMP
   EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
-};
+}
+;
 
 /**
  *
@@ -247,7 +335,8 @@ EMPWorldWind.map.prototype.removeLayer = function(layer) {
     delete this.layers[layer.id];
 
     result.success = true;
-  } else {
+  }
+  else {
     result.message = "No layer found with the id " + id;
   }
 
@@ -270,7 +359,8 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
   var position;
   if (typeof args.altitude === "number") {
     position = new WorldWind.Position(args.latitude, args.longitude, args.altitude);
-  } else {
+  }
+  else {
     position = new WorldWind.Location(args.latitude, args.longitude);
   }
 
@@ -282,7 +372,8 @@ EMPWorldWind.map.prototype.centerOnLocation = function(args) {
     this.goToAnimator.travelTime = EMPWorldWind.constants.globeMoveTime;
     this.goToAnimator.goTo(position, args.animateCB || function() {
       });
-  } else {
+  }
+  else {
     this.goToAnimator.travelTime = 0;
     this.goToAnimator.goTo(position);
   }
@@ -308,6 +399,10 @@ EMPWorldWind.map.prototype.lookAt = function(args) {
 
   var position = new WorldWind.Position(args.latitude, args.longitude, args.range);
 
+  /**
+   * @this {EMPWorldWind.map}
+   * @private
+   */
   function _completeLookAtMotion() {
     this.worldWindow.navigator.lookAtLocation.latitude = args.latitude;
     this.worldWindow.navigator.lookAtLocation.longitude = args.longitude;
@@ -331,8 +426,8 @@ EMPWorldWind.map.prototype.lookAt = function(args) {
 };
 
 /**
- * @param {emp.typeLibrary.Feature} feature
- * @param {PlotFeatureCB} callback
+ * @param {emp.typeLibrary.Feature|EMPWorldWind.data.EmpFeature} feature
+ * @param {PlotFeatureCB} [callback]
  */
 EMPWorldWind.map.prototype.plotFeature = function(feature, callback) {
   /**
@@ -355,10 +450,16 @@ EMPWorldWind.map.prototype.plotFeature = function(feature, callback) {
     }
   }.bind(this);
 
+  // Check if we are using a EMPWorldWind feature internally
+  if (feature instanceof EMPWorldWind.data.EmpFeature) {
+    feature = feature.feature;
+  }
+
   if (feature.featureId in this.features) {
     // Update an existing feature
     EMPWorldWind.editors.EditorController.updateFeature.call(this, this.features[feature.featureId], feature, _callback);
-  } else {
+  }
+  else {
     // Plot a new feature
     EMPWorldWind.editors.EditorController.plotFeature.call(this, feature, _callback);
   }
@@ -386,9 +487,11 @@ EMPWorldWind.map.prototype.unplotFeature = function(feature) {
   layer = this.getLayer(feature.parentCoreId);
   if (layer) {
     layer.removeFeatureById(feature.coreId);
+    this.removeFeatureSelection(feature.coreId);
     this.worldWindow.redraw();
     rc.success = true;
-  } else {
+  }
+  else {
     rc.messge = 'Could not find the parent overlay';
   }
 
@@ -407,8 +510,10 @@ EMPWorldWind.map.prototype.selectFeatures = function(empSelections) {
     var feature = this.features[selectedFeature.featureId];
     if (feature) {
       feature.selected = selectedFeature.select;
-      selected.push(feature);
-    } else {
+      (feature.selected) ? this.storeFeatureSelection(selectedFeature.featureId) : this.removeFeatureSelection(selectedFeature.featureId);
+      //selected.push(feature);
+    }
+    else {
       failed.push(selectedFeature.featureId);
     }
   }.bind(this));
@@ -533,10 +638,9 @@ EMPWorldWind.map.prototype.getFeatureSelection = function(id) {
 /**
  *
  * @param id
- * @param deselectProperties
  */
-EMPWorldWind.map.prototype.storeFeatureSelection = function(id, deselectProperties) {
-  this.empSelections[id] = deselectProperties;
+EMPWorldWind.map.prototype.storeFeatureSelection = function(id) {
+  this.empSelections[id] = id;
 };
 
 /**
@@ -716,7 +820,8 @@ EMPWorldWind.map.prototype.getSinglePoints = function() {
 EMPWorldWind.map.prototype.getSinglePointCount = function() {
   if (this.defined(this.singlePointCollection)) {
     return Object.keys(this.singlePointCollection).length;
-  } else {
+  }
+  else {
     return 0;
   }
 };
@@ -812,6 +917,7 @@ EMPWorldWind.map.prototype.setLabelStyle = function(styles) {
  * Expose a refresh
  */
 EMPWorldWind.map.prototype.refresh = function() {
+  EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
   //var featureId, feature;
 
   // for (featureId in this.features) {
@@ -834,14 +940,16 @@ EMPWorldWind.map.prototype.refresh = function() {
 EMPWorldWind.map.prototype.setContrast = function(contrast) {
   if (contrast > 100) {
     contrast = 100;
-  } else if (contrast < 0) {
+  }
+  else if (contrast < 0) {
     contrast = 0;
   }
 
   if (contrast >= 50) {
     this.contrastLayer.renderables[EMPWorldWind.constants.WHITE_CONTRAST].attributes.interiorColor = new WorldWind.Color(1, 1, 1, (contrast - 50) / 50);
     this.contrastLayer.renderables[EMPWorldWind.constants.BLACK_CONTRAST].attributes.interiorColor = new WorldWind.Color(0, 0, 0, 0);
-  } else {
+  }
+  else {
     this.contrastLayer.renderables[EMPWorldWind.constants.WHITE_CONTRAST].attributes.interiorColor = new WorldWind.Color(1, 1, 1, 0);
     this.contrastLayer.renderables[EMPWorldWind.constants.BLACK_CONTRAST].attributes.interiorColor = new WorldWind.Color(0, 0, 0, (50 - contrast) / 50);
   }
@@ -868,13 +976,15 @@ EMPWorldWind.map.prototype.spinGlobe = function() {
 
   if (this.state.autoPanning.up) {
     vertical = step;
-  } else if (this.state.autoPanning.down) {
+  }
+  else if (this.state.autoPanning.down) {
     vertical = -step;
   }
 
   if (this.state.autoPanning.left) {
     horizontal = -step;
-  } else if (this.state.autoPanning.right) {
+  }
+  else if (this.state.autoPanning.right) {
     horizontal = step;
   }
 
@@ -891,7 +1001,8 @@ EMPWorldWind.map.prototype.spinGlobe = function() {
     this.goToAnimator.goTo(position);
     EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
     setTimeout(this.spinGlobe.bind(this), 250);
-  } else {
+  }
+  else {
     EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
   }
 };
@@ -963,4 +1074,62 @@ EMPWorldWind.map.prototype.shutdown = function() {
   this.features = {};
   this.layers = {};
   this.worldWindow = undefined;
+};
+
+/**
+ * checks is map is moving outside an epsilon. This function is used
+ * to reduce the calls to update the features of the map.
+ */
+EMPWorldWind.map.prototype.isMapMoving = function() {
+  if ((!EMPWorldWind.Math.equalsEpsilon(this.worldWindow.navigator.lookAtLocation.latitude, this.lastNavigator.lookAtLocation.latitude, this.optimizationMapMoveEpsilon)) ||
+    (!EMPWorldWind.Math.equalsEpsilon(this.worldWindow.navigator.lookAtLocation.longitude, this.lastNavigator.lookAtLocation.longitude, this.optimizationMapMoveEpsilon)) ||
+    (!EMPWorldWind.Math.equalsEpsilon(this.worldWindow.navigator.range, this.lastNavigator.range, this.optimizationMapMoveEpsilon)) ||
+    (!EMPWorldWind.Math.equalsEpsilon(this.worldWindow.navigator.tilt, this.lastNavigator.tilt, this.optimizationMapMoveEpsilon)) ||
+    (!EMPWorldWind.Math.equalsEpsilon(this.worldWindow.navigator.roll, this.lastNavigator.roll, this.optimizationMapMoveEpsilon)) ||
+    (!EMPWorldWind.Math.equalsEpsilon(this.worldWindow.navigator.heading, this.lastNavigator.heading, this.optimizationMapMoveEpsilon))) {
+    return true;
+  }
+  else {
+    return false;
+  }
+};
+
+
+EMPWorldWind.map.prototype.pickShapesInViewRegion = function() {
+  var shapes;
+  //var bound = this.getBounds();
+  //var boundRectangle = new this.worldwind.Rectangle(new WorldWind.Location(this.worldWindow.navigator.lookAtLocation.latitude, this.worldWindow.navigator.lookAtLocation.longitude), this.worldWindow.viewport.width -1 , this.worldWindow.viewport.height - 1);
+  // this.worldWindow.viewport
+  var canvasCoordinates = this.worldWindow.canvasCoordinates(0, 0);
+  //var screenLocation = new WorldWind.Location(this.worldWindow.navigator.lookAtLocation.latitude, this.worldWindow.navigator.lookAtLocation.longitude);
+  var boundRectangle = new WorldWind.Rectangle(canvasCoordinates[0], canvasCoordinates[1], 5000, 4000);
+  //var boundRectangle  = new WorldWind.Rectangle(0, 0 ,this.worldWindow.viewport.width -1 , this.worldWindow.viewport.height - 1);
+  //var boundRectangle  = new WorldWind.Rectangle(this.worldWindow.canvas.width/2, this.worldWindow.canvas.height/2 ,this.worldWindow.viewport.width -1 , this.worldWindow.viewport.height - 1);
+
+  shapes = this.worldWindow.pickShapesInRegion(boundRectangle);
+  return shapes;
+};
+
+
+/**
+ * checks if feature is within view area of map.
+ * @param {emp.typeLibrary.Feature} empFeature object representing a feature (not a ww feature).
+ */
+EMPWorldWind.map.prototype.isMilStdMultiPointShapeInViewRegion = function(empFeature) {
+  var p,
+    inView = false;
+
+  // Highlight the items picked.
+  if (!this.bounds) {
+    this.bounds = this.getBounds();
+  }
+
+  for (p = 0; p < empFeature.coordinates.length; p++) {
+    var coordinate = empFeature.coordinates[p];
+    if ((coordinate[0] <= this.bounds.east && coordinate[0] >= this.bounds.west) && (coordinate[1] > this.bounds.south && coordinate[1] < this.bounds.north)) {
+      inView = true;
+      break;
+    }
+  }
+  return inView;
 };

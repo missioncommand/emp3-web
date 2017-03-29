@@ -68,7 +68,8 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       empMapInstance.eventing.StatusChange({
         status: emp.map.states.READY
       });
-    } catch (err) {
+    }
+    catch (err) {
       window.console.error("Error initializing WorldWind ", err);
     }
   };
@@ -103,7 +104,8 @@ emp.engineDefs.worldWindMapEngine = function(args) {
             roll: transaction.items[0].roll,
             heading: transaction.items[0].heading
           };
-        } else if (transaction.items[0].bounds) {
+        }
+        else if (transaction.items[0].bounds) {
           // Zoom to overlay
 
           // Express lat/lon as radians
@@ -375,6 +377,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.map.config = function(transaction) {
+    var bRangeChanged;
     // Iterate through each transaction item, check for properties and apply them
     emp.util.each(transaction.items, function(config) {
       var prop, value;
@@ -387,17 +390,43 @@ emp.engineDefs.worldWindMapEngine = function(args) {
 
           value = config[prop];
 
-          switch (prop.toLowerCase()) {
+          switch (prop) {
             case "brightness":
               empWorldWind.setContrast(value);
               break;
-            case "milstdlabels":
+            case "milStdIconLabels":
               empWorldWind.setLabelStyle(value);
+              break;
+            case "renderingOptimization":
+              if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.enableRenderingOptimization)) {
+                bRangeChanged = true;
+                empWorldWind.enableRenderingOptimization = value;
+              }
+              break;
+            case "midDistanceThreshold":
+              if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.singlePointAltitudeRanges.mid)) {
+                bRangeChanged = true;
+                empWorldWind.singlePointAltitudeRanges.mid = value;
+              }
+              break;
+            case "farDistanceThreshold":
+              if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.singlePointAltitudeRanges.high)) {
+                bRangeChanged = true;
+                empWorldWind.singlePointAltitudeRanges.high = value;
+                //empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
+                //empCesium.processOnRangeChangeSinglePoints();
+              }
               break;
             default:
               transaction.fail(new emp.typeLibrary.Error({
                 message: 'Config property ' + prop + ' is not supported by this engine'
               }));
+          }
+
+          if (bRangeChanged) {
+            empWorldWind.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(empWorldWind.worldWindow.navigator.range, empWorldWind.singlePointAltitudeRanges);
+            // force a render update when the altitude range changes
+            empWorldWind.refresh();
           }
         }
       }

@@ -176,6 +176,38 @@ EMPWorldWind.constants.LabelStyle = {
   ALL_LABELS: 'all_labels'
 };
 
+/**
+ * Modifiers for All labels to be displayed
+ * @enum {object}
+ * @constant
+ */
+EMPWorldWind.constants.AllLabels = {
+  "V": true,
+  "L": true,
+  "S": true,
+  "AA": true,
+  "AB": true,
+  "AC": true, 
+  "H": true,
+  "M": true,
+  "T": true,
+  "T1": true,
+  "CN": true,
+  "C": true,
+  "F": true,
+  "G": true,
+  "H1": true,
+  "H2": true,
+  "J": true,
+  "K": true,
+  "N": true,
+  "P": true,
+  "W": true,
+  "W1": true,
+  "X": true,
+  "Y": true,
+  "Z": true
+};
 
 /**
  * @namespace
@@ -223,6 +255,7 @@ EMPWorldWind.constants.RendererSettings.modifierLookup = {
   AZIMUTH: "azimuth",
   FILL_COLOR: "fillColor",
   LINE_COLOR: "lineColor",
+  TEXT_COLOR: "textColor",
   X_OFFSET: "xOffset",
   X_UNITS: "xUnits",
   Y_OFFSET: "yOffset",
@@ -230,3 +263,12 @@ EMPWorldWind.constants.RendererSettings.modifierLookup = {
   NAME: "name",
   STANDARD: "standard"
 };
+
+EMPWorldWind.constants.highAltitudeRangeImage = {};
+EMPWorldWind.constants.highAltitudeRangeImage.highRangeImageRed = 'data:image/svg+xml;base64,' + window.btoa('<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12"  r="3" fill="red" stroke="red" stroke-width="1"  /></g></svg>');
+EMPWorldWind.constants.highAltitudeRangeImage.highRangeImageBlue = 'data:image/svg+xml;base64,' + window.btoa('<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle cx="12" cy="12"  r="3" fill="blue" stroke="blue" stroke-width="1"  /></g></svg>');
+EMPWorldWind.constants.highAltitudeRangeImage.highRangeImageGreen = 'data:image/svg+xml;base64,' + window.btoa('<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12" r="3" fill="green" stroke="green" stroke-width="1"  /></g></svg>');
+EMPWorldWind.constants.highAltitudeRangeImage.highRangeImageYellow = 'data:image/svg+xml;base64,' + window.btoa('<svg preserveAspectRatio="none" width="25px" height="30px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12" r="3" fill="yellow" stroke="yellow" stroke-width="1"  /></g></svg>');
+//EMPWorldWind.constants.highAltitudeRangeImage.blankMultipoint = 'data:image/svg+xml;base64,' + window.btoa('<svg preserveAspectRatio="none" width="2px" height="2px"   xmlns="http://www.w3.org/2000/svg" version="1.1"><g transform="translate(0,0)  "><circle  cx="12" cy="12" r="3" fill="black" stroke="black" stroke-width="1"  /></g></svg>');
+
+

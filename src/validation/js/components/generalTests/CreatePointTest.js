@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import {connect} from 'react-redux';
 import assign from 'object-assign';
 import RelatedTests from '../../containers/RelatedTests';
+import {GeoIconStyleBox} from '../shared';
 import {PropertiesBox, VText, OverlaySelect} from '../shared';
 
 class CreatePointTest extends Component {
@@ -216,6 +217,8 @@ class CreatePointTest extends Component {
             <input id="point-useProxy" type="checkbox" value={this.state.feature.useProxy} onChange={this.update}/>
           </div>
 
+          <GeoIconStyleBox style={this.state.feature}
+                           callback={this.updateProperties}/>
           <PropertiesBox featureType={emp3.api.enums.FeatureTypeEnum.GEO_POINT}
                          callback={this.updateProperties}
                          properties={this.state.feature}/>

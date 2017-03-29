@@ -50,7 +50,7 @@ emp.map = function (args) {
     defaultExtent = args.extent,
     // This config parameter may be used in the future when
     // a unique map instance config object is created which
-    // will conatin instance specific configurations.
+    // will contain instance specific configurations.
     //    config,
     freehandMode = false,
     freehandModeDrawStart = false,
@@ -110,7 +110,7 @@ emp.map = function (args) {
    * @memberOf emp.map
    * @private
    * @desc This function is used to load a resource such as a javascript file needed for a given map engine.
-   It is for internal map use only and is private by closure.
+   * It is for internal map use only and is private by closure.
    * @method
    */
   function loadScript(args) {
@@ -181,7 +181,7 @@ emp.map = function (args) {
    * @memberOf emp.map
    * @private
    * @desc This function is used to iterate through loading resources needed for a given map engine.
-   *  It is for internal map use only and is private by closure.
+   * It is for internal map use only and is private by closure.
    * @method
    */
 
@@ -851,7 +851,7 @@ emp.map = function (args) {
        * time the maps view is changed.
        * @param {emp.typeLibrary.View.ParameterType} viewArgs This parameter contains the data needed to generate the event.
        * @param {emp.typeLibrary.LookAt.ParameterType} lookAtArgs This parameter contains the data needed to generate the lookAt
-       * @param {emp3.api.enums.CameraEventType} mapViewEventEnum
+       * @param {emp3.api.enums.CameraEventEnum} mapViewEventEnum
        */
       ViewChange: function (viewArgs, lookAtArgs, mapViewEventEnum) {
 
@@ -1102,7 +1102,7 @@ emp.map = function (args) {
 
             // End the line draw.  Remove the line that we put on the map.
             // We call the engines remove call, specifically not sending it
-            // throught the queue as to prevent events bubbling up to the API.
+            // through the queue as to prevent events bubbling up to the API.
             freehandModeDrawStart = false;
             freehandFeature.data.coordinates.push([pointer.lon, pointer.lat]);
 
@@ -1384,7 +1384,7 @@ emp.map = function (args) {
 
     status: {
       get: function () {
-        // When a map engine emits a ststus change event, the dispatchEvent function
+        // When a map engine emits a status change event, the dispatchEvent function
         // catches it and sets the publicInterface.status object to the current engine status
         return currentStatus.status;
       },

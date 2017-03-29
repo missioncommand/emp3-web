@@ -15,7 +15,7 @@ EMPWorldWind.editors.EditorController = (function() {
    */
   function _constructSinglePointMilStdSymbol(feature, modifiers, selectionStyle) {
     var placemark, attributes, highlightAttributes, position, imageInfo, imageCenter, imageBounds, imageOffset,
-      selectedImage,
+      selectedImage, symbolCode, selectedModifiers,
       eyeDistanceScaling = false;
 
     attributes = new WorldWind.PlacemarkAttributes();
@@ -25,31 +25,51 @@ EMPWorldWind.editors.EditorController = (function() {
     attributes.drawLeaderLine = true;
     attributes.leaderLineAttributes.outlineColor = WorldWind.Color.RED;
 
-    // Render
-    imageInfo = armyc2.c2sd.renderer.MilStdIconRenderer.Render(feature.symbolCode, modifiers);
-    imageCenter = imageInfo.getCenterPoint();
-    imageBounds = imageInfo.getImageBounds();
+    if (feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) {
+      // Optimization
+      attributes.imageScale = 1;
+      attributes.imageSource = EMPWorldWind.utils.selectHighAltitudeRangeImage(feature.symbolCode);
+      highlightAttributes = new WorldWind.PlacemarkAttributes();
+      highlightAttributes.imageColor = WorldWind.Color.WHITE;
+      highlightAttributes.imageSource = attributes.imageSource;
+    }
+    else {
 
-    // Calculate offset
-    imageOffset = new WorldWind.Offset(
-      WorldWind.OFFSET_FRACTION, imageCenter.x / imageBounds.width,
-      WorldWind.OFFSET_FRACTION, 1 - (imageCenter.y / imageBounds.height)
-    );
+      if ((this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.MID_RANGE) && feature.symbolCode) {
+        // do not display country code
+        symbolCode = feature.symbolCode.substr(0, 12) + "--" + feature.symbolCode.substr(14);
+      }
+      else {
+        // display country code
+        symbolCode = feature.symbolCode;
+      }
+      // Render
+      imageInfo = armyc2.c2sd.renderer.MilStdIconRenderer.Render(symbolCode, modifiers);
+      imageCenter = imageInfo.getCenterPoint();
+      imageBounds = imageInfo.getImageBounds();
 
-    attributes.imageScale = 1;
-    attributes.imageOffset = imageOffset;
-    attributes.imageSource = imageInfo.toDataUrl();
+      // Calculate offset
+      imageOffset = new WorldWind.Offset(
+        WorldWind.OFFSET_FRACTION, imageCenter.x / imageBounds.width,
+        WorldWind.OFFSET_FRACTION, 1 - (imageCenter.y / imageBounds.height)
+      );
 
-    // Highlight attributes
-    highlightAttributes = new WorldWind.PlacemarkAttributes();
-    highlightAttributes.imageColor = WorldWind.Color.WHITE;
-    highlightAttributes.imageOffset = imageOffset;
+      attributes.imageScale = 1;
+      attributes.imageOffset = imageOffset;
+      attributes.imageSource = imageInfo.toDataUrl();
 
-    // Note that this is done statically, if the selection style changes a bulk update to every feature will need to be done
-    modifiers.LINECOLOR = selectionStyle.lineColor;
-    modifiers.FILLCOLOR = selectionStyle.fillColor;
-    selectedImage = armyc2.c2sd.renderer.MilStdIconRenderer.Render(feature.symbolCode, modifiers).toDataUrl();
-    highlightAttributes.imageSource = selectedImage;
+      // Highlight attributes
+      highlightAttributes = new WorldWind.PlacemarkAttributes(attributes);
+      highlightAttributes.imageColor = WorldWind.Color.WHITE;
+      highlightAttributes.imageOffset = imageOffset;
+
+      // Note that this is done statically, if the selection style changes a bulk update to every feature will need to be done
+      selectedModifiers = Object.assign({}, modifiers);
+      selectedModifiers.LINECOLOR = selectionStyle.lineColor;
+      selectedModifiers.FILLCOLOR = selectionStyle.fillColor;
+      selectedImage = armyc2.c2sd.renderer.MilStdIconRenderer.Render(feature.symbolCode, selectedModifiers).toDataUrl();
+      highlightAttributes.imageSource = selectedImage;
+    }
 
     position = new WorldWind.Position(
       feature.data.coordinates[1],
@@ -106,9 +126,16 @@ EMPWorldWind.editors.EditorController = (function() {
       modifiers,
       EMPWorldWind.constants.MultiPointRenderType.GEOJSON));
 
+      feature.wasClipped = imageInfo.properties.wasClipped;
+
     // Generate primitives from the geoJSON
     for (i = 0; i < imageInfo.features.length; i++) {
       componentFeature = imageInfo.features[i];
+
+      // TODO have the renderer return the proper width, manually overwriting the line width for now
+      componentFeature.properties.strokeWidth = 1;
+      componentFeature.properties.strokeWeight = 1;
+
       switch (componentFeature.geometry.type) {
         case "MultiLineString":
           lineCount = componentFeature.geometry.coordinates.length;
@@ -145,14 +172,24 @@ EMPWorldWind.editors.EditorController = (function() {
    * @param {emp.typeLibrary.Feature} feature
    */
   function processModifiers(feature) {
-    var modifiers, enhancedModifiers, override;
+    var modifiers, enhancedModifiers, override, lowRangeMode;
     if (feature.data.type === "Point") {
-      modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, this.state.labelStyles, this.state.pixelSize);
+      modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(
+        feature.properties,
+        feature.name,
+        this.state.labelStyles, // Single-point shows symbols based on settings
+        this.state.pixelSize);
     } else {
-      modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(feature.properties, feature.name, {}, this.state.pixelSize);
+      modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(
+        feature.properties,
+        feature.name,
+        EMPWorldWind.constants.AllLabels, // Multi-point always shows symbols
+        this.state.pixelSize);
     }
 
-    modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, this.state.labelStyles.CN === true);
+    lowRangeMode = feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
+    modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, ((this.state.labelStyles.CN === true) && lowRangeMode));
+    //modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, true);
 
     enhancedModifiers = EMPWorldWind.utils.milstd.checkForRequiredModifiers(feature);
 
@@ -180,11 +217,12 @@ EMPWorldWind.editors.EditorController = (function() {
     modifiers = processModifiers.call(this, feature);
 
     if (feature.data.type === "Point") {
-      shapes.push(_constructSinglePointMilStdSymbol(feature, modifiers, selectionStyle));
+      shapes.push(_constructSinglePointMilStdSymbol.call(this, feature, modifiers, selectionStyle));
     } else if (feature.data.type === "LineString") {
       // Requires access to the WorldWindow navigator, bind to the current scope
       shapes = shapes.concat(_constructMultiPointMilStdFeature.call(this, feature, modifiers, selectionStyle));
     } else {
+      // TODO alert the user more gracefully that the type is unhandled
       window.console.error("Unhandled feature type: " + feature.data.type + " in EMPWorldWind");
     }
 
@@ -193,7 +231,7 @@ EMPWorldWind.editors.EditorController = (function() {
 
   /**
    * Async function
-   * @param {emp.classLibrary.Feature} feature
+   * @param {emp.typeLibrary.Feature} feature
    * @param {PlotFeatureCB} callback
    * @this EMPWorldWind.map
    */
@@ -218,7 +256,7 @@ EMPWorldWind.editors.EditorController = (function() {
         this.worldWindow.addLayer(kmlLayer);
 
         // Use the standard data holder to keep track of the layer
-        wwFeature = new EMPWorldWind.data.EmpFeature(feature, this.state.labelStyles);
+        wwFeature = new EMPWorldWind.data.EmpFeature(feature);
         wwFeature.addShapes(kmlLayer); // This isn't a WW primitive but use it as if it was
 
         // Record the layer so we can remove/modify it later
@@ -295,7 +333,10 @@ EMPWorldWind.editors.EditorController = (function() {
       }
 
       // construct the feature
-      wwFeature = new EMPWorldWind.data.EmpFeature(empFeature, this.state.labelStyles);
+      wwFeature = new EMPWorldWind.data.EmpFeature(empFeature);
+      wwFeature.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
+      empFeature.singlePointAltitudeRangeMode = wwFeature.singlePointAltitudeRangeMode;
+      empFeature.range =  this.worldWindow.navigator.range;
 
       // Build the primitives
       shapes = buildShapes(empFeature, this.state.selectionStyle);
@@ -330,8 +371,10 @@ EMPWorldWind.editors.EditorController = (function() {
       // Remove existing primitives from the map
       if (empFeature.format !== emp3.api.enums.FeatureTypeEnum.KML) {
         layer = this.getLayer(empFeature.parentCoreId);
+        empFeature.singlePointAltitudeRangeMode = wwFeature.singlePointAltitudeRangeMode;
         layer.removeFeature(wwFeature);
-      } else {
+      }
+      else {
         // Handle KML
         this.worldWindow.removeLayer(this.layers[empFeature.coreId]);
       }
@@ -341,7 +384,9 @@ EMPWorldWind.editors.EditorController = (function() {
 
       switch (empFeature.format) {
         case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL:
-          wwFeature.addShapes(constructMilStdSymbol.call(this, empFeature, this.state.labelStyles));
+          wwFeature.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
+          empFeature.singlePointAltitudeRangeMode = wwFeature.singlePointAltitudeRangeMode;
+          wwFeature.addShapes(constructMilStdSymbol.call(this, empFeature, this.state.selectionStyle));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_ACM:
           wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructAirControlMeasure(empFeature, this.state.labelStyles));
@@ -378,14 +423,20 @@ EMPWorldWind.editors.EditorController = (function() {
 
       // Redraw the new shapes
       if (rc.success) {
+        // tag empFeature with current range.
+        empFeature.range =  this.worldWindow.navigator.range;
+           // Update the empFeature stored in the wwFeature
+        wwFeature.feature = empFeature;
+        wwFeature.selected = this.isFeatureSelected(wwFeature.id);
+
+        // Update the layer
         layer.addFeature(wwFeature);
+
+        // Setup the return
         rc.feature = wwFeature;
       }
-
       callback(rc);
-    }
-
-    ,
+    },
     /**
      *
      * @param {EMPWorldWind.data.EmpFeature} wwFeature
@@ -417,5 +468,4 @@ EMPWorldWind.editors.EditorController = (function() {
       }
     }
   };
-})
-();
+})();

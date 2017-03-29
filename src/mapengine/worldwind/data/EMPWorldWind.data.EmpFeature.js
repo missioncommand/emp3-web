@@ -9,23 +9,18 @@ EMPWorldWind.data = EMPWorldWind.data || {};
  * @class
  * @param {emp.typeLibrary.Feature} feature
  */
-EMPWorldWind.data.EmpFeature = function (feature) {
+EMPWorldWind.data.EmpFeature = function(feature) {
   /**
    * The storage of all the shapes composing the primary shape
    * @type {WorldWind.SurfaceShape[]}
    */
   this.shapes = [];
 
-  var _feature = feature;
   /**
    * The native EMP Feature
-   * @name EMPWorldWind.data.Feature#feature
    * @type {emp.typeLibrary.Feature}
    */
-  Object.defineProperty(this, 'feature', {
-    enumerable: true,
-    value: _feature
-  });
+  this.feature = feature;
 
   var _id = feature.coreId;
   /**
@@ -70,13 +65,17 @@ EMPWorldWind.data.EmpFeature = function (feature) {
   });
 };
 
+/**
+ * Convenience function
+ * @returns {Number}
+ */
 EMPWorldWind.data.EmpFeature.prototype.shapesCount = function() {
   return this.shapes.length;
 };
 
 /**
  *
- * @param {WorldWind.SurfaceShape|WorldWind.SurfaceShape[]} primitives
+ * @param {WorldWind.SurfaceShape|WorldWind.SurfaceShape[]|*} primitives
  */
 EMPWorldWind.data.EmpFeature.prototype.addShapes = function(primitives) {
   if (!Array.isArray(primitives)) {
