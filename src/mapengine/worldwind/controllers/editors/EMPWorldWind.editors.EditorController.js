@@ -125,7 +125,7 @@ EMPWorldWind.editors.EditorController = (function() {
       bbox,
       modifiers,
       EMPWorldWind.constants.MultiPointRenderType.GEOJSON));
-      
+
       feature.wasClipped = imageInfo.properties.wasClipped;
 
     // Generate primitives from the geoJSON
@@ -172,7 +172,7 @@ EMPWorldWind.editors.EditorController = (function() {
    * @param {emp.typeLibrary.Feature} feature
    */
   function processModifiers(feature) {
-    var modifiers, enhancedModifiers, override;//, lowRangeMode;
+    var modifiers, enhancedModifiers, override, lowRangeMode;
     if (feature.data.type === "Point") {
       modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(
         feature.properties,
@@ -187,10 +187,9 @@ EMPWorldWind.editors.EditorController = (function() {
         this.state.pixelSize);
     }
 
-    // TODO restore the optimization
-    //lowRangeMode = feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
-    //modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, ((this.state.labelStyles.CN === true) && lowRangeMode));
-    modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, true);
+    lowRangeMode = feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
+    modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, ((this.state.labelStyles.CN === true) && lowRangeMode));
+    //modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, true);
 
     enhancedModifiers = EMPWorldWind.utils.milstd.checkForRequiredModifiers(feature);
 
@@ -424,7 +423,7 @@ EMPWorldWind.editors.EditorController = (function() {
 
       // Redraw the new shapes
       if (rc.success) {
-        // tag empFeature with current range. 
+        // tag empFeature with current range.
         empFeature.range =  this.worldWindow.navigator.range;
            // Update the empFeature stored in the wwFeature
         wwFeature.feature = empFeature;

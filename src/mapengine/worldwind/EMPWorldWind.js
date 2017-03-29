@@ -1133,4 +1133,3 @@ EMPWorldWind.map.prototype.isMilStdMultiPointShapeInViewRegion = function(empFea
   }
   return inView;
 };
- 
