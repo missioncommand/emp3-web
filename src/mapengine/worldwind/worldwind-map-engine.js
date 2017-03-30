@@ -2,6 +2,8 @@ var EMPWorldWind = window.EMPWorldWind || {};
 var emp = window.emp || {};
 emp.engineDefs = emp.engineDefs || {};
 
+
+
 /**
  * @classdesc EMP3 WorldWind Map Engine Interface
  *
