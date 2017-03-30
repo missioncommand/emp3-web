@@ -138,20 +138,25 @@ class MapDrawFeatureTest extends Component {
         map.drawFeature({
           feature: feature,
           onDrawStart: (args) => {
-            toastr.success('Map.DrawFeature onDrawStart called: \n ' +
-              JSON.stringify(args));
+            toastr.success('Map.drawFeature onDrawStart called: \n ' +
+              'map instance: ' + args.map.geoId + '\n' +
+              'feature: ' + JSON.stringify(args.feature));
           },
           onDrawUpdate: (args) => {
-            toastr.success('Map.DrawFeature onDrawUpdate called: \n ' +
-              JSON.stringify(args));
+            toastr.success('Map.drawFeature onDrawUpdate called: \n ' +
+              'map instance: ' + args.map.geoId + '\n' +
+              'updateList: ' + JSON.stringify(args.updateList) + '\n' +
+              'feature: ' + JSON.stringify(args.feature));
           },
           onDrawComplete: (args) => {
-            toastr.success('Map.DrawFeature onDrawComplete called: \n ' +
-              JSON.stringify(args));
+            toastr.success('Map.drawFeature onDrawComplete called: \n ' +
+              'map instance: ' + args.map.geoId + '\n' +
+              'feature: ' + JSON.stringify(args.feature));
           },
           onDrawCancel: (args) => {
-            toastr.success('Map.DrawFeature onDrawCancel called: \n ' +
-              JSON.stringify(args));
+            toastr.success('Map.drawFeature onDrawCancel called: \n ' +
+              'map instance: ' + args.map.geoId + '\n' +
+              'feature: ' + JSON.stringify(args.feature));
           },
           onError: (err) => {
             toastr.error(JSON.stringify(err), 'Map.drawFeatures');

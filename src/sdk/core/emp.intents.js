@@ -1050,8 +1050,17 @@ emp.intents.control.intentSequenceMapper = (function() {
         function(args) {
           var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
 
-          if (oMapInstance && oMapInstance.engine) {
-            oMapInstance.engine.draw.end(args);
+          // Check to see if we are using the new editing for this feature.
+          var useNewEditing = emp.intents.control.useNewDrawing(args);
+
+          if (useNewEditing) {
+            if (oMapInstance && oMapInstance.status) {
+              oMapInstance.editingManager.get().complete(args);
+            }
+          } else {
+            if (oMapInstance && oMapInstance.engine) {
+              oMapInstance.engine.draw.end(args);
+            }
           }
         }
       ],
@@ -1067,8 +1076,17 @@ emp.intents.control.intentSequenceMapper = (function() {
         function(args) {
           var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
 
-          if (oMapInstance && oMapInstance.engine) {
-            oMapInstance.engine.draw.cancel(args);
+          // Check to see if we are using the new editing for this feature.
+          var useNewEditing = emp.intents.control.useNewDrawing(args);
+
+          if (useNewEditing) {
+            if (oMapInstance && oMapInstance.status) {
+              oMapInstance.editingManager.get().cancel(args);
+            }
+          } else {
+            if (oMapInstance && oMapInstance.engine) {
+              oMapInstance.engine.draw.cancel(args);
+            }
           }
         }
       ],

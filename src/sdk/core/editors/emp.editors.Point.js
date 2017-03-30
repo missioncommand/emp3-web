@@ -135,7 +135,10 @@ emp.editors.Point.prototype.moveFeature = function(startX, startY, pointer) {
  * In the case of the point, the point is added to the map.
  */
 emp.editors.Point.prototype.drawStart = function(pointer) {
-  var transaction;
+  var transaction,
+    coordinateUpdate,
+    newCoordinates,
+    updateData = {};
 
   // Update the feature, only internally -- we don't want events sent out
   // from this.
@@ -150,6 +153,11 @@ emp.editors.Point.prototype.drawStart = function(pointer) {
       properties: this.featureCopy.properties
   });
 
+  newCoordinates = [{
+    lat: pointer.lat,
+    lon: pointer.lon
+  }];
+
   transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
       mapInstanceId: this.mapInstance.mapInstanceId,
@@ -163,6 +171,19 @@ emp.editors.Point.prototype.drawStart = function(pointer) {
   });
 
   transaction.run();
+
+  // Create the return object.  This will tell you which index was changed,
+  // the locations of the new indeces, and the type of change it was.
+  coordinateUpdate = {
+      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+      indices: [0],
+      coordinates: newCoordinates
+  };
+
+  updateData.coordinateUpdate = coordinateUpdate;
+  updateData.properties = this.featureCopy.properties;
+
+  return updateData;
 };
 
 /**

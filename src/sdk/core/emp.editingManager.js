@@ -13,7 +13,6 @@ emp.editingManager = function(args) {
     activeEditor, // The editor chosen based on the format and or draw type.
     updateData, // The most recent change to the feature, includes metadata about the vertex move/removal and updates.
     originalFeature,
-    editing = false,
     drawing = false;
 
   var getEditor = function(feature) {
@@ -305,7 +304,7 @@ emp.editingManager = function(args) {
 
       editTransaction.items[0].originFeature = originalFeature;
 
-      if (this.drawing) {
+      if (drawing) {
         mapInstance.eventing.DrawEnd({
           transaction: editTransaction,
           failures: initFailList
@@ -320,21 +319,39 @@ emp.editingManager = function(args) {
       // remove editing control points from the map.
       activeEditor.removeControlPoints();
 
-
-      // restore the feature to its original state.  Create
-      // a FEATURE_ADD transaction that updates the feature
-      // to its original state.
-      transaction = new emp.typeLibrary.Transaction({
-        intent: emp.intents.control.FEATURE_ADD,
-        mapInstanceId: mapInstance.mapInstanceId,
-        transactionId: null,
-        sender: mapInstance.mapInstanceId,
-        originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-        source: emp.api.cmapi.SOURCE,
-        messageOriginator: mapInstance.mapInstanceId,
-        originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-        items: [originalFeature]
-      });
+      // if we are drawing, remove the feature from the map.
+      // if we are editing, restore the feature to its original state.
+      if (drawing) {
+        // restore the feature to its original state.  Create
+        // a FEATURE_ADD transaction that updates the feature
+        // to its original state.
+        transaction = new emp.typeLibrary.Transaction({
+          intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+          mapInstanceId: mapInstance.mapInstanceId,
+          transactionId: null,
+          sender: mapInstance.mapInstanceId,
+          originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+          source: emp.api.cmapi.SOURCE,
+          messageOriginator: mapInstance.mapInstanceId,
+          originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+          items: [originalFeature]
+        });
+      } else {
+        // restore the feature to its original state.  Create
+        // a FEATURE_ADD transaction that updates the feature
+        // to its original state.
+        transaction = new emp.typeLibrary.Transaction({
+          intent: emp.intents.control.FEATURE_ADD,
+          mapInstanceId: mapInstance.mapInstanceId,
+          transactionId: null,
+          sender: mapInstance.mapInstanceId,
+          originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+          source: emp.api.cmapi.SOURCE,
+          messageOriginator: mapInstance.mapInstanceId,
+          originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+          items: [originalFeature]
+        });
+      }
 
       // undo any changes that were made during the edit.
       transaction.run();
@@ -358,7 +375,7 @@ emp.editingManager = function(args) {
 
       editTransaction.items[0].updatedFeature = activeEditor.featureCopy;
 
-      if (this.drawing) {
+      if (drawing) {
         mapInstance.eventing.DrawEnd({
           transaction: editTransaction
         });
@@ -371,22 +388,43 @@ emp.editingManager = function(args) {
       // remove editing control points from the map.
       activeEditor.removeControlPoints();
 
-      // update the feature to its new state. Create
-      // a FEATURE_ADD transaction that updates the feature
-      // to its new state.  We pull that state from the editor.
-      item = activeEditor.featureCopy;
+      // if we are drawing, remove the feature from the map. We do this
+      // because the responsibility of the draw is the API developer.   draw
+      // does not commit the item to the map.
+      // if we are editing, commit the feature .
+      if (drawing) {
+        // restore the feature to its original state.  Create
+        // a FEATURE_ADD transaction that updates the feature
+        // to its original state.
+        transaction = new emp.typeLibrary.Transaction({
+          intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+          mapInstanceId: mapInstance.mapInstanceId,
+          transactionId: null,
+          sender: mapInstance.mapInstanceId,
+          originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+          source: emp.api.cmapi.SOURCE,
+          messageOriginator: mapInstance.mapInstanceId,
+          originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+          items: [originalFeature]
+        });
+      } else {
+        // update the feature to its new state. Create
+        // a FEATURE_ADD transaction that updates the feature
+        // to its new state.  We pull that state from the editor.
+        item = activeEditor.featureCopy;
 
-      transaction = new emp.typeLibrary.Transaction({
-        intent: emp.intents.control.FEATURE_ADD,
-        mapInstanceId: mapInstance.mapInstanceId,
-        transactionId: null,
-        sender: mapInstance.mapInstanceId,
-        originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-        source: emp.api.cmapi.SOURCE,
-        messageOriginator: mapInstance.mapInstanceId,
-        originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-        items: [item]
-      });
+        transaction = new emp.typeLibrary.Transaction({
+          intent: emp.intents.control.FEATURE_ADD,
+          mapInstanceId: mapInstance.mapInstanceId,
+          transactionId: null,
+          sender: mapInstance.mapInstanceId,
+          originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+          source: emp.api.cmapi.SOURCE,
+          messageOriginator: mapInstance.mapInstanceId,
+          originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+          items: [item]
+        });
+      }
 
       // Send out the message that will trigger the complete callback.
       editTransaction.items[0].update({
@@ -589,7 +627,16 @@ emp.editingManager = function(args) {
      * Occurs the first time the user clicks on the map.
      */
     drawStart: function(pointer) {
-      activeEditor.drawStart(pointer);
+
+      editTransaction.items[0].update({
+        name: editTransaction.items[0].name,
+        updates: {},
+        properties: editTransaction.items[0].properties,
+        updateEventType: emp.typeLibrary.UpdateEventType.START,
+        mapInstanceId: mapInstance.mapInstanceId
+      });
+
+      updateData = activeEditor.drawStart(pointer);
     },
 
     /**
@@ -605,7 +652,15 @@ emp.editingManager = function(args) {
      * drawing has started.
      */
     drawClick: function(pointer) {
-      activeEditor.drawClick(pointer);
+      var updates;
+      updates = activeEditor.drawClick(pointer);
+
+      // sometimes a draw click does not do anything.
+      // check to make sure something happened before overwriting
+      // updateData.
+      if (updates) {
+        updateData = updates;
+      }
     }
   };
 
