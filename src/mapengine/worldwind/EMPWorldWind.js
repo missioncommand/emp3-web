@@ -487,7 +487,11 @@ EMPWorldWind.map.prototype.unplotFeature = function(feature) {
   layer = this.getLayer(feature.parentCoreId);
   if (layer) {
     layer.removeFeatureById(feature.coreId);
+
     this.removeFeatureSelection(feature.coreId);
+    if (this.features.hasOwnProperty(feature.coreId)) {
+      delete this.features[feature.coreId];
+    }
     this.worldWindow.redraw();
     rc.success = true;
   }
