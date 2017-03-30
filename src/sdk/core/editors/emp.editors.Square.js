@@ -82,7 +82,7 @@ emp.editors.Square.prototype.addControlPoints = function() {
   // correct properties.
   if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
     width = this.featureCopy.properties.width;
-    height = this.featureCopy.properties.height;
+    height = this.featureCopy.properties.width;//was height
     azimuth = this.featureCopy.properties.azimuth;
   } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
     width = this.featureCopy.properties.modifiers.distance[0];
@@ -172,7 +172,7 @@ emp.editors.Square.prototype.addControlPoints = function() {
     }
   });
 
-  items.push(widthFeature);
+  //items.push(widthFeature);
   items.push(heightFeature);
   items.push(azimuthFeature);
 
@@ -187,7 +187,7 @@ emp.editors.Square.prototype.addControlPoints = function() {
   this.height = heightVertex;
   this.azimuth = azimuthVertex;
 
-  this.vertices.push(widthVertex);
+  //this.vertices.push(widthVertex);
   this.vertices.push(heightVertex);
   this.vertices.push(azimuthVertex);
 
@@ -256,67 +256,8 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
   }
 
   // Determine which control point was moved and react appropriately.
-  if (featureId === this.width.feature.featureId){
-
-    // if the width moves, then we need to update the width and azimuth control points
-    // on both sides of the square.  We also will need to change the width
-    // property on the feature we are editing.
-
-    // calculate the new width.
-    currentFeature.data.coordinates = [pointer.lon, pointer.lat];
-    widthDistance = emp.geoLibrary.measureDistance(this.width.feature.data.coordinates[1],
-      this.width.feature.data.coordinates[0],
-      this.center.feature.data.coordinates[1],
-      this.center.feature.data.coordinates[0], "meters");
-
-    // since we are measuring the distance between the edget and center we multiply
-    // the width by 2.  The width is stored differently for GEO_SQUARE and GEO_MIL_SYMBOL
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
-      this.featureCopy.properties.width = widthDistance * 2;
-    } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      this.featureCopy.properties.modifiers.distance[0] = widthDistance * 2;
-    }
-
-    // Get the positions of where the new control points will be.
-    newWidthPosition = emp.geoLibrary.geodesic_coordinate({
-      x: x,
-      y: y
-    }, widthDistance, 90 + azimuth);
-
-    newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
-      x: x,
-      y: y
-    }, widthDistance, -90 + azimuth);
-
-    // update the control points.
-    currentFeature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
-    this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
-
-    items.push(this.azimuth.feature);
-
-    // @@@ since this is a square, we need to maintain the height of this feature as well.
-
-    heightDistance = widthDistance;
-
-    // store the new height in the feature.  It is stored differently for GEO_SQUARE
-    // and GEO_MIL_SYMBOL.
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
-      this.featureCopy.properties.height = heightDistance * 2;
-    } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      this.featureCopy.properties.modifiers.distance[1] = heightDistance * 2;
-    }
-
-    // Calculate the position of the new height control point.
-    newHeightPosition = emp.geoLibrary.geodesic_coordinate({
-      x: x,
-      y: y
-    }, heightDistance, azimuth);
-
-    // Update the control point position.
-    currentFeature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
-
-    // @@@
-  } else if (featureId === this.height.feature.featureId) {
+  // Because this is a square we only want to display and update the height control point
+  if (featureId === this.height.feature.featureId) {
     // if the height moves, then we need to update the height control point.
     // We also will need to change the height property on the feature we are editing.
 
@@ -344,7 +285,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     // Update the control point position.
     currentFeature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
 
-    // @@@ change width too
+    // because this is a square we need the width to be the same as well
     widthDistance = heightDistance;
     // since we are measuring the distance between the edget and center we multiply
     // the width by 2.  The width is stored differently for GEO_SQUARE and GEO_MIL_SYMBOL
@@ -366,11 +307,10 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     }, widthDistance, -90 + azimuth);
 
     // update the control points.
-    currentFeature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
+    this.width.feature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
     this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
 
     items.push(this.azimuth.feature);
-    //  @@@
   } else if (featureId === this.azimuth.feature.featureId) {
     // the rotation vertex was dragged.
     // get the new azimuth from the center to the current mouse position.  that
@@ -449,7 +389,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     this.height.feature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
     this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
 
-    items.push(this.width.feature);
+    //items.push(this.width.feature);
     items.push(this.height.feature);
     items.push(this.azimuth.feature);
 
@@ -470,7 +410,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     // in different locations in GEO_SQUARE than in GEO_MIL_SYMBOL.
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
       widthDistance = this.featureCopy.properties.width;
-      heightDistance = this.featureCopy.properties.height;
+      heightDistance = this.featureCopy.properties.width;
       azimuth = this.featureCopy.properties.azimuth;
     } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       widthDistance = this.featureCopy.properties.modifiers.distance[0];
