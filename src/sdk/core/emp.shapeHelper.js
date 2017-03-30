@@ -1,6 +1,4 @@
-if (!window.emp) {
-  window.emp = {};
-}
+var emp = window.emp || {};
 
 /**
  * @classdesc Helper class for performing calculations for basic shapes in the core instead of within map engines.

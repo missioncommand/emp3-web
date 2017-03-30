@@ -1,3 +1,5 @@
+var emp = window.emp || {};
+
 /**
  * Controls the process of editing Features on the map.  Will
  * start the process to make sure all the messages are published
@@ -147,9 +149,7 @@ emp.editingManager = function(args) {
       }
       else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
         (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
-        // This is a circle defined by a point and radius.  It uses a GEOJSON point and
-        // a distance in meters to represent
-        // itself.
+        // This is a rectangle defined by a point, width, height and azimuth.
         activeEditor = new emp.editors.Rectangle({
           feature: feature,
           mapInstance: args.mapInstance
@@ -159,6 +159,14 @@ emp.editingManager = function(args) {
         // This is a square. 
         // so there is a separate editor for those.
         activeEditor = new emp.editors.Square({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
+      else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
+        // This is an axis of advance defined by a line.  The last point of the line in relation to the first point
+        // decides the width of the axis of advance.
+        activeEditor = new emp.editors.AxisOfAdvance({
           feature: feature,
           mapInstance: args.mapInstance
         });
@@ -297,7 +305,7 @@ emp.editingManager = function(args) {
         activeEditor.isControlPoint(featureId)) {
 
         mapLock = new emp.typeLibrary.Lock({
-          lock: emp3.api.enums.MapMotionLockEnum.NO_MOTION
+          lock: emp3.api.enums.MapMotionLockEnum.SMART_MOTION
         });
 
         // first lock the map in place so the map does not pan.

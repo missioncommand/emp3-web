@@ -1,10 +1,5 @@
 /*global emp, cmapi */
-
-/**
- * emp Name Space
- * @namespace  emp
- * @type {Object}
- */
+var emp = window.emp || {};
 
 /**
  * emp.intents Name Space
@@ -323,11 +318,6 @@ emp.intents.control.useNewEditing = function(args) {
   // remove this code after all core editors have been complete.
   var originalFeature = args.items[0].originFeature;
   var symbol;
-  var symbolCode;
-  var standard;
-  var basicCode;
-  var symbolDef;
-  var unitDef;
   var drawCategory;
 
   // Determine if this is a MIL Symbol.  The mil symbol categories can greatly
@@ -335,30 +325,8 @@ emp.intents.control.useNewEditing = function(args) {
   if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
     symbol = true;
 
-    // get the symbolCode of the MIL Std feature
-    symbolCode = originalFeature.data.symbolCode;
-
-    // Get which standard the symbol is using, by default it is MIL-STD-2525C.
-    if (originalFeature.properties && originalFeature.properties.modifiers) {
-      standard = originalFeature.properties.modifiers.standard || 1;
+    drawCategory = emp.util.getDrawCategory(originalFeature);
     }
-
-    basicCode = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(symbolCode, standard);
-
-    // Determine the draw category.  We do this using our renderer's utility
-    // methods.  The draw category tells us what type of editor to use.
-    if (armyc2.c2sd.renderer.utilities.SymbolDefTable.hasSymbolDef(basicCode, standard)) {
-      symbolDef = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(basicCode, standard);
-      if (symbolDef) {
-        drawCategory = symbolDef.drawCategory;
-      }
-    } else {
-      unitDef = armyc2.c2sd.renderer.utilities.UnitDefTable.getUnitDef(basicCode, standard);
-      if (unitDef) {
-        drawCategory = unitDef.drawCategory;
-      }
-    }
-  }
 
   if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
     (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT)) {
@@ -375,8 +343,17 @@ emp.intents.control.useNewEditing = function(args) {
   } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
     (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
     result = true;
-  }else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE ||
+}else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE ||
     (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.SQUARE)) {
+    result = true;
+
+  } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
+    result = true;
+  } else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+    drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW ||
+    drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ||
+    drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW ||
+    drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE)) {
     result = true;
   }
 

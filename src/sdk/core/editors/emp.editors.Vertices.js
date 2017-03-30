@@ -9,6 +9,7 @@ emp.editors.Vertices = function() {
   this.tail = null;
   this.list = [];
   this.length = 0;
+  this.vertexLength = 0;
 };
 
 /**
@@ -42,6 +43,10 @@ emp.editors.Vertices.prototype.push = function(vertex) {
     this.list[vertex.feature.featureId] = vertex;
 
     this.length++;
+
+    if (vertex.type === "vertex") {
+      this.vertexLength++;
+    }
   }
 };
 
@@ -97,6 +102,10 @@ emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
     this.list[vertex.feature.featureId] = vertex;
 
     this.length++;
+
+    if (vertex.type === "vertex") {
+      this.vertexLength++;
+    }
   }
 };
 
@@ -122,6 +131,10 @@ emp.editors.Vertices.prototype.append = function(featureId, vertex) {
     this.list[vertex.feature.featureId] = vertex;
 
     this.length++;
+
+    if (vertex.type === "vertex") {
+      this.vertexLength++;
+    }
   }
 
 };
@@ -178,6 +191,26 @@ emp.editors.Vertices.prototype.getVerticesAsLineString = function() {
 };
 
 /**
+ * Return only the vertices of this object as a geojson polygon array.
+ */
+emp.editors.Vertices.prototype.getVerticesAsPolygon = function() {
+  var coordinates = [];
+  var currentVertex;
+  currentVertex = this.head;
+
+  // loop through the coordinates starting at the beginning.
+  // only get the coordinates that are a vertex.
+  while (currentVertex !== null) {
+    if (currentVertex.type === "vertex") {
+      coordinates.push(currentVertex.feature.data.coordinates);
+    }
+    currentVertex = currentVertex.next;
+  }
+
+  return [coordinates];
+};
+
+/**
  * Removes all the control points out of vertices.
  */
 emp.editors.Vertices.prototype.clear = function() {
@@ -185,6 +218,7 @@ emp.editors.Vertices.prototype.clear = function() {
   this.tail = null;
   this.list = [];
   this.length = 0;
+  this.vertexLength = 0;
 };
 
 /**

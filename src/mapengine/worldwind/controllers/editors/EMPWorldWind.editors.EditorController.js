@@ -126,6 +126,8 @@ EMPWorldWind.editors.EditorController = (function() {
       modifiers,
       EMPWorldWind.constants.MultiPointRenderType.GEOJSON));
 
+      feature.wasClipped = imageInfo.properties.wasClipped;
+
     // Generate primitives from the geoJSON
     for (i = 0; i < imageInfo.features.length; i++) {
       componentFeature = imageInfo.features[i];
@@ -186,9 +188,8 @@ EMPWorldWind.editors.EditorController = (function() {
     }
 
     lowRangeMode = feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
-    modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(
-      modifiers,
-      ((this.state.labelStyles.CN === true) && lowRangeMode));
+    modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, ((this.state.labelStyles.CN === true) && lowRangeMode));
+    //modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, true);
 
     enhancedModifiers = EMPWorldWind.utils.milstd.checkForRequiredModifiers(feature);
 
@@ -335,6 +336,7 @@ EMPWorldWind.editors.EditorController = (function() {
       wwFeature = new EMPWorldWind.data.EmpFeature(empFeature);
       wwFeature.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
       empFeature.singlePointAltitudeRangeMode = wwFeature.singlePointAltitudeRangeMode;
+      empFeature.range =  this.worldWindow.navigator.range;
 
       // Build the primitives
       shapes = buildShapes(empFeature, this.state.selectionStyle);
@@ -421,7 +423,9 @@ EMPWorldWind.editors.EditorController = (function() {
 
       // Redraw the new shapes
       if (rc.success) {
-        // Update the empFeature stored in the wwFeature
+        // tag empFeature with current range.
+        empFeature.range =  this.worldWindow.navigator.range;
+           // Update the empFeature stored in the wwFeature
         wwFeature.feature = empFeature;
         wwFeature.selected = this.isFeatureSelected(wwFeature.id);
 

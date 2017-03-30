@@ -416,7 +416,8 @@ EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
   // If they don't exist, this will default them to empty objects.
   if (item.data && item.data.symbolCode) {
     symbolCode = item.data.symbolCode;
-  } else if (item.symbolCode) {
+  }
+  else if (item.symbolCode) {
     symbolCode = item.symbolCode;
   }
 
@@ -424,11 +425,13 @@ EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
     properties = item.properties;
     if (properties.modifiers) {
       modifiers = properties.modifiers;
-    } else {
+    }
+    else {
       properties.modifiers = {};
       modifiers = properties.modifiers;
     }
-  } else {
+  }
+  else {
     item.properties = {
       modifiers: {}
     };
@@ -477,7 +480,8 @@ EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
     case armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE: //16
       if (oAM !== null && oAM.length > 0) {
         oAM = oAM.slice(0, 1); // Make sure that there is only 1.
-      } else {
+      }
+      else {
         oAM[0] = 5000;
       }
 
@@ -491,7 +495,8 @@ EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
         (typeof (oAM[0]) === "number") &&
         (typeof (oAM[1]) === "number")) {
         oAM = oAM.slice(0, 2); // Make sure that there is only 2.
-      } else {
+      }
+      else {
         // Check to see if the [0] value is present and its a number.
         // If not set a value.
         if ((oAM[0] === undefined) || (typeof (oAM[0]) !== "number")) {
@@ -508,7 +513,8 @@ EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
       if ((oAN !== null) && (oAN.length >= 1) &&
         (typeof (oAN[1]) === "number")) {
         oAN = oAN.slice(0, 1); // Makes ure that there is only 1.
-      } else {
+      }
+      else {
         // Check to see if the [0] value is present and its a number.
         // If not set a value.
         if ((oAN[0] === undefined) || (typeof (oAN[0]) !== "number")) {
@@ -528,7 +534,8 @@ EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
         for (i = 0; i < oAM.length;) {
           if (typeof (oAM[i]) !== "number") {
             oAM.splice(i, 1);
-          } else {
+          }
+          else {
             i++;
           }
         }
@@ -570,7 +577,8 @@ EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
         for (i = 0; i < oAM.length;) {
           if (typeof (oAM[i]) !== "number") {
             oAM.splice(i, 1);
-          } else {
+          }
+          else {
             i++;
           }
         }
@@ -613,7 +621,7 @@ EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
       // scale of the map, otherwise the air corridor won't look like
       // an air corridor; it will look like a line.
 
-      if ((oAM === null || oAM.length === 0) || (oAM.length > 0 && (isNaN(oAM[0]) || oAM[0] === null)  )) {
+      if ((oAM === null || oAM.length === 0) || (oAM.length > 0 && (isNaN(oAM[0]) || oAM[0] === null))) {
         if (item.data && item.data.coordinates && item.data.coordinates.length > 1) {
           var coord0 = item.data.coordinates[0];
           var coord1 = item.data.coordinates[1];
@@ -629,7 +637,8 @@ EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
           var dist = WorldWind.Location.greatCircleDistance(pointCartographic0, pointCartographic1);
 
           lonDistance = dist / 4;
-        } else {
+        }
+        else {
           lonDistance = lonDistance / 34;
         }
 
@@ -637,7 +646,8 @@ EMPWorldWind.utils.milstd.checkForRequiredModifiers = function(item) {
         overrides = {
           distance: oAM
         };
-      } else {
+      }
+      else {
         overrides = {
           distance: oAM
         };
@@ -672,30 +682,38 @@ EMPWorldWind.utils.milstd.checkSymbolStandard = function(modifiers) {
         if (modValue !== undefined && modValue !== null && modValue !== 0) {
           if (modValue.toLowerCase() === emp.typeLibrary.featureMilStdVersionType.MILSTD_2525C.toLowerCase()) {
             standard = EMPWorldWind.constants.RendererSettings.standard.Symbology_2525C;
-          } else if (modValue.toLowerCase() === emp.typeLibrary.featureMilStdVersionType.MILSTD_2525B.toLowerCase()) {
+          }
+          else if (modValue.toLowerCase() === emp.typeLibrary.featureMilStdVersionType.MILSTD_2525B.toLowerCase()) {
             standard = EMPWorldWind.constants.RendererSettings.standard.Symbology_2525Bch2_USAS_13_14;
-          } else {
+          }
+          else {
             standard = modValue;
           }
         }
-      } else if (modifiersCopy.hasOwnProperty("standard")) {
+      }
+      else if (modifiersCopy.hasOwnProperty("standard")) {
         modValue = modifiersCopy.standard;
         if (modValue !== undefined && modValue !== null && modValue !== 0) {
           if (modValue.toLowerCase() === emp.typeLibrary.featureMilStdVersionType.MILSTD_2525C.toLowerCase()) {
             standard = EMPWorldWind.constants.RendererSettings.standard.Symbology_2525C;
-          } else if (modValue.toLowerCase().indexOf(emp.typeLibrary.featureMilStdVersionType.MILSTD_2525C.toLowerCase()) > -1) {
+          }
+          else if (modValue.toLowerCase().indexOf(emp.typeLibrary.featureMilStdVersionType.MILSTD_2525C.toLowerCase()) > -1) {
             standard = EMPWorldWind.constants.RendererSettings.standard.Symbology_2525C;
-          } else if (modValue.toLowerCase() === emp.typeLibrary.featureMilStdVersionType.MILSTD_2525B.toLowerCase()) {
+          }
+          else if (modValue.toLowerCase() === emp.typeLibrary.featureMilStdVersionType.MILSTD_2525B.toLowerCase()) {
             standard = EMPWorldWind.constants.RendererSettings.standard.Symbology_2525Bch2_USAS_13_14;
-          } else if (modValue.toLowerCase().indexOf(emp.typeLibrary.featureMilStdVersionType.MILSTD_2525B.toLowerCase()) > -1) {
+          }
+          else if (modValue.toLowerCase().indexOf(emp.typeLibrary.featureMilStdVersionType.MILSTD_2525B.toLowerCase()) > -1) {
             standard = EMPWorldWind.constants.RendererSettings.standard.Symbology_2525Bch2_USAS_13_14;
-          } else {
+          }
+          else {
             standard = modValue;
           }
         }
       }
     }
-  } catch (err) {
+  }
+  catch (err) {
     window.console.log("Error getting symbol standard");
   }
 
@@ -714,7 +732,8 @@ EMPWorldWind.utils.convertSymbolStandardToRendererFormat = function(modifiers) {
   modValue = modifiers.standard;
   if (modValue.toLowerCase() === emp.typeLibrary.featureMilStdVersionType.MILSTD_2525C.toLowerCase()) {
     standard = EMPWorldWind.constants.RendererSettings.standard.Symbology_2525C;
-  } else {
+  }
+  else {
     standard = EMPWorldWind.constants.RendererSettings.standard.Symbology_2525Bch2_USAS_13_14;
   }
 
@@ -790,7 +809,8 @@ EMPWorldWind.utils.hexToRGBA = function(hex, alpha, normalize) {
 
   if (hex.length === 8) {
     newHex = _hex8ToRGBA(hex);
-  } else {
+  }
+  else {
     newHex = _hex6ToRGBA(hex);
     newHex.alpha = alpha;
   }
@@ -908,3 +928,252 @@ EMPWorldWind.utils.getSinglePointAltitudeRangeMode = function(CameraAltitude, si
     return EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
   }
 };
+
+
+EMPWorldWind.Math = {};
+
+/**
+ * Determines if two values are equal using an absolute or relative tolerance test. This is useful
+ * to avoid problems due to roundoff error when comparing floating-point values directly. The values are
+ * first compared using an absolute tolerance test. If that fails, a relative tolerance test is performed.
+ * Use this test if you are unsure of the magnitudes of left and right.
+ *
+ * @param {Number} left The first value to compare.
+ * @param {Number} right The other value to compare.
+ * @param {Number} relativeEpsilon The maximum inclusive delta between <code>left</code> and <code>right</code> for the relative tolerance test.
+ * @param {Number} [absoluteEpsilon=relativeEpsilon] The maximum inclusive delta between <code>left</code> and <code>right</code> for the absolute tolerance test.
+ * @returns {Boolean} <code>true</code> if the values are equal within the epsilon; otherwise, <code>false</code>.
+ *
+ * @example
+ * var a = Cesium.Math.equalsEpsilon(0.0, 0.01, Cesium.Math.EPSILON2); // true
+ * var b = Cesium.Math.equalsEpsilon(0.0, 0.1, Cesium.Math.EPSILON2);  // false
+ * var c = Cesium.Math.equalsEpsilon(3699175.1634344, 3699175.2, Cesium.Math.EPSILON7); // true
+ * var d = Cesium.Math.equalsEpsilon(3699175.1634344, 3699175.2, Cesium.Math.EPSILON9); // false
+ */
+EMPWorldWind.Math.equalsEpsilon = function(left, right, relativeEpsilon, absoluteEpsilon) {
+  absoluteEpsilon = EMPWorldWind.Math.defaultValue(absoluteEpsilon, relativeEpsilon);
+  var absDiff = Math.abs(left - right);
+  return absDiff <= absoluteEpsilon || absDiff <= relativeEpsilon * Math.max(Math.abs(left), Math.abs(right));
+};
+
+
+/**
+ * Returns the first parameter if not undefined, otherwise the second parameter.
+ * Useful for setting a default value for a parameter.
+ *
+ * @exports defaultValue
+ *
+ * @param {*} a
+ * @param {*} b
+ * @returns {*} Returns the first parameter if not undefined, otherwise the second parameter.
+ *
+ * @example
+ * param = Cesium.defaultValue(param, 'default');
+ */
+EMPWorldWind.Math.defaultValue = function(a, b) {
+  if (a !== undefined) {
+    return a;
+  }
+  return b;
+};
+
+
+/**
+ * 0.1
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON1 = 0.1;
+
+/**
+ * 0.01
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON2 = 0.01;
+
+/**
+ * 0.001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON3 = 0.001;
+
+/**
+ * 0.0001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON4 = 0.0001;
+
+/**
+ * 0.00001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON5 = 0.00001;
+
+/**
+ * 0.000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON6 = 0.000001;
+
+/**
+ * 0.0000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON7 = 0.0000001;
+
+/**
+ * 0.00000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON8 = 0.00000001;
+
+/**
+ * 0.000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON9 = 0.000000001;
+
+/**
+ * 0.0000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON10 = 0.0000000001;
+
+/**
+ * 0.00000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON11 = 0.00000000001;
+
+/**
+ * 0.000000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON12 = 0.000000000001;
+
+/**
+ * 0.0000000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON13 = 0.0000000000001;
+
+/**
+ * 0.00000000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON14 = 0.00000000000001;
+
+/**
+ * 0.000000000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON15 = 0.000000000000001;
+
+/**
+ * 0.0000000000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON16 = 0.0000000000000001;
+
+/**
+ * 0.00000000000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON17 = 0.00000000000000001;
+
+/**
+ * 0.000000000000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON18 = 0.000000000000000001;
+
+/**
+ * 0.0000000000000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON19 = 0.0000000000000000001;
+
+/**
+ * 0.00000000000000000001
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.EPSILON20 = 0.00000000000000000001;
+
+/**
+ * 3.986004418e14
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.GRAVITATIONALPARAMETER = 3.986004418e14;
+
+/**
+ * Radius of the sun in meters: 6.955e8
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.SOLAR_RADIUS = 6.955e8;
+
+/**
+ * The mean radius of the moon, according to the "Report of the IAU/IAG Working Group on
+ * Cartographic Coordinates and Rotational Elements of the Planets and satellites: 2000",
+ * Celestial Mechanics 82: 83-110, 2002.
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.LUNAR_RADIUS = 1737400.0;
+
+/**
+ * 64 * 1024
+ * @type {Number}
+ * @constant
+ */
+EMPWorldWind.Math.SIXTY_FOUR_KILOBYTES = 64 * 1024;
+
+/**
+ * Returns the sign of the value; 1 if the value is positive, -1 if the value is
+ * negative, or 0 if the value is 0.
+ *
+ * @param {Number} value The value to return the sign of.
+ * @returns {Number} The sign of value.
+ */
+EMPWorldWind.Math.sign = function(value) {
+  if (value > 0) {
+    return 1;
+  }
+  if (value < 0) {
+    return -1;
+  }
+
+  return 0;
+};
+
+/**
+ * Returns 1.0 if the given value is positive or zero, and -1.0 if it is negative.
+ * This is similar to {@link CesiumMath#sign} except that returns 1.0 instead of
+ * 0.0 when the input value is 0.0.
+ * @param {Number} value The value to return the sign of.
+ * @returns {Number} The sign of value.
+ */
+EMPWorldWind.Math.signNotZero = function(value) {
+  return value < 0.0 ? -1.0 : 1.0;
+};
+

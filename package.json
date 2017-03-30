@@ -1,6 +1,6 @@
 {
   "name": "emp3-web-sdk",
-  "version": "2.2.0",
+  "version": "2.4.0",
   "keywords": ["extensible", "map", "mapping", "platform"],
   "description": "A library for embedding and manipulationg maps in web applications.",
   "bugs": {
