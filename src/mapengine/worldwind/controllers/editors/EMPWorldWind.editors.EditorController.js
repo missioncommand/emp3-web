@@ -62,6 +62,7 @@ EMPWorldWind.editors.EditorController = (function() {
       highlightAttributes = new WorldWind.PlacemarkAttributes(attributes);
       highlightAttributes.imageColor = WorldWind.Color.WHITE;
       highlightAttributes.imageOffset = imageOffset;
+      highlightAttributes.imageScale = this.state.selectionStyle.scale;
 
       // Note that this is done statically, if the selection style changes a bulk update to every feature will need to be done
       selectedModifiers = Object.assign({}, modifiers);
