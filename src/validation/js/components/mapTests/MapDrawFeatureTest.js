@@ -2,6 +2,7 @@ import React, {Component, PropTypes} from 'react';
 import RelatedTests from '../../containers/RelatedTests';
 import VText from '../shared/VText';
 import PropertiesBox from '../shared/PropertiesBox';
+import {OverlaySelect} from '../shared';
 
 class MapDrawFeatureTest extends Component {
 
@@ -13,8 +14,14 @@ class MapDrawFeatureTest extends Component {
       selectedMapId = _.first(props.maps).geoId;
     }
 
+    let selectedOverlayId = '';
+    if (props.overlays.length) {
+      selectedOverlayId = _.first(props.overlays).geoId;
+    }
+
     this.state = {
       selectedMapId: selectedMapId,
+      selectedOverlayId: selectedOverlayId,
       featureType: emp3.api.enums.FeatureTypeEnum.GEO_PATH,
       geoId: '',
       name: '',
@@ -30,6 +37,7 @@ class MapDrawFeatureTest extends Component {
     this.mapDrawFeature = this.mapDrawFeature.bind(this);
     this.mapCancelDraw = this.mapCancelDraw.bind(this);
     this.mapCompleteDraw = this.mapCompleteDraw.bind(this);
+    this.updateSelectedOverlay = this.updateSelectedOverlay.bind(this);
   }
 
   componentWillReceiveProps(props) {
@@ -70,6 +78,10 @@ class MapDrawFeatureTest extends Component {
     this.setState({
       properties: properties
     });
+  }
+
+  updateSelectedOverlay(event) {
+    this.setState({selectedOverlayId: event.target.value});
   }
 
   mapCancelDraw() {
@@ -149,6 +161,15 @@ class MapDrawFeatureTest extends Component {
               'feature: ' + JSON.stringify(args.feature));
           },
           onDrawComplete: (args) => {
+            const {overlays} = this.props;
+            const overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
+
+            if (overlay) {
+              overlay.addFeature({
+                feature: args.feature
+              });
+            }
+
             toastr.success('Map.drawFeature onDrawComplete called: \n ' +
               'map instance: ' + args.map.geoId + '\n' +
               'feature: ' + JSON.stringify(args.feature));
@@ -170,6 +191,7 @@ class MapDrawFeatureTest extends Component {
   }
 
   render() {
+    const {overlays} = this.props;
     return (
       <div>
 
@@ -201,7 +223,13 @@ class MapDrawFeatureTest extends Component {
         <VText id='mapDrawFeature-geoId' label="GeoId" value={this.state.geoId} callback={this.updateFeature}/>
         <VText id='mapDrawFeature-name' label="Name" value={this.state.name} callback={this.updateFeature}/>
 
-        <PropertiesBox properties={this.state.properties} featureType={this.state.featureType} callback={this.updateFeatureProperties}/>
+        <div className='mdl-cell mdl-cell--12-col'>
+          <OverlaySelect
+            overlays={overlays}
+            selectedOverlayId={this.state.selectedOverlayId}
+            callback={this.updateSelectedOverlay}
+            label='Add Features to '/>
+        </div>
 
         <button className='blocky mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored'
                 onClick={this.mapDrawFeature}>
@@ -218,6 +246,8 @@ class MapDrawFeatureTest extends Component {
           Complete
         </button>
 
+        <PropertiesBox properties={this.state.properties} featureType={this.state.featureType} callback={this.updateFeatureProperties}/>
+
         <RelatedTests relatedTests={[
           {text: 'Cancel the draw'},
           {text: 'Complete the draw'},
@@ -231,7 +261,8 @@ class MapDrawFeatureTest extends Component {
 MapDrawFeatureTest.propTypes = {
   addResult: PropTypes.func.isRequired,
   addError: PropTypes.func.isRequired,
-  maps: PropTypes.array.isRequired
+  maps: PropTypes.array.isRequired,
+  overlays: PropTypes.array
 };
 
 export default MapDrawFeatureTest;
