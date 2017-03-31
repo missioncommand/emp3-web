@@ -233,7 +233,7 @@ EMPWorldWind.editors.EditorController = (function() {
    * Async function
    * @param {emp.typeLibrary.Feature} feature
    * @param {PlotFeatureCB} callback
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   function asyncPlotKMLFeature(feature, callback) {
     var url, kmlFilePromise, kmlLayer, wwFeature,
@@ -277,7 +277,7 @@ EMPWorldWind.editors.EditorController = (function() {
      *
      * @param {emp.typeLibrary.Feature} empFeature
      * @param {PlotFeatureCB} callback Callback to be invoked on completion
-     * @this EMPWorldWind.map
+     * @this EMPWorldWind.Map
      */
     plotFeature: function(empFeature, callback) {
       var wwFeature, layer, buildShapes, shapes;
@@ -358,7 +358,7 @@ EMPWorldWind.editors.EditorController = (function() {
      * @param {EMPWorldWind.data.EmpFeature} wwFeature
      * @param {emp.typeLibrary.Feature} empFeature
      * @param {PlotFeatureCB} callback
-     * @this EMPWorldWind.map
+     * @this EMPWorldWind.Map
      */
     updateFeature: function(wwFeature, empFeature, callback) {
       var layer,
@@ -440,7 +440,7 @@ EMPWorldWind.editors.EditorController = (function() {
     /**
      *
      * @param {EMPWorldWind.data.EmpFeature} wwFeature
-     * @this EMPWorldWind.map
+     * @this EMPWorldWind.Map
      */
     updateFeatureLabelStyle: function(wwFeature) {
       var shapes,

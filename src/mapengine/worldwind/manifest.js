@@ -92,12 +92,12 @@ function initializeWorldwind(args) {
         wwd.addLayer(new WorldWind.ViewControlsLayer(wwd));
       }
 
-      var empWorldWind = new EMPWorldWind.map(wwd);
+      var empWorldWind = new EMPWorldWind.Map(wwd);
       empWorldWind.initialize(instArgs);
       instArgs.mapInstance.engine.initialize.succeed(empWorldWind);
     } catch (err) {
       instArgs.mapInstance.engine.initialize.fail(err);
-      window.console.log("+++++++++++++error initilaizing engine: " + err);
+      window.console.log("+++++++++++++error initializing engine: " + err);
     }
   }
 

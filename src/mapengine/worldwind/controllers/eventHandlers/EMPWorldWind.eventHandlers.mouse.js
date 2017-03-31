@@ -18,7 +18,7 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
 EMPWorldWind.eventHandlers.mouse = {
   /**
    * @param {MouseEvent} event
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   click: function(event) {
     var clickEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
@@ -30,7 +30,7 @@ EMPWorldWind.eventHandlers.mouse = {
   /**
    *
    * @param {MouseEvent} event
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   dblclick: function(event) {
     var dblClickEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
@@ -43,7 +43,7 @@ EMPWorldWind.eventHandlers.mouse = {
   /**
    *
    * @param {WheelEvent} event
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   wheel: function(event) {
     if (event.wheelDeltaY < 0 && this.worldWindow.navigator.range > EMPWorldWind.constants.view.MAX_HEIGHT) {
@@ -65,7 +65,7 @@ EMPWorldWind.eventHandlers.mouse = {
   /**
    * Wrapper for mousedown
    * @see EMPWorldWind.eventHandlers.mouse.mousedown
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   mousedown: function(event) {
     var mousedownEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
@@ -77,7 +77,7 @@ EMPWorldWind.eventHandlers.mouse = {
   },
   /**
    * @see EMPWorldWind.eventHandlers.mouse.mouseup
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   mouseup: function(event) {
     var mouseupEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
@@ -95,7 +95,7 @@ EMPWorldWind.eventHandlers.mouse = {
   },
   /**
    * @see EMPWorldWind.eventHandlers.mouse.mousemove
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   mousemove: function(event) {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);

@@ -25,3 +25,7 @@ rules:
     - allow:
         - "warn"
         - "error"
+  complexity:
+    - error
+    - 6
+  no-extra-bind: error
