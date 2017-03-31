@@ -6,7 +6,7 @@ var emp = window.emp || {};
  * @class
  * Map instance manager
  */
-emp.instanceManager = (function () {
+emp.instanceManager = (function() {
   var bInitialLoadInProgress = false,
     bMapSwapInProgress = false,
     oPendingMapInstanceCreateList = [],
@@ -15,12 +15,12 @@ emp.instanceManager = (function () {
     cmapiInterface = emp.api.cmapiInterface(),
     hCheckPendingTimer;
 
-  var initialize = function (args) {
+  var initialize = function(args) {
     var environment = args.environment,
       clientCallback = args.callback,
       clientShutdownCB = args.shutdownCallback,
       map = args.map,
-      readyCallback = function () {
+      readyCallback = function() {
 
         cmapiInterface.createMapInstance({
           mapInstanceId: map.mapInstanceId
@@ -29,7 +29,7 @@ emp.instanceManager = (function () {
           clientCallback(map.mapInstanceId);
         }
       },
-      shutdownCallback = function () {
+      shutdownCallback = function() {
         var payload = {
           status: emp.map.states.TEARDOWN
         };
@@ -94,7 +94,7 @@ emp.instanceManager = (function () {
    * @param {string} args.messageId
    * @return {emp.map}
    */
-  var buildInstance = function (args) {
+  var buildInstance = function(args) {
     var instanceDomId = args.instanceDomId,
       instanceId = args.instanceId,
       initEngine,
@@ -112,7 +112,7 @@ emp.instanceManager = (function () {
     map = emp.map({
       mapInstanceId: instanceId,
       extent: args.extent
-    });    
+    });
 
     instances[instanceId] = {
       map: map,
@@ -132,8 +132,8 @@ emp.instanceManager = (function () {
     // adds default overlays like Layers.
     map.init();
     map.uiComponents = {};
-    initEngine = function () {
-      setTimeout(function () {
+    initEngine = function() {
+      setTimeout(function() {
         try {
           // Send out INITIALIZING map status event.
           new map.eventing.StatusChange({
@@ -163,17 +163,17 @@ emp.instanceManager = (function () {
   cmapiInterface.init();
   emp.storage.init();
 
-  var storageReloadStart = function () {
+  var storageReloadStart = function() {
     bMapSwapInProgress = true;
   };
 
-  var storageReloadComplete = function () {
+  var storageReloadComplete = function() {
     bMapSwapInProgress = false;
   };
 
   var attempts = 10;
 
-  var checkRendererFontsLoaded = function () {
+  var checkRendererFontsLoaded = function() {
     if ((armyc2 === undefined) ||
       (armyc2.c2sd === undefined) ||
       (armyc2.c2sd.renderer === undefined) ||
@@ -271,7 +271,7 @@ emp.instanceManager = (function () {
      * @param {string} instanceId
      * @returns {emp.map}
      */
-    getInstance: function (instanceId) {
+    getInstance: function(instanceId) {
       if (!instances[instanceId]) {
         return undefined;
       }
@@ -286,7 +286,7 @@ emp.instanceManager = (function () {
      * @param {Object} args.extent The extent of the default view the map should start at.
      * @returns {String} The map instance ID.
      */
-    createInstance: function (args) {
+    createInstance: function(args) {
 
       if (emp.helpers.associativeArray.size(instances) === 0) {
         checkRendererFontsLoaded();
@@ -308,7 +308,7 @@ emp.instanceManager = (function () {
       });
       return args.instanceId;
     },
-    destroyInstance: function (args) {
+    destroyInstance: function(args) {
 
       if (!instances.hasOwnProperty(args.mapInstanceId)) {
         return;
@@ -318,7 +318,7 @@ emp.instanceManager = (function () {
       // we are not loading another map.  If we are we want to wait
       // a bit until that finishes loading.  Try again in a bit.
       if (this.isMapEngineLoading()) {
-        setTimeout(function () {
+        setTimeout(function() {
           publicInterface.destroyInstance(args);
         }, 50);
       } else {
@@ -334,7 +334,7 @@ emp.instanceManager = (function () {
         // This will respond to the request to remove the map
         // with a message complete so the user knows it has received
         // the request to shutdown.
-        setTimeout(function () {
+        setTimeout(function() {
           var transactionMessage = {
             messageId: args.messageId,
             originatingChannel: cmapi.channel.names.MAP_SHUTDOWN,
@@ -354,10 +354,10 @@ emp.instanceManager = (function () {
         }, 50);
       }
     },
-    isMapEngineLoading: function () {
+    isMapEngineLoading: function() {
       return bMapSwapInProgress || bInitialLoadInProgress;
     },
-    startNextPendingMapInstance: function () {
+    startNextPendingMapInstance: function() {
       var oInstanceArgs;
 
       if (hCheckPendingTimer) {
@@ -382,14 +382,14 @@ emp.instanceManager = (function () {
           emp.util.config.getConfigObject();
           buildInstance(oInstanceArgs);
         } else {
-          hCheckPendingTimer = setTimeout(function () {
+          hCheckPendingTimer = setTimeout(function() {
             hCheckPendingTimer = undefined;
             emp.instanceManager.startNextPendingMapInstance();
           }, 1000);
         }
       }
     },
-    statusChangeHdlr: function (oTrans) {
+    statusChangeHdlr: function(oTrans) {
       var oMapEngine;
       var oTransaction;
       var oSettings;
@@ -457,7 +457,7 @@ emp.instanceManager = (function () {
             }
             bInitialLoadInProgress = false;
           }
-          hCheckPendingTimer = setTimeout(function () {
+          hCheckPendingTimer = setTimeout(function() {
             emp.instanceManager.startNextPendingMapInstance();
           }, 50);
           break;
@@ -509,26 +509,26 @@ emp.instanceManager = (function () {
      * @param {function} args.fnCreateInstance A function of the for function(args)
      * which is called to create a map instance. Where the args is defined as follows.
      */
-    registerMapEngine: function (args) {
+    registerMapEngine: function(args) {
       var currentEngineConfiguration = emp.util.config.getCurrentEngineConfiguration();
       oRegisteredMapEngines[emp.util.config.getCurrentMapEngineId()] = {
         fnInitialize: args.fnInitialize,
         engineConfiguration: currentEngineConfiguration
       };
     },
-    getMapEngineRegistration: function (mapEngineId) {
+    getMapEngineRegistration: function(mapEngineId) {
       return oRegisteredMapEngines[mapEngineId];
     },
-    getPreviousMapEngineId: function () {
+    getPreviousMapEngineId: function() {
       return oRegisteredMapEngines.previousMapEngineId;
     },
-    getCurrentMapEngineId: function () {
+    getCurrentMapEngineId: function() {
       return oRegisteredMapEngines.currentMapEngineId;
     },
-    mapInstanceStartupFailed: function (mapInstanceId) {
+    mapInstanceStartupFailed: function(mapInstanceId) {
       if (bInitialLoadInProgress) {
         // The map instance fail to initialize.
-        setTimeout(function () {
+        setTimeout(function() {
           cleanupInstance(mapInstanceId, true);
           bInitialLoadInProgress = false;
           emp.instanceManager.startNextPendingMapInstance();

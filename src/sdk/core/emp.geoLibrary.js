@@ -1,4 +1,6 @@
-/*globals emp, Geo, trim*/
+/* global Geo, trim */
+var emp = window.emp || {};
+
 /* eslint-disable */
 /**
  * Used to convert various measurements to other formats
@@ -10,7 +12,7 @@ emp.geoLibrary = {
 
   METERS_PER_DEG: 111319.49079327357264771338267056,
 
-  Point: function (x, y) {
+  Point: function(x, y) {
     /*this.x = null;
      this.y = null;
      if (x != null)
@@ -24,14 +26,14 @@ emp.geoLibrary = {
   },
 
 
-  metersPerPixel: function (scale) {
+  metersPerPixel: function(scale) {
     var inchPerMeter = 39.3700787,
       pixelsPerInch = 96,
       step1 = scale / pixelsPerInch;
     return step1 / inchPerMeter;
   },
 
-  ddToMGRS: function (latDD, longDD) {
+  ddToMGRS: function(latDD, longDD) {
     var NS = "N",
       EW = "E",
       lat,
@@ -50,7 +52,7 @@ emp.geoLibrary = {
     return emp.geoLibrary.dmsToMGRS(lat.deg, lat.minute, lat.sec, lng.deg, lng.minute, lng.sec, NS, EW);
   },
 
-  ddToDMS: function (decDeg) {
+  ddToDMS: function(decDeg) {
     var deg = Math.abs(decDeg),
       DMS = {},
       sec;
@@ -61,12 +63,12 @@ emp.geoLibrary = {
     return DMS;
   },
 
-  deg2rad: function (deg) {
+  deg2rad: function(deg) {
     var conv_factor = (2.0 * Math.PI) / 360.0;
     return (deg * conv_factor);
   },
 
-  dmsToMGRS: function (latDegrees, latMinutes, latSeconds, longDegrees, longMinutes, longSeconds, NS, EW) {
+  dmsToMGRS: function(latDegrees, latMinutes, latSeconds, longDegrees, longMinutes, longSeconds, NS, EW) {
     //with (Math) {
     var Deg2Rad = Math.PI / 180.0,
       Area = "UTM2",
@@ -264,14 +266,14 @@ emp.geoLibrary = {
 
     return "Did not convert correctly";
   },
-  ValidLongZone: function (ZoneCell) {
+  ValidLongZone: function(ZoneCell) {
     if ((ZoneCell < 1) || (ZoneCell > 60)) {
       return false;
     } else {
       return true;
     }
   },
-  UTMCMfromLongZone: function (ZoneCell) {
+  UTMCMfromLongZone: function(ZoneCell) {
     if (!this.ValidLongZone(ZoneCell)) {
       return -181; //"#INVALID LONGITUDE ZONE";
     } else {
@@ -279,7 +281,7 @@ emp.geoLibrary = {
     }
   },
 
-  truncateDecimal: function (value) {
+  truncateDecimal: function(value) {
     var precision = 5,
       returnValue = value,
       valString = value.toString(),
@@ -311,7 +313,7 @@ emp.geoLibrary = {
     }
     return returnValue;
   },
-  TM2LL: function (LatLong, EastCell, NorthCell, Merid) {
+  TM2LL: function(LatLong, EastCell, NorthCell, Merid) {
     var Area = 4,
       Deg2Rad = 3.14159265358979 / 180,
       MGRS_Old = (Area < 0),
@@ -439,7 +441,7 @@ emp.geoLibrary = {
   },
 
 
-  mgrsToDD: function (LatLong, GRCell) {
+  mgrsToDD: function(LatLong, GRCell) {
     var Area = 4,
       noSpace = GRCell.split(" "),
       isEven,
@@ -677,7 +679,7 @@ emp.geoLibrary = {
   },
 
 
-  getMetersPerDegAtLat: function (lat) // Compute lengths of degrees
+  getMetersPerDegAtLat: function(lat) // Compute lengths of degrees
   {
 
     var m1,
@@ -719,7 +721,7 @@ emp.geoLibrary = {
     //return emp.geoLibrary.measureDistance(lat,0,lat,1,"meters");
   },
 
-  getPointFromDistanceBearing: function (startLat, startLon, distance, bearing) {
+  getPointFromDistanceBearing: function(startLat, startLon, distance, bearing) {
 
     // Comvert bearing in degrees to bearing in mils for calculation
     bearing = bearing * Math.PI / 180;
@@ -733,7 +735,7 @@ emp.geoLibrary = {
     };
   },
 
-  getMidPoint: function (lat1, lon1, lat2, lon2) {
+  getMidPoint: function(lat1, lon1, lat2, lon2) {
     var lat3 = (lat1 + lat2) / 2;
     var f1 = Math.tan(Math.PI / 4 + lat1 / 2);
     var f2 = Math.tan(Math.PI / 4 + lat2 / 2);
@@ -749,7 +751,7 @@ emp.geoLibrary = {
    return brng;
    },
    */
-  measureDistance: function (latitude1, longitude1, latitude2, longitude2, unitOfMeasure) {
+  measureDistance: function(latitude1, longitude1, latitude2, longitude2, unitOfMeasure) {
     // latitude1,latitude2 = latitude, longitude1,longitude2 = longitude
     //Radius is 6378.1 (km), 3963.1 (mi), 3443.9 (nm
 
@@ -792,7 +794,7 @@ emp.geoLibrary = {
     return distance;
   },
 
-  coordinateArrayToString: function (coordinates) {
+  coordinateArrayToString: function(coordinates) {
     var len = coordinates.length,
       coordString = '',
       i;
@@ -811,7 +813,7 @@ emp.geoLibrary = {
     return coordString;
   },
 
-  coordinateStringToArray: function (coordinates) {
+  coordinateStringToArray: function(coordinates) {
     var coordArr = [],
       pairs,
       len,
@@ -837,7 +839,7 @@ emp.geoLibrary = {
     return coordArr;
   },
 
-  validateLatLon: function (lat, lon) {
+  validateLatLon: function(lat, lon) {
     var valid = false;
     if (!isNaN(lat) && !isNaN(lon)) {
       if (lat <= 90 && lat >= -90 && lon <= 180 && lon >= -180) {
@@ -851,14 +853,14 @@ emp.geoLibrary = {
   /*
    Degrees To Radians
    */
-  DegToRad: function (deg) {
+  DegToRad: function(deg) {
     return deg / 180.0 * Math.PI;
   },
 
   /*
    Radians to Degrees
    */
-  RadToDeg: function (rad) {
+  RadToDeg: function(rad) {
     return rad / Math.PI * 180.0;
   },
 
@@ -868,7 +870,7 @@ emp.geoLibrary = {
    * @param c2 - geocoord object with 'x' and 'y' parameters
    * @return the azimuth from c1 to c2 in degrees
    */
-  GetAzimuth: function (c1, c2) { //was private
+  GetAzimuth: function(c1, c2) { //was private
     var theta = 0;
     try {
       var lat1 = this.DegToRad(c1.y);
@@ -905,9 +907,9 @@ emp.geoLibrary = {
    *
    * @return the calculated point
    */
-  geodesic_coordinate: function (start,
-                                 distance,
-                                 azimuth) {
+  geodesic_coordinate: function(start,
+                                distance,
+                                azimuth) {
     var pt = this.Point();
 
     var sm_a = 6378137; //WGS - 84
@@ -974,10 +976,10 @@ emp.geoLibrary = {
    * @param brng2
    * @return {string}
    */
-  IntersectLines: function (p1,
-                            brng1,
-                            p2,
-                            brng2) {
+  IntersectLines: function(p1,
+                           brng1,
+                           p2,
+                           brng2) {
     var ptResult = null;
     try {
       var lat1 = this.DegToRad(p1.y); //p1._lat.toRad();
@@ -1052,7 +1054,7 @@ emp.geoLibrary = {
    Checks to see if two bounding boxes touch each other.   Includes intesections or containment of one box within
    the other.  Takes into the case if one of the boxes cross the international date line.
    */
-  doesBoundingBoxIntersect: function (bbox1, bbox2) {
+  doesBoundingBoxIntersect: function(bbox1, bbox2) {
     var bbox1a;
     var bbox1b;
     var bbox2a;
@@ -1122,7 +1124,7 @@ emp.geoLibrary = {
       return false;
     }
   },
-  pointInBbox: function (bbox, x, y) {
+  pointInBbox: function(bbox, x, y) {
     if (bbox || bbox.left !== undefined || bbox.right !== undefined || bbox.top !== undefined || bbox.bototm !== undefined) {
       if ((x >= bbox.left) && (x <= bbox.right) && (y >= bbox.bottom) && (y <= bbox.top)) {
         return true;
@@ -1130,7 +1132,7 @@ emp.geoLibrary = {
     }
     return false;
   },
-  checkBboxOverlap: function (bbox1, bbox2) {
+  checkBboxOverlap: function(bbox1, bbox2) {
     if (bbox1 && bbox2) {
       if (this.pointInBbox(bbox1, bbox2.left, bbox2.top)) {
         return true;
@@ -1150,7 +1152,7 @@ emp.geoLibrary = {
 
   //Rectangle.intersection adapted from Rectangle.java to work with geo coords based bounding boxes
   //TODO: Needs more work.  Still returns false in some "true" scenarios.
-  checkBboxIntersects: function (bbox1, bbox2) {
+  checkBboxIntersects: function(bbox1, bbox2) {
     var tw = bbox1.right - bbox1.left;
     var th = bbox1.top - bbox1.bottom; //this.height;
     var rw = bbox2.right - bbox2.left;
@@ -1179,7 +1181,7 @@ emp.geoLibrary = {
   OUT_RIGHT: 4,
   OUT_BOTTOM: 8,
 
-  outcode: function (bbox, x, y) {
+  outcode: function(bbox, x, y) {
 
     var out = 0;
     if (bbox.width <= 0) {
@@ -1200,7 +1202,7 @@ emp.geoLibrary = {
   },
 
   //Checks if a line segment intersects a bounding box
-  checkLineIntersectsBox: function (bbox, x1, y1, x2, y2) {
+  checkLineIntersectsBox: function(bbox, x1, y1, x2, y2) {
     var out1, out2;
     if ((out2 = this.outcode(bbox, x2, y2)) === 0) {
       return true;
@@ -1229,7 +1231,7 @@ emp.geoLibrary = {
   },
   //End, this code for checkLineIntersectsBox////////////////////////////////
 
-  BoundingBox: function (pointString) {
+  BoundingBox: function(pointString) {
     var len,
       points,
       p1,
@@ -1291,7 +1293,7 @@ emp.geoLibrary = {
     }
   },
 
-  getBox: function (points) {
+  getBox: function(points) {
     var left,
       right,
       top,
@@ -1383,7 +1385,7 @@ emp.geoLibrary = {
    * @return A new array of 4 objects each with a lat and lon property in the order of left,bottom,right,top
    * @type Array
    */
-  getBoxIDL: function (points) {
+  getBoxIDL: function(points) {
     var left,
       right,
       top,
@@ -1475,7 +1477,7 @@ emp.geoLibrary = {
    * @param numLong - IN - Longitude of the coordinate we want to convert
    * @return A utm coordinate in this format: "zone,easting,northing"
    */
-  latLongToUtm: function (numLat, numLong) {
+  latLongToUtm: function(numLat, numLong) {
     //try {
     var numUTMEasting = 0;
     var numUTMNorthing = 0;
@@ -1573,7 +1575,7 @@ emp.geoLibrary = {
    * @param numLat - IN - Latitude that need to figure out what utm letter to return
    * @return Utm letter that corresponds with a passed in latitude value
    */
-  utmLetterDesignator: function (numLat) {
+  utmLetterDesignator: function(numLat) {
     var strLetterDesignator = "Z";
 
     // try {
@@ -1641,7 +1643,7 @@ emp.geoLibrary = {
    * @param blNorthernHemisphere - IN - True if we are in the northern hemisphere, false otherwise
    * @return A lat long coordinate in this format: "latitude,longitude"
    */
-  utmToLatLong: function (numZone, numEasting, numNorthing, blNorthernHemisphere) {
+  utmToLatLong: function(numZone, numEasting, numNorthing, blNorthernHemisphere) {
     //try {
     if (blNorthernHemisphere === undefined || blNorthernHemisphere === null) {
       blNorthernHemisphere = true;
@@ -1753,7 +1755,7 @@ function LatLon(lat, lon, rad) {
  * @param   {Number} [precision=4]: no of significant digits to use for returned value
  * @returns {Number} Distance in km between this point and destination point
  */
-LatLon.prototype.distanceTo = function (point, precision) {
+LatLon.prototype.distanceTo = function(point, precision) {
   // default 4 sig figs reflects typical 0.3% accuracy of spherical model
   if (typeof precision == 'undefined') precision = 4;
 
@@ -1781,7 +1783,7 @@ LatLon.prototype.distanceTo = function (point, precision) {
  * @param   {LatLon} point: Latitude/longitude of destination point
  * @returns {Number} Initial bearing in degrees from North
  */
-LatLon.prototype.bearingTo = function (point) {
+LatLon.prototype.bearingTo = function(point) {
   var lat1 = this._lat.toRad(),
     lat2 = point._lat.toRad();
   var dLon = (point._lon - this._lon).toRad();
@@ -1802,7 +1804,7 @@ LatLon.prototype.bearingTo = function (point) {
  * @param   {LatLon} point: Latitude/longitude of destination point
  * @returns {Number} Final bearing in degrees from North
  */
-LatLon.prototype.finalBearingTo = function (point) {
+LatLon.prototype.finalBearingTo = function(point) {
   // get initial bearing from supplied point back to this point...
   var lat1 = point._lat.toRad(),
     lat2 = this._lat.toRad();
@@ -1825,7 +1827,7 @@ LatLon.prototype.finalBearingTo = function (point) {
  * @param   {LatLon} point: Latitude/longitude of destination point
  * @returns {LatLon} Midpoint between this point and the supplied point
  */
-LatLon.prototype.midpointTo = function (point) {
+LatLon.prototype.midpointTo = function(point) {
   var lat1 = this._lat.toRad(),
     lon1 = this._lon.toRad();
   var lat2 = point._lat.toRad();
@@ -1853,7 +1855,7 @@ LatLon.prototype.midpointTo = function (point) {
  * @param   {Number} dist: Distance in km
  * @returns {LatLon} Destination point
  */
-LatLon.prototype.destinationPoint = function (brng, dist) {
+LatLon.prototype.destinationPoint = function(brng, dist) {
   dist = typeof (dist) == 'number' ? dist : typeof (dist) === 'string' && dist.trim() !== '' ? +dist : NaN;
   dist = dist / this._radius; // convert dist to angular distance in radians
   brng = brng.toRad(); //
@@ -1881,7 +1883,7 @@ LatLon.prototype.destinationPoint = function (brng, dist) {
  * @param   {Number} brng2: Initial bearing from second point
  * @returns {LatLon} Destination point (null if no unique intersection defined)
  */
-LatLon.intersection = function (p1, brng1, p2, brng2) {
+LatLon.intersection = function(p1, brng1, p2, brng2) {
   brng1 = typeof brng1 == 'number' ? brng1 : typeof brng1 == 'string' && trim(brng1) !== '' ? +brng1 : NaN;
   brng2 = typeof brng2 == 'number' ? brng2 : typeof brng2 == 'string' && trim(brng2) !== '' ? +brng2 : NaN;
   var lat1 = p1._lat.toRad(),
@@ -1956,7 +1958,7 @@ LatLon.intersection = function (p1, brng1, p2, brng2) {
  * @param   {LatLon} point: Latitude/longitude of destination point
  * @returns {Number} Distance in km between this point and destination point
  */
-LatLon.prototype.rhumbDistanceTo = function (point) {
+LatLon.prototype.rhumbDistanceTo = function(point) {
   var R = this._radius;
   var lat1 = this._lat.toRad(),
     lat2 = point._lat.toRad();
@@ -1978,7 +1980,7 @@ LatLon.prototype.rhumbDistanceTo = function (point) {
  * @param   {LatLon} point: Latitude/longitude of destination point
  * @returns {Number} Bearing in degrees from North
  */
-LatLon.prototype.rhumbBearingTo = function (point) {
+LatLon.prototype.rhumbBearingTo = function(point) {
   var lat1 = this._lat.toRad(),
     lat2 = point._lat.toRad();
   var dLon = (point._lon - this._lon).toRad();
@@ -1998,7 +2000,7 @@ LatLon.prototype.rhumbBearingTo = function (point) {
  * @param   {Number} dist: Distance in km
  * @returns {LatLon} Destination point
  */
-LatLon.prototype.rhumbDestinationPoint = function (brng, dist) {
+LatLon.prototype.rhumbDestinationPoint = function(brng, dist) {
   var R = this._radius;
   var d = parseFloat(dist) / R; // d = angular distance covered on earth's surface
   var lat1 = this._lat.toRad(),
@@ -2031,7 +2033,7 @@ LatLon.prototype.rhumbDestinationPoint = function (brng, dist) {
  *
  * @requires Geo
  */
-LatLon.prototype.lat = function (format, dp) {
+LatLon.prototype.lat = function(format, dp) {
   if (typeof format == 'undefined') return this._lat;
 
   return Geo.toLat(this._lat, format, dp);
@@ -2047,7 +2049,7 @@ LatLon.prototype.lat = function (format, dp) {
  *
  * @requires Geo
  */
-LatLon.prototype.lon = function (format, dp) {
+LatLon.prototype.lon = function(format, dp) {
   if (typeof format == 'undefined') return this._lon;
 
   return Geo.toLon(this._lon, format, dp);
@@ -2062,7 +2064,7 @@ LatLon.prototype.lon = function (format, dp) {
  *
  * @requires Geo
  */
-LatLon.prototype.toString = function (format, dp) {
+LatLon.prototype.toString = function(format, dp) {
   if (typeof format == 'undefined') format = 'dms';
 
   if (isNaN(this._lat) || isNaN(this._lon)) return '-,-';
@@ -2076,14 +2078,14 @@ LatLon.prototype.toString = function (format, dp) {
 
 /** Converts numeric degrees to radians */
 if (typeof (Number.prototype.toRad) === "undefined") {
-  Number.prototype.toRad = function () {
+  Number.prototype.toRad = function() {
     return this * Math.PI / 180;
   };
 }
 
 /** Converts radians to numeric (signed) degrees */
 if (typeof (Number.prototype.toDeg) === "undefined") {
-  Number.prototype.toDeg = function () {
+  Number.prototype.toDeg = function() {
     return this * 180 / Math.PI;
   };
 }
@@ -2095,7 +2097,7 @@ if (typeof (Number.prototype.toDeg) === "undefined") {
  * @returns {String} A string representation of number which contains precision significant digits
  */
 if (typeof (Number.prototype.toPrecisionFixed) === "undefined") {
-  Number.prototype.toPrecisionFixed = function (precision) {
+  Number.prototype.toPrecisionFixed = function(precision) {
     if (isNaN(this)) return 'NaN';
     var numb = this < 0 ? -this : this; // can't take log of -ve number...
     var sign = this < 0 ? '-' : '',
@@ -2126,7 +2128,7 @@ if (typeof (Number.prototype.toPrecisionFixed) === "undefined") {
 
 /** Trims whitespace from string (q.v. blog.stevenlevithan.com/archives/faster-trim-javascript) */
 if (typeof (String.prototype.trim) === "undefined") {
-  String.prototype.trim = function () {
+  String.prototype.trim = function() {
     return String(this).replace(/^\s\s*/, '').replace(/\s\s*$/, '');
   };
 }

@@ -505,14 +505,9 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.cancel:
           this.cancel(callInfo, message);
           break;
-        case emp3.api.enums.channel.transactionComplete:
-          this.complete(callInfo, message);
-          break;
         case emp3.api.enums.channel.mapShutdown:
+          // Special case, needs to be handled here
           this.mapShutdown(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.getVisibility:
-          this.getVisibility(callInfo, message, transactionId);
           break;
         default:
           break;
@@ -3999,21 +3994,6 @@ emp3.api.MessageHandler = (function() {
     };
 
     /**
-     * Retrieves the visibility state of a container or container instance.
-     */
-    this.getVisibility = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        targetId: message.target.geoId,
-        parentId: (message.parent) ? message.parent.geoId : undefined,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.getVisibility, payload, callInfo);
-    };
-
-    /**
      * Locks or unlocks map view synchronously
      *
      * @param {object} callInfo
@@ -4048,29 +4028,6 @@ emp3.api.MessageHandler = (function() {
       }
 
       this.validate(emp3.api.enums.channel.cancel, payload, callInfo);
-    };
-
-    /**
-     * Attempts to complete a transaction before user does.  If the
-     * transaction has already been processed, no action occurs.  If the map
-     * cannot complete the transaction,  no action occurs.  If the map can complete
-     * the transaction the calling function associated with the transaction
-     * should handle any complete responses
-     * in a callback.
-     *
-     * @param {object} callInfo
-     * @param {object} message
-     */
-    this.complete = function(callInfo, message) {
-      var payload;
-
-      if (message && message.transaction && message.transaction.id) {
-        payload = {
-          messageId: message.transaction.id
-        };
-      }
-
-      this.validate(emp3.api.enums.channel.transactionComplete, payload, callInfo);
     };
 
     /**

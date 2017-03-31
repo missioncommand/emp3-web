@@ -1,4 +1,8 @@
-/*global emp, tv4 */
+/* global tv4 */
+
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
+
 /**
  * @memberOf emp.typeLibrary
  * @class
@@ -14,7 +18,7 @@ emp.typeLibrary.base = {
    * @returns {object} validationErrors - What is not validating correctly
    * @returns {object} validationMissing - What is missing per schema
    */
-  validate: function () {
+  validate: function() {
     if (emp.validate === true) {
       var message,
         i,
@@ -50,7 +54,7 @@ emp.typeLibrary.base = {
    * Returns the number of parents the object is listed as visible for
    * @returns {number}
    */
-  getVisibilityCount: function () {
+  getVisibilityCount: function() {
     var iCount = 0;
 
     if (this.isMultiParentRequired()) {
@@ -74,7 +78,7 @@ emp.typeLibrary.base = {
    * @param {type} bVisible
    * @param {type} sParentCoreId
    */
-  isVisibilityAffected: function (sParentCoreId, bVisible) {
+  isVisibilityAffected: function(sParentCoreId, bVisible) {
     var bSend = false;
 
     if (this.isMultiParentRequired()) {
@@ -141,7 +145,7 @@ emp.typeLibrary.base = {
    * @param {Boolean} bVisible
    * @param {emp.typeLibrary.Transaction} oTransaction
    */
-  addAffectedChildren: function (oTransaction, bVisible) {
+  addAffectedChildren: function(oTransaction, bVisible) {
     var oaItems = oTransaction.items;
     var oChild;
     var oDupChild;
@@ -188,9 +192,9 @@ emp.typeLibrary.base = {
    * @param {boolean} bVisible - Visibility Flag
    * @param {boolean} bGoDeep - True if the visibility should affect children.
    */
-  visibility: function (oTransaction, sParentCoreId, bVisible, bGoDeep) {
+  visibility: function(oTransaction, sParentCoreId, bVisible, bGoDeep) {
     var //oTransaction,
-        //oAffectedTransaction,
+      //oAffectedTransaction,
       oItem,
       oaItems = oTransaction.items;
 
@@ -254,7 +258,7 @@ emp.typeLibrary.base = {
    * @param {string} args.mapInstanceId
    * @returns {emp.typeLibrary.Transaction}
    */
-  locate: function (args) {
+  locate: function(args) {
     var transaction,
       payload;
 
@@ -274,7 +278,7 @@ emp.typeLibrary.base = {
       intent: emp.intents.control.VIEW_SET,
       mapInstanceId: args.mapInstanceId,
       source: emp.core.sources.CORE,
-      items: function () {
+      items: function() {
         var r = [];
         r.push(new emp.typeLibrary.View(payload));
         return r;
@@ -291,7 +295,7 @@ emp.typeLibrary.base = {
    *
    * @returns {string}
    */
-  getRootCoreId: function () {
+  getRootCoreId: function() {
     var oRootCoreId = emp.storage.getRootGuid();
 
     if (this.isMultiParentRequired()) {
@@ -307,7 +311,7 @@ emp.typeLibrary.base = {
   /**
    * @returns {emp.classLibrary.EmpRenderableObject}
    */
-  getRootParent: function () {
+  getRootParent: function() {
     if (this.isMultiParentRequired()) {
       var oRootCoreId = this.getRootCoreId();
       return emp.storage.get.id({
@@ -319,19 +323,19 @@ emp.typeLibrary.base = {
   /**
    * @returns {boolean}
    */
-  hasChildren: function () {
+  hasChildren: function() {
     return !emp.helpers.associativeArray.isEmpty(this.nodes);
   },
   /**
    * @returns {boolean}
    */
-  hasParents: function () {
+  hasParents: function() {
     return !emp.helpers.associativeArray.isEmpty(this.parentNodes);
   },
   /**
    *
    */
-  removeFromAllParent: function () {
+  removeFromAllParent: function() {
     var oParent;
 
     if (this.isMultiParentRequired()) {
@@ -371,7 +375,7 @@ emp.typeLibrary.base = {
    * @param {string} sCoreId
    * @returns {boolean}
    */
-  isUnderParent: function (sCoreId) {
+  isUnderParent: function(sCoreId) {
     var oParent;
     var bRet = false;
     if (this.coreId === sCoreId) {
@@ -400,12 +404,12 @@ emp.typeLibrary.base = {
   /**
    * @param oChild
    */
-  removeChild: function (oChild) {
+  removeChild: function(oChild) {
     if (this.nodes.hasOwnProperty(oChild.coreId)) {
       oChild.removeFromOverlayFeatureList(this);
       if (this.isMultiParentRequired() ||
         ((this.coreId === emp.storage.getRootGuid()) &&
-          oChild.isMultiParentRequired())) {
+        oChild.isMultiParentRequired())) {
         // If this is a multi parent object find
         // its root parent just in case we need to
         // remove it.
@@ -443,7 +447,7 @@ emp.typeLibrary.base = {
   /**
    * @param oParent
    */
-  removeFromOverlayFeatureList: function (oParent) {
+  removeFromOverlayFeatureList: function(oParent) {
     if ((this.globalType === emp.typeLibrary.types.FEATURE) ||
       (this.globalType === emp.typeLibrary.types.WMS)) {
       var oCurrentParent;
@@ -471,7 +475,7 @@ emp.typeLibrary.base = {
   /**
    * @param oOverlay
    */
-  removeAllChildrenFromOverlayFeatureList: function (oOverlay) {
+  removeAllChildrenFromOverlayFeatureList: function(oOverlay) {
     if ((this.globalType !== emp.typeLibrary.types.FEATURE) &&
       (this.globalType !== emp.typeLibrary.types.WMS)) {
       return;
@@ -487,7 +491,7 @@ emp.typeLibrary.base = {
   /**
    * @param oOverlay
    */
-  addAllChildrenToOverlayFeatureList: function (oOverlay) {
+  addAllChildrenToOverlayFeatureList: function(oOverlay) {
     if ((this.globalType !== emp.typeLibrary.types.FEATURE) &&
       (this.globalType !== emp.typeLibrary.types.WMS)) {
       return;
@@ -506,7 +510,7 @@ emp.typeLibrary.base = {
   /**
    * @param oParent
    */
-  addToOverlayFeatureList: function (oParent) {
+  addToOverlayFeatureList: function(oParent) {
     if ((this.globalType === emp.typeLibrary.types.FEATURE) ||
       (this.globalType === emp.typeLibrary.types.WMS)) {
       var oCurrentParent;
@@ -539,7 +543,7 @@ emp.typeLibrary.base = {
    * @param {boolean} bVisible
    * @param {boolean} bVisibleSetting
    */
-  addParent: function (oParent, bVisible, bVisibleSetting) {
+  addParent: function(oParent, bVisible, bVisibleSetting) {
 
     if (this.isMultiParentRequired()) {
       if (!this.parentNodes.hasOwnProperty(oParent.coreId)) {
@@ -578,7 +582,7 @@ emp.typeLibrary.base = {
    * @param bVisible
    * @param bVisibleSetting
    */
-  addChild: function (oChild, bVisible, bVisibleSetting) {
+  addChild: function(oChild, bVisible, bVisibleSetting) {
     if (!this.nodes.hasOwnProperty(oChild.coreId)) {
       // Add it.
       this.nodes[oChild.coreId] = oChild;
@@ -589,39 +593,39 @@ emp.typeLibrary.base = {
   /**
    * @returns {string[]}
    */
-  getChildrenCoreIds: function () {
+  getChildrenCoreIds: function() {
     return emp.helpers.associativeArray.getKeys(this.nodes);
   },
   /**
    * @returns {string[]}
    */
-  getParentCoreIds: function () {
+  getParentCoreIds: function() {
     return emp.helpers.associativeArray.getKeys(this.parentNodes);
   },
   /**
    * @returns {number}
    */
-  childrenCount: function () {
+  childrenCount: function() {
     return emp.helpers.associativeArray.size(this.nodes);
   },
   /**
    * @returns {number}
    */
-  parentCount: function () {
+  parentCount: function() {
     return emp.helpers.associativeArray.size(this.parentNodes);
   },
   /**
    * @param {string} sCoreId
    * @returns {emp.classLibrary.EmpRenderableObject}
    */
-  getChild: function (sCoreId) {
+  getChild: function(sCoreId) {
     return this.nodes[sCoreId];
   },
   /**
    * @param {string} sCoreId
    * @returns {emp.classLibrary.EmpRenderableObject}
    */
-  getParent: function (sCoreId) {
+  getParent: function(sCoreId) {
     if (this.parentNodes[sCoreId]) {
       return this.parentNodes[sCoreId].parent;
     }
@@ -630,7 +634,7 @@ emp.typeLibrary.base = {
   /**
    * @returns {boolean}
    */
-  isMultiParentRequired: function () {
+  isMultiParentRequired: function() {
     if (this.hasOwnProperty('properties') && this.properties.hasOwnProperty('multiParentRequired')) {
       return (this.properties.multiParentRequired === true);
     }
@@ -640,20 +644,20 @@ emp.typeLibrary.base = {
   /**
    * @returns {boolean}
    */
-  hasChildNodes: function () {
+  hasChildNodes: function() {
     return !emp.helpers.associativeArray.isEmpty(this.childNodes);
   },
   /**
    * @returns {string[]}
    */
-  getChildNodesCoreIds: function () {
+  getChildNodesCoreIds: function() {
     return emp.helpers.associativeArray.getKeys(this.childNodes);
   },
   /**
    * @param {string} sParentCodeId
    * @returns {boolean}
    */
-  getVisibilitySettingWithParent: function (sParentCodeId) {
+  getVisibilitySettingWithParent: function(sParentCodeId) {
     var sParentID = (sParentCodeId ? sParentCodeId : emp.storage.getRootGuid());
 
     if (this.isMultiParentRequired()) {
@@ -670,7 +674,7 @@ emp.typeLibrary.base = {
    * @param {string} sParentCodeId
    * @returns {boolean}
    */
-  getVisibilityWithParent: function (sParentCodeId) {
+  getVisibilityWithParent: function(sParentCodeId) {
     var sParentID = (sParentCodeId ? sParentCodeId : emp.storage.getRootGuid());
 
     if (this.isMultiParentRequired()) {
@@ -688,7 +692,7 @@ emp.typeLibrary.base = {
    * @param {boolean} bSetting
    * @returns {boolean}
    */
-  setVisibilityWithParent: function (sParentCodeId, bSetting) {
+  setVisibilityWithParent: function(sParentCodeId, bSetting) {
     var sParentID = (sParentCodeId ? sParentCodeId : emp.storage.getRootGuid());
     var bSend = false;
 
@@ -725,7 +729,7 @@ emp.typeLibrary.base = {
    * one path to the root that is totally visible.
    * @returns {Boolean}
    */
-  isVisible: function () {
+  isVisible: function() {
     var oParent;
     var bRet = false;
 

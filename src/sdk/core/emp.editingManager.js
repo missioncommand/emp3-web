@@ -1,3 +1,5 @@
+var emp = window.emp || {};
+
 /**
  * Controls the process of editing Features on the map.  Will
  * start the process to make sure all the messages are published
