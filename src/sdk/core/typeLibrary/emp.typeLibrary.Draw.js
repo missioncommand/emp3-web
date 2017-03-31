@@ -322,37 +322,8 @@ emp.typeLibrary.Draw = function (args) {
         }
     };
 
-    this.cancel = function(args) {
-        if (this.originFeature !== undefined)
-        {
-            // If originFeature exists an existing feature was placed into draw mode.
-            // and the user canceled the draw.
-            // Given that the map engines delete the feature upon terminating a draw
-            // we must re-plot it in its original form.
-
-            // This transaction will send the feature to the API's
-            var oToAPITrans = new emp.typeLibrary.Transaction({
-                intent: emp.intents.control.FEATURE_OUTBOUND_PLOT,
-                mapInstanceId: args.mapInstanceId,
-                source: emp.core.sources.MAP,
-                items:[this.originFeature]
-            });
-            // This transaction will cause the plot to go to the map.
-            var oToMapTran = new emp.typeLibrary.Transaction({
-                intent: emp.intents.control.MI_FEATURE_ADD,
-                mapInstanceId: args.mapInstanceId,
-                source: emp.core.sources.MAP,
-                sender: this.sender,
-                items: [this.originFeature]
-            });
-
-            // We postpone the execution of the transaction because we don't know
-            // if the map will delete the feature before calling the end event or after.
-            setTimeout(function(){
-                oToMapTran.run();
-                oToAPITrans.run();
-            }, 0);
-        }
+    this.cancel = function() {
+        // do nothing.  In v2 we used to issue a feature plot, but we no longer need to do this.
     };
 };
 emp.typeLibrary.Draw.prototype.validate = emp.typeLibrary.base.validate;
