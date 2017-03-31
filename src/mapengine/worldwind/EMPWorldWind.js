@@ -536,16 +536,20 @@ EMPWorldWind.Map.prototype = function() {
           message: ""
         };
 
-      layer = this.getLayer(feature.parentCoreId);
-      if (layer) {
-        layer.removeFeatureById(feature.coreId);
-        this.removeFeatureSelection(feature.coreId);
-        this.worldWindow.redraw();
-        rc.success = true;
-      }
-      else {
-        rc.messge = 'Could not find the parent overlay';
-      }
+  layer = this.getLayer(feature.parentCoreId);
+  if (layer) {
+    layer.removeFeatureById(feature.coreId);
+
+    this.removeFeatureSelection(feature.coreId);
+    if (this.features.hasOwnProperty(feature.coreId)) {
+      delete this.features[feature.coreId];
+    }
+    this.worldWindow.redraw();
+    rc.success = true;
+  }
+  else {
+    rc.messge = 'Could not find the parent overlay';
+  }
 
       return rc;
     },
