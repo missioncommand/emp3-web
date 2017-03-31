@@ -646,7 +646,7 @@ EMPWorldWind.Map.prototype = function() {
 
         // Remove if necessary
         if (!enable) {
-          _removeLayer.apply(this, layer);
+          _removeLayer.call(this, layer);
         }
       }
     },
@@ -1045,8 +1045,8 @@ EMPWorldWind.Map.prototype = function() {
         }
       }
 
-      vertical = _getVerticalPan.apply(this);
-      horizontal = _getHorizontalPan.apply(this);
+      vertical = _getVerticalPan.call(this);
+      horizontal = _getHorizontalPan.call(this);
 
       goToPosition = new WorldWind.Position(
         this.worldWindow.navigator.lookAtLocation.latitude + vertical,
