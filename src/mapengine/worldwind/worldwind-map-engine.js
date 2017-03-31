@@ -3,7 +3,6 @@ var emp = window.emp || {};
 emp.engineDefs = emp.engineDefs || {};
 
 
-
 /**
  * @classdesc EMP3 WorldWind Map Engine Interface
  *
@@ -20,6 +19,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   var engineInterface = emp.map.createEngineTemplate(),
     mapEngineExposed = engineInterface;
 
+  // Set engine capabilities
   engineInterface.implementation.displayName = "WorldWind Map Engine";
   engineInterface.implementation.version = "1.0.0";
   engineInterface.capabilities.mapType.type3D = true;
@@ -85,106 +85,115 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     });
   };
 
+
   /**
    * @todo drop this functionality into the map itself and expose a simpler call
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.view.set = function(transaction) {
-    var args, altitude, bottomLeft, topRight, feature, bufferScale,
-      t1, t2,
+    var args,
+      viewItem = transaction.items[0], // Extract the view item
       toRad = Math.PI / 180.0; // save a few divisions later
 
-    switch (transaction.items[0].globalType) {
-      case "view":
-        if (transaction.items[0].location) {
-          // Set camera
-          args = {
-            latitude: transaction.items[0].location.lat,
-            longitude: transaction.items[0].location.lon,
-            altitude: transaction.items[0].altitude,
-            tilt: transaction.items[0].tilt,
-            roll: transaction.items[0].roll,
-            heading: transaction.items[0].heading
-          };
-        }
-        else if (transaction.items[0].bounds) {
-          // Zoom to overlay
+    function _createArgsForLocationView(viewItem) {
+      return {
+        latitude: viewItem.location.lat,
+        longitude: viewItem.location.lon,
+        altitude: viewItem.altitude,
+        tilt: viewItem.tilt,
+        roll: viewItem.roll,
+        heading: viewItem.heading
+      };
+    }
 
-          // Express lat/lon as radians
-          bottomLeft = {
-            lat: transaction.items[0].bounds.west * toRad,
-            lon: transaction.items[0].bounds.south * toRad
-          };
+    function _createArgsForBoundsView(boundsItem) {
+      var bottomLeft, topRight, altitude,
+        t1, t2;
+      // Express lat/lon as radians
+      bottomLeft = {
+        lat: boundsItem.bounds.west * toRad,
+        lon: boundsItem.bounds.south * toRad
+      };
 
-          topRight = {
-            lat: transaction.items[0].bounds.east * toRad,
-            lon: transaction.items[0].bounds.north * toRad
-          };
+      topRight = {
+        lat: boundsItem.bounds.east * toRad,
+        lon: boundsItem.bounds.north * toRad
+      };
 
-          t1 = Math.pow(Math.sin((topRight.lat - bottomLeft.lat) / 2), 2);
-          t2 = Math.pow(Math.sin((topRight.lon - bottomLeft.lon) / 2), 2);
+      t1 = Math.pow(Math.sin((topRight.lat - bottomLeft.lat) / 2), 2);
+      t2 = Math.pow(Math.sin((topRight.lon - bottomLeft.lon) / 2), 2);
 
-          // Haversine formula
-          // TODO see if we can replace this with WorldWind functionality
-          altitude = 2 * WorldWind.EARTH_RADIUS * Math.asin(Math.sqrt(t1 + Math.cos(topRight.lat) * Math.cos(bottomLeft.lat) * t2));
+      // Haversine formula
+      // TODO see if we can replace this with WorldWind functionality
+      altitude = 2 * WorldWind.EARTH_RADIUS * Math.asin(Math.sqrt(t1 + Math.cos(topRight.lat) * Math.cos(bottomLeft.lat) * t2));
 
-          args = {
-            latitude: (transaction.items[0].bounds.north + transaction.items[0].bounds.south) / 2,
-            longitude: (transaction.items[0].bounds.east + transaction.items[0].bounds.west) / 2,
-            altitude: altitude,
-            tilt: 0,
-            roll: 0,
-            heading: 0
-          };
-        }
-        break;
-      case "feature":
-        bufferScale = 2.25; // Assume conic view from the camera
-        feature = transaction.items[0];
-        switch (feature.format) {
-          case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
-            altitude = feature.properties.radius * bufferScale;
-            break;
-          case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
-            altitude = Math.max(feature.properties.semiMajor, feature.properties.semiMinor) * bufferScale;
-            break;
-          case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
-            altitude = Math.max(feature.properties.width, feature.properties.height) * bufferScale;
-            break;
-          case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
-            altitude = feature.properties.width * bufferScale;
-            break;
-          case emp3.api.enums.FeatureTypeEnum.GEO_ACM: // TODO compute bounding box diagonal distance
-          default:
-            altitude = 10000; // Default to 10000m
-        }
+      return {
+        latitude: (boundsItem.bounds.north + boundsItem.bounds.south) / 2,
+        longitude: (boundsItem.bounds.east + boundsItem.bounds.west) / 2,
+        altitude: altitude,
+        tilt: 0,
+        roll: 0,
+        heading: 0
+      };
+    }
 
-        args = {
-          latitude: transaction.items[0].coordinates[1],
-          longitude: transaction.items[0].coordinates[0],
-          altitude: altitude,
-          tilt: 0,
-          roll: 0,
-          heading: 0
-        };
-        break;
-      default:
-        transaction.failures.push(transaction.items[0]);
+    function _createArgsForFeatureView(feature) {
+      var bufferScale = 2.25, altitude;
+
+      switch (feature.format) {
+        case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
+          altitude = feature.properties.radius * bufferScale;
+          break;
+        case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
+          altitude = Math.max(feature.properties.semiMajor, feature.properties.semiMinor) * bufferScale;
+          break;
+        case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
+          altitude = Math.max(feature.properties.width, feature.properties.height) * bufferScale;
+          break;
+        case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
+          altitude = feature.properties.width * bufferScale;
+          break;
+        case emp3.api.enums.FeatureTypeEnum.GEO_ACM: // TODO compute bounding box diagonal distance
+        default:
+          altitude = 10000; // Default to 10000m
+      }
+
+      return {
+        latitude: feature.coordinates[1],
+        longitude: feature.coordinates[0],
+        altitude: altitude,
+        tilt: 0,
+        roll: 0,
+        heading: 0
+      };
+    }
+
+    // Create the args to update the view
+    if (viewItem.globalType === "view") {
+      if (viewItem.location) {
+        args = _createArgsForLocationView(viewItem);
+      } else if (viewItem.bounds) {
+        args = _createArgsForBoundsView(viewItem);
+      }
+    } else if (viewItem.globalType === "feature") {
+      args = _createArgsForFeatureView(viewItem);
+    } else {
+      transaction.failures.push(viewItem);
     }
 
     // Check if we are animating
-    if (transaction.items[0].animate === true) {
+    if (viewItem.animate === true) {
       transaction.pause();
 
       args.animate = true;
       args.animateCB = function() {
 
         // If we animated update the returned values
-        transaction.items[0].location = {
+        viewItem.location = {
           lat: empWorldWind.getCenter().latitude,
           lon: empWorldWind.getCenter().longitude
         };
-        transaction.items[0].bounds = empWorldWind.getBounds();
+        viewItem.bounds = empWorldWind.getBounds();
 
         transaction.run();
         // Notify movement ended
@@ -197,11 +206,13 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     empWorldWind.centerOnLocation(args);
 
     // Set initial transaction return values, to be overwritten if the move is animated
-    transaction.items[0].location = {
+    viewItem.location = {
       lat: empWorldWind.getCenter().latitude,
       lon: empWorldWind.getCenter().longitude
     };
-    transaction.items[0].bounds = empWorldWind.getBounds();
+
+    // Update the bounds
+    viewItem.bounds = empWorldWind.getBounds();
   };
 
   /**
@@ -270,7 +281,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           message: rc.message
         }));
       }
-    }.bind(this));
+    });
 
     transaction.fail(failList);
   };
@@ -282,7 +293,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   engineInterface.wms.add = function(transaction) {
     emp.util.each(transaction.items, function(wms) {
       empWorldWind.addWMS(wms);
-    }.bind(this));
+    });
   };
 
   /**
@@ -292,7 +303,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   engineInterface.wms.remove = function(transaction) {
     emp.util.each(transaction.items, function(wms) {
       empWorldWind.removeWMS(wms);
-    }.bind(this));
+    });
   };
 
   /**
@@ -338,7 +349,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           message: rc.message
         }));
       }
-    }.bind(this));
+    });
   };
 
   /**
@@ -370,7 +381,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       if (feature.featureId in empWorldWind.features) {
         empWorldWind.features[feature.featureId].setVisible(feature.visible);
       }
-    }.bind(this));
+    });
     empWorldWind.refresh();
   };
 
@@ -380,6 +391,36 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    */
   engineInterface.map.config = function(transaction) {
     var bRangeChanged;
+
+    var propHandlerMap = {
+      "brightness": function(val) {
+        empWorldWind.setContrast(val);
+      },
+      "milStdIconLabels": function(val) {
+        empWorldWind.setLabelStyle(val);
+      },
+      "renderingOptimization": function(val) {
+        if (EMPWorldWind.utils.defined(val) && (val !== empWorldWind.enableRenderingOptimization)) {
+          bRangeChanged = true;
+          empWorldWind.enableRenderingOptimization = val;
+        }
+      },
+      "midDistanceThreshold": function(val) {
+        if (EMPWorldWind.utils.defined(val) && (val !== empWorldWind.singlePointAltitudeRanges.mid)) {
+          bRangeChanged = true;
+          empWorldWind.singlePointAltitudeRanges.mid = val;
+        }
+      },
+      "farDistanceThreshold": function(val) {
+        if (EMPWorldWind.utils.defined(val) && (val !== empWorldWind.singlePointAltitudeRanges.high)) {
+          bRangeChanged = true;
+          empWorldWind.singlePointAltitudeRanges.high = val;
+          //empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
+          //empCesium.processOnRangeChangeSinglePoints();
+        }
+      }
+    };
+
     // Iterate through each transaction item, check for properties and apply them
     emp.util.each(transaction.items, function(config) {
       var prop, value;
@@ -390,39 +431,16 @@ emp.engineDefs.worldWindMapEngine = function(args) {
             continue;
           }
 
+          // Extract the property
           value = config[prop];
 
-          switch (prop) {
-            case "brightness":
-              empWorldWind.setContrast(value);
-              break;
-            case "milStdIconLabels":
-              empWorldWind.setLabelStyle(value);
-              break;
-            case "renderingOptimization":
-              if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.enableRenderingOptimization)) {
-                bRangeChanged = true;
-                empWorldWind.enableRenderingOptimization = value;
-              }
-              break;
-            case "midDistanceThreshold":
-              if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.singlePointAltitudeRanges.mid)) {
-                bRangeChanged = true;
-                empWorldWind.singlePointAltitudeRanges.mid = value;
-              }
-              break;
-            case "farDistanceThreshold":
-              if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.singlePointAltitudeRanges.high)) {
-                bRangeChanged = true;
-                empWorldWind.singlePointAltitudeRanges.high = value;
-                //empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
-                //empCesium.processOnRangeChangeSinglePoints();
-              }
-              break;
-            default:
-              transaction.fail(new emp.typeLibrary.Error({
-                message: 'Config property ' + prop + ' is not supported by this engine'
-              }));
+          // Invoke the appropriate handler
+          if (propHandlerMap.hasOwnProperty(prop)) {
+            propHandlerMap[prop](value);
+          } else {
+            transaction.fail(new emp.typeLibrary.Error({
+              message: 'Config property ' + prop + ' is not supported by this engine'
+            }));
           }
 
           if (bRangeChanged) {
@@ -432,7 +450,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           }
         }
       }
-    }.bind(this));
+    });
   };
 
   /**
@@ -456,7 +474,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.capture.screenshot = function(transaction) {
-    return transaction.items[0].dataUrl = empWorldWind.screenshot();
+    transaction.items[0].dataUrl = empWorldWind.screenshot();
   };
 
   /**
