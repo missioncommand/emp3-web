@@ -429,9 +429,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.convert:
           this.convert(callInfo, message); // Synchronous call, does not need transactionId
           break;
-        case emp3.api.enums.channel.overlayClusterSet:
-          this.overlayClusterSet(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.overlayClusterActivate:
           this.overlayClusterActivate(callInfo, message, transactionId);
           break;
@@ -3322,22 +3319,6 @@ emp3.api.MessageHandler = (function() {
         mapId: callInfo.mapId,
         message: message
       });
-    };
-
-    this.overlayClusterSet = function(callInfo, message, transactionId) {
-      var payload;
-
-      if (callInfo.method === "Overlay.clusterSet") {
-        payload = {
-          overlayId: callInfo.args.overlay.id,
-          threshold: callInfo.args.cluster.threshold,
-          distance: callInfo.args.cluster.distance,
-          clusterStyle: callInfo.args.cluster.clusterStyle,
-          messageId: transactionId
-        };
-      }
-
-      this.validate(emp3.api.enums.channel.overlayClusterSet, payload);
     };
 
     this.overlayClusterActivate = function(callInfo, message, transactionId) {
