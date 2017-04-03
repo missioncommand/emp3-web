@@ -481,7 +481,16 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     }
   };
 
+  /**
+   * Creates a KML layer
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.kmllayer.add = function(transaction) {
+    emp.util.each(transaction.items, function(kmlLayer) {
+      empWorldWind.addKML(kmlLayer);
+    });
+  };
+
 // return the engineInterface object as a new engineTemplate instance
   return engineInterface;
-}
-;
+};

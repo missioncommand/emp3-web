@@ -695,6 +695,37 @@ EMPWorldWind.Map.prototype = function() {
     },
     /**
      *
+     * @param {emp.typeLibrary.KmlLayer} kml
+     */
+    addKML: function(kml) {
+      var kmlFilePromise,
+        kmlLayer = new EMPWorldWind.data.EmpKMLLayer(kml);
+
+      // // Build the KML file promise
+      kmlFilePromise = new WorldWind.KmlFile(kmlLayer.url);
+      kmlFilePromise
+        .then(function(kmlFile) {
+          // Construct the KML layer to hold the document
+          var kmlRenderableLayer = new WorldWind.RenderableLayer(kmlLayer.id);
+
+          // Add the KML layer to the map
+          kmlRenderableLayer.addRenderable(kmlFile);
+          this.worldWindow.addLayer(kmlRenderableLayer);
+
+          // Record the layer so we can remove/modify it later
+          this.layers[kmlLayer.id] = kmlLayer;
+        }.bind(this));
+    },
+    /**
+     *
+     * @param kml
+     */
+    removeKML: function(kml) {
+      // TODO
+      window.console.debug(kml);
+    },
+    /**
+     *
      * @param id
      * @returns {boolean}
      */
