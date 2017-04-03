@@ -696,8 +696,9 @@ EMPWorldWind.Map.prototype = function() {
     /**
      *
      * @param {emp.typeLibrary.KmlLayer} kml
+     * @param {function} cb
      */
-    addKML: function(kml) {
+    addKML: function(kml, cb) {
       var kmlFilePromise,
         kmlLayer = new EMPWorldWind.data.EmpKMLLayer(kml);
 
@@ -714,15 +715,29 @@ EMPWorldWind.Map.prototype = function() {
 
           // Record the layer so we can remove/modify it later
           this.layers[kmlLayer.id] = kmlLayer;
-        }.bind(this));
+          if (typeof cb === "function") {
+            return cb({success: true});
+          }
+        }.bind(this))
+        .catch(function() {
+          return cb({success: false, message: 'Failed to add KML Layer'});
+        });
     },
     /**
      *
-     * @param kml
+     * @param {emp.typeLibrary.KmlLayer} kml
+     * @param {function} cb
      */
-    removeKML: function(kml) {
-      // TODO
-      window.console.debug(kml);
+    removeKML: function(kml, cb) {
+      if (kml.coreId in this.layers) {
+        this.worldWindow.removeLayer(this.layers[kml.coreId]);
+        delete this.layers[kml.coreId];
+        this.worldWindow.redraw();
+      }
+
+      if (typeof cb === "function") {
+        return cb({success: true});
+      }
     },
     /**
      *

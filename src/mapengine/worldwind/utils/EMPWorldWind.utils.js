@@ -1176,4 +1176,3 @@ EMPWorldWind.Math.sign = function(value) {
 EMPWorldWind.Math.signNotZero = function(value) {
   return value < 0.0 ? -1.0 : 1.0;
 };
-

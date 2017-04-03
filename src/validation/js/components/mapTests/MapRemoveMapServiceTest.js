@@ -94,21 +94,21 @@ class MapRemoveMapServiceTest extends Component {
         </select>
 
         <h5>Map Services</h5>
-        <ul className='mdl-list' style={{maxHeight: '500px', overflowY:'auto'}}>
+        <ul className='mdl-list' style={{maxHeight: '500px', overflowY: 'auto'}}>
           {this.state.mapServices.map(service => {
             return (
-            <li key={service.geoId} className='mdl-list__item mdl-list__item--two-line'>
+              <li key={service.geoId} className='mdl-list__item mdl-list__item--two-line'>
               <span className='mdl-list__item-primary-content'>
                   {service.name}
-                  <span className='mdl-list__item-sub-title'>{service.url}</span>
+                <span className='mdl-list__item-sub-title'>{service.url}</span>
               </span>
-              <span className='mdl-list__item-secondary-action'>
+                <span className='mdl-list__item-secondary-action'>
                 <button className='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab'
                         onClick={() => this.removeService(service.geoId)}>
                   <i className='fa fa-times'/>
                 </button>
               </span>
-            </li>);
+              </li>);
           })}
           {this.state.mapServices.length === 0 ? <li className='mdl-list__item'>
             <span className='mdl-list__item-primary-content'>No Services Exist On This Map</span>
@@ -127,10 +127,11 @@ class MapRemoveMapServiceTest extends Component {
 }
 
 MapRemoveMapServiceTest.propTypes = {
-  maps: PropTypes.array.isRequired,
-  removeMapServices: PropTypes.func.isRequired,
-  addResult: PropTypes.func.isRequired,
-  addError: PropTypes.func.isRequired
+  maps: PropTypes.array,
+  mapServices: PropTypes.array,
+  removeMapServices: PropTypes.func,
+  addResult: PropTypes.func,
+  addError: PropTypes.func
 };
 
 export default MapRemoveMapServiceTest;

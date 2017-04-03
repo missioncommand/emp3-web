@@ -21,7 +21,7 @@ emp3.api.global = emp3.api.global || {
      * @name emp3.api.global#configuration
      */
     configuration: (function() {
-      var _urlProxy = "../urlproxy.jsp";
+      var _urlProxy = "./emp3/urlproxy.jsp";
 
       /**
        * @name emp3.api.global.configuration#urlProxy
