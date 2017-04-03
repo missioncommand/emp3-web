@@ -502,9 +502,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.get:
           this.get(callInfo, message, transactionId);
           break;
-        case emp3.api.enums.channel.cancel:
-          this.cancel(callInfo, message);
-          break;
         case emp3.api.enums.channel.mapShutdown:
           // Special case, needs to be handled here
           this.mapShutdown(callInfo, message, transactionId);
@@ -4004,30 +4001,6 @@ emp3.api.MessageHandler = (function() {
         mapId: callInfo.mapId,
         message: message
       });
-    };
-
-    /**
-     * Attempts to cancel a transaction before it finishes.  If the
-     * transaction has already been processed, no action occurs.  If the map
-     * cannot cancel it, not action occurs.  If the map can cancel
-     * the transaction the calling function associated with the transaction
-     * should handle any cancel responses
-     * in a callback.
-     *
-     * @param {object} callInfo
-     * @param {object} message
-     *
-     */
-    this.cancel = function(callInfo, message) {
-      var payload;
-
-      if (message && message.transaction && message.transaction.id) {
-        payload = {
-          messageId: message.transaction.id
-        };
-      }
-
-      this.validate(emp3.api.enums.channel.cancel, payload, callInfo);
     };
 
     /**

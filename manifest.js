@@ -262,6 +262,7 @@ var manifest = {
     'src/sdk/api/messages/map.feature.update.Message.js',
     'src/sdk/api/messages/map.feature.selected.Message.js',
     'src/sdk/api/messages/map.feature.deselected.Message.js',
+    'src/sdk/api/messages/map.message.cancel.Message.js',
     'src/sdk/api/messages/map.message.complete.Message.js',
     'src/sdk/api/messages/map.overlay.create.Message.js',
     'src/sdk/api/messages/map.overlay.update.Message.js',
