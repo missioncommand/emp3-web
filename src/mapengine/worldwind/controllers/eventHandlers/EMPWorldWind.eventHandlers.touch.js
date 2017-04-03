@@ -19,7 +19,7 @@ EMPWorldWind.eventHandlers.touch = {
    * Touch down event handler,
    * Approximates mousedown
    * @param {TouchEvent} event
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   touchstart: function(event) {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event.touches[0]);
@@ -31,7 +31,7 @@ EMPWorldWind.eventHandlers.touch = {
   /**
    * Touch end event handler
    * Approximates mouseup
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   touchend: function(/*event*/) {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, this.state.lastInteractionEvent.touches[0]);
@@ -50,7 +50,7 @@ EMPWorldWind.eventHandlers.touch = {
   /**
    * Touch move event handler
    * @param {TouchEvent} event
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   touchmove: function(event) {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event.touches[0]);
