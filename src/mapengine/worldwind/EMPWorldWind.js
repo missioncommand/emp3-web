@@ -730,7 +730,7 @@ EMPWorldWind.Map.prototype = function() {
      * @returns {boolean}
      */
     isFeatureSelected: function(id) {
-      return !!this.empSelections.hasOwnProperty(id);
+      return Boolean(this.empSelections.hasOwnProperty(id));
     },
     /**
      *
