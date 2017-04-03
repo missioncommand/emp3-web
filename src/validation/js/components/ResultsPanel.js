@@ -119,6 +119,7 @@ class ResultsPanel extends Component {
     return (
       <Modal
         id='resultsPanel'
+        contentLabel="Results"
         isOpen={this.props.isResultsOpen}
         onRequestClose={this.props.hideResults}
         style={modalStyle}>
