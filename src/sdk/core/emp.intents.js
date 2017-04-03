@@ -362,7 +362,10 @@ emp.intents.control.useNewEditing = function(args) {
  * each engine.
  */
 emp.intents.control.useNewDrawing = function(args) {
-  var result = false;
+  var result = false,
+    symbol = false,
+    milstd,
+    drawCategory;
 
   // At this point we need to decide if we are doing this the
   // old way or new way.  Until all the editors or done, we must
@@ -375,7 +378,24 @@ emp.intents.control.useNewDrawing = function(args) {
   // remove this code after all core editors have been complete.
   var item = args.items[0];
 
-  if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POINT) {
+  // Determine if this is a MIL Symbol.  The mil symbol categories can greatly
+  // vary, so we need to know the symbol code and standard for this.
+  if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+    symbol = true;
+
+    if (item.properties && item.properties.modifiers) {
+      milstd = item.properties.modifiers.standard;
+    }
+
+    drawCategory = emp.util.getDrawCategoryBySymbolId(item.symbolCode, milstd);
+
+  }
+
+  if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
+    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT)) {
+    result = true;
+  } else if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
+    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
     result = true;
   }
 

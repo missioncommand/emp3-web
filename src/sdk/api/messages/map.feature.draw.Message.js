@@ -18,6 +18,7 @@ function MapFeatureDrawMessage(message, callInfo, transactionId) {
   this.feature = message.feature;
 
   var properties = emp3.api.getProperties(this.feature);
+  // TODO: this is wrong for CMAPI 1.3.  We need to revisit this.
   var coordinates = emp3.api.convertCMAPIPositionsToGeoJson(this.feature.positions, this.feature.featureType);
 
   this.payload = {

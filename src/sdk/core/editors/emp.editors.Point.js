@@ -148,7 +148,8 @@ emp.editors.Point.prototype.drawStart = function(pointer) {
       format: this.featureCopy.format,
       data: {
         type: "Point",
-        coordinates: [pointer.lon, pointer.lat]
+        coordinates: [pointer.lon, pointer.lat],
+        symbolCode: this.featureCopy.symbolCode
       },
       properties: this.featureCopy.properties
   });

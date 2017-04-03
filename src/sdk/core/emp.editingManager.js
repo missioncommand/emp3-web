@@ -47,6 +47,7 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
+    /*
     else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON) {
       // This is a polygon.   MIL-STD polygons are handled slightly different
       // so there is a separate editor for those.
@@ -96,6 +97,7 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
+    */
 
     return activeEditor;
   };
@@ -256,34 +258,38 @@ emp.editingManager = function(args) {
 
       item = transaction.items[0];
 
-      // Sometimes the draw needs to start
-      // with a pre-existing symbol.  If that is the
-      // case then create the feature to draw.  If not,
-      // just prepare the feature for drawing.
-      if (item.featureId) {
-        feature = new emp.typeLibrary.Feature({
-          overlayId: "vertices",
-          featureId: emp3.api.createGUID(),
-          format: item.type,
-          symbolCode: item.symbolCode,
-          data: item.coordinates,
-          properties: item.properties
-        });
-      } else {
-        feature = new emp.typeLibrary.Feature({
-          overlayId: "vertices",
-          featureId: emp3.api.createGUID(),
-          format: item.type,
-          symbolCode: item.symbolCode,
-          data: {},
-          properties: item.properties
-        });
-      }
+      // The draw needs to return a feature.  Prepare this feature.
+      // Sometimes an existing feature is passed into the draw.  Make
+      // sure to copy the feature's properties and coordinates.
+      feature = new emp.typeLibrary.Feature({
+        overlayId: "vertices",
+        featureId: emp3.api.createGUID(),
+        format: item.type,
+        data: {
+          // type: TODO: get correct type here.  We are going to have to
+          // redo CMAPI channel to correct.
+          coordinates: item.coordinates,
+          symbolCode: item.symbolCode
+        },
+        properties: item.properties
+      });
+
 
       // The feature prior to any changes occurring.
       originalFeature = emp.helpers.copyObject(feature);
 
       activeEditor = getEditor(feature);
+
+      // send out the callback to the user that the draw started.
+      editTransaction.items[0].update({
+        name: editTransaction.items[0].name,
+        updates: {},
+        properties: editTransaction.items[0].properties,
+        updateEventType: emp.typeLibrary.UpdateEventType.START,
+        mapInstanceId: mapInstance.mapInstanceId,
+        data: feature.data,
+        format: feature.format
+      });
 
     },
 
@@ -432,7 +438,9 @@ emp.editingManager = function(args) {
         updates: updateData.coordinateUpdate,
         properties: updateData.properties,
         updateEventType: emp.typeLibrary.UpdateEventType.COMPLETE,
-        mapInstanceId: mapInstance.mapInstanceId
+        mapInstanceId: mapInstance.mapInstanceId,
+        data: feature.data,
+        format: feature.format
       });
 
 
@@ -627,14 +635,6 @@ emp.editingManager = function(args) {
      * Occurs the first time the user clicks on the map.
      */
     drawStart: function(pointer) {
-
-      editTransaction.items[0].update({
-        name: editTransaction.items[0].name,
-        updates: {},
-        properties: editTransaction.items[0].properties,
-        updateEventType: emp.typeLibrary.UpdateEventType.START,
-        mapInstanceId: mapInstance.mapInstanceId
-      });
 
       updateData = activeEditor.drawStart(pointer);
     },

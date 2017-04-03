@@ -43,6 +43,7 @@ function MapFeaturePlotMessage(message, callInfo, transactionId) {
         break;
     }
 
+// TODO: We need to follow the standard for MIL-STD-2525 according to CMAPI 1.3 spec.
     payload = {
       overlayId: message.overlayId,
       featureId: feature.geoId,
