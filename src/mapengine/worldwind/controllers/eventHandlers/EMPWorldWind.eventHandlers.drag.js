@@ -17,7 +17,7 @@ EMPWorldWind.eventHandlers.drag = {
   /**
    *
    * @param {WWDragEvent} event
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   began: function (/*event*/) {
     //window.console.debug(event);
@@ -25,7 +25,7 @@ EMPWorldWind.eventHandlers.drag = {
   /**
    *
    * @param {WWDragEvent} event
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   changed: function (/*event*/) {
     //window.console.debug(event);
@@ -33,7 +33,7 @@ EMPWorldWind.eventHandlers.drag = {
   /**
    *
    * @param {WWDragEvent} event
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   ended: function (/*event*/) {
     //window.console.debug(event);
