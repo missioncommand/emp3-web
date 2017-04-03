@@ -37,17 +37,10 @@ emp.editors.Square.prototype.addControlPoints = function() {
     azimuthFeature,
     x, y;
 
-  // We have an issue in that GEO_SQUARE uses GeoJSON Point, and all
-  // MIL-STD-2525 symbols use LineString, even though it is a single point.
-  // So we store the x/y values so we can use them univerally throughout the
-  // function.
-  if (this.featureCopy.data.type === 'Point') {
-    x = this.featureCopy.data.coordinates[0];
-    y = this.featureCopy.data.coordinates[1];
-  } else if (this.featureCopy.data.type === 'LineString') {
-    x = this.featureCopy.data.coordinates[0][0];
-    y = this.featureCopy.data.coordinates[0][1];
-  }
+  // We have an issue in that GEO_SQUARE uses GeoJSON Point
+  x = this.featureCopy.data.coordinates[0];
+  y = this.featureCopy.data.coordinates[1];
+  
 
   // Create a feature on the map for the center of the square.  This is
   // the center vertex.
@@ -77,24 +70,11 @@ emp.editors.Square.prototype.addControlPoints = function() {
   this.center = vertex;
   items.push(controlPoint);
 
-  // get the width, height, and azimuth for our calculations.  This properties will
-  // be different for a GEO_SQUARE and a GEO_MIL_SYMBOL.  Pull from the
-  // correct properties.
-  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
-    width = this.featureCopy.properties.width;
-    height = this.featureCopy.properties.width;//was height
-    azimuth = this.featureCopy.properties.azimuth;
-  } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-    width = this.featureCopy.properties.modifiers.distance[0];
-    height = this.featureCopy.properties.modifiers.distance[1];
-    // if no azimuth is set, set the azimuth to 0;
-    if (this.featureCopy.properties.modifiers.azimuth) {
-      azimuth = this.featureCopy.properties.modifiers.azimuth[0];
-    } else {
-      this.featureCopy.properties.modifiers.azimuth = [0];
-      azimuth = 0;
-    }
-  }
+  // get the width, height, and azimuth for our calculations.
+  width = this.featureCopy.properties.width;
+  height = this.featureCopy.properties.height || this.featureCopy.properties.width;
+  azimuth = this.featureCopy.properties.azimuth;
+  
 
   // get the position of the point that controls the width of the feature.
   widthPoint = emp.geoLibrary.geodesic_coordinate({
@@ -172,7 +152,6 @@ emp.editors.Square.prototype.addControlPoints = function() {
     }
   });
 
-  //items.push(widthFeature);
   items.push(heightFeature);
   items.push(azimuthFeature);
 
@@ -187,7 +166,6 @@ emp.editors.Square.prototype.addControlPoints = function() {
   this.height = heightVertex;
   this.azimuth = azimuthVertex;
 
-  //this.vertices.push(widthVertex);
   this.vertices.push(heightVertex);
   this.vertices.push(azimuthVertex);
 
@@ -232,28 +210,18 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     delta,
     x, y;
 
-  // Normal GEO_SQUARE will use GeoJSON type "Point", but MIL_STD_SYMBOL will
-  // be GeoJson type "LineString".  Retrieve the coordinates so we do not have
-  // to make this distinction later.
-  if (this.featureCopy.data.type === 'Point') {
-    x = this.featureCopy.data.coordinates[0];
-    y = this.featureCopy.data.coordinates[1];
-  } else if (this.featureCopy.data.type === 'LineString') {
-    x = this.featureCopy.data.coordinates[0][0];
-    y = this.featureCopy.data.coordinates[0][1];
-  }
+  // Normal GEO_SQUARE will use GeoJSON type "Point",
+  x = this.featureCopy.data.coordinates[0];
+  y = this.featureCopy.data.coordinates[1];
+  
 
   // Find the vertex in our vertices collection and retrieve the feature.
   currentVertex = this.vertices.find(featureId);
   currentFeature = currentVertex.feature;
 
-  // get the old azimuth.  The azimuth is stored in different properties
-  // for a GEO_SQUARE than a GEO_MIL_SYMBOL.
-  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
-    azimuth = this.featureCopy.properties.azimuth;
-  } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-    azimuth = this.featureCopy.properties.modifiers.azimuth[0];
-  }
+  // get the old azimuth.
+  azimuth = this.featureCopy.properties.azimuth;
+  
 
   // Determine which control point was moved and react appropriately.
   // Because this is a square we only want to display and update the height control point
@@ -268,13 +236,9 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
-    // store the new height in the feature.  It is stored differently for GEO_SQUARE
-    // and GEO_MIL_SYMBOL.
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
-      this.featureCopy.properties.height = heightDistance * 2;
-    } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      this.featureCopy.properties.modifiers.distance[1] = heightDistance * 2;
-    }
+    // store the new height in the feature. 
+    this.featureCopy.properties.height = heightDistance * 2;
+    
 
     // Calculate the position of the new height control point.
     newHeightPosition = emp.geoLibrary.geodesic_coordinate({
@@ -288,12 +252,9 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     // because this is a square we need the width to be the same as well
     widthDistance = heightDistance;
     // since we are measuring the distance between the edget and center we multiply
-    // the width by 2.  The width is stored differently for GEO_SQUARE and GEO_MIL_SYMBOL
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
-      this.featureCopy.properties.width = widthDistance * 2;
-    } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      this.featureCopy.properties.modifiers.distance[0] = widthDistance * 2;
-    }
+    // the width by 2.  L
+    this.featureCopy.properties.width = widthDistance * 2;
+    
 
     // Get the positions of where the new control points will be.
     newWidthPosition = emp.geoLibrary.geodesic_coordinate({
@@ -353,11 +314,8 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     newAzimuth = azimuth + delta;
 
     // update our copy of the feature with the new azimuth parameter.
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
-      this.featureCopy.properties.azimuth = newAzimuth;
-    } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      this.featureCopy.properties.modifiers.azimuth = [newAzimuth];
-    }
+    this.featureCopy.properties.azimuth = newAzimuth;
+
 
     // adjust the vertices of the width, height, and rotation vertices.
     widthDistance = emp.geoLibrary.measureDistance(this.width.feature.data.coordinates[1],
@@ -393,55 +351,6 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     items.push(this.height.feature);
     items.push(this.azimuth.feature);
 
-  } else {
-
-    currentFeature.data.coordinates = [pointer.lon, pointer.lat];
-
-    // Normal GEO_SQUARE is stored as a GeoJSON Point, but MIL_STD_SYMBOL will be
-    // of type GeoJSON LineString.  Get the coordinates once so we don't have to
-    // keep checking this.
-    if (this.featureCopy.data.type === 'Point') {
-      this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
-    } else if (this.featureCopy.data.type === 'LineString') {
-      this.featureCopy.data.coordinates = [[pointer.lon, pointer.lat]];
-    }
-
-    // Get the properties for width, height and azimuth.  They are stored
-    // in different locations in GEO_SQUARE than in GEO_MIL_SYMBOL.
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
-      widthDistance = this.featureCopy.properties.width;
-      heightDistance = this.featureCopy.properties.width;
-      azimuth = this.featureCopy.properties.azimuth;
-    } else if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      widthDistance = this.featureCopy.properties.modifiers.distance[0];
-      heightDistance = this.featureCopy.properties.modifiers.distance[1];
-      azimuth = this.featureCopy.properties.modifiers.azimuth[0];
-    }
-
-    // Calculate the new positions of the control points.
-    newWidthPosition = emp.geoLibrary.geodesic_coordinate({
-      x: x,
-      y: y
-    }, widthDistance / 2, 90 + azimuth);
-
-    newHeightPosition = emp.geoLibrary.geodesic_coordinate({
-      x: x,
-      y: y
-    }, heightDistance / 2, azimuth);
-
-    newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
-      x: x,
-      y: y
-    }, widthDistance / 2, -90 + azimuth);
-
-    // update the control point positions.
-    this.width.feature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
-    this.height.feature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
-    this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
-
-    items.push(this.width.feature);
-    items.push(this.height.feature);
-    items.push(this.azimuth.feature);
   }
 
   items.push(this.featureCopy);
