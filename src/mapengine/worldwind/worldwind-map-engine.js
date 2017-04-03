@@ -3,7 +3,6 @@ var emp = window.emp || {};
 emp.engineDefs = emp.engineDefs || {};
 
 
-
 /**
  * @classdesc EMP3 WorldWind Map Engine Interface
  *
@@ -14,7 +13,7 @@ emp.engineDefs = emp.engineDefs || {};
 emp.engineDefs.worldWindMapEngine = function(args) {
 
   var empMapInstance = args.mapInstance;
-  /** @type EMPWorldWind.map# */
+  /** @type EMPWorldWind.Map# */
   var empWorldWind;
 
   var engineInterface = emp.map.createEngineTemplate(),
@@ -57,7 +56,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
 
   /**
    * Initialization
-   * @param {EMPWorldWind.map} empWorldWindInstance
+   * @param {EMPWorldWind.Map} empWorldWindInstance
    */
   engineInterface.initialize.succeed = function(empWorldWindInstance) {
     // Add initialization code here
@@ -270,7 +269,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           message: rc.message
         }));
       }
-    }.bind(this));
+    });
 
     transaction.fail(failList);
   };
@@ -282,7 +281,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   engineInterface.wms.add = function(transaction) {
     emp.util.each(transaction.items, function(wms) {
       empWorldWind.addWMS(wms);
-    }.bind(this));
+    });
   };
 
   /**
@@ -292,7 +291,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   engineInterface.wms.remove = function(transaction) {
     emp.util.each(transaction.items, function(wms) {
       empWorldWind.removeWMS(wms);
-    }.bind(this));
+    });
   };
 
   /**
@@ -338,7 +337,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           message: rc.message
         }));
       }
-    }.bind(this));
+    });
   };
 
   /**
@@ -370,7 +369,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       if (feature.featureId in empWorldWind.features) {
         empWorldWind.features[feature.featureId].setVisible(feature.visible);
       }
-    }.bind(this));
+    });
     empWorldWind.refresh();
   };
 
@@ -380,6 +379,42 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    */
   engineInterface.map.config = function(transaction) {
     var bRangeChanged;
+
+    var configHandlers = {
+      "brightness": function(value) {
+        empWorldWind.setContrast(value);
+      },
+      "milStdIconLabels": function(value) {
+        empWorldWind.setLabelStyle(value);
+      },
+      "renderingOptimization": function(value) {
+        if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.enableRenderingOptimization)) {
+          bRangeChanged = true;
+          empWorldWind.enableRenderingOptimization = value;
+        }
+      },
+      "midDistanceThreshold": function(value) {
+        if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.singlePointAltitudeRanges.mid)) {
+          bRangeChanged = true;
+          empWorldWind.singlePointAltitudeRanges.mid = value;
+        }
+      },
+      "farDistanceThreshold": function(value) {
+        if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.singlePointAltitudeRanges.high)) {
+          bRangeChanged = true;
+          empWorldWind.singlePointAltitudeRanges.high = value;
+          //empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
+          //empCesium.processOnRangeChangeSinglePoints();
+        }
+      },
+      "selectionScale": function(value) {
+        empWorldWind.setSelectionScale(value);
+      },
+      "selectionColor": function(value) {
+        empWorldWind.setSelectionColor(value);
+      }
+    };
+
     // Iterate through each transaction item, check for properties and apply them
     emp.util.each(transaction.items, function(config) {
       var prop, value;
@@ -390,39 +425,16 @@ emp.engineDefs.worldWindMapEngine = function(args) {
             continue;
           }
 
+          // Extract the value
           value = config[prop];
 
-          switch (prop) {
-            case "brightness":
-              empWorldWind.setContrast(value);
-              break;
-            case "milStdIconLabels":
-              empWorldWind.setLabelStyle(value);
-              break;
-            case "renderingOptimization":
-              if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.enableRenderingOptimization)) {
-                bRangeChanged = true;
-                empWorldWind.enableRenderingOptimization = value;
-              }
-              break;
-            case "midDistanceThreshold":
-              if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.singlePointAltitudeRanges.mid)) {
-                bRangeChanged = true;
-                empWorldWind.singlePointAltitudeRanges.mid = value;
-              }
-              break;
-            case "farDistanceThreshold":
-              if (EMPWorldWind.utils.defined(value) && (value !== empWorldWind.singlePointAltitudeRanges.high)) {
-                bRangeChanged = true;
-                empWorldWind.singlePointAltitudeRanges.high = value;
-                //empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
-                //empCesium.processOnRangeChangeSinglePoints();
-              }
-              break;
-            default:
-              transaction.fail(new emp.typeLibrary.Error({
-                message: 'Config property ' + prop + ' is not supported by this engine'
-              }));
+          // Check if there is a handler for the property
+          if (configHandlers.hasOwnProperty(prop)) {
+            configHandlers[prop](value);
+          } else {
+            transaction.fail(new emp.typeLibrary.Error({
+              message: 'Config property ' + prop + ' is not supported by this engine'
+            }));
           }
 
           if (bRangeChanged) {
@@ -432,7 +444,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
           }
         }
       }
-    }.bind(this));
+    });
   };
 
   /**
@@ -469,6 +481,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     }
   };
 
-  // return the engineInterface object as a new engineTemplate instance
+// return the engineInterface object as a new engineTemplate instance
   return engineInterface;
-};
+}
+;

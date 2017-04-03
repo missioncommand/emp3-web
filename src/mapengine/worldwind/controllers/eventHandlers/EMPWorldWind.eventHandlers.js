@@ -38,7 +38,7 @@ EMPWorldWind.eventHandlers.throttle = function(fn, threshold, scope) {
  * the navigator which is based on the lookAt location.
  *
  * @param {emp3.api.enums.CameraEventType} [viewEventType]
- * @this EMPWorldWind.map
+ * @this EMPWorldWind.Map
  */
 EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
   var view = {
@@ -83,7 +83,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
 /**
  * Notify the that a re-render of the MilStd graphics is required based off of a delta from the last time the renderer
  * was called. This may trigger based on altitude delta or distance delta.
- * @this EMPWorldWind.map
+ * @this EMPWorldWind.Map
  */
 EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
   // TODO trigger this less often or on a timer

@@ -62,6 +62,7 @@ EMPWorldWind.editors.EditorController = (function() {
       highlightAttributes = new WorldWind.PlacemarkAttributes(attributes);
       highlightAttributes.imageColor = WorldWind.Color.WHITE;
       highlightAttributes.imageOffset = imageOffset;
+      highlightAttributes.imageScale = this.state.selectionStyle.scale;
 
       // Note that this is done statically, if the selection style changes a bulk update to every feature will need to be done
       selectedModifiers = Object.assign({}, modifiers);
@@ -233,7 +234,7 @@ EMPWorldWind.editors.EditorController = (function() {
    * Async function
    * @param {emp.typeLibrary.Feature} feature
    * @param {PlotFeatureCB} callback
-   * @this EMPWorldWind.map
+   * @this EMPWorldWind.Map
    */
   function asyncPlotKMLFeature(feature, callback) {
     var url, kmlFilePromise, kmlLayer, wwFeature,
@@ -277,7 +278,7 @@ EMPWorldWind.editors.EditorController = (function() {
      *
      * @param {emp.typeLibrary.Feature} empFeature
      * @param {PlotFeatureCB} callback Callback to be invoked on completion
-     * @this EMPWorldWind.map
+     * @this EMPWorldWind.Map
      */
     plotFeature: function(empFeature, callback) {
       var wwFeature, layer, buildShapes, shapes;
@@ -358,7 +359,7 @@ EMPWorldWind.editors.EditorController = (function() {
      * @param {EMPWorldWind.data.EmpFeature} wwFeature
      * @param {emp.typeLibrary.Feature} empFeature
      * @param {PlotFeatureCB} callback
-     * @this EMPWorldWind.map
+     * @this EMPWorldWind.Map
      */
     updateFeature: function(wwFeature, empFeature, callback) {
       var layer,
@@ -440,7 +441,7 @@ EMPWorldWind.editors.EditorController = (function() {
     /**
      *
      * @param {EMPWorldWind.data.EmpFeature} wwFeature
-     * @this EMPWorldWind.map
+     * @this EMPWorldWind.Map
      */
     updateFeatureLabelStyle: function(wwFeature) {
       var shapes,
