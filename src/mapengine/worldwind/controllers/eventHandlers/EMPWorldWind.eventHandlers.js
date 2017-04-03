@@ -86,56 +86,87 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
  * @this EMPWorldWind.Map
  */
 EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
-  // TODO trigger this less often or on a timer
   this.state.lastRender.bounds = this.getBounds();
   this.state.lastRender.altitude = this.worldWindow.navigator.range;
+
+  /**
+   * @param feature
+   * @this EMPWorldWind.Map
+   * @private
+   */
+  function _handleMidOrLowRange(feature) {
+    feature.isHighAltitudeRangeImage = false;
+    feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+    feature.feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+    feature.singlePointAltitudeRangeChanged = false;
+  }
+
+  /**
+   * @param feature
+   * @this EMPWorldWind.Map
+   * @private
+   */
+  function _handleHighRange(feature) {
+    feature.isHighAltitudeRangeImage = true;
+    //  dot image based on affiliation
+    feature.shapes[0].attributes._imageSource = EMPWorldWind.utils.selectHighAltitudeRangeImage(feature.feature.symbolCode);
+    feature.shapes[0].highlightAttributes._imageSource = feature.shapes[0].attributes._imageSource;
+    feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+    feature.feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+    feature.singlePointAltitudeRangeChanged = false;
+  }
+
+  /**
+   * @param feature
+   * @this EMPWorldWind.Map
+   * @private
+   */
+  function _handleMultiPoint(feature) {
+    if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
+      feature.feature.wasClipped)) {
+      // optimization - update feature only if inside view region and  (range outside range epsilon or was clipped)
+      this.plotFeature(feature);
+    }
+  }
+
+  /**
+   * @param feature
+   * @this EMPWorldWind.Map
+   * @private
+   */
+  function _handleSinglePoint(feature) {
+    var callRenderer = false;
+    feature.singlePointAltitudeRangeChanged = feature.singlePointAltitudeRangeMode !== this.singlePointAltitudeRangeMode;
+
+    if (feature.singlePointAltitudeRangeChanged) {
+      if ((this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE) && (this.iconLabelOption !== 'none') ||
+        this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.MID_RANGE) {
+        callRenderer = true;
+        _handleMidOrLowRange.call(this, feature);
+      } else if (this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) {
+        _handleHighRange.call(this, feature);
+      }
+    }
+
+    // Redraw if necessary
+    if (callRenderer) {
+      this.plotFeature(feature);
+    }
+  }
 
   emp.util.each(Object.keys(this.features), function(featureId) {
     var feature = this.features[featureId];
 
-    // TODO check if the symbol is visible first
     if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "LineString") {
-      if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
-        feature.feature.wasClipped)) {
-        // optimization - update feature only if inside view region and  (range outside range epsilon or was cliiped)
-        this.plotFeature(feature);
-      }
-    }
-    else if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
+      _handleMultiPoint.call(this, feature);
+    } else if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "Point") {
-      //optimization
-      var callRenderer = false;
-      feature.singlePointAltitudeRangeChanged = feature.singlePointAltitudeRangeMode !== this.singlePointAltitudeRangeMode;
-
-      if (feature.singlePointAltitudeRangeChanged && (this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE) && (this.iconLabelOption !== 'none')) {
-        callRenderer = true;
-        feature.isHighAltitudeRangeImage = false;
-        feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
-        feature.feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
-        feature.singlePointAltitudeRangeChanged = false;
-      }
-      else if (feature.singlePointAltitudeRangeChanged && this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.MID_RANGE) {
-        callRenderer = true;
-        feature.isHighAltitudeRangeImage = false;
-        feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
-        feature.feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
-        feature.singlePointAltitudeRangeChanged = false;
-      }
-      else if (feature.singlePointAltitudeRangeChanged && this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) {
-        feature.isHighAltitudeRangeImage = true;
-        //  dot image based on affiliation
-        feature.shapes[0].attributes._imageSource = EMPWorldWind.utils.selectHighAltitudeRangeImage(feature.feature.symbolCode);
-        feature.shapes[0].highlightAttributes._imageSource = feature.shapes[0].attributes._imageSource;
-        feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
-        feature.feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
-        feature.singlePointAltitudeRangeChanged = false;
-      }
-      if (callRenderer) {
-        this.plotFeature(feature);
-      }
+      // Optimization required
+      _handleSinglePoint.call(this, feature);
     }
   }.bind(this));
+
   this.worldWindow.redraw();
 };
 
