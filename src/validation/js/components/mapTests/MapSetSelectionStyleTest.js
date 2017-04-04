@@ -2,7 +2,6 @@ import React, {Component, PropTypes} from 'react';
 import RelatedTests from '../../containers/RelatedTests';
 import {VText, MapSelect} from '../shared';
 
-
 class MapSetSelectionStyleTest extends Component {
   constructor(props) {
     super(props);
@@ -38,7 +37,7 @@ class MapSetSelectionStyleTest extends Component {
       this.setState({
         color: event.target.value
       });
-    } else if(event.target.id === "mapSelectStyle-scale") {
+    } else if (event.target.id === "mapSelectStyle-scale") {
       this.setState({
         scale: event.target.value
       });
@@ -46,7 +45,8 @@ class MapSetSelectionStyleTest extends Component {
   }
 
   setStyle() {
-    const map = _.find(this.props.maps, {geoId: this.state.selectedMapId});
+    const {maps} = this.props;
+    const map = _.find(maps, {geoId: this.state.selectedMapId});
 
     try {
       map.setSelectionStyle({
@@ -59,34 +59,46 @@ class MapSetSelectionStyleTest extends Component {
   }
 
   render() {
+    const {maps} = this.props;
 
     return (
       <div className='mdl-layout'>
-        <h3>Select the Selection Style</h3>
+        <span className="mdl-layout-title">Select the Selection Style</span>
+
+        <div className="mdl-cell mdl-cell--12-col">
+          <MapSelect label='Map'
+                     maps={maps}
+                     selectedMapId={this.state.selectedMapId}
+                     callback={this.updateSelectedMap}/>
+        </div>
 
 
-        <MapSelect label='Map'
-                  selectedMapId={this.state.selectedMapId}
-                  callback={this.updateSelectedMapId}/>
+        <VText id='mapSelectStyle-color'
+               className="mdl-cell mdl-cell--12-col"
+               label='color'
+               value={this.state.color}
+               callback={this.update}/>
 
+        <VText id='mapSelectStyle-scale'
+               className="mdl-cell mdl-cell--12-col"
+               label='scale'
+               value={this.state.scale}
+               callback={this.update}/>
 
-        <VText id='mapSelectStyle-color' label='color' value={this.state.color} callback={this.update} />
-        <VText id='mapSelectStyle-scale' label='scale' value={this.state.scale} callback={this.update} />
-
-        <button className='mdl-button mdl-js-button mdl-button--raised mdl-button--colored'
+        <button className='mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
                 onClick={this.setStyle}
                 disabled={this.state.selectedMapId === ''}>
-                Change Style
+          Change Style
         </button>
 
         <RelatedTests relatedTests={[
-          {text: 'Select Feature', target:'mapSelectFeatureTest'},
-          {text: 'Select Features', target:'mapSelectFeaturesTest'},
-          {text: 'Deselect Feature', target:'mapDeselectFeatureTest'},
-          {text: 'Deselect Features', target:'mapDeselectFeaturesTest'},
-          {text: 'Clear Selection', target:'mapClearSelectedTest'},
-          {text: 'Get Selected Features', target:'mapGetSelectedTest'},
-          {text: 'Check Features for Selection', target:'mapIsSelectedTest'}
+          {text: 'Select Feature', target: 'mapSelectFeatureTest'},
+          {text: 'Select Features', target: 'mapSelectFeaturesTest'},
+          {text: 'Deselect Feature', target: 'mapDeselectFeatureTest'},
+          {text: 'Deselect Features', target: 'mapDeselectFeaturesTest'},
+          {text: 'Clear Selection', target: 'mapClearSelectedTest'},
+          {text: 'Get Selected Features', target: 'mapGetSelectedTest'},
+          {text: 'Check Features for Selection', target: 'mapIsSelectedTest'}
         ]}/>
       </div>
     );
@@ -94,7 +106,7 @@ class MapSetSelectionStyleTest extends Component {
 }
 
 MapSetSelectionStyleTest.propTypes = {
-  maps: PropTypes.array.isRequired
+  maps: PropTypes.array
 };
 
 export default MapSetSelectionStyleTest;
