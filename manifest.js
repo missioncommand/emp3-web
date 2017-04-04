@@ -72,6 +72,7 @@ var manifest = {
     'src/sdk/core/editors/emp.editors.Polygon.js',
     'src/sdk/core/editors/emp.editors.MilStdPolygon.js',
     'src/sdk/core/editors/emp.editors.Circle.js',
+    'src/sdk/core/editors/emp.editors.Ellipse.js',
     'src/sdk/core/editors/emp.editors.Rectangle.js',
     'src/sdk/core/editors/emp.editors.AxisOfAdvance.js',
     'src/sdk/core/environment/owf/emp.environment.owf.js',
