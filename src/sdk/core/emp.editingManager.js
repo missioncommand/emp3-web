@@ -46,7 +46,7 @@ emp.editingManager = function(args) {
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }    
+    }
     else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON) {
       // This is a polygon.   MIL-STD polygons are handled slightly different
       // so there is a separate editor for those.
@@ -498,7 +498,6 @@ emp.editingManager = function(args) {
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.
       if (originalFeature && featureId === originalFeature.featureId && activeEditor.isFeature(featureId)) {
-        console.log("original feature!");
 
         // If this is the feature we are editing, raise a feature drag
         // event.
@@ -519,7 +518,6 @@ emp.editingManager = function(args) {
       } // If we are dragging a control point, we don't want
       // any events going out, because it is not a feature.
       else if (activeEditor.isControlPoint(featureId)) {
-        console.log("control point!");
         updateData = activeEditor.startMoveControlPoint(featureId, pointer);
 
         if (updateData) {
@@ -639,6 +637,17 @@ emp.editingManager = function(args) {
     drawStart: function(pointer) {
 
       updateData = activeEditor.drawStart(pointer);
+
+      if (updateData) {
+
+        editTransaction.items[0].update({
+          name: feature.name,
+          updates: updateData.coordinateUpdate,
+          properties: updateData.properties,
+          updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
+          mapInstanceId: mapInstance.mapInstanceId
+        });
+      }
     },
 
     /**
@@ -662,6 +671,17 @@ emp.editingManager = function(args) {
       // updateData.
       if (updates) {
         updateData = updates;
+
+        if (updateData) {
+
+          editTransaction.items[0].update({
+            name: feature.name,
+            updates: updateData.coordinateUpdate,
+            properties: updateData.properties,
+            updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
+            mapInstanceId: mapInstance.mapInstanceId
+          });
+        }
       }
     }
   };

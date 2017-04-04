@@ -17,118 +17,158 @@ function initializeWorldwind(args) {
   args.engine.properties.layers = args.engine.properties.layers || {};
   args.engine.properties.defaultLayers = args.engine.properties.defaultLayers || [];
 
-  var resourceList = [];
-
-  function createWorldWindInstance(instArgs) {
-    var i;
+  /**
+   * Generates the correct list of resource files
+   * @param args
+   * @private
+   */
+  function _generateResourceList(args) {
+    var debug, resourceList;
 
     try {
-      instArgs.mapInstance.engine = new emp.engineDefs.worldWindMapEngine({
-        mapInstance: instArgs.mapInstance
-      });
+      debug = args.engine.properties.debug;
+    } catch (err) {
+      debug = false;
+    }
 
-      var container = document.getElementById(instArgs.mapInstance.container.get());
+    if (debug) {
+      resourceList = [
+        "worldwind.js",
+        "worldwind-map-engine.js",
+        "EMPWorldWind.js",
+        "data/EMPWorldWind.data.js",
+        "data/EMPWorldWind.data.EmpLayer.js",
+        "data/EMPWorldWind.data.EmpWMSLayer.js",
+        "data/EMPWorldWind.data.EmpFeature.js",
+        "utils/EMPWorldWind.constants.js",
+        "utils/EMPWorldWind.utils.js",
+        "controllers/editors/EMPWorldWind.editors.primitiveBuilders.js",
+        "controllers/editors/EMPWorldWind.editors.EditorController.js",
+        "controllers/eventHandlers/EMPWorldWind.eventHandlers.js",
+        "controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
+        "controllers/eventHandlers/EMPWorldWind.eventHandlers.touch.js",
+        "controllers/eventHandlers/EMPWorldWind.eventHandlers.drag.js",
+        "controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js"
+      ];
+    } else {
+      resourceList = [
+        "worldwind.min.js",
+        "emp3-worldwind.min.js"
+      ];
+    }
+    return resourceList;
+  }
 
-      var wwCanvas = document.createElement("canvas");
-      wwCanvas.setAttribute("id", instArgs.mapInstance.mapInstanceId + "_canvas");
-      wwCanvas.style.height = "100%";
-      wwCanvas.style.width = "100%";
-      container.appendChild(wwCanvas);
+  function createWorldWindInstance(instArgs) {
+    var empWorldWind, container, wwCanvas, wwd, layers, uiComponents;
 
-      // TODO pass in an elevationModel that uses local dat
-      var wwd = new WorldWind.WorldWindow(wwCanvas.id);
-
-      // Tell the World Window that we want deep picking.
-      wwd.deepPicking = true;
-
+    function _addDefaultLayer(wwd) {
       // Always add a default layer
       var blueMarbleDefault = new WorldWind.BMNGOneImageLayer();
       blueMarbleDefault.minActiveAltitude = 0; // Don't let it disappear in case no other layers exist
       wwd.addLayer(blueMarbleDefault);
+    }
 
-      // Add some image layers to the World Window"s globe.
-      var numLayers = args.engine.properties.defaultLayers.length;
-
-      for (i = 0; i < numLayers; i++) {
-        var layer,
-          descriptor = args.engine.properties.defaultLayers[i];
-
-        if (!descriptor.type) {
-          window.console.warn('No type specified for layer data; skipping it');
-          continue;
-        }
-
-        switch (descriptor.type.toLowerCase()) {
-          case "wms":
-            // Handle defaults
+    function _addConfigLayers(wwd, layers) {
+      var i,
+        layerDict = {
+          "wms": function(descriptor) {
             descriptor.sector = descriptor.sector || WorldWind.Sector.FULL_SPHERE;
             descriptor.levelZeroDelta = descriptor.levelZeroDelta || new WorldWind.Location(45, 45);
             descriptor.numLevels = descriptor.numLevels || 15;
             descriptor.format = descriptor.format || "image/png";
             descriptor.size = descriptor.size || 256;
 
-            layer = new WorldWind.WmsLayer(descriptor);
-            break;
-          case "arcgis93rest":
-          case "wmts":
-          default:
-          // Not yet supported
+            return new WorldWind.WmsLayer(descriptor);
+          }
+        };
+
+      // Add some image layers to the World Window"s globe.
+      var numLayers = layers.length;
+
+      for (i = 0; i < numLayers; i++) {
+        var layer,
+          descriptor = layers[i];
+
+        if (!descriptor.type) {
+          window.console.warn('No type specified for layer data; skipping it');
+          continue;
         }
 
-        // Add the layer
-        if (layer) {
+        if (layerDict.hasOwnProperty(descriptor.type.toLowerCase())) {
+          layer = layerDict[descriptor.type.toLowerCase()](descriptor);
           wwd.addLayer(layer);
         }
       }
+    }
 
-      // Add a compass, a coordinates display and some view controls to the World Window.
-      if (args.engine.properties.layers.compass) {
+    function _addUIComponents(wwd, args) {
+      if (args.compass) {
         wwd.addLayer(new WorldWind.CompassLayer());
       }
-      if (args.engine.properties.layers.coordinates) {
+      if (args.coordinates) {
         wwd.addLayer(new WorldWind.CoordinatesDisplayLayer(wwd));
       }
-      if (args.engine.properties.layers.controls) {
+      if (args.controls) {
         wwd.addLayer(new WorldWind.ViewControlsLayer(wwd));
       }
+    }
 
-      var empWorldWind = new EMPWorldWind.map(wwd);
+    // Create WorldWind
+    try {
+      instArgs.mapInstance.engine = new emp.engineDefs.worldWindMapEngine({
+        mapInstance: instArgs.mapInstance
+      });
+
+      container = document.getElementById(instArgs.mapInstance.container.get());
+
+      wwCanvas = document.createElement("canvas");
+      wwCanvas.setAttribute("id", instArgs.mapInstance.mapInstanceId + "_canvas");
+      wwCanvas.style.height = "100%";
+      wwCanvas.style.width = "100%";
+      container.appendChild(wwCanvas);
+
+      // TODO pass in an elevationModel that uses local dat
+      wwd = new WorldWind.WorldWindow(wwCanvas.id);
+
+      // Tell the World Window that we want deep picking.
+      wwd.deepPicking = true;
+
+      // Add default and configured layers
+      _addDefaultLayer(wwd);
+
+      // Add layers from the config
+      try {
+        layers = args.engine.properties.defaultLayers;
+      } catch (err) {
+        layers = [];
+      }
+      _addConfigLayers(wwd, layers);
+
+      // Add a compass, a coordinates display and some view controls to the World Window.
+      try {
+        uiComponents = args.engine.properties.layers;
+      } catch (err) {
+        uiComponents = {
+          compass: false,
+          coordinates: false,
+          controls: false
+        };
+      }
+      _addUIComponents(wwd, uiComponents);
+
+      // Register WorldWind with EMP
+      empWorldWind = new EMPWorldWind.Map(wwd);
       empWorldWind.initialize(instArgs);
       instArgs.mapInstance.engine.initialize.succeed(empWorldWind);
     } catch (err) {
       instArgs.mapInstance.engine.initialize.fail(err);
-      window.console.log("+++++++++++++error initilaizing engine: " + err);
+      window.console.log("+++++++++++++error initializing engine: " + err);
     }
   }
 
-  if (args.engine.properties.debug === true) {
-    resourceList = [
-      "worldwind.js",
-      "worldwind-map-engine.js",
-      "EMPWorldWind.js",
-      "data/EMPWorldWind.data.js",
-      "data/EMPWorldWind.data.EmpLayer.js",
-      "data/EMPWorldWind.data.EmpWMSLayer.js",
-      "data/EMPWorldWind.data.EmpFeature.js",
-      "utils/EMPWorldWind.constants.js",
-      "utils/EMPWorldWind.utils.js",
-      "controllers/editors/EMPWorldWind.editors.primitiveBuilders.js",
-      "controllers/editors/EMPWorldWind.editors.EditorController.js",
-      "controllers/eventHandlers/EMPWorldWind.eventHandlers.js",
-      "controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
-      "controllers/eventHandlers/EMPWorldWind.eventHandlers.touch.js",
-      "controllers/eventHandlers/EMPWorldWind.eventHandlers.drag.js",
-      "controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js"
-    ];
-  } else {
-    resourceList = [
-      "worldwind.min.js",
-      "emp3-worldwind.min.js"
-    ];
-  }
-
   return {
-    resourceList: resourceList,
+    resourceList: _generateResourceList(args),
     fnCreateInstance: createWorldWindInstance
   };
 }

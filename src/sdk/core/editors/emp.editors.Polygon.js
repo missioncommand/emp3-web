@@ -676,7 +676,6 @@ emp.editors.Polygon.prototype.drawStart = function(pointer) {
 
   vertex = new emp.editors.Vertex(controlPoint, "vertex");
   this.vertices.push(vertex);
-  console.log(this.vertices.toString());
   items.push(controlPoint);
 
   // Update the feature, only internally -- we don't want events sent out
@@ -1000,8 +999,6 @@ emp.editors.Polygon.prototype.drawClick = function(pointer) {
 
     }
 
-    console.log(this.vertices.toString());
-    console.log(JSON.stringify(this.featureCopy.data.coordinates));
     // update feature copy
     if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
       this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
@@ -1038,7 +1035,7 @@ emp.editors.Polygon.prototype.drawClick = function(pointer) {
       });
     }
 
-    index = this.vertices.length - 1;
+    index = this.vertices.vertexLength - 1;
 
     coordinateUpdate = {
       type: emp.typeLibrary.CoordinateUpdateType.UPDATE,

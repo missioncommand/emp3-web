@@ -942,8 +942,7 @@ emp.map = function(args) {
             if (this.mapDragStart && this.mapDrag !== true) {
 
               // Were we over a feature when we started dragging?
-              if (this.mapDragStart.featureId && (status === emp.map.states.EDIT || status === emp.map.states.DRAW)) {
-                console.log("feature start moved!");
+              if (this.mapDragStart.featureId && (status === emp.map.states.EDIT || status === emp.map.states.DRAW)) {                
                 this.mapDrag = true;
 
                 // create a feature drag event.
@@ -987,7 +986,7 @@ emp.map = function(args) {
                 this.mapDragStart.startX,
                 this.mapDragStart.startY,
                 pointer);
-            } 
+            }
             //   Check to see if this is a mouse up
           } else if (args.type === emp.typeLibrary.Pointer.EventType.MOUSEUP) {
 

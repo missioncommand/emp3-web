@@ -429,9 +429,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.convert:
           this.convert(callInfo, message); // Synchronous call, does not need transactionId
           break;
-        case emp3.api.enums.channel.overlayClusterSet:
-          this.overlayClusterSet(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.overlayClusterActivate:
           this.overlayClusterActivate(callInfo, message, transactionId);
           break;
@@ -493,9 +490,6 @@ emp3.api.MessageHandler = (function() {
           break;
         case emp3.api.enums.channel.get:
           this.get(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.cancel:
-          this.cancel(callInfo, message);
           break;
         case emp3.api.enums.channel.mapShutdown:
           // Special case, needs to be handled here
@@ -3322,22 +3316,6 @@ emp3.api.MessageHandler = (function() {
       });
     };
 
-    this.overlayClusterSet = function(callInfo, message, transactionId) {
-      var payload;
-
-      if (callInfo.method === "Overlay.clusterSet") {
-        payload = {
-          overlayId: callInfo.args.overlay.id,
-          threshold: callInfo.args.cluster.threshold,
-          distance: callInfo.args.cluster.distance,
-          clusterStyle: callInfo.args.cluster.clusterStyle,
-          messageId: transactionId
-        };
-      }
-
-      this.validate(emp3.api.enums.channel.overlayClusterSet, payload);
-    };
-
     this.overlayClusterActivate = function(callInfo, message, transactionId) {
       var payload;
 
@@ -3999,30 +3977,6 @@ emp3.api.MessageHandler = (function() {
         mapId: callInfo.mapId,
         message: message
       });
-    };
-
-    /**
-     * Attempts to cancel a transaction before it finishes.  If the
-     * transaction has already been processed, no action occurs.  If the map
-     * cannot cancel it, not action occurs.  If the map can cancel
-     * the transaction the calling function associated with the transaction
-     * should handle any cancel responses
-     * in a callback.
-     *
-     * @param {object} callInfo
-     * @param {object} message
-     *
-     */
-    this.cancel = function(callInfo, message) {
-      var payload;
-
-      if (message && message.transaction && message.transaction.id) {
-        payload = {
-          messageId: message.transaction.id
-        };
-      }
-
-      this.validate(emp3.api.enums.channel.cancel, payload, callInfo);
     };
 
     /**
