@@ -301,7 +301,7 @@ emp.intents.control.transactionComplete = function(args) {
 
 /**
  * This is a temporary function used to determine if we should use new core
- * editing or the old editing.  Once the full transtion to the new editing is
+ * editing or the old editing.  Once the full transition to the new editing is
  * done remove this.
  */
 emp.intents.control.useNewEditing = function(args) {
