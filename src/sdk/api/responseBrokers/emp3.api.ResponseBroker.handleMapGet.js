@@ -155,15 +155,13 @@ HandleMapGetBroker.prototype.process = function (callbacks, details) {
                 sampleDimensions: successes.feature[i].params.sampleDimensions
               });
               break;
-            case "kmlLayer":
-              service = new emp3.api.WMTS({
+            case "kml":
+              service = new emp3.api.KMLLayer({
                 name: successes.feature[i].name,
                 geoId: successes.feature[i].id,
                 description: successes.feature[i].description,
-                url: successes.feature[i].url,
-                kmlString: successes.feature[i].kmlData
+                url: successes.feature[i].url
               });
-              break;
           }
           services.push(service);
         } else {

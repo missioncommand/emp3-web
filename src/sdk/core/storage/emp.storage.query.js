@@ -41,6 +41,7 @@ emp.storage.query = function (oTransaction) {
                 break;
             case emp.typeLibrary.types.WMS:
             case emp.typeLibrary.types.WMTS:
+            case emp.typeLibrary.types.KML:
                 oTransaction.items[0][emp.typeLibrary.types.FEATURE].push(oResultSet[iIndex].getObjectData(mapInstanceId, undefined));
                 break;
         }
