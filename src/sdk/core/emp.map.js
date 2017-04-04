@@ -987,7 +987,7 @@ emp.map = function(args) {
                 this.mapDragStart.startX,
                 this.mapDragStart.startY,
                 pointer);
-            }
+            } 
             //   Check to see if this is a mouse up
           } else if (args.type === emp.typeLibrary.Pointer.EventType.MOUSEUP) {
 

@@ -639,3 +639,425 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
 emp.editors.Polygon.prototype.moveFeature = function() {
 
 };
+
+/**
+ * Indicates the drawing has started and the first click has
+ * been made.  Respond accordingly.
+ *
+ * In the case of the line, we just track the first point. nothing.
+ * occurs until the mouse is moved.
+ */
+emp.editors.Polygon.prototype.drawStart = function(pointer) {
+  var coordinateUpdate,
+    updateData = {},
+    controlPoint,
+    vertex,
+    items = [],
+    transaction;
+
+  // Create a vertex.
+  controlPoint = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [pointer.lon, pointer.lat],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.editPoint,
+      iconXOffset: 12,
+      iconYOffset: 12,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  vertex = new emp.editors.Vertex(controlPoint, "vertex");
+  this.vertices.push(vertex);
+  console.log(this.vertices.toString());
+  items.push(controlPoint);
+
+  // Update the feature, only internally -- we don't want events sent out
+  // from this.  The GeoJSON will be slightly different if it is MIL-STD.
+  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+    this.featureCopy = new emp.typeLibrary.Feature({
+      overlayId: this.featureCopy.overlayId,
+      featureId: this.featureCopy.featureId,
+      format: this.featureCopy.format,
+      data: {
+        type: "LineString",
+        coordinates: [
+          [[pointer.lon, pointer.lat]]
+        ]
+      },
+      properties: this.featureCopy.properties
+    });
+  } else {
+    this.featureCopy = new emp.typeLibrary.Feature({
+      overlayId: this.featureCopy.overlayId,
+      featureId: this.featureCopy.featureId,
+      format: this.featureCopy.format,
+      data: {
+        type: "Polygon",
+        coordinates: [
+          [[pointer.lon, pointer.lat]]
+        ]
+      },
+      properties: this.featureCopy.properties
+    });
+  }
+
+  // Place the vertex that you clicked on the map.
+  transaction = new emp.typeLibrary.Transaction({
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
+  });
+
+  transaction.run();
+
+
+  // Create the return object.  This will tell you which index was changed,
+  // the locations of the new indeces, and the type of change it was.
+  coordinateUpdate = {
+    type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+    indices: [0],
+    coordinates: this.vertices.getVerticesAsLineString()
+  };
+
+  updateData.coordinateUpdate = coordinateUpdate;
+  updateData.properties = this.featureCopy.properties;
+
+  return updateData;
+
+};
+
+/**
+ * Occurs when the map is clicked after the draw has started.
+ */
+emp.editors.Polygon.prototype.drawClick = function(pointer) {
+  var coordinateUpdate,
+    updateData = {},
+    controlPoint,
+    vertex,
+    addVertex,
+    addVertex2,
+    items = [],
+    newCoordinates,
+    index,
+    updateTransaction,
+    midpoint,
+    midpoint2,
+    addPoint,
+    addPoint2,
+    pt1, pt2, pt3;
+
+  // second and third points and fourth points are very different.  For second point, we draw a line
+  // just to show marking.
+
+  // Verify this point is different than the last point. Otherwise ignore.
+  if (this.vertices.tail.feature.data.coordinates[0] !== pointer.lon ||
+    this.vertices.tail.feature.data.coordinates[1] !== pointer.lat) {
+
+    if (this.vertices.vertexLength === 1) {
+
+      // create a midPoint vertex.
+      // find the mid point between this point and the next point.
+      pt1 = new LatLon(this.vertices.tail.feature.data.coordinates[1], this.vertices.tail.feature.data.coordinates[0]);
+      pt2 = new LatLon(pointer.lat, pointer.lon);
+
+      // Get the mid point between this vertex and the next vertex.
+      pt3 = pt1.midpointTo(pt2);
+      midpoint = [pt3.lon(), pt3.lat()];
+
+      // create a feature for each of these coordinates.  This
+      // will be our 'add point'
+      addPoint = new emp.typeLibrary.Feature({
+        overlayId: "vertices",
+        featureId: emp3.api.createGUID(),
+        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+        data: {
+          coordinates: midpoint,
+          type: 'Point'
+        },
+        properties: {
+          iconUrl: emp.ui.images.addPoint,
+          iconXOffset: 8,
+          iconYOffset: 8,
+          xUnits: "pixels",
+          yUnits: "pixels",
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+        }
+      });
+
+      // create new vertex.
+      controlPoint = new emp.typeLibrary.Feature({
+        overlayId: "vertices",
+        featureId: emp3.api.createGUID(),
+        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+        data: {
+          coordinates: [pointer.lon, pointer.lat],
+          type: 'Point'
+        },
+        properties: {
+          iconUrl: emp.ui.images.editPoint,
+          iconXOffset: 12,
+          iconYOffset: 12,
+          xUnits: "pixels",
+          yUnits: "pixels",
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+        }
+      });
+
+      addVertex = new emp.editors.Vertex(addPoint, "add");
+      vertex = new emp.editors.Vertex(controlPoint, "vertex");
+      this.vertices.push(addVertex);
+      this.vertices.push(vertex);
+      items.push(addPoint);
+      items.push(controlPoint);
+    } else if (this.vertices.vertexLength === 2) {
+      // there is currently only 2 points in the polygon--not enough points.
+      // now that we clicked again we will have enough, but we need to generate
+      // the "add point" that we didn't have before.
+
+      // create a midPoint vertex.
+      // find the mid point between this point and the next point.
+      pt1 = new LatLon(this.vertices.tail.feature.data.coordinates[1], this.vertices.tail.feature.data.coordinates[0]);
+      pt2 = new LatLon(pointer.lat, pointer.lon);
+
+      // Get the mid point between this vertex and the next vertex.
+      pt3 = pt1.midpointTo(pt2);
+      midpoint = [pt3.lon(), pt3.lat()];
+
+      // create a midPoint vertex.
+      // find the mid point between this point and the next point.
+      pt1 = new LatLon(pointer.lat, pointer.lon);
+      pt2 = new LatLon(this.vertices.head.feature.data.coordinates[1], this.vertices.head.feature.data.coordinates[0]);
+
+      // Get the mid point between this vertex and the first vertex.
+      pt3 = pt1.midpointTo(pt2);
+      midpoint2 = [pt3.lon(), pt3.lat()];
+
+      // create a feature for each of these coordinates.  This
+      // will be our 'add point'
+      addPoint = new emp.typeLibrary.Feature({
+        overlayId: "vertices",
+        featureId: emp3.api.createGUID(),
+        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+        data: {
+          coordinates: midpoint,
+          type: 'Point'
+        },
+        properties: {
+          iconUrl: emp.ui.images.addPoint,
+          iconXOffset: 8,
+          iconYOffset: 8,
+          xUnits: "pixels",
+          yUnits: "pixels",
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+        }
+      });
+
+      // create a feature for each of these coordinates.  This
+      // will be our 'add point'
+      addPoint2 = new emp.typeLibrary.Feature({
+        overlayId: "vertices",
+        featureId: emp3.api.createGUID(),
+        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+        data: {
+          coordinates: midpoint2,
+          type: 'Point'
+        },
+        properties: {
+          iconUrl: emp.ui.images.addPoint,
+          iconXOffset: 8,
+          iconYOffset: 8,
+          xUnits: "pixels",
+          yUnits: "pixels",
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+        }
+      });
+
+      // create new vertex.
+      controlPoint = new emp.typeLibrary.Feature({
+        overlayId: "vertices",
+        featureId: emp3.api.createGUID(),
+        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+        data: {
+          coordinates: [pointer.lon, pointer.lat],
+          type: 'Point'
+        },
+        properties: {
+          iconUrl: emp.ui.images.editPoint,
+          iconXOffset: 12,
+          iconYOffset: 12,
+          xUnits: "pixels",
+          yUnits: "pixels",
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+        }
+      });
+
+      addVertex = new emp.editors.Vertex(addPoint, "add");
+      addVertex2 = new emp.editors.Vertex(addPoint2, "add");
+      vertex = new emp.editors.Vertex(controlPoint, "vertex");
+
+      // these vertices need to be added in this order.  Otherwise,
+      // the vertices get screwed up.  For polygons it is always vertex, add, vertex add.
+      // it always needs to end on a vertex.
+      this.vertices.push(addVertex);
+      this.vertices.push(vertex);
+      this.vertices.push(addVertex2);
+      items.push(addPoint);
+      items.push(controlPoint);
+      items.push(addPoint2);
+    } else {
+      // there is more than 3 points in the polygon.  In this case we need to addPoint
+      // change the last addPoint, add the new vertex, and then add a new addPoint.
+
+      // get the updated midpoint vertex position.
+      // find the mid point between this point and the next point.
+      pt1 = new LatLon(this.vertices.tail.before.feature.data.coordinates[1],
+        this.vertices.tail.before.feature.data.coordinates[0]);
+      pt2 = new LatLon(pointer.lat, pointer.lon);
+
+      // Get the mid point between this vertex and the first vertex.
+      pt3 = pt1.midpointTo(pt2);
+      midpoint = [pt3.lon(), pt3.lat()];
+
+      // create a midPoint vertex.
+      // find the mid point between this point and the next point.
+      pt1 = new LatLon(pointer.lat, pointer.lon);
+      pt2 = new LatLon(this.vertices.head.feature.data.coordinates[1], this.vertices.head.feature.data.coordinates[0]);
+
+      // Get the mid point between this vertex and the next vertex.
+      pt3 = pt1.midpointTo(pt2);
+      midpoint2 = [pt3.lon(), pt3.lat()];
+
+      // create a feature for each of these coordinates.  This
+      // will be our 'add point'
+      addPoint = this.vertices.tail.feature;
+      addPoint.data.coordinates = midpoint;
+
+      // create a feature for each of these coordinates.  This
+      // will be our 'add point'
+      addPoint2 = new emp.typeLibrary.Feature({
+        overlayId: "vertices",
+        featureId: emp3.api.createGUID(),
+        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+        data: {
+          coordinates: midpoint2,
+          type: 'Point'
+        },
+        properties: {
+          iconUrl: emp.ui.images.addPoint,
+          iconXOffset: 8,
+          iconYOffset: 8,
+          xUnits: "pixels",
+          yUnits: "pixels",
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+        }
+      });
+
+      // create new vertex.
+      controlPoint = new emp.typeLibrary.Feature({
+        overlayId: "vertices",
+        featureId: emp3.api.createGUID(),
+        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+        data: {
+          coordinates: [pointer.lon, pointer.lat],
+          type: 'Point'
+        },
+        properties: {
+          iconUrl: emp.ui.images.editPoint,
+          iconXOffset: 12,
+          iconYOffset: 12,
+          xUnits: "pixels",
+          yUnits: "pixels",
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+        }
+      });
+
+      // create two new vertices that are going to be added to the map.
+      addVertex = new emp.editors.Vertex(addPoint2, "add");
+      vertex = new emp.editors.Vertex(controlPoint, "vertex");
+
+      // these vertices need to be added in this order.  Otherwise,
+      // the vertices get screwed up.  For polygons it is always vertex, add, vertex add.
+      // it always needs to end on a vertex.
+      this.vertices.push(vertex);
+      this.vertices.push(addVertex);
+      items.push(addPoint);
+      items.push(controlPoint);
+      items.push(addPoint2);
+
+    }
+
+    console.log(this.vertices.toString());
+    console.log(JSON.stringify(this.featureCopy.data.coordinates));
+    // update feature copy
+    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+      this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
+    } else {
+      this.featureCopy.data.coordinates = this.vertices.getVerticesAsPolygon();
+    }
+
+    // update line
+    items.push(this.featureCopy);
+
+    updateTransaction = new emp.typeLibrary.Transaction({
+      intent: emp.intents.control.FEATURE_ADD,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+      items: items
+    });
+
+    updateTransaction.run();
+
+
+    // return updateData
+    // Create the return object.  This will tell you which index was added,
+    // the locations of the new indices, and the type of change it was.
+    newCoordinates = [];
+    for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+      newCoordinates.push({
+        lat: this.featureCopy.data.coordinates[i][1],
+        lon: this.featureCopy.data.coordinates[i][0]
+      });
+    }
+
+    index = this.vertices.length - 1;
+
+    coordinateUpdate = {
+      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+      indices: [index],
+      coordinates: newCoordinates
+    };
+
+    updateData.coordinateUpdate = coordinateUpdate;
+    updateData.properties = this.featureCopy.properties;
+
+  }
+
+  return updateData;
+};
+
+/**
+ * Occurs after the draw has started and user is moving mouse.
+ * Animation should occur here.
+ */
+emp.editors.Polygon.prototype.drawMove = function() {
+
+};
