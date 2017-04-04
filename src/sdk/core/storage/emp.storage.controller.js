@@ -401,6 +401,10 @@ emp.storage.feature.update = function(oTransaction) {
   emp.storage.executeTransactions(oTransactions);
 };
 
+/**
+ *
+ * @param oTransactions
+ */
 emp.storage.executeTransactions = function(oTransactions) {
   var mapInstanceId;
 
@@ -648,6 +652,7 @@ emp.storage.removeItems = function(transaction) {
     //console.log("   DELETED " + item.name + " (" + item.coreId + ").");
   }
 };
+
 /**
  * Overlay actions
  *
@@ -659,6 +664,12 @@ emp.storage.removeItems = function(transaction) {
  */
 emp.storage.overlay = {};
 
+/**
+ *
+ * @param mapInstanceId
+ * @param overlayId
+ * @param sender
+ */
 emp.storage.overlay.createOverlay = function(mapInstanceId, overlayId, sender) {
   var oTempTransaction = new emp.typeLibrary.Transaction({
     intent: emp.intents.control.OVERLAY_ADD,
@@ -774,6 +785,15 @@ emp.storage.overlay.clear = function(oTransaction) {
   emp.storage.executeTransactions(oTransactionList);
 };
 
+/**
+ *
+ * @param oTransactions
+ * @param oTransaction
+ * @param oStorageEntry
+ * @param oNewItem
+ * @param bFromUpdate
+ * @returns {boolean}
+ */
 emp.storage.overlay.updateItem = function(oTransactions, oTransaction, oStorageEntry, oNewItem, bFromUpdate) {
   var mapInstanceId = oTransaction.mapInstanceId;
   var oParent, oOldParent;
@@ -910,6 +930,13 @@ emp.storage.overlay.updateItem = function(oTransactions, oTransaction, oStorageE
   return true;
 };
 
+/**
+ *
+ * @param oTransactionList
+ * @param mapInstanceId
+ * @param oParent
+ * @param oStorageEntry
+ */
 emp.storage.addToObjectAddTransaction = function(oTransactionList, mapInstanceId, oParent, oStorageEntry) {
   var oDupItem;
 
@@ -931,6 +958,13 @@ emp.storage.addToObjectAddTransaction = function(oTransactionList, mapInstanceId
   oTransactionList.oObjectAddTransaction[mapInstanceId].items.push(oDupItem);
 };
 
+/**
+ *
+ * @param oTransactionList
+ * @param mapInstanceId
+ * @param oParent
+ * @param oStorageEntry
+ */
 emp.storage.addToObjectRemoveTransaction = function(oTransactionList, mapInstanceId, oParent, oStorageEntry) {
   var oDupItem;
 
@@ -952,6 +986,13 @@ emp.storage.addToObjectRemoveTransaction = function(oTransactionList, mapInstanc
   oTransactionList.oObjectRemoveTransaction[mapInstanceId].items.push(oDupItem);
 };
 
+/**
+ *
+ * @param oTransactionList
+ * @param mapInstanceId
+ * @param parentCoreId
+ * @param childCoreId
+ */
 emp.storage.addToObjectUpdateTransaction = function(oTransactionList, mapInstanceId, parentCoreId, childCoreId) {
   if (!oTransactionList.hasOwnProperty('oObjectUpdatedTransaction')) {
     oTransactionList.oObjectUpdatedTransaction = {};
@@ -976,6 +1017,13 @@ emp.storage.addToObjectUpdateTransaction = function(oTransactionList, mapInstanc
   });
 };
 
+/**
+ *
+ * @param transactionList
+ * @param mapInstanceId
+ * @param parent
+ * @param child
+ */
 emp.storage.addToUpdateTransaction = function(transactionList, mapInstanceId, parent, child) {
   var dupItem;
 
@@ -1004,6 +1052,14 @@ emp.storage.addToUpdateTransaction = function(transactionList, mapInstanceId, pa
   }
 };
 
+/**
+ *
+ * @param oTransactionList
+ * @param mapInstanceId
+ * @param oParent
+ * @param oChild
+ * @param bZoom
+ */
 emp.storage.addToAddTransaction = function(oTransactionList, mapInstanceId, oParent, oChild, bZoom) {
   var oDupItem;
   var sErrorMsg;
@@ -1221,24 +1277,24 @@ emp.storage.addToRemoveTransaction = function(transactionList, mapInstanceId, oP
       transactionList.oWMTSRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
       break;
     case emp.typeLibrary.types.KML:
-        // The child is a WMS.
-        // If the transaction list does not exists create it.
-        if (!transactionList.hasOwnProperty('oKmlLayerRemoveFromMapTransactions')) {
-          transactionList.oKmlLayerRemoveFromMapTransactions = {};
-        }
-        // Check to see if the remove transaction exists and create it if not.
-        if (!transactionList.oKmlLayerRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
-          transactionList.oKmlLayerRemoveFromMapTransactions[mapInstanceId] =
-            new emp.typeLibrary.Transaction({
-              intent: emp.intents.control.MI_MAP_LAYER_REMOVE,
-              mapInstanceId: mapInstanceId,
-              items: []
-            });
-        }
-        oDupItem = oChild.getObjectData(mapInstanceId, oParent.getCoreId());
-        oDupItem.parentCoreId = emp.storage.getRootGuid(mapInstanceId);
-        transactionList.oKmlLayerRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
-        break;
+      // The child is a WMS.
+      // If the transaction list does not exists create it.
+      if (!transactionList.hasOwnProperty('oKmlLayerRemoveFromMapTransactions')) {
+        transactionList.oKmlLayerRemoveFromMapTransactions = {};
+      }
+      // Check to see if the remove transaction exists and create it if not.
+      if (!transactionList.oKmlLayerRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
+        transactionList.oKmlLayerRemoveFromMapTransactions[mapInstanceId] =
+          new emp.typeLibrary.Transaction({
+            intent: emp.intents.control.MI_MAP_LAYER_REMOVE,
+            mapInstanceId: mapInstanceId,
+            items: []
+          });
+      }
+      oDupItem = oChild.getObjectData(mapInstanceId, oParent.getCoreId());
+      oDupItem.parentCoreId = emp.storage.getRootGuid(mapInstanceId);
+      transactionList.oKmlLayerRemoveFromMapTransactions[mapInstanceId].items.push(oDupItem);
+      break;
     case emp.typeLibrary.types.OVERLAY:
       // This child is an overlay
       // If the transaction list does not exists create it.
@@ -1459,6 +1515,10 @@ emp.storage.overlay.update = function(oTransaction) {
   emp.storage.executeTransactions(oTransactions);
 };
 
+/**
+ *
+ * @param oTransaction
+ */
 emp.storage.overlay.clusterSet = function(oTransaction) {
   var oClusterDef;
   var oOverlay;
@@ -1477,6 +1537,10 @@ emp.storage.overlay.clusterSet = function(oTransaction) {
   }
 };
 
+/**
+ *
+ * @param oTransaction
+ */
 emp.storage.overlay.clusterActivate = function(oTransaction) {
   var oClusterDef;
   var oOverlay;
@@ -1494,6 +1558,10 @@ emp.storage.overlay.clusterActivate = function(oTransaction) {
   }
 };
 
+/**
+ *
+ * @param oTransaction
+ */
 emp.storage.overlay.clusterDeactivate = function(oTransaction) {
   var oClusterDef;
   var oOverlay;
@@ -1511,6 +1579,10 @@ emp.storage.overlay.clusterDeactivate = function(oTransaction) {
   }
 };
 
+/**
+ *
+ * @param oTransaction
+ */
 emp.storage.overlay.clusterRemove = function(oTransaction) {
   var oClusterDef;
   var oOverlay;
@@ -1533,7 +1605,6 @@ emp.storage.overlay.clusterRemove = function(oTransaction) {
   }
 };
 
-
 /**
  * Static Actions
  * @type {Object}
@@ -1542,6 +1613,11 @@ emp.storage.overlay.clusterRemove = function(oTransaction) {
  *
  */
 emp.storage.staticContent = {};
+
+/**
+ *
+ * @param oTransaction
+ */
 emp.storage.staticContent.add = function(oTransaction) {
   var i;
   var item;
@@ -1955,8 +2031,19 @@ emp.storage.visibility.getState = function(transaction) {
  * @property {method} get
  */
 emp.storage.selection = {};
+
+/**
+ *
+ * @type {{}}
+ * @private
+ */
 emp.storage.selection._selectedList = {};
 
+/**
+ *
+ * @param mapInstanceId
+ * @returns {*}
+ */
 emp.storage.selection.getSelectedList = function(mapInstanceId) {
   if (!emp.storage.selection._selectedList.hasOwnProperty(mapInstanceId)) {
     emp.storage.selection._selectedList[mapInstanceId] = [];
@@ -1965,12 +2052,22 @@ emp.storage.selection.getSelectedList = function(mapInstanceId) {
   return emp.storage.selection._selectedList[mapInstanceId];
 };
 
+/**
+ *
+ * @param mapInstanceId
+ */
 emp.storage.selection.removeSelectedList = function(mapInstanceId) {
   if (emp.storage.selection._selectedList.hasOwnProperty(mapInstanceId)) {
     delete emp.storage.selection._selectedList[mapInstanceId];
   }
 };
 
+/**
+ *
+ * @param mapInstanceId
+ * @param oSelection
+ * @returns {number}
+ */
 emp.storage.selection.getSelectionIndex = function(mapInstanceId, oSelection) {
   var iIndex;
   var oaSelectionList = emp.storage.selection.getSelectedList(mapInstanceId);
@@ -1990,6 +2087,10 @@ emp.storage.selection.getSelectionIndex = function(mapInstanceId, oSelection) {
   return -1;
 };
 
+/**
+ *
+ * @param oTransaction
+ */
 emp.storage.selection.set = function(oTransaction) {
 
   var oaSelectionList = emp.storage.selection.getSelectedList(oTransaction.mapInstanceId);
@@ -2103,7 +2204,12 @@ emp.storage.selection.selectionChange = function(oTransaction) {
  * @property {method} status
  */
 emp.storage.map = {};
-emp.storage.map.status = function() {};
+
+/**
+ *
+ */
+emp.storage.map.status = function() {
+};
 
 /**
  * View Action
@@ -2112,10 +2218,20 @@ emp.storage.map.status = function() {};
  * @property {method} get
  */
 emp.storage.view = {};
+
+/**
+ *
+ * @param args
+ */
 emp.storage.view.set = function(args) {
   emp.storage._storage.currentView = args.items[0];
 };
-emp.storage.view.get = function() {};
+
+/**
+ *
+ */
+emp.storage.view.get = function() {
+};
 
 /**
  * Status Action
@@ -2124,6 +2240,10 @@ emp.storage.view.get = function() {};
  */
 emp.storage._status = {};
 
+/**
+ *
+ * @param args
+ */
 emp.storage._status.set = function(args) {
 
   if (args === "replay") {
@@ -2660,7 +2780,7 @@ emp.storage.validateDraw = function(oTransaction) {
       }
     }
     else if (!((oDrawItem.overlayId === undefined) ||
-        (oDrawItem.overlayId === null))) {
+      (oDrawItem.overlayId === null))) {
       // They provided an overlayId.
       var oOverlay = emp.storage.findOverlay(oDrawItem.overlayId);
 
@@ -2668,43 +2788,43 @@ emp.storage.validateDraw = function(oTransaction) {
         oDrawItem.parentCoreId = oOverlay.coreId;
 
         /*
-        if (oOverlay.isMultiParentRequired())
-        {
-            // If the overlay is multi-parent set it to MP.
-            oDrawItem.properties.multiParentRequired = true;
-            // Its a multi-parent draw make sure that the overlay Id
-            // is set to the root MP overlay.
-            // And we need to store the original overlay and parent ID.
-            oDrawItem.originalOverlayId = oDrawItem.overlayId;
-            oDrawItem.parentCoreId = oOverlay.getRootCoreId();
-            oDrawItem.overlayId = oDrawItem.parentCoreId;
-        }
-        else if (oDrawItem.properties.hasOwnProperty('multiParentRequired'))
-        {
-            // Else remove the property so its not MP.
-            delete oDrawItem.properties.multiParentRequired;
-        }
-        */
+         if (oOverlay.isMultiParentRequired())
+         {
+         // If the overlay is multi-parent set it to MP.
+         oDrawItem.properties.multiParentRequired = true;
+         // Its a multi-parent draw make sure that the overlay Id
+         // is set to the root MP overlay.
+         // And we need to store the original overlay and parent ID.
+         oDrawItem.originalOverlayId = oDrawItem.overlayId;
+         oDrawItem.parentCoreId = oOverlay.getRootCoreId();
+         oDrawItem.overlayId = oDrawItem.parentCoreId;
+         }
+         else if (oDrawItem.properties.hasOwnProperty('multiParentRequired'))
+         {
+         // Else remove the property so its not MP.
+         delete oDrawItem.properties.multiParentRequired;
+         }
+         */
       }
       /**
-      else if (oDrawItem.properties.hasOwnProperty('multiParentRequired'))
-      {
-          // Else remove the property so its not MP.
-          delete oDrawItem.properties.multiParentRequired;
-          oDrawItem.parentCoreId = oFeature.overlayId;
-      }
-      **/
+       else if (oDrawItem.properties.hasOwnProperty('multiParentRequired'))
+       {
+           // Else remove the property so its not MP.
+           delete oDrawItem.properties.multiParentRequired;
+           oDrawItem.parentCoreId = oFeature.overlayId;
+       }
+       **/
       else {
         oDrawItem.parentCoreId = oFeature.overlayId;
       }
     }
     /**
-    else if (oDrawItem.properties.hasOwnProperty('multiParentRequired'))
-    {
-        // Else if it has MP remove the property so its not MP.
-        delete oDrawItem.properties.multiParentRequired;
-    }
-    **/
+     else if (oDrawItem.properties.hasOwnProperty('multiParentRequired'))
+     {
+         // Else if it has MP remove the property so its not MP.
+         delete oDrawItem.properties.multiParentRequired;
+     }
+     **/
   }
 };
 
@@ -2781,22 +2901,22 @@ emp.storage.overlay.remove = function(oTransaction) {
 
     emp.storage.processRequest(oTransactions, aPrevMapList, aMapList, oParent, oStorageEntry, false);
     /*
-            // This next loop will eliminate from aPrevMapList the instances
-            // that are in aMapList. Therefore the remaining ones are
-            // those map instances that the feature must be removed from.
-            for (iMapIndex = 0; iMapIndex < aMapList.length; iMapIndex++) {
-                iTempIndex = aPrevMapList.indexOf(aMapList[iMapIndex]);
-                if (iTempIndex !== -1) {
-                    // Remove the element.
-                    aPrevMapList.splice(iTempIndex, 1);
-                }
-            }
+     // This next loop will eliminate from aPrevMapList the instances
+     // that are in aMapList. Therefore the remaining ones are
+     // those map instances that the feature must be removed from.
+     for (iMapIndex = 0; iMapIndex < aMapList.length; iMapIndex++) {
+     iTempIndex = aPrevMapList.indexOf(aMapList[iMapIndex]);
+     if (iTempIndex !== -1) {
+     // Remove the element.
+     aPrevMapList.splice(iTempIndex, 1);
+     }
+     }
 
-            // The following loop creates the remove transaction.
-            for (iMapIndex = 0; iMapIndex < aPrevMapList.length; iMapIndex++) {
-                emp.storage.addToRemoveTransaction(oTransactions, aPrevMapList[iMapIndex], oParent, oStorageEntry);
-            }
-    */
+     // The following loop creates the remove transaction.
+     for (iMapIndex = 0; iMapIndex < aPrevMapList.length; iMapIndex++) {
+     emp.storage.addToRemoveTransaction(oTransactions, aPrevMapList[iMapIndex], oParent, oStorageEntry);
+     }
+     */
     if (aMapList.length === 0) {
       // The storage entry has no more parents.
       // Delete all children with no other parents.
@@ -2810,10 +2930,10 @@ emp.storage.overlay.remove = function(oTransaction) {
     // Loop thru the maps of the parent to send an update so the UI
     // can update.  <--- took this out because remove is already updating the item now.
     /*
-    for (iMapIndex = 0; iMapIndex < aMapList.length; iMapIndex++) {
-        emp.storage.addToObjectUpdateTransaction(oTransactions, aMapList[iMapIndex], oParent);
-    }
-    */
+     for (iMapIndex = 0; iMapIndex < aMapList.length; iMapIndex++) {
+     emp.storage.addToObjectUpdateTransaction(oTransactions, aMapList[iMapIndex], oParent);
+     }
+     */
 
     //console.log("   DELETED " + oItem.name + " (" + oItem.coreId + ").");
     iIndex++;
