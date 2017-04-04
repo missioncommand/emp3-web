@@ -149,7 +149,7 @@ emp.editors.Point.prototype.drawStart = function(pointer) {
       data: {
         type: "Point",
         coordinates: [pointer.lon, pointer.lat],
-        symbolCode: this.featureCopy.symbolCode
+        symbolCode: (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT) ? undefined : this.featureCopy.symbolCode
       },
       properties: this.featureCopy.properties
   });

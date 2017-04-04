@@ -79,6 +79,13 @@ cmapi.channel.handler[cmapi.channel.names.MAP_FEATURE_PLOT] = {
     },
 
     mergeGeoJSONStyles: function(oFeature) {
+
+      // remove symbolCode if it has one.  This prevents issues where
+      // engine chokes up if it checks for a symbolCode on any symbolCode
+      // and doesn't know what to do with it.
+      oFeature.symbolCode = undefined;
+      oFeature.data.symbolCode = undefined;
+
       if (oFeature.hasOwnProperty('properties')) {
         if (oFeature.properties.hasOwnProperty('iconUrl')) {
           //It has an icon url defined.

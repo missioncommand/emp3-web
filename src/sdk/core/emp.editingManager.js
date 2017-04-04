@@ -498,6 +498,7 @@ emp.editingManager = function(args) {
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.
       if (originalFeature && featureId === originalFeature.featureId && activeEditor.isFeature(featureId)) {
+        console.log("original feature!");
 
         // If this is the feature we are editing, raise a feature drag
         // event.
@@ -518,6 +519,7 @@ emp.editingManager = function(args) {
       } // If we are dragging a control point, we don't want
       // any events going out, because it is not a feature.
       else if (activeEditor.isControlPoint(featureId)) {
+        console.log("control point!");
         updateData = activeEditor.startMoveControlPoint(featureId, pointer);
 
         if (updateData) {
