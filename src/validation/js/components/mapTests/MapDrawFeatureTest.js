@@ -44,6 +44,10 @@ class MapDrawFeatureTest extends Component {
     if (props.maps.length > 0 && this.state.selectedMapId === '') {
       this.setState({selectedMapId: _.first(props.maps).geoId});
     }
+
+    if (props.overlays.length > 0 && this.state.selectedOverlayId === '') {
+      this.setState({selectedOverlayId: _.first(props.overlays).geoId});
+    }
   }
 
   updateSelectedMap(event) {
@@ -99,7 +103,7 @@ class MapDrawFeatureTest extends Component {
   }
 
   mapDrawFeature() {
-    const {maps, addError} = this.props;
+    const {maps, addError, addFeature} = this.props;
     var feature;
     const featureArgs = {
       name: this.state.name,
@@ -168,6 +172,8 @@ class MapDrawFeatureTest extends Component {
               overlay.addFeature({
                 feature: args.feature
               });
+
+              addFeature(args.feature);
             }
 
             toastr.success('Map.drawFeature onDrawComplete called: \n ' +
@@ -249,9 +255,7 @@ class MapDrawFeatureTest extends Component {
         <PropertiesBox properties={this.state.properties} featureType={this.state.featureType} callback={this.updateFeatureProperties}/>
 
         <RelatedTests relatedTests={[
-          {text: 'Cancel the draw'},
-          {text: 'Complete the draw'},
-          {text: 'Edit a feature'}
+          {text: 'Edit a Feature', target:'mapFeatureEditTest'}
         ]}/>
       </div>
     );
@@ -262,7 +266,8 @@ MapDrawFeatureTest.propTypes = {
   addResult: PropTypes.func.isRequired,
   addError: PropTypes.func.isRequired,
   maps: PropTypes.array.isRequired,
-  overlays: PropTypes.array
+  overlays: PropTypes.array,
+  addFeature: PropTypes.func.isRequired
 };
 
 export default MapDrawFeatureTest;

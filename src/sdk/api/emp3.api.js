@@ -652,15 +652,65 @@ emp3.api.convertAltitudeMode = function (newAltitudeMode) {
  */
 emp3.api.convertCMAPIPropertiesToFeature = function (feature, properties) {
 
-  // Handle generic properties
-  feature.fillColor = properties.fillColor;
-  feature.strokeColor = properties.lineColor;
-  feature.strokeWidth = properties.lineWidth;
+
+  if (properties.fillColor || properties.stipplePattern || properties.stippleFactor) {
+    feature.fillStyle = {};
+
+    if (properties.fillColor) {
+      feature.fillStyle.fillColor = emp.util.convertHexToColor(properties.fillColor);
+    }
+
+    if (properties.stipplePattern) {
+      feature.fillStyle.stipplePattern = properties.stipplePattern;
+    }
+
+    if (properties.stippleFactor) {
+      feature.fillStyle.stipplePattern = properties.stippleFactor;
+    }
+  }
+
+  if (properties.lineColor || properties.lineWidth || properties.strokeDashstyle) {
+    feature.strokeStyle = {};
+
+    if (properties.lineColor) {
+      feature.strokeStyle.strokeColor = emp.util.convertHexToColor(properties.lineColor);
+    }
+
+    if (properties.lineWidth) {
+      feature.strokeStyle.strokeWidth = properties.lineWidth;
+    }
+
+    if (properties.strokeDashstyle) {
+      feature.strokeStyle.strokePattern = properties.strokeDashstyle;
+    }
+  }
+
+  if (properties.labelColor || properties.fontFamily || properties.justification || properties.labelScale || properties.labelOutlineColor) {
+    feature.labelStyle = {};
+
+    if (properties.labelColor) {
+      feature.labelStyle.color = emp.util.convertHexToColor(properties.labelColor);
+    }
+
+    if (properties.labelOutlineColor) {
+      feature.labelStyle.outlineColor = emp.util.convertHexToColor(properties.labelOutlineColor);
+    }
+
+    if (properties.fontFamily) {
+      feature.labelStyle.fontFamily = properties.fontFamily;
+    }
+
+    if (properties.justification) {
+      feature.labelStyle.justification = properties.justification;
+    }
+
+    if (properties.labelScale) {
+      feature.labelStyle.size = properties.labelScale;
+    }
+  }
+
   feature.altitudeMode = emp3.api.convertAltitudeMode(properties.altitudeMode);
-  feature.strokePattern = properties.strokeDashstyle;
   feature.readOnly = properties.readOnly;
-  feature.labelColor = properties.labelColor;
-  feature.labelScale = properties.labelScale;
   feature.azimuth = properties.azimuth;
   feature.buffer = properties.buffer;
   feature.timeStamp = properties.timeStamp;
@@ -676,7 +726,6 @@ emp3.api.convertCMAPIPropertiesToFeature = function (feature, properties) {
       break;
     case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
       feature.radius = properties.radius;
-      feature.strokeWidth = properties.lineThickness; // TODO is the proper value lineWidth or lineThickness
       break;
     case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
       feature.semiMajor = properties.semiMajor;
@@ -691,10 +740,8 @@ emp3.api.convertCMAPIPropertiesToFeature = function (feature, properties) {
       feature.iconURI = properties.iconUrl;
       break;
     case emp3.api.enums.FeatureTypeEnum.GEO_POLYGON:
-      feature.stippleFactor = properties.stippleFactor;
-      feature.stipplePattern = properties.stipplePattern;
-      break;
     case emp3.api.enums.FeatureTypeEnum.GEO_PATH:
+    case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
       break;
     case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
       feature.width = properties.width;
@@ -702,8 +749,6 @@ emp3.api.convertCMAPIPropertiesToFeature = function (feature, properties) {
       break;
     case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
       feature.width = properties.width;
-      break;
-    case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
       break;
   }
 };
