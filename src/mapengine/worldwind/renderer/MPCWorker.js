@@ -65,6 +65,7 @@ importScripts('savm-bc.min.js');//for strictly KML, GeoJSON and SVG(with hatch l
 
 //importScripts('worldwind.js');
 //importScripts('workerImports.js');
+// test atom push. broiken again.
 
 var rendererMP = sec.web.renderer.SECWebRenderer;
 
