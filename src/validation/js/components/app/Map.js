@@ -10,6 +10,56 @@ import {addResult, addError} from '../../actions/ResultActions';
 import {addFeature} from '../../actions/FeatureActions';
 import {addOverlay} from '../../actions/OverlayActions';
 
+
+/**
+ * Make calls to multiple maps simultaneously
+ * @constructor
+ */
+function MapCoordinator() {
+  this.handlers = {};
+}
+
+MapCoordinator.prototype = {
+  /**
+   * @param prop
+   * @param fn
+   */
+  subscribe: function(prop, fn) {
+    if (!(prop in this.handlers)) {
+      this.handlers[prop] = [];
+    }
+    this.handlers[prop].push(fn);
+  },
+  /**
+   *
+   * @param prop
+   * @param fn
+   */
+  unsubscribe: function(prop, fn) {
+    this.handlers[prop] = this.handlers[prop].filter(
+      function(item) {
+        if (item !== fn) {
+          return item;
+        }
+      }
+    );
+  },
+  /**
+   *
+   * @param prop
+   * @param o
+   * @param thisObj
+   */
+  fire: function(prop, o, thisObj) {
+    var scope = thisObj || window;
+    this.handlers[prop].forEach(function(fn) {
+      fn.apply(scope, o);
+    });
+  }
+};
+
+const mapCoordinator = new MapCoordinator();
+
 //======================================================================================================================
 class MapSelection extends Component {
   constructor(props) {
@@ -359,7 +409,35 @@ const mapDispatchToProps = dispatch => {
     addResult: (result, title) => {
       dispatch(addResult(result, title));
     },
-    addMap: map => {
+    addMap: (map) => {
+      // Ignore certain functions that will conflict with each other or are redundant
+      let ignoredFuncs = [
+        'apply',
+        'patchProps',
+        'readyCheck',
+        'getCamera',
+        'getBounds',
+        'getLookAt',
+        'editFeature',
+        'drawFeature'
+      ];
+
+      for (let prop in map) {
+        if (typeof map[prop] === "function" && !_.includes(ignoredFuncs, prop)) {
+          let origFunc = map[prop];
+
+          // Replace the function with a call to the coordinator to fire the stored function
+          map[prop] = function() {
+            // The coordinator is now responsible for firing the function
+            mapCoordinator.fire(prop, arguments);
+          };
+
+          // Store the original function
+          mapCoordinator.subscribe(prop, origFunc.bind(map));
+        }
+      }
+
+
       dispatch(addMap(map));
     },
     addOverlay: overlay => {
