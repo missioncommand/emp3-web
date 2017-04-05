@@ -47,7 +47,8 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
-    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON) {
+    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
+      (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
       // This is a polygon.   MIL-STD polygons are handled slightly different
       // so there is a separate editor for those.
       activeEditor = new emp.editors.Polygon({

@@ -942,7 +942,7 @@ emp.map = function(args) {
             if (this.mapDragStart && this.mapDrag !== true) {
 
               // Were we over a feature when we started dragging?
-              if (this.mapDragStart.featureId && (status === emp.map.states.EDIT || status === emp.map.states.DRAW)) {                
+              if (this.mapDragStart.featureId && (status === emp.map.states.EDIT)) {
                 this.mapDrag = true;
 
                 // create a feature drag event.
@@ -979,7 +979,7 @@ emp.map = function(args) {
                 fTransaction.run();
               }
             } else if (this.mapDragStart && this.mapDrag === true &&
-                this.mapDragStart.featureId && (status === emp.map.states.EDIT || status === emp.map.states.DRAW)) {
+                this.mapDragStart.featureId && (status === emp.map.states.EDIT)) {
               // pass the pointer to editor manager.
               mapInstance.editingManager.get().editDragMove(
                 this.mapDragStart.featureId,
