@@ -364,7 +364,8 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
     coordinateUpdate,
     updateData = {},
     animationCoordinates = [],
-    index;
+    index,
+    i;
 
   // First update the control point with new pointer info.
   currentVertex = this.vertices.find(featureId);
@@ -470,14 +471,27 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
 
   transaction.run();
 
-  // Create the return object.  This will tell you which index was changed,
+  // return updateData
+  // Create the return object.  This will tell you which index was added,
   // the locations of the new indices, and the type of change it was.
+  //
+  // The coordinates will be formatted slightly different it is a GEO_MIL_SYMBOL.
+  // We need to first account for that.
   newCoordinates = [];
-  for (var i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
-    newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[0][i][1],
-      lon: this.featureCopy.data.coordinates[0][i][0]
-    });
+  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+    for (i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+      newCoordinates.push({
+        lat: this.featureCopy.data.coordinates[i][1],
+        lon: this.featureCopy.data.coordinates[i][0]
+      });
+    }
+  } else {
+    for (i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
+      newCoordinates.push({
+        lat: this.featureCopy.data.coordinates[i][1],
+        lon: this.featureCopy.data.coordinates[i][0]
+      });
+    }
   }
 
   index = this.vertices.getIndex(featureId);
@@ -689,7 +703,8 @@ emp.editors.Polygon.prototype.drawStart = function(pointer) {
         type: "LineString",
         coordinates: [
           [[pointer.lon, pointer.lat]]
-        ]
+        ],
+        symbolCode: this.featureCopy.symbolCode
       },
       properties: this.featureCopy.properties
     });
@@ -757,7 +772,7 @@ emp.editors.Polygon.prototype.drawClick = function(pointer) {
     midpoint2,
     addPoint,
     addPoint2,
-    pt1, pt2, pt3;
+    pt1, pt2, pt3, i;
 
   // second and third points and fourth points are very different.  For second point, we draw a line
   // just to show marking.
@@ -1027,12 +1042,24 @@ emp.editors.Polygon.prototype.drawClick = function(pointer) {
     // return updateData
     // Create the return object.  This will tell you which index was added,
     // the locations of the new indices, and the type of change it was.
+    //
+    // The coordinates will be formatted slightly different it is a GEO_MIL_SYMBOL.
+    // We need to first account for that.
     newCoordinates = [];
-    for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-      newCoordinates.push({
-        lat: this.featureCopy.data.coordinates[i][1],
-        lon: this.featureCopy.data.coordinates[i][0]
-      });
+    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+      for (i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+        newCoordinates.push({
+          lat: this.featureCopy.data.coordinates[i][1],
+          lon: this.featureCopy.data.coordinates[i][0]
+        });
+      }
+    } else {
+      for (i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
+        newCoordinates.push({
+          lat: this.featureCopy.data.coordinates[0][i][1],
+          lon: this.featureCopy.data.coordinates[0][i][0]
+        });
+      }
     }
 
     index = this.vertices.vertexLength - 1;

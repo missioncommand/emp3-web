@@ -615,7 +615,8 @@ emp.editors.Path.prototype.drawStart = function(pointer) {
       type: "LineString",
       coordinates: [
         [pointer.lon, pointer.lat]
-      ]
+      ],
+      symbolCode: (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT) ? undefined : this.featureCopy.symbolCode
     },
     properties: this.featureCopy.properties
   });
