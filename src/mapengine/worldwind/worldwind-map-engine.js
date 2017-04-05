@@ -517,6 +517,16 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     });
   };
 
-// return the engineInterface object as a new engineTemplate instance
+  /**
+   * Remove a KML Layer
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.kmllayer.remove = function(transaction) {
+    emp.util.each(transaction.items, function (kmlLayer) {
+      empWorldWind.removeKML(kmlLayer);
+    });
+  };
+
+  // return the engineInterface object as a new engineTemplate instance
   return engineInterface;
 };

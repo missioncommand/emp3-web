@@ -708,6 +708,7 @@ EMPWorldWind.Map.prototype = function() {
         .then(function(kmlFile) {
           // Construct the KML layer to hold the document
           var kmlRenderableLayer = new WorldWind.RenderableLayer(kmlLayer.id);
+          kmlLayer.layer = kmlRenderableLayer;
 
           // Add the KML layer to the map
           kmlRenderableLayer.addRenderable(kmlFile);
@@ -726,11 +727,11 @@ EMPWorldWind.Map.prototype = function() {
     /**
      *
      * @param {emp.typeLibrary.KmlLayer} kml
-     * @param {function} cb
+     * @param {function} [cb]
      */
     removeKML: function(kml, cb) {
       if (kml.coreId in this.layers) {
-        this.worldWindow.removeLayer(this.layers[kml.coreId]);
+        this.worldWindow.removeLayer(this.layers[kml.coreId].layer);
         delete this.layers[kml.coreId];
         this.worldWindow.redraw();
       }

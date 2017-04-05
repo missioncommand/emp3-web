@@ -10,31 +10,26 @@ EMPWorldWind.data = EMPWorldWind.data || {};
 EMPWorldWind.data.EmpKMLLayer = function(kml) {
   this.id = kml.coreId;
 
-  var _kml = kml;
+  /** @type {emp.typeLibrary.KmlLayer} */
+  this.kml = kml;
 
   /**
-   * @name EMPWorldWind.data.EmpWMSLayer#kml
-   * @type {emp.typeLibrary.KmlLayer}
+   * @param {emp.typeLibrary.KmlLayer} kml
+   * @private
    */
-  Object.defineProperty(this, 'kml', {
-    enumerable: true,
-    value: _kml
-  });
-
-  // Set the URL to the service
-  if (kml.useProxy) {
-    this.url = emp3.api.global.configuration.urlProxy + "?url=" + kml.url;
-  } else {
-    this.url = kml.url;
+  function _buildURL(kml) {
+    // Set the URL to the service
+    if (kml.useProxy) {
+      return emp3.api.global.configuration.urlProxy + "?url=" + kml.url;
+    }
+    return kml.url;
   }
 
-  var _kmlLayer = new WorldWind.KmlFile(this.url);
+  /** @type {string} */
+  this.url = _buildURL(kml);
+
   /**
-   * @name EMPWorldWind.data.EmpWMS#layer
    * @type {WorldWind.KmlFile}
    */
-  Object.defineProperty(this, 'layer', {
-    enumerable: true,
-    value: _kmlLayer
-  });
+  this.layer = new WorldWind.RenderableLayer(this.id);
 };
