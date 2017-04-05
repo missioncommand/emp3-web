@@ -97,37 +97,43 @@ emp.storage.feature = {};
 emp.storage.feature.add = function(transaction) {
   var empFeature;
   var parent;
-  var item;
   var parentCount;
-  var i, j;
+  var i;
   var items = transaction.items;
   var mapList;
   var prevMapList; // A list of maps that a feature was already on.
-  var transactions = {}; // A list of transactions being sent out to the
-  // map instances
+  var transactions = {}; // A list of transactions being sent out to the map instances
 
-  for (i = 0; i < items.length; i++) {
-    item = items[i];
-    prevMapList = [];
+  /**
+   *
+   * @param feature
+   * @returns {emp.classLibrary.EmpRenderableObject}
+   * @private
+   */
+  function _createOrUpdateStoreFeature(feature) {
+    var empFeature = emp.storage.findFeature(feature.overlayId, feature.featureId);
 
-    // See if the feature already exists.
-    empFeature = emp.storage.findFeature(item.overlayId, item.featureId);
-
-    // If the feature exists retrieve the map instances it was on, and
-    // update item
-    // If the feature doesn't exist, create a new storage entry, EmpFeature,
-    // and store it in the storage manager.
+    // If the feature exists retrieve the map instances it was on, and update item
     if (empFeature) {
       prevMapList = empFeature.getParentMapInstanceList();
-      if (!emp.storage.feature.updateItem(transactions, transaction, empFeature, item)) {
-        continue;
+      if (!emp.storage.feature.updateItem(transactions, transaction, empFeature, feature)) {
+        return empFeature;
       }
     }
+    // If the feature doesn't exist, create a new storage entry, EmpFeature, and store it in the storage manager.
     else {
       // This feature is new, so store the feature in the storage manager.
-      empFeature = new emp.classLibrary.EmpFeature(item);
+      empFeature = new emp.classLibrary.EmpFeature(feature);
       emp.storage.storeObject(empFeature);
     }
+    return empFeature;
+  }
+
+  emp.util.each(items, function(item) {
+    prevMapList = [];
+
+    // Get the feature from the store or create a new one
+    empFeature = _createOrUpdateStoreFeature(item);
 
     // if the item has a coreParent, then it came from a addFeature call from
     // an overlay or another feature.  If coreParent has not been defined
@@ -143,7 +149,7 @@ emp.storage.feature.add = function(transaction) {
           level: emp.typeLibrary.Error.level.MAJOR,
           message: 'Unable to create parent overlay of ' + item.name + '.'
         });
-        continue;
+        return;
       }
 
       // Check to see if the feature is already on the parent.  If
@@ -166,13 +172,12 @@ emp.storage.feature.add = function(transaction) {
       // Get the map instances that the feature's parents are on.
       mapList = empFeature.getParentMapInstanceList();
 
-      for (j = 0; j < parentCount; j++) {
-        parent = empFeature.getParentByIndex(j);
+      for (i = 0; i < parentCount; i++) {
+        parent = empFeature.getParentByIndex(i);
         emp.storage.processRequest(transactions, prevMapList, mapList, parent, empFeature, item.zoom);
       }
     }
-
-  }
+  });
 
   emp.storage.executeTransactions(transactions);
 };
@@ -226,7 +231,7 @@ emp.storage.feature.updateItem = function(oTransactions, oTransaction, oStorageE
   if (oStorageEntry.isInEditMode() &&
     oNewItem.hasOwnProperty('data') &&
     (oStorageEntry.getFormat() === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL)) {
-    // Its a milstd. Make sure that the basic Symbol Code does not change.
+    // It's a milstd. Make sure that the basic Symbol Code does not change.
     sBasicSC1 = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(oStorageEntry.getSymbolCode());
     sBasicSC2 = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(oNewItem.data.symbolCode);
     if (sBasicSC1 !== sBasicSC2) {
@@ -305,6 +310,7 @@ emp.storage.feature.updateItem = function(oTransactions, oTransaction, oStorageE
       });
       return false;
     }
+
     if (!emp.helpers.isEmptyString(oNewItem.destParentId)) {
       oNewParent = emp.storage.findFeature(oNewItem.destOverlayId, oNewItem.destParentId);
       if (oNewParent === undefined) {
@@ -327,6 +333,7 @@ emp.storage.feature.updateItem = function(oTransactions, oTransaction, oStorageE
         return false;
       }
     }
+
     // Now remove it from the parent.
     oParent.removeChild(oStorageEntry);
     // Get the map list of the parent.
@@ -1286,7 +1293,7 @@ emp.storage.addToRemoveTransaction = function(transactionList, mapInstanceId, oP
       if (!transactionList.oKmlLayerRemoveFromMapTransactions.hasOwnProperty(mapInstanceId)) {
         transactionList.oKmlLayerRemoveFromMapTransactions[mapInstanceId] =
           new emp.typeLibrary.Transaction({
-            intent: emp.intents.control.MI_MAP_LAYER_REMOVE,
+            intent: emp.intents.control.MI_KML_LAYER_REMOVE,
             mapInstanceId: mapInstanceId,
             items: []
           });
