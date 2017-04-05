@@ -371,7 +371,8 @@ EMPWorldWind.Map.prototype = function() {
 
                             var wwFeature = this.features[rendererData[index].id];
                             var shapes = [];
-                            var data = JSON.parse(rendererData[index].geojson);
+                            var data = rendererData[index].geojson;
+                            //var data = JSON.parse(rendererData[index].geojson);
                             for (i = 0; i < data.features.length; i++) {
                                 componentFeature = data.features[i];
                                 // TODO have the renderer return the proper width, manually overwriting the line width for now

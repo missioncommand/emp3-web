@@ -148,6 +148,7 @@ EMPWorldWind.editors.EditorController = (function() {
         //data.sceneInfo.frameState.mode = this.viewer.scene.frameState.mode;
         //data.sceneInfo.frameState.morphTime = this.viewer.scene.frameState.morphTime;
 
+        modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.GeoJSONFormat] = 1; // 0 for string geojson, 1 for object geojson
         var batchObject = {};
         batchObject.id = feature.coreId;
         batchObject.name = feature.name;
