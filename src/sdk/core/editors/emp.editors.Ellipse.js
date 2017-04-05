@@ -3,7 +3,8 @@ emp.editors = emp.editors || {};
 
 emp.editors.Ellipse = function(args) {
   this.animation = undefined;
-  this.radius = undefined;
+  this.semiMinor = undefined;
+  this.semiMajor = undefined;
   this.center = undefined;
   emp.editors.EditorBase.call(this, args);
 };
@@ -22,8 +23,13 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     vertex,
     addPoint,
     newPoint,
-    radiusVertex,
     distance,
+    semiMajor,
+    semiMinor,
+    semiMajorFeature,
+    semiMinorFeature,
+    semiMajorVertex,
+    semiMinorVertex,
     x, y;
 
 
@@ -51,30 +57,35 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
   });
 
   // Create a vertex.  This is so the editingManager knows that
-  // the center point is a control point and not the radius.
+  // the center point is a control point .
   vertex = new emp.editors.Vertex(controlPoint, "vertex");
   this.vertices.push(vertex);
   this.center = vertex;
   items.push(controlPoint);
 
-  // Create a radius control point.
-  distance = this.featureCopy.properties.radius;
+  // Creates control points.
+  semiMinor = this.featureCopy.properties.semiMinor;
+  semiMajor = this.featureCopy.properties.semiMajor;
 
 
-  // project out the radius right above the center point of the ellipse.
-  newPoint = emp.geoLibrary.geodesic_coordinate({
+  semiMinorPoint = emp.geoLibrary.geodesic_coordinate({
     x: x,
     y: y
-  }, distance, 0);
+  }, semiMinor, 0);
+  semiMajorPoint = emp.geoLibrary.geodesic_coordinate({
+    x: x,
+    y: y
+  }, semiMajor, 90);
 
-  // create a feature for each of these coordinates.  This
-  // will be our radius control point that is displayed by the map.
-  addPoint = new emp.typeLibrary.Feature({
+  // create a feature for each of these coordinates.
+
+    semiMinorFeature = new emp.typeLibrary.Feature({
     overlayId: "vertices",
     featureId: emp3.api.createGUID(),
     format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    name: "semiMinor",
     data: {
-      coordinates: [newPoint.x, newPoint.y],
+      coordinates: [semiMinorPoint.x, semiMinorPoint.y],
       type: 'Point'
     },
     properties: {
@@ -87,10 +98,39 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     }
   });
 
-  items.push(addPoint);
-  radiusVertex = new emp.editors.Vertex(addPoint, "add");
-  this.radius = radiusVertex;
-  this.vertices.push(radiusVertex);
+
+  semiMajorFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    name: "semiMajor",
+    data: {
+      coordinates: [semiMajorPoint.x, semiMajorPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.addPoint,
+      iconXOffset: 8,
+      iconYOffset: 8,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+
+  items.push(semiMinorFeature);
+  items.push(semiMajorFeature);
+
+  semiMajorVertex = new emp.editors.Vertex(semiMajorFeature, "add");
+  semiMinorVertex = new emp.editors.Vertex(semiMinorFeature, "add");
+
+  this.semiMajor = semiMajorVertex;
+  this.semiMinor = semiMinorVertex;
+
+  this.vertices.push(semiMajorVertex);
+  this.vertices.push(semiMinorVertex);
+
 
   // run the transaction and add all the symbols on the map.
   transaction = new emp.typeLibrary.Transaction({
@@ -116,13 +156,15 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
   var currentFeature,
     currentVertex,
     items = [],
-    distance,
+    semiMajor,
+    semiMinor,
+    newSemiMajorPosition,
+    newSemiMinorPosition,
     index,
     coordinateUpdate,
     updateData = {},
     type = emp.typeLibrary.CoordinateUpdateType.UPDATE,
     newCoordinates,
-    newRadiusPosition,
     x, y;
 
 
@@ -133,54 +175,48 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
   currentVertex = this.vertices.find(featureId);
   currentFeature = currentVertex.feature;
 
-  // If the control point being moved is the radius control point,
-  // calculate the new radius.  Calculate the new position of where
+  // Calculate the new position of where
   // we want the control point to be.
-  if (featureId === this.radius.feature.featureId){
+  if (featureId === this.semiMajor.feature.featureId){
 
     // measure the distance between the mouse location and the center.  This
-    // will be the new radius.
-    distance = emp.geoLibrary.measureDistance(pointer.lat,
+    // will be the new semiMajor.
+    semiMajor = emp.geoLibrary.measureDistance(pointer.lat,
       pointer.lon,
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
-    // retrieve the new radius vertex.   It will sit directly above our center point.
-    newRadiusPosition = emp.geoLibrary.geodesic_coordinate({
+    // retrieve the new semiMajor vertex.   
+    newSemiMajorPosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
-    }, distance, 0);
+    }, semiMajor, 90);
     // First update the control point with new pointer info.
-    currentFeature.data.coordinates = [newRadiusPosition.x, newRadiusPosition.y];
+    currentFeature.data.coordinates = [newSemiMajorPosition.x, newSemiMajorPosition.y];
 
 
-    this.featureCopy.properties.radius = distance;
+    this.featureCopy.properties.semiMajor = semiMajor;
 
-  } else {
-    // If we are updating the center point, we need to move the center vertex
-    // to a new location and we need to update the vertex of the radius location.
-    if (this.featureCopy.data.type === 'Point') {
-      this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
-    } else if (this.featureCopy.data.type === 'LineString') {
-      this.featureCopy.data.coordinates = [[pointer.lon, pointer.lat]];
-    }
+  }else if (featureId === this.semiMinor.feature.featureId){
 
+    // measure the distance between the mouse location and the center.  This
+    // will be the new semiMinor.
+    semiMinor = emp.geoLibrary.measureDistance(pointer.lat,
+      pointer.lon,
+      this.center.feature.data.coordinates[1],
+      this.center.feature.data.coordinates[0], "meters");
+
+    // retrieve the new semiMinor vertex. 
+    newSemiMinorPosition = emp.geoLibrary.geodesic_coordinate({
+      x: x,
+      y: y
+    }, semiMinor, 0);
     // First update the control point with new pointer info.
-    currentFeature.data.coordinates = [pointer.lon, pointer.lat];
-
-    // retrieve our distance from the existing ellipse.  We will use this to Calculate
-    // the position of the new radius vertex.
-    distance = this.featureCopy.properties.radius;
+    currentFeature.data.coordinates = [newSemiMinorPosition.x, newSemiMinorPosition.y];
 
 
-    // retrieve the new radius vertex.   It will sit directly above our center point.
-    newRadiusPosition = emp.geoLibrary.geodesic_coordinate({
-      x: pointer.lon,
-      y: pointer.lat
-    }, distance, 0);
-    this.radius.feature.data.coordinates = [newRadiusPosition.x, newRadiusPosition.y];
+    this.featureCopy.properties.semiMinor = semiMinor;
 
-    items.push(this.radius.feature);
   }
 
   // make sure the symbol is updated with its new properties.
