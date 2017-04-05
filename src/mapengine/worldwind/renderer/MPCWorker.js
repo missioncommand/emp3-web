@@ -116,50 +116,7 @@ var document = {};
 
 var _converter = null;
 
-/*
- buildFrustum = function(frustum)
- {
- var result = new PerspectiveFrustum();
 
- result.aspectRatio = frustum.aspectRatio;
- result.fov = frustum.fov;
- result.near = frustum.near;
- result.far = frustum.far;
-
- // force update of clone to compute matrices
- result._aspectRatio = undefined;
- result._fov = undefined;
- result._near = undefined;
- result._far = undefined;
-
- result._offCenterFrustum = buildOffCenterFrustum(frustum._offCenterFrustum);
-
- return result;
- }
- }
-
- buildOffCenterFrustum = function(ocFrustum)
- {
-
- var result = new PerspectiveOffCenterFrustum();
-
- result.right = ocFrustum.right;
- result.left = ocFrustum.left;
- result.top = ocFrustum.top;
- result.bottom = ocFrustum.bottom;
- result.near = ocFrustum.near;
- result.far = ocFrustum.far;
-
- // force update of clone to compute matrices
- result._left = undefined;
- result._right = undefined;
- result._top = undefined;
- result._bottom = undefined;
- result._near = undefined;
- result._far = undefined;
-
- return result;
- }*/
 
 saveNavigator = function (navigator)
 {
