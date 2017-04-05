@@ -24,7 +24,7 @@ class VCheckBox extends Component {
     return (
       <label className='mdl-checkbox mdl-js-checkbox mdl-js-ripple-effect'>
         <input type='checkbox' className='mdl-checkbox__input' id={this.props.id}
-               onClick={this.toggle} checked={this.state.checked} disabled={this.props.disabled}/>
+               onChange={this.toggle} checked={this.state.checked} disabled={this.props.disabled}/>
         <label className='mdl-checkbox__label' htmlFor={this.props.id}>{this.props.label}</label>
       </label>);
   }

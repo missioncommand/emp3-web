@@ -36,6 +36,7 @@ class ScriptsModal extends Component {
     return (
       <Modal
         id='resultsPanel'
+        contentLabel="Scripts"
         isOpen={isOpen}
         onRequestClose={hideScriptsModal}
         style={modalStyle}>
