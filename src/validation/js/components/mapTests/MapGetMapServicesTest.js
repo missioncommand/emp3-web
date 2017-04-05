@@ -20,13 +20,15 @@ class MapGetMapServicesTest extends Component {
   }
 
   componentDidMount() {
-
+    if (this.state.selectedMapId) {
+      this.getMapServices();
+    }
   }
 
   componentWillReceiveProps(props) {
-    if (props.maps.length > 0 && this.state.selectedMapId === '') {
+    if (props.maps.length > 0 && !this.state.selectedMapId) {
       this.setState({selectedMapId: _.first(props.maps).geoId}, () => {
-        setTimeout(this.getMapServices(), 2000); // This should account for the map loading initially
+        setTimeout(this.getMapServices(), 2000);
       });
     }
   }
@@ -38,7 +40,8 @@ class MapGetMapServicesTest extends Component {
   }
 
   getMapServices() {
-    const map = _.find(this.props.maps, {geoId: this.state.selectedMapId});
+    const {maps, addError} = this.props,
+      map = _.find(maps, {geoId: this.state.selectedMapId});
 
     try {
       map.getMapServices({
@@ -49,7 +52,7 @@ class MapGetMapServicesTest extends Component {
         },
         onError: err => {
           toastr.error('Failed Retrieving Services');
-          this.props.addError(err, 'Map.getMapServices');
+          addError(err, 'Map.getMapServices');
         }
       });
     } catch (err) {
@@ -58,36 +61,43 @@ class MapGetMapServicesTest extends Component {
   }
 
   render() {
+    const {maps} = this.props;
 
     return (
-      <div>
-        <h3>Get Map Service</h3>
+      <div className="mdl-grid">
+        <span className="mdl-layout-title">Get Map Service</span>
 
-        <label htmlFor='mapSelect'>Get Services From </label>
-        <select id='mapSelect' value={this.state.selectedMapId} onChange={this.updateSelectedMap}>
-          {this.props.maps.map(map => {
-            return <option key={map.geoId} value={map.geoId}>{map.container}</option>;
-          })}
-        </select>
+        <div className="mdl-cell mdl-cell--12-col">
+          <label htmlFor='mapSelect'>Get Services From </label>
+          <select id='mapSelect' value={this.state.selectedMapId} onChange={this.updateSelectedMap}>
+            {maps.map(map => {
+              return <option key={map.geoId} value={map.geoId}>{map.container}</option>;
+            })}
+          </select>
+        </div>
 
-        <h5>Map Services</h5>
-        <ul className='mdl-list' style={{maxHeight: '500px', overflowY:'auto'}}>
+        <div className='mdl-cell mdl-cell--12-col mdl-list'>
           {this.state.mapServices.map(service => {
             return (
-            <li key={service.geoId} className='mdl-list__item mdl-list__item--two-line'>
-              <span className='mdl-list__item-primary-content'>
-                  {service.name}
-                  <span className='mdl-list__item-sub-title'>{service.url}</span>
-              </span>
-            </li>);
+              <div key={service.geoId} className='mdl-list__item mdl-list__item--two-line'
+                   title={service.url}>
+                <span className='mdl-list__item-primary-content'>
+                  <span>{service.name}</span>
+                  <span className='mdl-list__item-sub-title'>{
+                    service.url.substring(0, 24) + '...' + service.url.substr(-10)}
+                  </span>
+                </span>
+              </div>);
           })}
-          {this.state.mapServices.length === 0 ? <li className='mdl-list__item'>
-            <span className='mdl-list__item-primary-content'>No Services Exist On This Map</span>
-          </li> : null}
-        </ul>
+          {this.state.mapServices.length === 0 ?
+            <div className='mdl-list__item'>
+              <span className='mdl-list__item-primary-content'>No Services Exist On This Map</span>
+            </div> : null}
+        </div>
 
-        <button className='blocky mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored'
-                onClick={this.getMapServices}>
+        <button
+          className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
+          onClick={this.getMapServices}>
           Get Map Services
         </button>
 

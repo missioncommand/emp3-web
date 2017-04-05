@@ -25,7 +25,7 @@ class CreateWMSTest extends Component {
       availableLayers: [],
       selectedLayers: [],
       useProxy: false,
-      wmsVersion: 'WMS' // this transalates to undefined.  I had to hack this
+      wmsVersion: 'WMS' // this translates to undefined.  I had to hack this
                         // a little because VSelect does not allow me to specify
                         // numbers as my value.
     };
@@ -43,6 +43,10 @@ class CreateWMSTest extends Component {
 
   componentDidMount() {
     this.parseCapabilities();
+  }
+
+  componentDidUpdate() {
+    componentHandler.upgradeDom();
   }
 
   componentWillReceiveProps(props) {
@@ -66,68 +70,35 @@ class CreateWMSTest extends Component {
   }
 
   updateWMS(event) {
+    let prop = event.target.id.split('-')[1],
+      newState = {...this.state};
 
-    switch(event.target.id) {
-      case 'createWMS-name':
-        this.setState({
-          name: event.target.value
-        });
-        break;
-      case 'createWMS-geoId':
-        this.setState({
-          geoId: event.target.value
-        });
-        break;
-      case 'createWMS-url':
-        this.setState({
-          url: event.target.value
-        });
-        break;
-      case 'createWMS-layers':
-        this.setState({
-          layers: event.target.value
-        });
-        break;
-      case 'createWMS-tileFormat':
-        this.setState({
-          tileFormat: event.target.value
-        });
-        break;
-      case 'createWMS-transparent':
-        this.setState({
-          transparent: event.target.checked
-        });
-        break;
-      case 'createWMS-wmsVersion':
-        this.setState({
-          wmsVersion: event.target.value
-        });
-        break;
-      case 'createWMS-description':
-        this.setState({
-          description: event.target.value
-        });
-        break;
-      case 'createWMS-useProxy':
-        this.setState({
-          useProxy: event.target.checked
-        });
-        break;
+    if (prop === 'transparent' ||
+      prop === 'useProxy') {
+      newState[prop] = event.target.checked;
+    } else {
+      newState[prop] = event.target.value;
+    }
+
+    if (prop === "url") {
+      this.setState(newState, _.debounce(this.parseCapabilities, 2000));
+    } else {
+      this.setState(newState);
     }
   }
 
   parseCapabilities() {
     $.get(this.state.url.trim() + '?request=GetCapabilities&service=WMS')
-    .done(data => {
-      let xml = $(data);
-      let root = xml.find('WMS_Capabilities');
-      this.setState({availableLayers: this.getLayers(root)});
-      toastr.success('Recieved Layer Information');
-    })
-    .fail(() => {
-      toastr.error('Failed to Find Layer Information');
-      this.setState({availableLayers: []});
-    });
+      .done(data => {
+        let xml = $(data);
+        let root = xml.find('WMS_Capabilities');
+        this.setState({availableLayers: this.getLayers(root)});
+        toastr.success('Received Layer Information');
+      })
+      .fail(() => {
+        toastr.error('Failed to Find Layer Information');
+        this.setState({availableLayers: []});
+      });
   }
 
   getLayers(root) {
@@ -213,13 +184,12 @@ class CreateWMSTest extends Component {
     this.props.addMapService(wms);
 
     if (wms) {
-      toastr.success('WMS ' + name + ' added succesfully');
+      toastr.success('WMS ' + name + ' added successfully');
     } else {
       toastr.error('WMS ' + name + ' creation failed');
     }
 
     return wms;
-
   }
 
   createWMSAddToMap() {
@@ -243,27 +213,48 @@ class CreateWMSTest extends Component {
         });
       } catch (err) {
         this.addError(err.message, 'createWMSAddToMap:Critical');
-        toastr.error(err.message, 'Create WMS Add To Map:Critcal');
+        toastr.error(err.message, 'Create WMS Add To Map:Critical');
       }
     }
   }
 
   render() {
     return (
-      <div>
-        <h3>Create a WMS Service</h3>
+      <div className="mdl-grid">
+        <span className="mdl-layout-title">Create a WMS Service</span>
 
-        <MapSelect id='createWMS-mapSelect' label='Choose which map to add the service to' selectedMapId={this.state.selectedMapId} callback={this.updateSelectedMapId}/>
+        <div className="mdl-cell mdl-cell--12-col">
+          <MapSelect id='createWMS-mapSelect' label='Choose which map to add the service to'
+                     selectedMapId={this.state.selectedMapId} callback={this.updateSelectedMapId}/>
+        </div>
 
-        <VText id='createWMS-name' value={this.state.name} label='Name' callback={this.updateWMS}/>
-        <VText id='createWMS-geoId' value={this.state.geoId} label='GeoID' callback={this.updateWMS}/>
-        <VText id='createWMS-url' value={this.state.url} label='URL' callback={this.updateWMS}/>
+        <VText id='createWMS-name'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.name}
+               label='Name'
+               callback={this.updateWMS}/>
 
-        <VText id='createWMS-layers' value={this.state.layers} label='Layers' callback={this.updateLayers}/>
+        <VText id='createWMS-geoId'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.geoId}
+               label='GeoID'
+               callback={this.updateWMS}/>
 
-        <div style={{overflowX:'auto', width: '400px'}}>
-          <label htmlFor='availableLayersList'>Available Layers</label>
-          <ul id='availableLayersList' style={{listStyle:'none', maxHeight:'400px', overflowY:'auto'}}>
+        <VText id='createWMS-url'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.url}
+               label='URL'
+               callback={this.updateWMS}/>
+
+        <VText id='createWMS-layers'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.layers}
+               label='Layers'
+               callback={this.updateLayers}/>
+
+        <div className="mdl-cell mdl-cell--12-col">
+          <span className="mdl-layout-title">Available Layers</span>
+          <ul id='availableLayersList' style={{listStyle: 'none'}}>
             {this.state.availableLayers.length === 0 ? <li>No Layers Available</li> : null}
             {this.state.availableLayers.map((layer, i) => {
               if (i > 50) {
@@ -276,28 +267,53 @@ class CreateWMSTest extends Component {
                     <input type='checkbox' id={layer.name} className='mdl-checkbox__input' value={layer.name}
                            onChange={this.toggleLayer} checked={checked}/>
                     <span className='mdl-checkbox__label'>{layer.name}</span>
-                    <span style={{fontSize: '0.8em', fontStyle:'oblique'}}> {layer.title}</span>
+                    <span style={{fontSize: '0.8em', fontStyle: 'oblique'}}> {layer.title}</span>
                   </label>
                 </li>);
             })}
           </ul>
         </div>
 
-        <VText id='createWMS-tileFormat' value={this.state.tileFormat} label='Format' callback={this.updateWMS}/>
-        <VCheckBox id='createWMS-transparent' label='Transparent' checked={this.state.transparent} callback={this.updateWMS} />
-        <VSelect id='createWMS-wmsVersion' label='WMS Version' values={WMSVERSION} value={this.state.wmsVersion} callback={this.updateWMS}/>
-        <VText id='createWMS-description' value={this.state.description} label='Description' callback={this.updateWMS}/>
-        <VCheckBox id='createWMS-useProxy' label='Use Proxy' checked={this.state.useProxy} callback={this.updateWMS}
-               classes={['mdl-cell', 'mdl-cell--12-col']}/>
+        <VText id='createWMS-tileFormat'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.tileFormat}
+               label='Format'
+               callback={this.updateWMS}/>
 
-        <button className='blocky mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored'
-                onClick={this.createWMS}>
+        <VCheckBox id='createWMS-transparent'
+                   className="mdl-cell mdl-cell--12-col"
+                   label='Transparent'
+                   checked={this.state.transparent}
+                   callback={this.updateWMS}/>
+
+        <VSelect id='createWMS-wmsVersion'
+                 label='WMS Version'
+                 values={WMSVERSION}
+                 value={this.state.wmsVersion}
+                 callback={this.updateWMS}/>
+
+        <VText id='createWMS-description'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.description}
+               label='Description'
+               callback={this.updateWMS}/>
+
+        <VCheckBox id='createWMS-useProxy'
+                   className="mdl-cell mdl-cell--12-col"
+                   label='Use Proxy'
+                   checked={this.state.useProxy}
+                   callback={this.updateWMS}/>
+
+        <button
+          className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
+          onClick={this.createWMS}>
           Create WMS
         </button>
 
         <button
-          className='blocky addButton mdl-button mdl-js-button  mdl-button--raised mdl-button--colored mdl-js-ripple-effect'
-          onClick={this.createWMSAddToMap} disabled={this.props.maps.length === 0}>
+          className='mdl-button mdl-js-button  mdl-button--raised mdl-button--colored mdl-js-ripple-effect mdl-cell mdl-cell--12-col'
+          onClick={this.createWMSAddToMap}
+          disabled={this.props.maps.length === 0}>
           Add WMS
         </button>
 
