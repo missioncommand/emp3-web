@@ -162,7 +162,7 @@ var _converter = null;
  }*/
 
 saveNavigator = function (navigator)
-{ 
+{
     var save = {};
     save.position = {x: this.worldWindow.navigator.lookAtLocation.longitude, y: this.worldWindow.navigator.lookAtLocation.latitude, z: this.worldWindow.navigator.range};
     save.heading = navigator.heading;
@@ -175,31 +175,6 @@ saveNavigator = function (navigator)
     return save;
 
 };
-
-//loadCamera = function(camera, save)
-//{
-//    /*camera.position = new Cesium.Cartesian3(save.position.x,save.position.y,save.position.z);
-//    camera.heading = save.heading;
-//    camera.pitch = save.pitch;
-//    camera.roll = save.roll;*/
-//    camera.transform = new Cesium.Matrix4(save.transform[0], save.transform[1], save.transform[2], save.transform[3],
-//                           save.transform[4], save.transform[5], save.transform[6], save.transform[7],
-//                           save.transform[8], save.transform[9], save.transform[10], save.transform[11],
-//                           save.transform[12], save.transform[13], save.transform[14], save.transform[15]);
-//
-//    camera.setView({
-//    destination : new Cesium.Cartesian3(save.position.x,save.position.y,save.position.z),
-//    orientation: {
-//        heading : save.heading, // east, default value is 0.0 (north)
-//        pitch : save.pitch,    // default value (looking down)
-//        roll : save.roll                             // default value
-//    }
-//});
-//
-//    return camera;
-//}
-
-
 
 
 loadNavigator = function (navigator, save)
