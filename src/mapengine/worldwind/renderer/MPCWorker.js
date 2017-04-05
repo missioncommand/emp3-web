@@ -162,7 +162,7 @@ var _converter = null;
  }*/
 
 saveNavigator = function (navigator)
-{
+{ 
     var save = {};
     save.position = {x: this.worldWindow.navigator.lookAtLocation.longitude, y: this.worldWindow.navigator.lookAtLocation.latitude, z: this.worldWindow.navigator.range};
     save.heading = navigator.heading;
@@ -170,22 +170,7 @@ saveNavigator = function (navigator)
     save.roll = navigator.roll;
     save.transform = [];//Cesium.Matrix4.clone(camera.transform, camera.transform);
 
-    // save.transform[0] = camera.transform[0];
-    // save.transform[1] = camera.transform[1];
-    // save.transform[2] = camera.transform[2];
-    // save.transform[3] = camera.transform[3];
-    // save.transform[4] = camera.transform[4];
-    // save.transform[5] = camera.transform[5];
-    // save.transform[6] = camera.transform[6];
-    // save.transform[7] = camera.transform[7];
-    // save.transform[8] = camera.transform[8];
-    // save.transform[9] = camera.transform[9];
-    // save.transform[10] = camera.transform[10];
-    // save.transform[11] = camera.transform[11];
-    // save.transform[12] = camera.transform[12];
-    // save.transform[13] = camera.transform[13];
-    // save.transform[14] = camera.transform[14];
-    // save.transform[15] = camera.transform[15];
+
 
     return save;
 
