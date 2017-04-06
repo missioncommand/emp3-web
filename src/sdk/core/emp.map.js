@@ -913,7 +913,8 @@ emp.map = function(args) {
             return;
           }
 
-          // retrieve the
+          // retrieve the maps current status.  This will tell us what mode the
+          // map is in.
           status = mapInstance.status.get();
 
           // First we are going to monitor if any drag events are occurring.

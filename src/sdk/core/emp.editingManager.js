@@ -47,8 +47,7 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
-    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
-      (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
+    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON) {
       // This is a polygon.   MIL-STD polygons are handled slightly different
       // so there is a separate editor for those.
       activeEditor = new emp.editors.Polygon({
@@ -56,7 +55,6 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
-    /*
     else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON) {
       // This is a MIL-STD polygon.  It uses a GEOJSON linestring to represent
       // itself.  It is stored slightly different than the regular polygon.
@@ -65,6 +63,7 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
+    /*
     else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
       (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
       // This is a circle defined by a point and radius.  It uses a GEOJSON point and
@@ -111,6 +110,9 @@ emp.editingManager = function(args) {
     edit: function(transaction) {
       var symbol = false,
         drawCategory;
+
+      // indicate that this isn't a draw.
+      drawing = false;
 
       //pause the transaction
       transaction.pause();
@@ -259,27 +261,63 @@ emp.editingManager = function(args) {
 
       item = transaction.items[0];
 
-      // The draw needs to return a feature.  Prepare this feature.
-      // Sometimes an existing feature is passed into the draw.  Make
-      // sure to copy the feature's properties and coordinates.
-      feature = new emp.typeLibrary.Feature({
-        overlayId: "vertices",
-        featureId: emp3.api.createGUID(),
-        format: item.type,
-        data: {
-          // type: TODO: get correct type here.  We are going to have to
-          // redo CMAPI channel to correct.
-          coordinates: item.coordinates,
-          symbolCode: item.symbolCode
-        },
-        properties: item.properties
+      // If this feature already exists,
+      // Add the control points for that feature.
+      // Remember that we are editing a symbol. We will need to return to this
+      // feature prior to completing a draw.  Additionally, We will not call drawStart,
+      // instead calling drawClick for each additional click.
+      // Determine the type of editor to create.
+      feature = emp.storage.get.id({
+        id: item.featureId
       });
 
+      // copy the feature.  we do not want to modify the original feature in
+      // the transaction.  This feature will track the current state.
+      if (feature) {
+        feature = feature.getObjectData(mapInstance.mapInstanceId, emp.storage.getRootGuid(mapInstance.mapInstanceId));
+        feature = emp.helpers.copyObject(feature);
+        // The feature prior to any changes occurring.
+        originalFeature = emp.helpers.copyObject(feature);
 
-      // The feature prior to any changes occurring.
-      originalFeature = emp.helpers.copyObject(feature);
+        // set the coreParent to undefined and overlayId to be ALL_PARENTS.
+        // By doing this we indicate
+        // that this typeLibrary.Feature is intended to be an update.
+        originalFeature.coreParent = undefined;
+        originalFeature.overlayId = emp.constant.parentIds.ALL_PARENTS;
+        feature.coreParent = undefined;
+        feature.overlayId = emp.constant.parentIds.ALL_PARENTS;
+
+      } else {
+
+        // The feature does not exist.
+        // The draw needs to return a feature.  Prepare this feature.
+        // Sometimes an existing feature is passed into the draw.  Make
+        // sure to copy the feature's properties and coordinates.
+        feature = new emp.typeLibrary.Feature({
+          overlayId: "vertices",
+          featureId: item.featureId || emp3.api.createGUID(),
+          format: item.type,
+          data: {
+            // type: TODO: get correct type here.  We are going to have to
+            // redo CMAPI channel to correct.
+            coordinates: item.coordinates,
+            symbolCode: item.symbolCode
+          },
+          properties: item.properties
+        });
+
+        // The feature prior to any changes occurring.
+        originalFeature = emp.helpers.copyObject(feature);
+      }
 
       activeEditor = getEditor(feature);
+
+      // If we are drawing on an existing feature, add the control
+      // points.  We can tell if it is existing, because the overlayId
+      // will be set to ALL_PARENTS.
+      if (feature.overlayId === emp.constant.parentIds.ALL_PARENTS) {
+        activeEditor.addControlPoints();
+      }
 
       // send out the callback to the user that the draw started.
       editTransaction.items[0].update({
@@ -329,20 +367,38 @@ emp.editingManager = function(args) {
       // if we are drawing, remove the feature from the map.
       // if we are editing, restore the feature to its original state.
       if (drawing) {
-        // restore the feature to its original state.  Create
-        // a FEATURE_ADD transaction that updates the feature
-        // to its original state.
-        transaction = new emp.typeLibrary.Transaction({
-          intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
-          mapInstanceId: mapInstance.mapInstanceId,
-          transactionId: null,
-          sender: mapInstance.mapInstanceId,
-          originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-          source: emp.api.cmapi.SOURCE,
-          messageOriginator: mapInstance.mapInstanceId,
-          originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-          items: [originalFeature]
-        });
+
+        // If we were drawing on an existing feature we do not want to remove the
+        // feature from the map, but we need to restore the feature to its original
+        // state.
+        if (feature.overlayId === emp.constant.parentIds.ALL_PARENTS) {
+          transaction = new emp.typeLibrary.Transaction({
+            intent: emp.intents.control.FEATURE_ADD,
+            mapInstanceId: mapInstance.mapInstanceId,
+            transactionId: null,
+            sender: mapInstance.mapInstanceId,
+            originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+            source: emp.api.cmapi.SOURCE,
+            messageOriginator: mapInstance.mapInstanceId,
+            originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+            items: [originalFeature]
+          });
+        } else {
+          // If we are drawing a new feature, remove it from the map.
+          transaction = new emp.typeLibrary.Transaction({
+            intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+            mapInstanceId: mapInstance.mapInstanceId,
+            transactionId: null,
+            sender: mapInstance.mapInstanceId,
+            originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+            source: emp.api.cmapi.SOURCE,
+            messageOriginator: mapInstance.mapInstanceId,
+            originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+            items: [originalFeature]
+          });
+        }
+
+
       } else {
         // restore the feature to its original state.  Create
         // a FEATURE_ADD transaction that updates the feature
@@ -395,25 +451,41 @@ emp.editingManager = function(args) {
       // remove editing control points from the map.
       activeEditor.removeControlPoints();
 
-      // if we are drawing, remove the feature from the map. We do this
+      // if we are drawing a new item, remove the feature from the map. We do this
       // because the responsibility of the draw is the API developer.   draw
       // does not commit the item to the map.
       // if we are editing, commit the feature .
       if (drawing) {
-        // restore the feature to its original state.  Create
-        // a FEATURE_ADD transaction that updates the feature
-        // to its original state.
-        transaction = new emp.typeLibrary.Transaction({
-          intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
-          mapInstanceId: mapInstance.mapInstanceId,
-          transactionId: null,
-          sender: mapInstance.mapInstanceId,
-          originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-          source: emp.api.cmapi.SOURCE,
-          messageOriginator: mapInstance.mapInstanceId,
-          originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-          items: [originalFeature]
-        });
+
+        // If we were drawing on an existing feature we do not want to remove the
+        // feature from the map, but we need to restore the feature to its original
+        // state
+        if (feature.overlayId === emp.constant.parentIds.ALL_PARENTS) {
+          transaction = new emp.typeLibrary.Transaction({
+            intent: emp.intents.control.FEATURE_ADD,
+            mapInstanceId: mapInstance.mapInstanceId,
+            transactionId: null,
+            sender: mapInstance.mapInstanceId,
+            originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+            source: emp.api.cmapi.SOURCE,
+            messageOriginator: mapInstance.mapInstanceId,
+            originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+            items: [originalFeature]
+          });
+        } else {
+          // If we are drawing a new feature, remove it from the map.
+          transaction = new emp.typeLibrary.Transaction({
+            intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+            mapInstanceId: mapInstance.mapInstanceId,
+            transactionId: null,
+            sender: mapInstance.mapInstanceId,
+            originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+            source: emp.api.cmapi.SOURCE,
+            messageOriginator: mapInstance.mapInstanceId,
+            originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+            items: [originalFeature]
+          });
+        }
       } else {
         // update the feature to its new state. Create
         // a FEATURE_ADD transaction that updates the feature
@@ -637,7 +709,14 @@ emp.editingManager = function(args) {
      */
     drawStart: function(pointer) {
 
-      updateData = activeEditor.drawStart(pointer);
+      // If this is an existing feature, the overlayId will be set to
+      // ALL_PARENTS.  In this case we don't want to start the draw, we want to
+      // act like if we are adding a new point.
+      if (feature.overlayId === emp.constant.parentIds.ALL_PARENTS) {
+        updateData = activeEditor.drawClick(pointer);
+      } else {
+        updateData = activeEditor.drawStart(pointer);
+      }
 
       if (updateData) {
 

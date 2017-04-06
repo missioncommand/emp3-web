@@ -77,7 +77,8 @@ emp.editors.Polygon.prototype.addControlPoints = function() {
         midpoint = [pt3.lon(), pt3.lat()];
 
 
-      } else if (i === length - 1) {
+      }
+      else if (i === length - 1) {
         // find the mid point between this point and the next point.
         pt1 = new LatLon(coordinates[0][i][1], coordinates[0][i][0]);
         pt2 = new LatLon(coordinates[0][0][1], coordinates[0][0][0]);
@@ -213,7 +214,8 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
       if (currentVertex.next === null) {
         // get the midpoint between current point and next point.
         frontFeature = this.vertices.head.feature;
-      } else {
+      }
+      else {
         // get the midpoint between current point and next point.
         frontFeature = currentVertex.next.feature;
       }
@@ -269,7 +271,8 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
   // this is the first point.
   if (currentVertex.before === null) {
     animationCoordinates.push(this.vertices.tail.before.feature.data.coordinates);
-  } else {
+  }
+  else {
     animationCoordinates.push(currentVertex.before.before.feature.data.coordinates);
   }
 
@@ -282,7 +285,8 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
   // first point of the polygon.
   if (currentVertex.next.next === null) {
     animationCoordinates.push(this.vertices.head.feature.data.coordinates);
-  } else {
+  }
+  else {
     animationCoordinates.push(currentVertex.next.next.feature.data.coordinates);
   }
 
@@ -304,15 +308,15 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
   items.push(this.animation);
 
   var transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
   });
 
   transaction.run();
@@ -330,9 +334,9 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
   }
 
   coordinateUpdate = {
-      type: type,
-      indices: [index],
-      coordinates: newCoordinates
+    type: type,
+    indices: [index],
+    coordinates: newCoordinates
   };
 
   updateData.coordinateUpdate = coordinateUpdate;
@@ -355,7 +359,7 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
     frontFeature,
     nextFrontVertexFeature,
     nextBackVertexFeature,
-    items =[],
+    items = [],
     pt1,
     pt2,
     pt3,
@@ -384,7 +388,8 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   if (back === null) {
     backFeature = this.vertices.tail.feature;
     nextBackVertexFeature = this.vertices.tail.before.feature;
-  } else {
+  }
+  else {
     backFeature = back.feature;
     nextBackVertexFeature = back.before.feature;
   }
@@ -407,7 +412,8 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   if (front.next === null) {
     frontFeature = front.feature;
     nextFrontVertexFeature = this.vertices.head.feature;
-  } else {
+  }
+  else {
     frontFeature = front.feature;
     nextFrontVertexFeature = front.next.feature;
   }
@@ -437,7 +443,8 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   // the first point on the animation is the last point of the polygon
   if (currentVertex.before === null) {
     animationCoordinates.push(this.vertices.tail.before.feature.data.coordinates);
-  } else {
+  }
+  else {
     animationCoordinates.push(currentVertex.before.before.feature.data.coordinates);
   }
 
@@ -450,7 +457,8 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   // animation point will be the first point of the polygon.
   if (currentVertex.next.next === null) {
     animationCoordinates.push(this.vertices.head.feature.data.coordinates);
-  } else {
+  }
+  else {
     animationCoordinates.push(currentVertex.next.next.feature.data.coordinates);
   }
   this.animation.data.coordinates = animationCoordinates;
@@ -458,15 +466,15 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   items.push(this.animation);
 
   var transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
   });
 
   transaction.run();
@@ -474,32 +482,22 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
   // return updateData
   // Create the return object.  This will tell you which index was added,
   // the locations of the new indices, and the type of change it was.
-  //
-  // The coordinates will be formatted slightly different it is a GEO_MIL_SYMBOL.
-  // We need to first account for that.
   newCoordinates = [];
-  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-    for (i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-      newCoordinates.push({
-        lat: this.featureCopy.data.coordinates[i][1],
-        lon: this.featureCopy.data.coordinates[i][0]
-      });
-    }
-  } else {
-    for (i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
-      newCoordinates.push({
-        lat: this.featureCopy.data.coordinates[i][1],
-        lon: this.featureCopy.data.coordinates[i][0]
-      });
-    }
+
+  for (i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
+    newCoordinates.push({
+      lat: this.featureCopy.data.coordinates[0][i][1],
+      lon: this.featureCopy.data.coordinates[0][i][0]
+    });
   }
+
 
   index = this.vertices.getIndex(featureId);
 
   coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index], //TODO: Get the correct index.
-      coordinates: newCoordinates
+    type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+    indices: [index], //TODO: Get the correct index.
+    coordinates: newCoordinates
   };
 
   updateData.coordinateUpdate = coordinateUpdate;
@@ -512,7 +510,7 @@ emp.editors.Polygon.prototype.moveControlPoint = function(featureId, pointer) {
  * Also updates the control point and the feature with the change.
  */
 emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer) {
-  var items =[],
+  var items = [],
     newCoordinates,
     coordinateUpdate,
     updateData = {},
@@ -553,7 +551,8 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   if (back === null) {
     backFeature = this.vertices.tail.feature;
     nextBackVertexFeature = this.vertices.tail.before.feature;
-  } else {
+  }
+  else {
     backFeature = back.feature;
     nextBackVertexFeature = back.before.feature;
   }
@@ -575,7 +574,8 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   if (front.next === null) {
     frontFeature = front.feature;
     nextFrontVertexFeature = this.vertices.head.feature;
-  } else {
+  }
+  else {
     frontFeature = front.feature;
     nextFrontVertexFeature = front.next.feature;
   }
@@ -593,15 +593,15 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   items.push(frontFeature);
 
   addTransaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
   });
 
   // Remove the line animation.
@@ -636,9 +636,9 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   index = this.vertices.getIndex(featureId);
 
   coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index], //TODO: Get the correct index.
-      coordinates: newCoordinates
+    type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+    indices: [index], //TODO: Get the correct index.
+    coordinates: newCoordinates
   };
 
   updateData.coordinateUpdate = coordinateUpdate;
@@ -693,35 +693,22 @@ emp.editors.Polygon.prototype.drawStart = function(pointer) {
   items.push(controlPoint);
 
   // Update the feature, only internally -- we don't want events sent out
-  // from this.  The GeoJSON will be slightly different if it is MIL-STD.
-  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-    this.featureCopy = new emp.typeLibrary.Feature({
-      overlayId: this.featureCopy.overlayId,
-      featureId: this.featureCopy.featureId,
-      format: this.featureCopy.format,
-      data: {
-        type: "LineString",
-        coordinates: [
-          [[pointer.lon, pointer.lat]]
-        ],
-        symbolCode: this.featureCopy.symbolCode
-      },
-      properties: this.featureCopy.properties
-    });
-  } else {
-    this.featureCopy = new emp.typeLibrary.Feature({
-      overlayId: this.featureCopy.overlayId,
-      featureId: this.featureCopy.featureId,
-      format: this.featureCopy.format,
-      data: {
-        type: "Polygon",
-        coordinates: [
-          [[pointer.lon, pointer.lat]]
+  // from this.
+  this.featureCopy = new emp.typeLibrary.Feature({
+    overlayId: this.featureCopy.overlayId,
+    featureId: this.featureCopy.featureId,
+    format: this.featureCopy.format,
+    data: {
+      type: "Polygon",
+      coordinates: [
+        [
+          [pointer.lon, pointer.lat]
         ]
-      },
-      properties: this.featureCopy.properties
-    });
-  }
+      ]
+    },
+    properties: this.featureCopy.properties
+  });
+
 
   // Place the vertex that you clicked on the map.
   transaction = new emp.typeLibrary.Transaction({
@@ -837,7 +824,8 @@ emp.editors.Polygon.prototype.drawClick = function(pointer) {
       this.vertices.push(vertex);
       items.push(addPoint);
       items.push(controlPoint);
-    } else if (this.vertices.vertexLength === 2) {
+    }
+    else if (this.vertices.vertexLength === 2) {
       // there is currently only 2 points in the polygon--not enough points.
       // now that we clicked again we will have enough, but we need to generate
       // the "add point" that we didn't have before.
@@ -932,7 +920,8 @@ emp.editors.Polygon.prototype.drawClick = function(pointer) {
       items.push(addPoint);
       items.push(controlPoint);
       items.push(addPoint2);
-    } else {
+    }
+    else {
       // there is more than 3 points in the polygon.  In this case we need to addPoint
       // change the last addPoint, add the new vertex, and then add a new addPoint.
 
@@ -1015,11 +1004,8 @@ emp.editors.Polygon.prototype.drawClick = function(pointer) {
     }
 
     // update feature copy
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
-    } else {
-      this.featureCopy.data.coordinates = this.vertices.getVerticesAsPolygon();
-    }
+    this.featureCopy.data.coordinates = this.vertices.getVerticesAsPolygon();
+
 
     // update line
     items.push(this.featureCopy);
@@ -1042,24 +1028,14 @@ emp.editors.Polygon.prototype.drawClick = function(pointer) {
     // return updateData
     // Create the return object.  This will tell you which index was added,
     // the locations of the new indices, and the type of change it was.
-    //
-    // The coordinates will be formatted slightly different it is a GEO_MIL_SYMBOL.
-    // We need to first account for that.
+
     newCoordinates = [];
-    if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-      for (i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-        newCoordinates.push({
-          lat: this.featureCopy.data.coordinates[i][1],
-          lon: this.featureCopy.data.coordinates[i][0]
-        });
-      }
-    } else {
-      for (i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
-        newCoordinates.push({
-          lat: this.featureCopy.data.coordinates[0][i][1],
-          lon: this.featureCopy.data.coordinates[0][i][0]
-        });
-      }
+
+    for (i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
+      newCoordinates.push({
+        lat: this.featureCopy.data.coordinates[0][i][1],
+        lon: this.featureCopy.data.coordinates[0][i][0]
+      });
     }
 
     index = this.vertices.vertexLength - 1;
