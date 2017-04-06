@@ -48,7 +48,6 @@ function initializeWorldwind(args) {
         "controllers/eventHandlers/EMPWorldWind.eventHandlers.js",
         "controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
         "controllers/eventHandlers/EMPWorldWind.eventHandlers.touch.js",
-        "controllers/eventHandlers/EMPWorldWind.eventHandlers.drag.js",
         "controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js"
       ];
     } else {
