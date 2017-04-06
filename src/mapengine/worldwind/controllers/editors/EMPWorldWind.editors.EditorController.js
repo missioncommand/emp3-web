@@ -92,9 +92,9 @@ EMPWorldWind.editors.EditorController = (function() {
      * @returns {WorldWind.SurfaceShape[]}
      * @private
      */
-    function _constructMultiPointMilStdFeature(feature, modifiers, selectionStyle) {
-        var imageInfo, componentFeature, lineCount, subGeoJSON, bbox, bounds, scale, featureCoords,
-            i, j, data = {},
+    function _constructMultiPointMilStdFeature(feature, modifiers) {
+        var bbox, bounds, scale, featureCoords,
+            i, data = {},
             positions = "",
             shapes = [];
 
@@ -132,8 +132,6 @@ EMPWorldWind.editors.EditorController = (function() {
         // data.converter = this.cesiumConverter;
         //data.symstd = standard;
         data.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
-        var sceneInfo = {};
-        var cameraInfo = {};
         //sceneInfo.canvasClientWidth = this.canvas.width;
         //sceneInfo.canvasClientHeight = this.canvas.height;
         //sceneInfo.drawingBufferWidth = this.viewer.scene.drawingBufferWidth;

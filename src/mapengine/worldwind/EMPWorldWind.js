@@ -335,35 +335,35 @@ EMPWorldWind.Map.prototype = function() {
             };
 
             this.secRendererWorker.A.onmessage = function(e) {
-                var batchCall = false;
+                //var batchCall = false,
                 var rendererData = [];
                 if (e.data.id) //not a batch call
                 {
                     rendererData.push = e.data.result;
                 } else {
-                    batchCall = true;
+                    //batchCall = true;
                     rendererData = e.data.result;
                 }
                 if (rendererData && rendererData !== null && typeof rendererData === 'string') {
-                    console.log("Render error: " + rendererData);
+                    //console.log("Render error: " + rendererData);
                     return;
                 }
 
                 for (var index = 0; index < rendererData.length; index++) {
                     if (!EMPWorldWind.utils.defined(rendererData[index])) {
-                        console.log("Render error: renderer data is undefined");
+                        //console.log("Render error: renderer data is undefined");
                         return;
                     }
                     if (typeof rendererData[index] === 'string') {
-                        console.log("Render error: " + rendererData[index]);
+                        //console.log("Render error: " + rendererData[index]);
                         return;
                     }
 
                     if (EMPWorldWind.utils.defined(rendererData[index])) {
                         if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] === 'string') {
-                            result.success = false;
-                            result.message = rendererData[index];
-                            result.jsError = "function: this.secRendererWorker.A.onmessage ";
+                            //result.success = false;
+                            //result.message = rendererData[index];
+                            //result.jsError = "function: this.secRendererWorker.A.onmessage ";
                             return;
                         }
 
@@ -373,17 +373,17 @@ EMPWorldWind.Map.prototype = function() {
                             var shapes = [];
                             var data = rendererData[index].geojson;
                             //var data = JSON.parse(rendererData[index].geojson);
-                            for (i = 0; i < data.features.length; i++) {
-                                componentFeature = data.features[i];
+                            for (var i = 0; i < data.features.length; i++) {
+                                var componentFeature = data.features[i];
                                 // TODO have the renderer return the proper width, manually overwriting the line width for now
                                 componentFeature.properties.strokeWidth = 1;
                                 componentFeature.properties.strokeWeight = 1;
                                 switch (componentFeature.geometry.type) {
                                     case "MultiLineString":
-                                        lineCount = componentFeature.geometry.coordinates.length;
+                                        var lineCount = componentFeature.geometry.coordinates.length;
 
-                                        for (j = 0; j < lineCount; j++) {
-                                            subGeoJSON = {
+                                        for (var j = 0; j < lineCount; j++) {
+                                            var subGeoJSON = {
                                                 properties: componentFeature.properties,
                                                 coordinates: componentFeature.geometry.coordinates[j]
                                             };
@@ -405,7 +405,7 @@ EMPWorldWind.Map.prototype = function() {
                                 }
                             }
                             if (wwFeature) {
-                                layer = this.getLayer(this.rootOverlayId);
+                                var layer = this.getLayer(this.rootOverlayId);
                                 wwFeature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
                                 layer.removeFeature(wwFeature);
                                 // Clear the primitives from the feature
