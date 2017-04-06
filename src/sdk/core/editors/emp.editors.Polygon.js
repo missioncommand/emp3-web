@@ -534,6 +534,7 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
   currentVertex = this.vertices.find(featureId);
   currentFeature = currentVertex.feature;
   currentFeature.data.coordinates = [pointer.lon, pointer.lat];
+  items.push(currentFeature);
 
   // copy the coordinates into our object, so we can eventually complete
   // the edit.

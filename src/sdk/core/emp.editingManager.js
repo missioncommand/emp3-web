@@ -664,6 +664,7 @@ emp.editingManager = function(args) {
         updateData = activeEditor.moveFeature(startX, startY, pointer);
       }
       else if (activeEditor.isControlPoint(featureId)) {
+        console.log("  -  endMoveControlPoint %s %s", pointer.lon, pointer.lat);
         updateData = activeEditor.endMoveControlPoint(featureId, pointer);
       }
 

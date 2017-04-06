@@ -456,6 +456,7 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
   currentVertex = this.vertices.find(featureId);
   currentFeature = currentVertex.feature;
   currentFeature.data.coordinates = [pointer.lon, pointer.lat];
+  items.push(currentFeature);
 
   // copy the coordinates into our object, so we can eventually complete
   // the edit.
@@ -472,7 +473,7 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
     backFeature = back.feature;
     nextBackVertexFeature = back.before.feature;
 
-    // get the new location of the backFeature, the feature in before the current feature
+    // get the new location of the backFeature, the feature before the current feature
     pt1 = new LatLon(nextBackVertexFeature.data.coordinates[1], nextBackVertexFeature.data.coordinates[0]);
     pt2 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
 
@@ -483,6 +484,7 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
     backFeature.data.coordinates = midpoint;
 
     items.push(backFeature);
+    console.log("back added - " + backFeature.featureId );
 
   }
 
@@ -501,6 +503,7 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
     frontFeature.data.coordinates = midpoint;
 
     items.push(frontFeature);
+    console.log("front added - " + frontFeature.featureId );
   }
 
   addTransaction = new emp.typeLibrary.Transaction({
@@ -514,6 +517,10 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
     originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
     items: items
   });
+
+  for (i = 0; i < items.length; i++) {
+    console.log(JSON.stringify(items[i].data.coordinates));
+  }
 
   // Remove the line animation.
   removeTransaction = new emp.typeLibrary.Transaction({
