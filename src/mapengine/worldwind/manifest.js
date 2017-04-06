@@ -56,7 +56,10 @@ function initializeWorldwind(args) {
     } else {
       resourceList = [
         "worldwind.min.js",
-        "emp3-worldwind.min.js"
+        "emp3-worldwind.min.js",
+        "renderer/MPCWorker.js",
+        "renderer/savm-bc.js",
+        "renderer/savm-bc.min.js"
       ];
     }
     return resourceList;

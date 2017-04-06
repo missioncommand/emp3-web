@@ -470,7 +470,10 @@ var manifest = {
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.touch.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.drag.js",
-    "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js"
+    "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js",
+    "src/mapengine/worldwind/renderer/MPCWorker.js",
+    "src/mapengine/worldwind/renderer/savm-bc.js",
+    "src/mapengine/worldwind/renderer/savm-bc.min.js"
   ]
 };
 
