@@ -657,14 +657,11 @@ emp.editingManager = function(args) {
 
     editDragComplete: function(featureId, startX, startY, pointer) {
       var transaction;
-      var lockMapTransaction;
-      var mapLock;
 
       if (originalFeature && featureId === originalFeature.featureId && activeEditor.isFeature(featureId)) {
         updateData = activeEditor.moveFeature(startX, startY, pointer);
       }
       else if (activeEditor.isControlPoint(featureId)) {
-        console.log("  -  endMoveControlPoint %s %s", pointer.lon, pointer.lat);
         updateData = activeEditor.endMoveControlPoint(featureId, pointer);
       }
 
@@ -688,6 +685,11 @@ emp.editingManager = function(args) {
           mapInstanceId: mapInstance.mapInstanceId
         });
       }
+    },
+
+    editMouseUp: function() {
+      var lockMapTransaction,
+        mapLock;
 
       mapLock = new emp.typeLibrary.Lock({
         lock: emp3.api.enums.MapMotionLockEnum.UNLOCKED

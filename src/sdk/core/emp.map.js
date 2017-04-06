@@ -921,8 +921,6 @@ emp.map = function(args) {
           //   Check to see if this is a mouse down.
           if (args.type === emp.typeLibrary.Pointer.EventType.MOUSEDOWN) {
 
-            console.log("Mouse down");
-
             //     Memorize location, if next event comes as a move with button still
             //     down, then this is a drag.
             if ((status === emp.map.states.EDIT || status === emp.map.states.DRAW)) {
@@ -934,15 +932,12 @@ emp.map = function(args) {
               };
 
               editingManager.editMouseDown(pointer.featureId);
-              console.log("- edit mouse down");
             } else {
               this.mapDragStart = {};
             }
 
             //  Check to see if this is a mouse move
           } else if (args.type === emp.typeLibrary.Pointer.EventType.MOVE) {
-
-            console.log("Mouse move");
 
             // if mouse button is still down, start drag
             if (this.mapDragStart && this.mapDrag !== true) {
@@ -962,7 +957,6 @@ emp.map = function(args) {
                 // transaction should be run.
 
                 editingManager.editDragStart(this.mapDragStart.featureId, dragPointer);
-                console.log("- edit drag start");
 
                 // We weren't over a feature we were over the map.
               } else {
@@ -984,7 +978,6 @@ emp.map = function(args) {
                   items: [dragPointer]
                 });
                 fTransaction.run();
-                console.log("- map drag");
               }
             } else if (this.mapDragStart && this.mapDrag === true &&
                 this.mapDragStart.featureId && (status === emp.map.states.EDIT)) {
@@ -994,13 +987,9 @@ emp.map = function(args) {
                 this.mapDragStart.startX,
                 this.mapDragStart.startY,
                 pointer);
-              console.log("- edit drag move");
             }
             //   Check to see if this is a mouse up
           } else if (args.type === emp.typeLibrary.Pointer.EventType.MOUSEUP) {
-
-            console.log("Mouse up");
-
             // we only want to do this if we are not dragging an edit point around.
             if (status === emp.map.states.DRAW && !this.mapDragStart.featureId) {
               if (!this.drawStart) {
@@ -1027,8 +1016,6 @@ emp.map = function(args) {
                   this.mapDragStart.startX,
                   this.mapDragStart.startY,
                   dragPointer);
-
-                console.log("edit drag complete");
               } else {
                 args.type = emp.typeLibrary.Pointer.EventType.DRAG_COMPLETE;
                 args.coreId = undefined;
@@ -1044,8 +1031,14 @@ emp.map = function(args) {
                   items: [dragPointer]
                 });
                 fTransaction.run();
-                console.log("drag complete");
               }
+            }
+
+            // if a drag was started, then always call the editingManager
+            // so it can unlock the map.  When a drag starts, the map is locked
+            // so we can perform a drag.
+            if (this.mapDragStart.featureId) {
+              mapInstance.editingManager.get().editMouseUp();
             }
 
             this.mapDragStart = null;
