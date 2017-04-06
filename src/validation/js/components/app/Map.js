@@ -9,56 +9,7 @@ import {addMap} from '../../actions/MapActions';
 import {addResult, addError} from '../../actions/ResultActions';
 import {addFeature} from '../../actions/FeatureActions';
 import {addOverlay} from '../../actions/OverlayActions';
-
-
-/**
- * Make calls to multiple maps simultaneously
- * @constructor
- */
-function MapCoordinator() {
-  this.handlers = {};
-}
-
-MapCoordinator.prototype = {
-  /**
-   * @param prop
-   * @param fn
-   */
-  subscribe: function(prop, fn) {
-    if (!(prop in this.handlers)) {
-      this.handlers[prop] = [];
-    }
-    this.handlers[prop].push(fn);
-  },
-  /**
-   *
-   * @param prop
-   * @param fn
-   */
-  unsubscribe: function(prop, fn) {
-    this.handlers[prop] = this.handlers[prop].filter(
-      function(item) {
-        if (item !== fn) {
-          return item;
-        }
-      }
-    );
-  },
-  /**
-   *
-   * @param prop
-   * @param o
-   * @param thisObj
-   */
-  fire: function(prop, o, thisObj) {
-    var scope = thisObj || window;
-    this.handlers[prop].forEach(function(fn) {
-      fn.apply(scope, o);
-    });
-  }
-};
-
-const mapCoordinator = new MapCoordinator();
+import {mapCoordinator} from '../../util';
 
 //======================================================================================================================
 class MapSelection extends Component {
@@ -401,6 +352,7 @@ const mapStateToProps = state => {
   };
 };
 
+
 const mapDispatchToProps = dispatch => {
   return {
     addError: (err, title) => {
@@ -436,7 +388,6 @@ const mapDispatchToProps = dispatch => {
           mapCoordinator.subscribe(prop, origFunc.bind(map));
         }
       }
-
 
       dispatch(addMap(map));
     },
