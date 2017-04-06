@@ -8116,6 +8116,7 @@ function EmpCesium() {
                     if (oProperties.modifiers) {
                         mods.modifiers = emp.helpers.copyObject(oProperties.modifiers);
                     }
+
                     if (oProperties.fillColor) {
                         mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.fillColor] = oProperties.fillColor;
                     }
@@ -8154,13 +8155,21 @@ function EmpCesium() {
                             case "verticalHatched":
                                 mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.PatternFillType] = armyc2.c2sd.renderer.utilities.FillPatterns.PatternVerticalHatch;
                                 break;
+                            case "solid":
+                                mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.PatternFillType] = armyc2.c2sd.renderer.utilities.FillPatterns.PatternSolid;
+                                break;
+                            case "none":
+                                // none means a shape with no patern and no fill color (not solid)
+                                // remove fill color from modifiers if any
+                                mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.PatternFillType] = armyc2.c2sd.renderer.utilities.FillPatterns.PatternSolid;
+                                delete mods.modifiers[emp.typeLibrary.utils.milstd.ModifierToString.lineColor];
+                                break;
                             default:
                                 mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.PatternFillType] = armyc2.c2sd.renderer.utilities.FillPatterns.PatternSolid;
                         }
                     } else {
                         mods.modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.PatternFillType] = armyc2.c2sd.renderer.utilities.FillPatterns.PatternSolid;
                     }
-
 
                     if (mods.modifiers && !mods.modifiers.hasOwnProperty("azimuth")) {
                         // check the properties for azimuth
