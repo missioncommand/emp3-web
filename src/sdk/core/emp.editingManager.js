@@ -219,6 +219,14 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       }
+      else if (feature.format == emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+        // This is a square. 
+        // so there is a separate editor for those.
+        activeEditor = new emp.editors.Square({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
       else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
         // This is an axis of advance defined by a line.  The last point of the line in relation to the first point
         // decides the width of the axis of advance.
