@@ -695,11 +695,58 @@ EMPWorldWind.Map.prototype = function() {
     },
     /**
      *
+     * @param {emp.typeLibrary.KmlLayer} kml
+     * @param {function} cb
+     */
+    addKML: function(kml, cb) {
+      var kmlFilePromise,
+        kmlLayer = new EMPWorldWind.data.EmpKMLLayer(kml);
+
+      // // Build the KML file promise
+      kmlFilePromise = new WorldWind.KmlFile(kmlLayer.url);
+      kmlFilePromise
+        .then(function(kmlFile) {
+          // Construct the KML layer to hold the document
+          var kmlRenderableLayer = new WorldWind.RenderableLayer(kmlLayer.id);
+          kmlLayer.layer = kmlRenderableLayer;
+
+          // Add the KML layer to the map
+          kmlRenderableLayer.addRenderable(kmlFile);
+          this.worldWindow.addLayer(kmlRenderableLayer);
+
+          // Record the layer so we can remove/modify it later
+          this.layers[kmlLayer.id] = kmlLayer;
+          if (typeof cb === "function") {
+            return cb({success: true});
+          }
+        }.bind(this))
+        .catch(function() {
+          return cb({success: false, message: 'Failed to add KML Layer'});
+        });
+    },
+    /**
+     *
+     * @param {emp.typeLibrary.KmlLayer} kml
+     * @param {function} [cb]
+     */
+    removeKML: function(kml, cb) {
+      if (kml.coreId in this.layers) {
+        this.worldWindow.removeLayer(this.layers[kml.coreId].layer);
+        delete this.layers[kml.coreId];
+        this.worldWindow.redraw();
+      }
+
+      if (typeof cb === "function") {
+        return cb({success: true});
+      }
+    },
+    /**
+     *
      * @param id
      * @returns {boolean}
      */
     isFeatureSelected: function(id) {
-      return !!this.empSelections.hasOwnProperty(id);
+      return Boolean(this.empSelections.hasOwnProperty(id));
     },
     /**
      *
