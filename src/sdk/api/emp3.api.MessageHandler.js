@@ -461,9 +461,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.styleOverlay:
           this.styleOverlay(callInfo, message, transactionId);
           break;
-        case emp3.api.enums.channel.centerOnFeature:
-          this.centerOnFeature(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.hideFeature:
           this.hideFeature(callInfo, message, transactionId);
           break;
@@ -3607,33 +3604,6 @@ emp3.api.MessageHandler = (function() {
       }
 
       this.validate(emp3.api.enums.channel.styleOverlay, payload, callInfo);
-    };
-
-    this.centerOnFeature = function(callInfo, message, transactionId) {
-      var payload;
-      var multiPayload = [];
-
-      // Check if an array of features was sent.
-      if (message.featureIds) {
-        for (var i = 0; i < message.featureIds.length; i += 1) {
-          payload = {
-            featureId: message.featureIds[i],
-            zoom: message.range || "auto",
-            messageId: transactionId
-          };
-          multiPayload.push(payload);
-        }
-
-        this.validate(emp3.api.enums.channel.centerOnFeature, multiPayload, callInfo);
-      }
-      else {
-        payload = {
-          featureId: message.featureId,
-          zoom: message.range || "auto",
-          messageId: transactionId
-        };
-        this.validate(emp3.api.enums.channel.centerOnFeature, payload, callInfo);
-      }
     };
 
     this.hideFeature = function(callInfo, message, transactionId) {
