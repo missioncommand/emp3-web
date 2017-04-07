@@ -86,6 +86,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
  * @this EMPWorldWind.Map
  */
 EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
+  var features = [];
   this.state.lastRender.bounds = this.getBounds();
   this.state.lastRender.altitude = this.worldWindow.navigator.range;
 
@@ -121,12 +122,12 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
    * @this EMPWorldWind.Map
    * @private
    */
-  function _handleMultiPoint(feature) {
-    if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
-      feature.feature.wasClipped)) {
+  function _handleMultiPoint(features) {
+    //if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
+      //feature.feature.wasClipped)) {
       // optimization - update feature only if inside view region and  (range outside range epsilon or was clipped)
-      this.plotFeature(feature);
-    }
+      this.plotFeature(features);
+    //}
   }
 
   /**
@@ -159,13 +160,23 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
 
     if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "LineString") {
-      _handleMultiPoint.call(this, feature);
+        if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
+          feature.feature.wasClipped))
+          {
+            features.add[feature];
+          //  _handleMultiPoint.call(this, [feature]);
+          }
     } else if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "Point") {
       // Optimization required
       _handleSinglePoint.call(this, feature);
     }
   }.bind(this));
+
+  if (features.length > 0)
+  {
+     _handleMultiPoint.call(this, [featureIds]);
+  }
 
   this.worldWindow.redraw();
 };
