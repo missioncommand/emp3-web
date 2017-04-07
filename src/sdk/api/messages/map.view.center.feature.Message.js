@@ -9,7 +9,7 @@
    * @ignore
    * @class
    * @param {object} message
-   * @param {[string]} [message.featureIds]
+   * @param {string[]} [message.featureIds]
    * @param {string} [message.featureId]
    * @param {number} [message.range]
    * @param {object} callInfo
