@@ -2,9 +2,6 @@ export const FILLPATTERN = {
   none: '',
   crossHatched: 'Crosshatched',
   hatched: 'Hatched',
-  forwardHatch: 'forwardhatch'
-  backwardHatch: 'Backwardhatch'
-  verticalHatch: 'Verticalhatch'
   solid: 'Solid'
 };
 
