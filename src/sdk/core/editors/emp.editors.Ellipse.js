@@ -21,11 +21,10 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     transaction,
     items = [],
     vertex,
-    addPoint,
-    newPoint,
-    distance,
     semiMajor,
     semiMinor,
+    semiMinorPoint,
+    semiMajorPoint,
     semiMajorFeature,
     semiMinorFeature,
     semiMajorVertex,
@@ -158,8 +157,11 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     items = [],
     semiMajor,
     semiMinor,
+    azimuth = 90,
     newSemiMajorPosition,
     newSemiMinorPosition,
+    alternateVertex,
+    alternateFeature,
     index,
     coordinateUpdate,
     updateData = {},
@@ -167,7 +169,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     newCoordinates,
     x, y;
 
-
+ 
   x = this.featureCopy.data.coordinates[0];
   y = this.featureCopy.data.coordinates[1];
 
@@ -178,6 +180,9 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
   // Calculate the new position of where
   // we want the control point to be.
   if (featureId === this.semiMajor.feature.featureId){
+    //set the alternate so we can update that too
+    alternateVertex = this.vertices.find(this.semiMinor.feature.featureId);
+    alternateFeature = alternateVertex.feature;
 
     // measure the distance between the mouse location and the center.  This
     // will be the new semiMajor.
@@ -186,11 +191,28 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
+    //ensure that semiMajor is always greater than semiMinor
+    if(semiMajor < this.featureCopy.properties.semiMinor){
+      semiMinor = semiMajor;
+      semiMajor = this.featureCopy.properties.semiMinor;
+      this.featureCopy.properties.semiMinor = semiMinor;
+      azimuth = 0;
+
+      // retrieve the new semiMajor vertex.   
+      newSemiMinorPosition = emp.geoLibrary.geodesic_coordinate({
+        x: x,
+        y: y
+      }, semiMinor, 90);
+
+      //update the alternate feature
+      alternateFeature.data.coordinates = [newSemiMinorPosition.x, newSemiMinorPosition.y];
+    }
+
     // retrieve the new semiMajor vertex.   
     newSemiMajorPosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
-    }, semiMajor, 90);
+    }, semiMajor, azimuth);
     // First update the control point with new pointer info.
     currentFeature.data.coordinates = [newSemiMajorPosition.x, newSemiMajorPosition.y];
 
@@ -198,6 +220,9 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     this.featureCopy.properties.semiMajor = semiMajor;
 
   }else if (featureId === this.semiMinor.feature.featureId){
+    //set the alternate so we can update that too
+    alternateVertex = this.vertices.find(this.semiMajor.feature.featureId);
+    alternateFeature = alternateVertex.feature;
 
     // measure the distance between the mouse location and the center.  This
     // will be the new semiMinor.
@@ -206,11 +231,28 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
+        //ensure that semiMajor is always greater than semiMinor
+    if(semiMinor > this.featureCopy.properties.semiMajor){
+      semiMajor = semiMinor;
+      semiMinor = this.featureCopy.properties.semiMajor;
+      this.featureCopy.properties.semiMajor = semiMajor;
+      azimuth = 90;
+
+      // retrieve the new semiMajor vertex.   
+      newSemiMajorPosition = emp.geoLibrary.geodesic_coordinate({
+        x: x,
+        y: y
+      }, semiMajor);
+
+      //update the alternate feature
+      alternateFeature.data.coordinates = [newSemiMajorPosition.x, newSemiMajorPosition.y];
+    }
+
     // retrieve the new semiMinor vertex. 
     newSemiMinorPosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
-    }, semiMinor, 0);
+    }, semiMinor, azimuth);
     // First update the control point with new pointer info.
     currentFeature.data.coordinates = [newSemiMinorPosition.x, newSemiMinorPosition.y];
 
@@ -225,6 +267,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
   // Add our updated feature onto the items we will be updating in our
   // transaction.
   items.push(currentFeature);
+  items.push(alternateFeature);
 
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
