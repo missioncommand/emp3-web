@@ -138,7 +138,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
     return {
       attributes: attributes,
       highlightAttributes: highlightAttributes
-    }
+    };
   }
 
   return {
