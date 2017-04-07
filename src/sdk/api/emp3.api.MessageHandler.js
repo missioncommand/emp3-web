@@ -461,9 +461,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.styleOverlay:
           this.styleOverlay(callInfo, message, transactionId);
           break;
-        case emp3.api.enums.channel.zoom:
-          this.zoom(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.centerOnOverlay:
           this.centerOnOverlay(callInfo, message, transactionId);
           break;
@@ -3613,22 +3610,6 @@ emp3.api.MessageHandler = (function() {
       }
 
       this.validate(emp3.api.enums.channel.styleOverlay, payload, callInfo);
-    };
-
-    this.zoom = function(callInfo, message, transactionId) {
-      var payload,
-        range;
-
-      if (message.altitude !== undefined) {
-        range = message.altitude;
-      }
-
-      payload = {
-        range: range,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.zoom, payload, callInfo);
     };
 
     this.centerOnOverlay = function(callInfo, message, transactionId) {
