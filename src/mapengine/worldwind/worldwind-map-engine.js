@@ -522,7 +522,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.kmllayer.remove = function(transaction) {
-    emp.util.each(transaction.items, function (kmlLayer) {
+    emp.util.each(transaction.items, function(kmlLayer) {
       empWorldWind.removeKML(kmlLayer);
     });
   };
