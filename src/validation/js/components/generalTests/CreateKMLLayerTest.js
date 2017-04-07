@@ -95,7 +95,7 @@ class CreateKMLLayerTest extends Component {
     this.props.addMapService(kmlLayer);
 
     if (kmlLayer) {
-      toastr.success('KML Layer ' + name + ' added succesfully');
+      toastr.success('KML Layer ' + name + ' added successfully');
     } else {
       toastr.error('KML Layer ' + name + ' creation failed');
     }

@@ -73,6 +73,7 @@ var manifest = {
     'src/sdk/core/editors/emp.editors.MilStdPolygon.js',
     'src/sdk/core/editors/emp.editors.Circle.js',
     'src/sdk/core/editors/emp.editors.Rectangle.js',
+    'src/sdk/core/editors/emp.editors.Square.js',
     'src/sdk/core/editors/emp.editors.AxisOfAdvance.js',
     'src/sdk/core/environment/owf/emp.environment.owf.js',
     'src/sdk/core/environment/browser/emp.environment.browser.js',
@@ -461,6 +462,7 @@ var manifest = {
     "src/mapengine/worldwind/data/EMPWorldWind.data.js",
     "src/mapengine/worldwind/data/EMPWorldWind.data.EmpLayer.js",
     "src/mapengine/worldwind/data/EMPWorldWind.data.EmpWMSLayer.js",
+    "src/mapengine/worldwind/data/EMPWorldWind.data.EmpKMLLayer.js",
     "src/mapengine/worldwind/data/EMPWorldWind.data.EmpFeature.js",
     "src/mapengine/worldwind/utils/EMPWorldWind.constants.js",
     "src/mapengine/worldwind/utils/EMPWorldWind.utils.js",
@@ -470,7 +472,10 @@ var manifest = {
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.touch.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.drag.js",
-    "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js"
+    "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js",
+    "src/mapengine/worldwind/renderer/MPCWorker.js",
+    "src/mapengine/worldwind/renderer/savm-bc.js",
+    "src/mapengine/worldwind/renderer/savm-bc.min.js"
   ]
 };
 

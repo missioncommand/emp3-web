@@ -930,6 +930,25 @@ EMPWorldWind.utils.getSinglePointAltitudeRangeMode = function(CameraAltitude, si
 };
 
 
+EMPWorldWind.utils.getFontInfo = function (name, size, style)
+{
+    var _ModifierFont;
+    var _ModifierFontStyle = size;
+    if (style !== 'bold' || style !== 'normal')
+    {
+        _ModifierFontStyle = style;
+    }
+    else
+    {
+        _ModifierFontStyle = 'bold';
+    }
+    _ModifierFont = _ModifierFontStyle + " " + size + "pt " + name;
+
+    var measurements = armyc2.c2sd.renderer.utilities.RendererUtilities.measureFont(_ModifierFont);
+    return {name: name, size: size, style: style, measurements: measurements};
+};
+
+
 EMPWorldWind.Math = {};
 
 /**
@@ -1176,4 +1195,3 @@ EMPWorldWind.Math.sign = function(value) {
 EMPWorldWind.Math.signNotZero = function(value) {
   return value < 0.0 ? -1.0 : 1.0;
 };
-

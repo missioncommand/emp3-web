@@ -39,6 +39,7 @@ function initializeWorldwind(args) {
         "data/EMPWorldWind.data.js",
         "data/EMPWorldWind.data.EmpLayer.js",
         "data/EMPWorldWind.data.EmpWMSLayer.js",
+        "data/EMPWorldWind.data.EmpKMLLayer.js",
         "data/EMPWorldWind.data.EmpFeature.js",
         "utils/EMPWorldWind.constants.js",
         "utils/EMPWorldWind.utils.js",
@@ -48,12 +49,18 @@ function initializeWorldwind(args) {
         "controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
         "controllers/eventHandlers/EMPWorldWind.eventHandlers.touch.js",
         "controllers/eventHandlers/EMPWorldWind.eventHandlers.drag.js",
-        "controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js"
+        "controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js",
+        "renderer/MPCWorker.js",
+        "renderer/savm-bc.js",
+        "renderer/savm-bc.min.js"
       ];
     } else {
       resourceList = [
         "worldwind.min.js",
-        "emp3-worldwind.min.js"
+        "emp3-worldwind.min.js",
+        "renderer/MPCWorker.js",
+        "renderer/savm-bc.js",
+        "renderer/savm-bc.min.js"
       ];
     }
     return resourceList;
