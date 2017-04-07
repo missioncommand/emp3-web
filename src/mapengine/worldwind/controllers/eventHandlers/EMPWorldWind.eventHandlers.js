@@ -86,7 +86,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
  * @this EMPWorldWind.Map
  */
 EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
-  var features = [];
+  var featuresToRedraw = [];
   this.state.lastRender.bounds = this.getBounds();
   this.state.lastRender.altitude = this.worldWindow.navigator.range;
 
@@ -126,7 +126,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
     //if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
       //feature.feature.wasClipped)) {
       // optimization - update feature only if inside view region and  (range outside range epsilon or was clipped)
-      this.plotFeature(features);
+      this.redrawMilStdSymbols(features);
     //}
   }
 
@@ -163,7 +163,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
         if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
           feature.feature.wasClipped))
           {
-            features.add[feature];
+            featuresToRedraw.push(feature);
           //  _handleMultiPoint.call(this, [feature]);
           }
     } else if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
@@ -173,9 +173,9 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
     }
   }.bind(this));
 
-  if (features.length > 0)
+  if (featuresToRedraw.length > 0)
   {
-     _handleMultiPoint.call(this, [featureIds]);
+     _handleMultiPoint.call(this, featuresToRedraw);
   }
 
   this.worldWindow.redraw();
