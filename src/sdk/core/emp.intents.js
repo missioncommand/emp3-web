@@ -40,8 +40,8 @@ emp.intents.control = {
   WMS_REMOVE: "wms.remove",
   WMTS_ADD: "wmts.add",
   WMTS_REMOVE: "wmts.remove",
-  KMLLAYER_ADD: "kmllayer.add",
-  KMLLAYER_REMOVE: "kmllayer.remove",
+  KML_LAYER_ADD: "kmllayer.add",
+  KML_LAYER_REMOVE: "kmllayer.remove",
   FEATURE_OUTBOUND_PLOT: "feature.outbound.plot",
   FEATURE_REMOVE: "feature.remove",
   MP_FEATURE_REMOVE: "multiparent.feature.remove",
@@ -301,7 +301,7 @@ emp.intents.control.transactionComplete = function(args) {
 
 /**
  * This is a temporary function used to determine if we should use new core
- * editing or the old editing.  Once the full transtion to the new editing is
+ * editing or the old editing.  Once the full transition to the new editing is
  * done remove this.
  */
 emp.intents.control.useNewEditing = function(args) {
@@ -326,7 +326,7 @@ emp.intents.control.useNewEditing = function(args) {
     symbol = true;
 
     drawCategory = emp.util.getDrawCategory(originalFeature);
-  }
+    }
 
   if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
     (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT)) {
@@ -343,6 +343,10 @@ emp.intents.control.useNewEditing = function(args) {
   } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
     (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
     result = true;
+}else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE ||
+    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.SQUARE)) {
+    result = true;
+
   } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
     result = true;
   } else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
@@ -553,42 +557,42 @@ emp.intents.control.intentSequenceMapper = (function() {
     };
   };
   /*
-  LEGACY, remove if this comment does not cause issue
-  intentSequenceMapper[emp.intents.control.STATUS] = function(args)
-  {
-      return {
-        forward: [
-          emp.status.get
-        ],
-        exit: [
-          emp.intents.control.transactionComplete
-        ],
-        constructor: [emp.typeLibrary.Status]
-      };
-  };
-  intentSequenceMapper[emp.intents.control.STATUS_RESET] = function(args)
-  {
-      return {
-        forward: [
-          emp.status.get
-        ],
-        exit: [
-          emp.intents.control.transactionComplete
-        ]
-      };
-  };
-  intentSequenceMapper[emp.intents.control.STATUS_DESTROY] = function(args)
-  {
-      return {
-        forward: [
-          emp.status.get
-        ],
-        exit: [
-          emp.intents.control.transactionComplete
-        ]
-      };
-  };
-  */
+   LEGACY, remove if this comment does not cause issue
+   intentSequenceMapper[emp.intents.control.STATUS] = function(args)
+   {
+   return {
+   forward: [
+   emp.status.get
+   ],
+   exit: [
+   emp.intents.control.transactionComplete
+   ],
+   constructor: [emp.typeLibrary.Status]
+   };
+   };
+   intentSequenceMapper[emp.intents.control.STATUS_RESET] = function(args)
+   {
+   return {
+   forward: [
+   emp.status.get
+   ],
+   exit: [
+   emp.intents.control.transactionComplete
+   ]
+   };
+   };
+   intentSequenceMapper[emp.intents.control.STATUS_DESTROY] = function(args)
+   {
+   return {
+   forward: [
+   emp.status.get
+   ],
+   exit: [
+   emp.intents.control.transactionComplete
+   ]
+   };
+   };
+   */
   intentSequenceMapper[emp.intents.control.CAPTURE_SCREENSHOT] = function() {
     return {
       forward: [],
@@ -1065,7 +1069,7 @@ emp.intents.control.intentSequenceMapper = (function() {
               oMapInstance.editingManager.get().edit(args);
             }
           } else {
-              // old editing.
+            // old editing.
             if (oMapInstance && oMapInstance.engine) {
               oMapInstance.engine.edit.begin(args);
             }
@@ -1534,25 +1538,25 @@ emp.intents.control.intentSequenceMapper = (function() {
   };
   intentSequenceMapper[emp.intents.control.POINTER] = function() {
     return {
-      forward: [  /*
-        function(transaction) {
+      forward: [/*
+       function(transaction) {
 
-          // check to see if we are in edit mode, if not exit.
-          var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
-          var pointer = transaction.items[0];
+       // check to see if we are in edit mode, if not exit.
+       var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
+       var pointer = transaction.items[0];
 
-          if (oMapInstance && oMapInstance.editingManager) {
-            if (pointer.type === emp.typeLibrary.Pointer.EventType.DRAG) {
+       if (oMapInstance && oMapInstance.editingManager) {
+       if (pointer.type === emp.typeLibrary.Pointer.EventType.DRAG) {
 
-            }
-          }
+       }
+       }
 
-          // is it a feature drag event?
-          //
-          //   if so is it an editing feature?
-          //
-          //
-        }*/
+       // is it a feature drag event?
+       //
+       //   if so is it an editing feature?
+       //
+       //
+       }*/
       ],
       exit: [emp.transactionQueue._custom]
     };

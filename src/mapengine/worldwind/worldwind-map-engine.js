@@ -481,7 +481,52 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     }
   };
 
-// return the engineInterface object as a new engineTemplate instance
+  /**
+   * Creates a KML layer
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.kmllayer.add = function(transaction) {
+    var items = transaction.items.length;
+
+    /**
+     * Resume the transaction once all items have been processed
+     * @private
+     */
+    function _complete(args) {
+      items--;
+
+      if (!args.success) {
+        transaction.failures.push(new emp.typeLibrary.Error({
+          message: args.message,
+          coreId: args.id
+        }));
+      }
+
+      // There are other layers to add
+      if (items > 0) {
+        return;
+      }
+
+      transaction.run();
+    }
+
+    // Pause the transaction, KML is async in WorldWind
+    transaction.pause();
+    emp.util.each(transaction.items, function(kmlLayer) {
+      empWorldWind.addKML(kmlLayer, _complete);
+    });
+  };
+
+  /**
+   * Remove a KML Layer
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.kmllayer.remove = function(transaction) {
+    emp.util.each(transaction.items, function (kmlLayer) {
+      empWorldWind.removeKML(kmlLayer);
+    });
+  };
+
+  // return the engineInterface object as a new engineTemplate instance
   return engineInterface;
-}
-;
+};
