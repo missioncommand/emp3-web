@@ -470,6 +470,7 @@ var manifest = {
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.touch.js",
+    "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.drag.js",
     "src/mapengine/worldwind/controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js"
   ]
 };

@@ -75,13 +75,13 @@ EMPWorldWind.eventHandlers.mouse = (function() {
         event.preventDefault();
       }
 
-      var preventDefault = [
+      var preventDefaultLockStates = [
         emp3.api.enums.MapMotionLockEnum.NO_MOTION,
         emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN,
         emp3.api.enums.MapMotionLockEnum.NO_ZOOM
       ];
 
-      if (preventDefault.includes(this.state.lockState)) {
+      if (preventDefaultLockStates.includes(this.state.lockState)) {
         event.preventDefault();
       }
 
@@ -122,6 +122,21 @@ EMPWorldWind.eventHandlers.mouse = (function() {
      */
     mousemove: function(event) {
 
+      /**
+       * Returns true if the location and buttons pressed are identical
+       * @returns boolean
+       * @private
+       */
+      var _filterDuplicateMouseEvents = function(event) {
+        return event.clientX === this.state.lastInteractionEvent.clientX &&
+          event.clientY === this.state.lastInteractionEvent.clientY &&
+          event.buttons === this.state.lastInteractionEvent.buttons;
+      }.bind(this);
+
+      /**
+       * Detects the location for auto-panning in smartMotion mode
+       * @private
+       */
       var _handleSmartMotion = function() {
         var smartAreaBuffer = 0.05,
           element = event.srcElement || event.originalTarget,
@@ -149,6 +164,10 @@ EMPWorldWind.eventHandlers.mouse = (function() {
         }
       }.bind(this);
 
+      /**
+       * Checks if the event needs to be cancelled based on the lock state
+       * @private
+       */
       var _checkForPreventDefault = function() {
         var preventDefault = [
           emp3.api.enums.MapMotionLockEnum.NO_MOTION,
@@ -161,6 +180,11 @@ EMPWorldWind.eventHandlers.mouse = (function() {
           event.preventDefault();
         }
       }.bind(this);
+
+      // Some browsers pass mouse and pointer events events separately, only handle the first one through
+      if (this.state.lastInteractionEvent && _filterDuplicateMouseEvents(event)) {
+        return;
+      }
 
       // Check if we prevent default
       _checkForPreventDefault();
