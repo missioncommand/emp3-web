@@ -92,7 +92,7 @@ EMPWorldWind.editors.EditorController = (function() {
      */
     function _constructMultiPointMilStdFeature(features) {
         var bbox, bounds, scale, featureCoords,
-            data = {},
+            data = {};
             bounds = this.getBounds();
         bbox = bounds.west + "," + bounds.south + "," + bounds.east + "," + bounds.north;
         data.batch = [];
@@ -103,9 +103,9 @@ EMPWorldWind.editors.EditorController = (function() {
         data.pixelHeight = this.worldWindow.canvas.clientHeight;
         data.pixelWidth = this.worldWindow.canvas.clientWidth;
         data.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
-        for (featureIndex = 0; featureIndex < features.length; featureIndex += 1) {
+        for (var featureIndex = 0; featureIndex < features.length; featureIndex += 1) {
             {
-                var i, shapes = [],
+                var i,
                     modifiers,
                     positions = "",
                     feature = features[featureIndex];
@@ -448,8 +448,6 @@ EMPWorldWind.editors.EditorController = (function() {
          * @param {array of emp.typeLibrary.Feature } features
          */
         redrawMilStdSymbols: function(features) {
-            var modifiers, shapes = [];
-
             // Process the modifiers
             //modifiers = processModifiers.call(this, feature);
             // Requires access to the WorldWindow navigator, bind to the current scope
