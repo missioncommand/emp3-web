@@ -76,8 +76,6 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
     this.lastNavigator.heading = this.worldWindow.navigator.heading;
     this.lastNavigator.lookAtLocation = emp.helpers.copyObject(this.worldWindow.navigator.lookAtLocation);
   }
-
-
 };
 
 /**

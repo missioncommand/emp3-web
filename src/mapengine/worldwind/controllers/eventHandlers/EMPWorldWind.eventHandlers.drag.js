@@ -13,29 +13,33 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  *
  * @namespace
  */
-EMPWorldWind.eventHandlers.drag = {
-  /**
-   *
-   * @param {WWDragEvent} event
-   * @this EMPWorldWind.Map
-   */
-  began: function (/*event*/) {
-    //window.console.debug(event);
-  },
-  /**
-   *
-   * @param {WWDragEvent} event
-   * @this EMPWorldWind.Map
-   */
-  changed: function (/*event*/) {
-    //window.console.debug(event);
-  },
-  /**
-   *
-   * @param {WWDragEvent} event
-   * @this EMPWorldWind.Map
-   */
-  ended: function (/*event*/) {
-    //window.console.debug(event);
-  }
-};
+EMPWorldWind.eventHandlers.drag = (function() {
+
+
+  return {
+    /**
+     *
+     * @param {WWDragEvent} event
+     * @this EMPWorldWind.Map
+     */
+    began: function(/*event*/) {
+      //window.console.debug(event);
+    },
+    /**
+     *
+     * @param {WWDragEvent} event
+     * @this EMPWorldWind.Map
+     */
+    changed: function(/*event*/) {
+      //window.console.debug(event);
+    },
+    /**
+     *
+     * @param {WWDragEvent} event
+     * @this EMPWorldWind.Map
+     */
+    ended: function(/*event*/) {
+      //window.console.debug(event);
+    }
+  };
+}());

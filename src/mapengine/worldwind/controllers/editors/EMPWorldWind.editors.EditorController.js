@@ -20,9 +20,9 @@ EMPWorldWind.editors.EditorController = (function() {
 
         attributes = new WorldWind.PlacemarkAttributes();
 
-        // TODO pass in leaderline settings by feature or via config object
         // Leaderline settings
-        attributes.drawLeaderLine = true;
+        attributes.drawLeaderLine = feature.properties.extrude || false;
+        // TODO choose color based on some other setting (affiliation perhaps)
         attributes.leaderLineAttributes.outlineColor = WorldWind.Color.RED;
 
         if (feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) {
