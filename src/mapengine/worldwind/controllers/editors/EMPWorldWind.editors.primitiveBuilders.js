@@ -34,7 +34,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
 
 
     // Create the label attributes
-    attributes.labelAttributes = this.createTextAttributes(feature);
+    attributes.labelAttributes = EMPWorldWind.editors.primitiveBuilders.createTextAttributes(feature);
 
     // Create the highlight attributes
     highlightAttributes = new WorldWind.PlacemarkAttributes(attributes);
@@ -68,7 +68,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
   function _createTextAttributes(feature, selectionStyle) {
     var attributes, highlightAttributes, selectedLabelColor;
     // GeographicText requires TextAttributes instead
-    attributes = this.createTextAttributes(feature);
+    attributes = EMPWorldWind.editors.primitiveBuilders.createTextAttributes(feature);
 
     // Create highlight attributes from the regular attributes, only update highlight color
     highlightAttributes = new WorldWind.TextAttributes(attributes);
@@ -133,6 +133,11 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.red, selectedFillColor.green, selectedFillColor.blue, selectedFillColor.alpha);
     } else {
       highlightAttributes.drawInterior = false;
+    }
+
+    return {
+      attributes: attributes,
+      highlightAttributes: highlightAttributes
     }
   }
 
@@ -276,7 +281,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       var attributes, location, circlePrimitive;
 
       // Construct circle attributes
-      attributes = this.createShapeAttributes(feature, selectionStyle);
+      attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
 
       // Set the location
       location = new WorldWind.Location(feature.coordinates[1], feature.coordinates[0]);
@@ -302,7 +307,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       var attributes, location, ellipsePrimitive;
 
       // Construct the ellipse attributes
-      attributes = this.createShapeAttributes(feature, selectionStyle);
+      attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
 
       // Set the location
       location = new WorldWind.Location(feature.coordinates[1], feature.coordinates[0]);
@@ -334,7 +339,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
         locations = [];
 
       // Construct the path attributes
-      attributes = this.createShapeAttributes(feature, selectionStyle);
+      attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
 
       // Set the locations
       for (i = 0; i < len; i++) {
@@ -404,7 +409,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
         eyeDistanceScaling = false;
 
       // Create the placemark attributes
-      attributes = this.createShapeAttributes(feature, selectionStyle);
+      attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
 
       // Set the position
       position = new WorldWind.Position(
@@ -437,7 +442,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
         numBounds = feature.data.coordinates.length;
 
       // Construct the polygon attributes
-      attributes = this.createShapeAttributes(feature, selectionStyle);
+      attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
 
       // Set the boundary locations
       for (i = 0; i < numBounds; i++) {
@@ -535,7 +540,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       var attributes, location, width, height, rectPrimitive;
 
       // Construct the rectangle/square attributes
-      attributes = this.createShapeAttributes(feature, selectionStyle);
+      attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
 
       // Set the location
       location = new WorldWind.Location(feature.coordinates[1], feature.coordinates[0]);
@@ -572,7 +577,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       var attributes, position, textPrimitive;
 
       // Construct circle attributes
-      attributes = this.createShapeAttributes(feature, selectionStyle);
+      attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
 
       // Set the position
       position = new WorldWind.Position(
@@ -600,7 +605,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       var textPrimitive, attributes, highlightAttributes, selectedColor, position;
 
       // Create the attributes
-      attributes = this.createTextAttributes(geoJSON);
+      attributes = EMPWorldWind.editors.primitiveBuilders.createTextAttributes(geoJSON);
 
       // Create the highlight attributes
       highlightAttributes = new WorldWind.TextAttributes(attributes);
