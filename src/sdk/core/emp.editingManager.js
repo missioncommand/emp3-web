@@ -1,3 +1,5 @@
+var emp = window.emp || {};
+
 /**
  * Controls the process of editing Features on the map.  Will
  * start the process to make sure all the messages are published
@@ -149,6 +151,14 @@ emp.editingManager = function(args) {
         (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
         // This is a rectangle defined by a point, width, height and azimuth.
         activeEditor = new emp.editors.Rectangle({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
+      else if (feature.format == emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+        // This is a square. 
+        // so there is a separate editor for those.
+        activeEditor = new emp.editors.Square({
           feature: feature,
           mapInstance: args.mapInstance
         });

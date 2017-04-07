@@ -1,4 +1,5 @@
-/*global emp */
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
 
 /**
  * @class
@@ -65,15 +66,15 @@ emp.typeLibrary.KmlLayer = function(args) {
    * @description This field contains the primary key of the parent object.
    */
   this.coreParent = args.coreParent || (function(args) {
-    if (emp.helpers.id.get.isId(args.overlayId)) {
-      return args.overlayId;
-    }
-    else if (emp.hasOwnProperty('storage')) {
-      return emp.storage.getRootGuid();
-    }
+      if (emp.helpers.id.get.isId(args.overlayId)) {
+        return args.overlayId;
+      }
+      else if (emp.hasOwnProperty('storage')) {
+        return emp.storage.getRootGuid();
+      }
 
-    return undefined;
-  })(this);
+      return undefined;
+    })(this);
 
   this.parentCoreId = args.parentCoreId || this.coreParent;
 

@@ -429,9 +429,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.convert:
           this.convert(callInfo, message); // Synchronous call, does not need transactionId
           break;
-        case emp3.api.enums.channel.overlayClusterSet:
-          this.overlayClusterSet(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.overlayClusterActivate:
           this.overlayClusterActivate(callInfo, message, transactionId);
           break;
@@ -464,15 +461,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.styleOverlay:
           this.styleOverlay(callInfo, message, transactionId);
           break;
-        case emp3.api.enums.channel.zoom:
-          this.zoom(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnOverlay:
-          this.centerOnOverlay(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnFeature:
-          this.centerOnFeature(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.hideFeature:
           this.hideFeature(callInfo, message, transactionId);
           break;
@@ -502,20 +490,9 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.get:
           this.get(callInfo, message, transactionId);
           break;
-        case emp3.api.enums.channel.cancel:
-          this.cancel(callInfo, message);
-          break;
-        case emp3.api.enums.channel.transactionComplete:
-          this.complete(callInfo, message);
-          break;
         case emp3.api.enums.channel.mapShutdown:
+          // Special case, needs to be handled here
           this.mapShutdown(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.getVisibility:
-          this.getVisibility(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.swap:
-          this.mapSwap(callInfo, message, transactionId);
           break;
         default:
           break;
@@ -3335,22 +3312,6 @@ emp3.api.MessageHandler = (function() {
       });
     };
 
-    this.overlayClusterSet = function(callInfo, message, transactionId) {
-      var payload;
-
-      if (callInfo.method === "Overlay.clusterSet") {
-        payload = {
-          overlayId: callInfo.args.overlay.id,
-          threshold: callInfo.args.cluster.threshold,
-          distance: callInfo.args.cluster.distance,
-          clusterStyle: callInfo.args.cluster.clusterStyle,
-          messageId: transactionId
-        };
-      }
-
-      this.validate(emp3.api.enums.channel.overlayClusterSet, payload);
-    };
-
     this.overlayClusterActivate = function(callInfo, message, transactionId) {
       var payload;
 
@@ -3643,61 +3604,6 @@ emp3.api.MessageHandler = (function() {
       }
 
       this.validate(emp3.api.enums.channel.styleOverlay, payload, callInfo);
-    };
-
-    this.zoom = function(callInfo, message, transactionId) {
-      var payload,
-        range;
-
-      if (message.altitude !== undefined) {
-        range = message.altitude;
-      }
-
-      payload = {
-        range: range,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.zoom, payload, callInfo);
-    };
-
-    this.centerOnOverlay = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        overlayId: message.overlayId,
-        zoom: message.range || "auto",
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.centerOnOverlay, payload, callInfo);
-    };
-
-    this.centerOnFeature = function(callInfo, message, transactionId) {
-      var payload;
-      var multiPayload = [];
-
-      // Check if an array of features was sent.
-      if (message.featureIds) {
-        for (var i = 0; i < message.featureIds.length; i += 1) {
-          payload = {
-            featureId: message.featureIds[i],
-            zoom: message.range || "auto",
-            messageId: transactionId
-          };
-          multiPayload.push(payload);
-        }
-
-        this.validate(emp3.api.enums.channel.centerOnFeature, multiPayload, callInfo);
-      }
-      else {
-        payload = {
-          featureId: message.featureId,
-          zoom: message.range || "auto",
-          messageId: transactionId
-        };
-        this.validate(emp3.api.enums.channel.centerOnFeature, payload, callInfo);
-      }
     };
 
     this.hideFeature = function(callInfo, message, transactionId) {
@@ -4002,40 +3908,6 @@ emp3.api.MessageHandler = (function() {
     };
 
     /**
-     * Retrieves the visibility state of a container or container instance.
-     */
-    this.getVisibility = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        targetId: message.target.geoId,
-        parentId: (message.parent) ? message.parent.geoId : undefined,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.getVisibility, payload, callInfo);
-    };
-
-    /**
-     * Sends the message required to swap a map engine.
-     *
-     * @private
-     * @param {object} callInfo - Object containing information related to the original call.
-     * @param {string} message - Object containing information for the payload
-     * being sent over the emp3.api.enums.channel.swap channel
-     */
-    this.mapSwap = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        mapId: callInfo.mapId,
-        engine: message.engine,
-        messageId: transactionId
-      };
-      this.validate(emp3.api.enums.channel.swap, payload, callInfo);
-    };
-
-    /**
      * Locks or unlocks map view synchronously
      *
      * @param {object} callInfo
@@ -4046,53 +3918,6 @@ emp3.api.MessageHandler = (function() {
         mapId: callInfo.mapId,
         message: message
       });
-    };
-
-    /**
-     * Attempts to cancel a transaction before it finishes.  If the
-     * transaction has already been processed, no action occurs.  If the map
-     * cannot cancel it, not action occurs.  If the map can cancel
-     * the transaction the calling function associated with the transaction
-     * should handle any cancel responses
-     * in a callback.
-     *
-     * @param {object} callInfo
-     * @param {object} message
-     *
-     */
-    this.cancel = function(callInfo, message) {
-      var payload;
-
-      if (message && message.transaction && message.transaction.id) {
-        payload = {
-          messageId: message.transaction.id
-        };
-      }
-
-      this.validate(emp3.api.enums.channel.cancel, payload, callInfo);
-    };
-
-    /**
-     * Attempts to complete a transaction before user does.  If the
-     * transaction has already been processed, no action occurs.  If the map
-     * cannot complete the transaction,  no action occurs.  If the map can complete
-     * the transaction the calling function associated with the transaction
-     * should handle any complete responses
-     * in a callback.
-     *
-     * @param {object} callInfo
-     * @param {object} message
-     */
-    this.complete = function(callInfo, message) {
-      var payload;
-
-      if (message && message.transaction && message.transaction.id) {
-        payload = {
-          messageId: message.transaction.id
-        };
-      }
-
-      this.validate(emp3.api.enums.channel.transactionComplete, payload, callInfo);
     };
 
     /**

@@ -494,6 +494,7 @@ EMPWorldWind.data.EmpLayer.prototype.removeFeature = function(feature) {
     }.bind(this));
 
     delete this.featureKeys[feature.id];
+
   }
 };
 

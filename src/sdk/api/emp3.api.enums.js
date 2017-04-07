@@ -1071,8 +1071,6 @@ emp3.api.enums.updateEventType = {
   START: "start"
 };
 
-emp3.api.enums.version = "ER1 Sprint 10";
-
 /**
  *
  * @type {string}

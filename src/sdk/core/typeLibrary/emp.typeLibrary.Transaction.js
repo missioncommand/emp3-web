@@ -1,4 +1,5 @@
-/*global emp */
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
 
 /**
  * @memberOf emp.typeLibrary
@@ -199,36 +200,36 @@ emp.typeLibrary.Transaction = function(args) {
   // /**
   //  * @private
   //  */
-/*
-  this.breakCoreId = function(args) {
-    var returnVar = [],
-      i,
-      coreId;
+  /*
+   this.breakCoreId = function(args) {
+   var returnVar = [],
+   i,
+   coreId;
 
-    for (i = 0; i < args.length; i = i + 1) {
+   for (i = 0; i < args.length; i = i + 1) {
 
-      coreId = args[i].coreId;
-      coreId = coreId.split(".");
-      if (coreId.length === 1) {
-        returnVar.push({
-          overlayId: coreId[0]
-        });
-      } else if (coreId.length === 2) {
-        returnVar.push({
-          overlayId: coreId[0],
-          featureId: coreId[1]
-        });
-      } else if (coreId.length === 3) {
-        returnVar.push({
-          overlayId: coreId[0],
-          parentId: coreId[1],
-          featureId: coreId[2]
-        });
-      }
-    }
-    return returnVar;
-  };
-*/
+   coreId = args[i].coreId;
+   coreId = coreId.split(".");
+   if (coreId.length === 1) {
+   returnVar.push({
+   overlayId: coreId[0]
+   });
+   } else if (coreId.length === 2) {
+   returnVar.push({
+   overlayId: coreId[0],
+   featureId: coreId[1]
+   });
+   } else if (coreId.length === 3) {
+   returnVar.push({
+   overlayId: coreId[0],
+   parentId: coreId[1],
+   featureId: coreId[2]
+   });
+   }
+   }
+   return returnVar;
+   };
+   */
   /**
    * Used by CMAPI to finalize transaction prior to publishing.
    * @return {void}
@@ -237,47 +238,47 @@ emp.typeLibrary.Transaction = function(args) {
   /**
    * @private
    */
-/*
-  this.close = function() {
-
-    var r = [],
-      i;
-    for (i = 0; i < this.items.length; i = i + 1) {
-      r.push({
-        coreId: this.items[i].coreId
-      });
-    }
-
-    if (this.items.length > 0) {
-      if ((this.items[0].bounds !== undefined &&
-          this.items[0].bounds !== null) ||
-        (this.items[0].location !== undefined &&
-          this.items[0].location !== null) ||
-        (this.items[0].range !== undefined &&
-          this.items[0].range !== null)) {
-        this.successes = [{
-          bounds: this.items[0].bounds,
-          center: this.items[0].location,
-          range: this.items[0].range
-        }];
-      } else if (this.intent === "map.get") {
-        this.successes = {
-          overlay: this.items[0].overlay,
-          feature: this.items[0].feature
-
-        };
-      } else {
-        this.successes = this.breakCoreId(r);
-      }
-    }
-
-    this.state = "closed";
-  };
-*/
   /*
-     this is our setup for -INITIAL- validation errors.
-     This will not work twice.
-     */
+   this.close = function() {
+
+   var r = [],
+   i;
+   for (i = 0; i < this.items.length; i = i + 1) {
+   r.push({
+   coreId: this.items[i].coreId
+   });
+   }
+
+   if (this.items.length > 0) {
+   if ((this.items[0].bounds !== undefined &&
+   this.items[0].bounds !== null) ||
+   (this.items[0].location !== undefined &&
+   this.items[0].location !== null) ||
+   (this.items[0].range !== undefined &&
+   this.items[0].range !== null)) {
+   this.successes = [{
+   bounds: this.items[0].bounds,
+   center: this.items[0].location,
+   range: this.items[0].range
+   }];
+   } else if (this.intent === "map.get") {
+   this.successes = {
+   overlay: this.items[0].overlay,
+   feature: this.items[0].feature
+
+   };
+   } else {
+   this.successes = this.breakCoreId(r);
+   }
+   }
+
+   this.state = "closed";
+   };
+   */
+  /*
+   this is our setup for -INITIAL- validation errors.
+   This will not work twice.
+   */
   /**
    * List of failed items in the transaction.
    * @type {Array}
@@ -321,7 +322,6 @@ emp.typeLibrary.Transaction = function(args) {
    * Used by the transaction to Queue it's self.
    * @return {void}
    */
-
   this.queue = function() {
     this.state = "queued";
     emp.transactionQueue.add(this);
@@ -489,6 +489,9 @@ emp.typeLibrary.Transaction = function(args) {
 
   };
 
+  /**
+   *
+   */
   this.checkTransactionSplicing = function() {
     switch (this.intent) {
       // We will only splice the transaction for the following intents.
@@ -515,6 +518,10 @@ emp.typeLibrary.Transaction = function(args) {
     }
   };
 
+  /**
+   *
+   * @returns {boolean}
+   */
   this.getNextItemSet = function() {
     if (this.pendingItems && (this.pendingItems.length > 0)) {
       var iCumSize = 0;
@@ -577,6 +584,10 @@ emp.typeLibrary.Transaction = function(args) {
    */
   this.duplicateItems = [];
 
+  /**
+   *
+   * @param sCoreId
+   */
   this.duplicate = function(sCoreId) {
     var iIndex;
     var removedItem;
@@ -591,6 +602,9 @@ emp.typeLibrary.Transaction = function(args) {
     }
   };
 
+  /**
+   *
+   */
   this.returnDuplicatesToItems = function() {
     var iIndex;
 
@@ -601,6 +615,9 @@ emp.typeLibrary.Transaction = function(args) {
     this.duplicateItems = [];
   };
 
+  /**
+   *
+   */
   this.prepItemsForExecution = function() {
     var iIndex,
       len = this.items.length,
@@ -608,13 +625,18 @@ emp.typeLibrary.Transaction = function(args) {
     for (iIndex = 0; iIndex < len; iIndex++) {
       item = this.items[iIndex];
       if ((item !== undefined) && (item !== null)
-              && item.hasOwnProperty('prepForExecution')
-              && (typeof item.prepForExecution === 'function')) {
-            item.prepForExecution();
+        && item.hasOwnProperty('prepForExecution')
+        && (typeof item.prepForExecution === 'function')) {
+        item.prepForExecution();
       }
     }
   };
 
+  /**
+   *
+   * @param oItem
+   * @returns {boolean}
+   */
   this.isOnItemsList = function(oItem) {
     var iIndex;
     for (iIndex = 0; iIndex < this.items.length; iIndex++) {
@@ -632,6 +654,10 @@ emp.typeLibrary.Transaction = function(args) {
     return false;
   };
 
+  /**
+   *
+   * @param oItem
+   */
   this.pushToItemsList = function(oItem) {
     if (!this.isOnItemsList(oItem)) {
       this.items.push(oItem);

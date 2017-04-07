@@ -22,7 +22,7 @@ emp.ui.images.rotationPoint = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABg
  * @param {String} args.domContainer The map's div id.
  * @param {boolean} args.record Whether or not to show the recording buttons.
  */
-emp.ui.renderContainer = function (args) {
+emp.ui.renderContainer = function(args) {
   var domCont,
     instanceId = args.instanceId,
     domTargetId = args.domContainer,
@@ -106,18 +106,18 @@ emp.ui.renderContainer = function (args) {
 
   // Assemble the page
   instanceContainer.appendChild(loadingPanel);
-    loadingPanel.appendChild(flexStart);
-    loadingPanel.appendChild(loadingPanelStatus);
-      loadingPanelStatus.appendChild(messageHolder);
-        messageHolder.appendChild(loadingMessageSpan);
-          loadingMessageSpan.appendChild(document.createTextNode("Loading Map"));
-        messageHolder.appendChild(document.createElement('br'));
-        messageHolder.appendChild(loadingStatus);
-          loadingStatus.appendChild(document.createTextNode("Fetching configuration..."));
-      loadingPanelStatus.appendChild(spinner);
-        spinner.appendChild(innerSpinner);
-        spinner.appendChild(innerCircle);
-    loadingPanel.appendChild(flexEnd);
+  loadingPanel.appendChild(flexStart);
+  loadingPanel.appendChild(loadingPanelStatus);
+  loadingPanelStatus.appendChild(messageHolder);
+  messageHolder.appendChild(loadingMessageSpan);
+  loadingMessageSpan.appendChild(document.createTextNode("Loading Map"));
+  messageHolder.appendChild(document.createElement('br'));
+  messageHolder.appendChild(loadingStatus);
+  loadingStatus.appendChild(document.createTextNode("Fetching configuration..."));
+  loadingPanelStatus.appendChild(spinner);
+  spinner.appendChild(innerSpinner);
+  spinner.appendChild(innerCircle);
+  loadingPanel.appendChild(flexEnd);
   instanceContainer.appendChild(instanceMap);
 
   // only show the debugging recorder if the recorder parameter is set.
@@ -181,7 +181,7 @@ emp.ui.renderContainer = function (args) {
 /**
  * Begins recording calls
  */
-emp.ui.record = function () {
+emp.ui.record = function() {
   var record = document.getElementById('emp_record');
   var stop = document.getElementById('emp_stop');
   record.disabled = true;
@@ -193,7 +193,7 @@ emp.ui.record = function () {
 /**
  * Stops recording calls
  */
-emp.ui.stop = function () {
+emp.ui.stop = function() {
   var record = document.getElementById('emp_record');
   var stop = document.getElementById('emp_stop');
   record.disabled = false;
@@ -204,14 +204,14 @@ emp.ui.stop = function () {
 /**
  * Exports calls to the downloads folder
  */
-emp.ui.save = function () {
+emp.ui.save = function() {
   emp.recorder.save();
 };
 
 /**
  * Clears the existing calls from the record stack
  */
-emp.ui.clear = function () {
+emp.ui.clear = function() {
   emp.recorder.clear();
 };
 
