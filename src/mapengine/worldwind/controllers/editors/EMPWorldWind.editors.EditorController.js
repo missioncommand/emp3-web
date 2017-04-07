@@ -84,79 +84,16 @@ EMPWorldWind.editors.EditorController = (function() {
         return placemark;
     }
 
-    /**
-     *
-     * @param {emp.typeLibrary.Feature} feature
-     * @param {object} modifiers
-     * @param {SelectionStyle} selectionStyle
-     * @returns {WorldWind.SurfaceShape[]}
-     * @private
-     */
-    function _constructMultiPointMilStdFeature(feature, modifiers, selectionStyle) {
-        var imageInfo, componentFeature, lineCount, subGeoJSON, bbox, bounds, scale, featureCoords,
-            i, j, data = {},
-            positions = "",
-            shapes = [];
-
-        // Generate position string
-        featureCoords = feature.data.coordinates.join().split(",");
-        for (i = 0; i < featureCoords.length; i += 2) {
-            positions += featureCoords[i] + "," + featureCoords[i + 1] + " ";
-        }
-        positions = positions.trim();
-
-        // Convert bounds to bbox
-        bounds = this.getBounds();
-        bbox = bounds.west + "," + bounds.south + "," + bounds.east + "," + bounds.north;
-
-        // Calculate the approximate scale
-        scale = EMPWorldWind.utils.boundsWidth(bounds) >> 2;
-
-        data.batch = [];
-        data.scale = scale;
-        data.bbox = bbox;
-        //     }
-        data.format = EMPWorldWind.constants.MultiPointRenderType.GEOJSON;
-        data.pixelHeight = this.worldWindow.canvas.clientHeight;
-        data.pixelWidth = this.worldWindow.canvas.clientWidth;
-        data.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
-        var sceneInfo = {};
-        var cameraInfo = {};
-        data.worldWindow = {};
-        data.worldWindow.globe = this.worldWindow.globe;
-
-        modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.GeoJSONFormat] = 1; // 0 for string geojson, 1 for object geojson
-        var batchObject = {};
-        batchObject.id = feature.coreId;
-        batchObject.name = feature.name;
-        batchObject.description = unescape(feature.description);
-        batchObject.symbolID = feature.symbolCode;
-        batchObject.scale = scale; //scale;
-        batchObject.bbox = data.bbox;
-        batchObject.modifiers = modifiers;
-        batchObject.format = EMPWorldWind.constants.MultiPointRenderType.GEOJSON;
-        batchObject.symstd = 1; //TODO remove this harcoding of synstd    1;//1=2525C, 0=2525Bch2
-        batchObject.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
-        batchObject.altMode = WorldWind.CLAMP_TO_GROUND;
-        batchObject.points = positions;
-        data.batch[0] = batchObject;
-        //call sec renderer worker
-        this.secRendererWorker.A.postMessage(data);
-        //return empty shapes for now. The worker will add the shapes to the feature in a asynchronous way.
-        return shapes;
-    }
-
 
     /**
      *
-     * @param {emp.typeLibrary.Feature} feature
+     * @param {array of emp.typeLibrary.Feature} feature
      * @private
      */
-    function _redrawMultiPointMilStdFeatures(features) {
+    function _constructMultiPointMilStdFeature(features) {
         var bbox, bounds, scale, featureCoords,
             data = {},
-            modifiers = processModifiers.call(this, feature);
-        bounds = this.getBounds();
+            bounds = this.getBounds();
         bbox = bounds.west + "," + bounds.south + "," + bounds.east + "," + bounds.north;
         data.batch = [];
         scale = EMPWorldWind.utils.boundsWidth(bounds) >> 2;
@@ -166,22 +103,20 @@ EMPWorldWind.editors.EditorController = (function() {
         data.pixelHeight = this.worldWindow.canvas.clientHeight;
         data.pixelWidth = this.worldWindow.canvas.clientWidth;
         data.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
-        for (featureIndex = 0; featureIndex < featureCoords.length; featureIndex += 1) {
+        for (featureIndex = 0; featureIndex < features.length; featureIndex += 1) {
             {
                 var i, shapes = [],
+                    modifiers,
                     positions = "",
                     feature = features[featureIndex];
                 if (feature) {
+                    modifiers = processModifiers.call(this, feature);
                     // Generate position string
                     featureCoords = feature.data.coordinates.join().split(",");
                     for (i = 0; i < featureCoords.length; i += 2) {
                         positions += featureCoords[i] + "," + featureCoords[i + 1] + " ";
                     }
                     positions = positions.trim();
-                    // Calculate the approximate scale
-
-                    //data.worldWindow = {};
-                    //data.worldWindow.globe = this.worldWindow.globe;
                     modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.GeoJSONFormat] = 1; // 0 for string geojson, 1 for object geojson
                     var batchObject = {};
                     batchObject.id = feature.coreId;
@@ -196,13 +131,19 @@ EMPWorldWind.editors.EditorController = (function() {
                     batchObject.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
                     batchObject.altMode = WorldWind.CLAMP_TO_GROUND;
                     batchObject.points = positions;
-                    data.batch.add(batchObject);
+                    data.batch.push(batchObject);
                 }
             }
             //call sec renderer worker
-            this.secRendererWorker.A.postMessage(data);
-            //return empty shapes for now. The worker will add the shapes to the feature in a asynchronous way.
+            if (this.secRendererWorker.lastSelected === EMPWorldWind.constants.RendererWorker.B) {
+                this.secRendererWorker.A.postMessage(data);
+                this.secRendererWorker.lastSelected = EMPWorldWind.constants.RendererWorker.A;
+            } else {
+                this.secRendererWorker.B.postMessage(data);
+                this.secRendererWorker.lastSelected = EMPWorldWind.constants.RendererWorker.B;
+            }
         }
+        return [];
     }
 
     /**
@@ -252,35 +193,18 @@ EMPWorldWind.editors.EditorController = (function() {
     function constructMilStdSymbol(feature, selectionStyle) {
         var modifiers, shapes = [];
 
-        // Process the modifiers
-        modifiers = processModifiers.call(this, feature);
-
         if (feature.data.type === "Point") {
+            modifiers = processModifiers.call(this, feature);
             shapes.push(_constructSinglePointMilStdSymbol.call(this, feature, modifiers, selectionStyle));
         } else if (feature.data.type === "LineString") {
             // Requires access to the WorldWindow navigator, bind to the current scope
-            shapes = shapes.concat(_constructMultiPointMilStdFeature.call(this, feature, modifiers, selectionStyle));
+            shapes = shapes.concat(_constructMultiPointMilStdFeature.call(this, [feature]));
         } else {
             // TODO alert the user more gracefully that the type is unhandled
             window.console.error("Unhandled feature type: " + feature.data.type + " in EMPWorldWind");
         }
 
         return shapes;
-    }
-
-    /**
-     * Requires access to the current scope.
-     * ie .bind .call .apply
-     *
-     * @param {array of emp.typeLibrary.Feature } features
-     */
-    function redrawMilStdSymbols(features) {
-        var modifiers, shapes = [];
-
-        // Process the modifiers
-        //modifiers = processModifiers.call(this, feature);
-        // Requires access to the WorldWindow navigator, bind to the current scope
-        shapes = shapes.concat(_redrawMultiPointMilStdFeatures.call(this, features));
     }
 
     /**
@@ -515,6 +439,21 @@ EMPWorldWind.editors.EditorController = (function() {
                 default:
                     // do nothing
             }
+        },
+
+        /**
+         * Requires access to the current scope.
+         * ie .bind .call .apply
+         *
+         * @param {array of emp.typeLibrary.Feature } features
+         */
+        redrawMilStdSymbols: function(features) {
+            var modifiers, shapes = [];
+
+            // Process the modifiers
+            //modifiers = processModifiers.call(this, feature);
+            // Requires access to the WorldWindow navigator, bind to the current scope
+            _constructMultiPointMilStdFeature.call(this, features);
         }
     };
 })();

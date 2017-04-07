@@ -126,7 +126,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
     //if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
       //feature.feature.wasClipped)) {
       // optimization - update feature only if inside view region and  (range outside range epsilon or was clipped)
-      this.redrawMilStdSymbols(features);
+      EMPWorldWind.editors.EditorController.redrawMilStdSymbols.call(this,features);
     //}
   }
 
@@ -163,7 +163,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
         if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
           feature.feature.wasClipped))
           {
-            featuresToRedraw.push(feature);
+            featuresToRedraw.push(feature.feature);
           //  _handleMultiPoint.call(this, [feature]);
           }
     } else if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&

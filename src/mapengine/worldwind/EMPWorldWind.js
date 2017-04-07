@@ -141,7 +141,7 @@ EMPWorldWind.Map = function(wwd) {
      * Current set of selected objects
      */
     this.empSelections = {};
-    this.optimizationMapMoveEpsilon = EMPWorldWind.Math.EPSILON7;
+    this.optimizationMapMoveEpsilon = EMPWorldWind.Math.EPSILON5;
     this.lastNavigator = {};
     this.shapesInViewArea = undefined;
     this.bounds = undefined;
@@ -149,6 +149,8 @@ EMPWorldWind.Map = function(wwd) {
     //SEC renderer worker for multipoints
     this.secRendererWorker = {};
     this.secRendererWorker.A = undefined;
+    this.secRendererWorker.B = undefined;
+    this.secRendererWorker.lastSelected === EMPWorldWind.constants.RendererWorker.B;
 };
 
 // typedefs ============================================================================================================
@@ -328,13 +330,13 @@ EMPWorldWind.Map.prototype = function() {
             EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
             //initialize sec worker
             this.secRendererWorker.A = new Worker(WorldWind.configuration.baseUrl + 'renderer/MPCWorker.js');
+            this.secRendererWorker.B = new Worker(WorldWind.configuration.baseUrl + 'renderer/MPCWorker.js');
 
             this.secRendererWorker.A.onerror = function(error) {
                 //logs error to console
                 armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker A", "postMessage", error);
             };
-
-            this.secRendererWorker.A.onmessage = function(e) {
+            this.secRendererWorker.onMassage = function(e) {
                 //var batchCall = false,
                 var rendererData = [];
                 if (e.data.id) //not a batch call
@@ -423,6 +425,15 @@ EMPWorldWind.Map.prototype = function() {
                     } //  if (this.defined(multiPointObject))
                 } // for loop
             }.bind(this);
+            this.secRendererWorker.A.onmessage = this.secRendererWorker.onMassage;
+
+
+            this.secRendererWorker.B.onerror = function(error) {
+                //logs error to console
+                armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker B", "postMessage", error);
+            };
+            this.secRendererWorker.B.onmessage = this.secRendererWorker.onMassage;
+
         },
         /**
          *
