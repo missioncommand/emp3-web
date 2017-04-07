@@ -7,6 +7,135 @@ EMPWorldWind.editors = EMPWorldWind.editors || {};
  */
 EMPWorldWind.editors.primitiveBuilders = (function() {
 
+  /**
+   *
+   * @param feature
+   * @param selectionStyle
+   * @private
+   */
+  function _createPlacemarkAttributes(feature, selectionStyle) {
+    var attributes, highlightAttributes, selectedLineColor;
+
+    // Use PlacemarkAttributes
+    attributes = new WorldWind.PlacemarkAttributes();
+
+    // Set the leaderline options
+    attributes.drawLeaderLine = feature.properties.extrude || false;
+
+    // Set the imageURL
+    if (feature.properties.iconUrl) {
+      attributes.imageSource = feature.properties.iconUrl;
+      if (feature.properties.useProxy) {
+        attributes.imageSource = emp3.api.global.configuration.urlProxy + "?url=" + attributes.imageSource;
+      }
+    } else {
+      attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+    }
+
+
+    // Create the label attributes
+    attributes.labelAttributes = this.createTextAttributes(feature);
+
+    // Create the highlight attributes
+    highlightAttributes = new WorldWind.PlacemarkAttributes(attributes);
+
+    // Create separate label highlights, will be linked and overridden to the normal attributes if not
+    highlightAttributes.labelAttributes = new WorldWind.TextAttributes(attributes.labelAttributes);
+
+    // Image scale may differ when selected
+    if (selectionStyle.scale) {
+      highlightAttributes.imageScale = selectionStyle.scale;
+    }
+
+    if (selectionStyle.lineColor) {
+      selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.imageColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
+    } else {
+      highlightAttributes.imageColor = WorldWind.Color.YELLOW;
+    }
+
+    // Update the label attributes for highlighted labels
+    highlightAttributes.labelAttributes.offset = attributes.labelAttributes.offset;
+    highlightAttributes.labelAttributes.color = highlightAttributes.imageColor;
+
+
+    return {
+      attributes: attributes,
+      highlightAttributes: highlightAttributes
+    };
+  }
+
+  function _createTextAttributes(feature, selectionStyle) {
+    var attributes, highlightAttributes, selectedLabelColor;
+    // GeographicText requires TextAttributes instead
+    attributes = this.createTextAttributes(feature);
+
+    // Create highlight attributes from the regular attributes, only update highlight color
+    highlightAttributes = new WorldWind.TextAttributes(attributes);
+    if (selectionStyle.lineColor) {
+      selectedLabelColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.color = new WorldWind.Color(selectedLabelColor.red, selectedLabelColor.green, selectedLabelColor.blue, selectedLabelColor.alpha);
+    } else {
+      highlightAttributes.color = WorldWind.Color.YELLOW;
+    }
+
+    return {
+      attributes: attributes,
+      highlightAttributes: highlightAttributes
+    };
+  }
+
+  function _createSurfaceShapeAttributes(feature, selectionStyle) {
+    var attributes, highlightAttributes, lineColor, fillColor, selectedLineColor, selectedFillColor;
+
+    attributes = new WorldWind.ShapeAttributes();
+    // Set stroke color
+    if (feature.properties.strokeStyle && feature.properties.strokeStyle.strokeColor) {
+      lineColor = EMPWorldWind.utils.normalizeRGBAColor(feature.properties.strokeStyle.strokeColor);
+      attributes.outlineColor = new WorldWind.Color(lineColor.red, lineColor.green, lineColor.blue, lineColor.alpha);
+    } else {
+      attributes.outlineColor = WorldWind.Color.BLACK;
+    }
+
+    // Set fill color
+    if (feature.properties.fillColor) {
+      fillColor = EMPWorldWind.utils.hexToRGBA(feature.properties.fillColor);
+      attributes.interiorColor = new WorldWind.Color(fillColor.red, fillColor.green, fillColor.blue, fillColor.alpha);
+    } else {
+      attributes.drawInterior = false;
+    }
+
+    // TODO fillPattern is not yet supported by the ShapeAttributes class
+
+    // Line width
+    if (feature.properties.strokeWidth || feature.properties.lineWidth) {
+      attributes.outlineWidth = feature.properties.strokeWidth || feature.properties.lineWidth;
+    }
+
+    // Stippling of outline
+    attributes.outlineStippleFactor = feature.properties.stippleFactor || attributes.outlineStippleFactor;
+    attributes.outlineStipplePattern = feature.properties.stipplePattern || attributes.outlineStipplePattern;
+
+    // Generate the highlight attributes from the normal attributes
+    highlightAttributes = new WorldWind.ShapeAttributes(attributes);
+
+    // Update the selected lineColor
+    if (selectionStyle.lineColor) {
+      selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
+      highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
+    } else {
+      highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
+    }
+
+    // Update the selected fillColor
+    if (selectionStyle.fillColor) {
+      selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
+      highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.red, selectedFillColor.green, selectedFillColor.blue, selectedFillColor.alpha);
+    } else {
+      highlightAttributes.drawInterior = false;
+    }
+  }
+
   return {
     /**
      * @param {emp.typeLibrary.Feature | object} feature
@@ -75,66 +204,16 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
      * @returns {{attributes: *, highlightAttributes: *}}
      */
     createShapeAttributes: function(feature, selectionStyle) {
-      var lineColor, fillColor, highlightAttributes,
-        selectedLineColor, selectedFillColor, selectedLabelColor;
-
-      var attributes = new WorldWind.ShapeAttributes();
+      var attributes;
 
       switch (feature.format) {
         case emp3.api.enums.FeatureTypeEnum.GEO_ACM: // TODO handle GEO_ACM attributes
         case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL: // Do nothing, handled by renderer, no primitives
         case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
-          // Use PlacemarkAttributes
-          attributes = new WorldWind.PlacemarkAttributes();
-
-          // Set the imageURL
-          if (feature.properties.iconUrl) {
-            attributes.imageSource = feature.properties.iconUrl;
-            if (feature.properties.useProxy) {
-              attributes.imageSource = emp3.api.global.configuration.urlProxy + "?url=" + attributes.imageSource;
-            }
-          } else {
-            attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
-          }
-
-
-          // Create the label attributes
-          attributes.labelAttributes = this.createTextAttributes(feature);
-
-          // Create the highlight attributes
-          highlightAttributes = new WorldWind.PlacemarkAttributes(attributes);
-
-          // Create separate label highlights, will be linked and overridden to the normal attributes if not
-          highlightAttributes.labelAttributes = new WorldWind.TextAttributes(attributes.labelAttributes);
-
-          // Image scale may differ when selected
-          if (selectionStyle.scale) {
-            highlightAttributes.imageScale = selectionStyle.scale;
-          }
-
-          if (selectionStyle.lineColor) {
-            selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-            highlightAttributes.imageColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
-          } else {
-            highlightAttributes.imageColor = WorldWind.Color.YELLOW;
-          }
-
-          // Update the label attributes for highlighted labels
-          highlightAttributes.labelAttributes.offset = attributes.labelAttributes.offset;
-          highlightAttributes.labelAttributes.color = highlightAttributes.imageColor;
+          attributes = _createPlacemarkAttributes(feature, selectionStyle);
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
-          // GeographicText requires TextAttributes instead
-          attributes = this.createTextAttributes(feature);
-
-          // Create highlight attributes from the regular attributes, only update highlight color
-          highlightAttributes = new WorldWind.TextAttributes(attributes);
-          if (selectionStyle.lineColor) {
-            selectedLabelColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-            highlightAttributes.color = new WorldWind.Color(selectedLabelColor.red, selectedLabelColor.green, selectedLabelColor.blue, selectedLabelColor.alpha);
-          } else {
-            highlightAttributes.color = WorldWind.Color.YELLOW;
-          }
+          attributes = _createTextAttributes(feature, selectionStyle);
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
         case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
@@ -143,57 +222,10 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
         case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
         case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
         default:
-          // Set stroke color
-          if (feature.properties.strokeStyle && feature.properties.strokeStyle.strokeColor) {
-            lineColor = EMPWorldWind.utils.normalizeRGBAColor(feature.properties.strokeStyle.strokeColor);
-            attributes.outlineColor = new WorldWind.Color(lineColor.red, lineColor.green, lineColor.blue, lineColor.alpha);
-          } else {
-            attributes.outlineColor = WorldWind.Color.BLACK;
-          }
-
-          // Set fill color
-          if (feature.properties.fillColor) {
-            fillColor = EMPWorldWind.utils.hexToRGBA(feature.properties.fillColor);
-            attributes.interiorColor = new WorldWind.Color(fillColor.red, fillColor.green, fillColor.blue, fillColor.alpha);
-          } else {
-            attributes.drawInterior = false;
-          }
-
-          // TODO fillPattern is not yet supported by the ShapeAttributes class
-
-          // Line width
-          if (feature.properties.strokeWidth || feature.properties.lineWidth) {
-            attributes.outlineWidth = feature.properties.strokeWidth || feature.properties.lineWidth;
-          }
-
-          // Stippling of outline
-          attributes.outlineStippleFactor = feature.properties.stippleFactor || attributes.outlineStippleFactor;
-          attributes.outlineStipplePattern = feature.properties.stipplePattern || attributes.outlineStipplePattern;
-
-          // Generate the highlight attributes from the normal attributes
-          highlightAttributes = new WorldWind.ShapeAttributes(attributes);
-
-          // Update the selected lineColor
-          if (selectionStyle.lineColor) {
-            selectedLineColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.lineColor);
-            highlightAttributes.outlineColor = new WorldWind.Color(selectedLineColor.red, selectedLineColor.green, selectedLineColor.blue, selectedLineColor.alpha);
-          } else {
-            highlightAttributes.outlineColor = WorldWind.Color.YELLOW;
-          }
-
-          // Update the selected fillColor
-          if (selectionStyle.fillColor) {
-            selectedFillColor = EMPWorldWind.utils.hexToRGBA(selectionStyle.fillColor);
-            highlightAttributes.interiorColor = new WorldWind.Color(selectedFillColor.red, selectedFillColor.green, selectedFillColor.blue, selectedFillColor.alpha);
-          } else {
-            highlightAttributes.drawInterior = false;
-          }
+          attributes = _createSurfaceShapeAttributes(feature, selectionStyle);
       }
 
-      return {
-        attributes: attributes,
-        highlightAttributes: highlightAttributes
-      };
+      return attributes;
     },
 
     /**
