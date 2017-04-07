@@ -461,9 +461,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.styleOverlay:
           this.styleOverlay(callInfo, message, transactionId);
           break;
-        case emp3.api.enums.channel.centerOnOverlay:
-          this.centerOnOverlay(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.centerOnFeature:
           this.centerOnFeature(callInfo, message, transactionId);
           break;
@@ -3610,18 +3607,6 @@ emp3.api.MessageHandler = (function() {
       }
 
       this.validate(emp3.api.enums.channel.styleOverlay, payload, callInfo);
-    };
-
-    this.centerOnOverlay = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        overlayId: message.overlayId,
-        zoom: message.range || "auto",
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.centerOnOverlay, payload, callInfo);
     };
 
     this.centerOnFeature = function(callInfo, message, transactionId) {
