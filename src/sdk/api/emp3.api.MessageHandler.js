@@ -439,15 +439,8 @@ emp3.api.MessageHandler = (function() {
           this.overlayClusterRemove(callInfo, message, transactionId);
           break;
         case emp3.api.enums.channel.menuRemove:
-          // TODO delete this
-          //this.menuRemove(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.menuSetVisible:
-          // TODO delete this
-          //this.menuSetVisible(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnLocation:
-          this.centerOnLocation(callInfo, message, transactionId);
+          // No handlers for these in EMP3
           break;
         case emp3.api.enums.channel.centerOnBounds:
           this.centerOnBounds(callInfo, message, transactionId);
@@ -474,12 +467,8 @@ emp3.api.MessageHandler = (function() {
           this.statusRequest(callInfo, transaction, transactionId);
           break;
         case emp3.api.enums.channel.menuDrawingCreate:
-          // TODO delete this
-          //returnedTransaction = this.menuDrawingCreate(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.menuDrawingRemove:
-          // TODO delete this
-          //returnedTransaction = this.menuDrawingRemove(callInfo, message, transactionId);
+          // No handlers for these in EMP3
           break;
         case emp3.api.enums.channel.clearMap:
           this.clearMap(callInfo, message, transactionId);
@@ -3400,26 +3389,6 @@ emp3.api.MessageHandler = (function() {
       };
 
       this.validate(emp3.api.enums.channel.centerOnBounds, payload, callInfo);
-    };
-
-    this.centerOnLocation = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        location: {
-          lat: message.camera.latitude,
-          lon: message.camera.longitude
-        },
-        zoom: message.camera.altitude,
-        altitudeMode: message.camera.altitudeMode,
-        heading: message.camera.heading,
-        tilt: message.camera.tilt,
-        roll: message.camera.roll,
-        animate: message.animate,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.centerOnLocation, payload, callInfo);
     };
 
     this.lookAtLocation = function(callInfo, message, transactionId) {
