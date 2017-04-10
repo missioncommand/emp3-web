@@ -68,6 +68,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
     this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
     this.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
     this.bounds = this.getBounds();
+
     // this.shapesInViewArea = this.pickShapesInViewRegion();
     EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
     this.lastNavigator.range = this.worldWindow.navigator.range;
@@ -84,6 +85,12 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
  * @this EMPWorldWind.Map
  */
 EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
+
+  // Don't render until the map has stopped being dragged
+  if (this.state.dragging) {
+    return;
+  }
+
   this.state.lastRender.bounds = this.getBounds();
   this.state.lastRender.altitude = this.worldWindow.navigator.range;
 
