@@ -157,7 +157,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     items = [],
     semiMajor,
     semiMinor,
-    azimuth = 90,
+    azimuth,
     newSemiMajorPosition,
     newSemiMinorPosition,
     alternateVertex,
@@ -180,6 +180,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
   // Calculate the new position of where
   // we want the control point to be.
   if (featureId === this.semiMajor.feature.featureId){
+    azimuth = 90;
     //set the alternate so we can update that too
     alternateVertex = this.vertices.find(this.semiMinor.feature.featureId);
     alternateFeature = alternateVertex.feature;
@@ -206,6 +207,8 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
 
       //update the alternate feature
       alternateFeature.data.coordinates = [newSemiMinorPosition.x, newSemiMinorPosition.y];
+    }else{
+      alternateFeature = null;
     }
 
     // retrieve the new semiMajor vertex.   
@@ -220,6 +223,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     this.featureCopy.properties.semiMajor = semiMajor;
 
   }else if (featureId === this.semiMinor.feature.featureId){
+    azimuth = 0;
     //set the alternate so we can update that too
     alternateVertex = this.vertices.find(this.semiMajor.feature.featureId);
     alternateFeature = alternateVertex.feature;
@@ -246,6 +250,8 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
 
       //update the alternate feature
       alternateFeature.data.coordinates = [newSemiMajorPosition.x, newSemiMajorPosition.y];
+    }else{
+      alternateFeature = null;
     }
 
     // retrieve the new semiMinor vertex. 
@@ -267,7 +273,9 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
   // Add our updated feature onto the items we will be updating in our
   // transaction.
   items.push(currentFeature);
-  items.push(alternateFeature);
+  if(alternateFeature){
+    items.push(alternateFeature);
+  }
 
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
