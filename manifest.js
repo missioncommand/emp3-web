@@ -276,6 +276,7 @@ var manifest = {
     'src/sdk/api/messages/map.view.center.feature.Message.js',
     'src/sdk/api/messages/map.view.center.location.Message.js',
     'src/sdk/api/messages/map.view.center.overlay.Message.js',
+    'src/sdk/api/messages/map.view.lookat.location.Message.js',
     'src/sdk/api/messages/map.view.zoom.Message.js',
     'src/sdk/api/messages/cmapi2.map.config.Message.js',
     'src/sdk/api/messages/cmapi2.map.freehand.start.Message.js',

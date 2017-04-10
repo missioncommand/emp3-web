@@ -442,9 +442,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.menuSetVisible:
           // No handlers for these in EMP3
           break;
-        case emp3.api.enums.channel.lookAtLocation:
-          this.lookAtLocation(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.featureEdit:
           returnedTransaction = this.featureEdit(callInfo, message, transactionId);
           break;
@@ -3358,22 +3355,6 @@ emp3.api.MessageHandler = (function() {
         mapId: callInfo.mapId,
         geoId: message.feature.geoId
       });
-    };
-
-    this.lookAtLocation = function(callInfo, message, transactionId) {
-      var payload = {
-        messageId: transactionId,
-        animate: message.animate,
-        range: message.lookAt.range,
-        tilt: message.lookAt.tilt,
-        heading: message.lookAt.heading,
-        latitude: message.lookAt.latitude,
-        longitude: message.lookAt.longitude,
-        altitude: message.lookAt.altitude,
-        altitudeMode: message.lookAt.altitudeMode
-      };
-
-      this.validate(emp3.api.enums.channel.lookAtLocation, payload, callInfo);
     };
 
     this.styleOverlay = function(callInfo, message, transactionId) {
