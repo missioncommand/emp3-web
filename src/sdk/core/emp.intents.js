@@ -1564,7 +1564,7 @@ emp.intents.control.intentSequenceMapper = (function() {
 
   intentSequenceMapper[emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE] = function() {
     return {
-      forward: [
+      forward: [        
         cmapi.channel.support.genericFeatureRemove
       ],
       exit: [emp.transactionQueue._custom]

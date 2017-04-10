@@ -106,7 +106,7 @@ emp.editors.EditorBase.prototype.removeControlPoints = function() {
   items = vertices;
 
   transaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+    intent: emp.intents.control.FEATURE_REMOVE,
     mapInstanceId: this.mapInstance.mapInstanceId,
     transactionId: null,
     sender: this.mapInstance.mapInstanceId,

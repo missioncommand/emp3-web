@@ -119,7 +119,7 @@ emp.editors.Circle.prototype.addControlPoints = function() {
 };
 
 /**
- * Begins the movement of a control point.  
+ * Begins the movement of a control point.
  */
 emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer) {
 

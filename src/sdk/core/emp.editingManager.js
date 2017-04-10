@@ -102,12 +102,57 @@ emp.editingManager = function(args) {
     return activeEditor;
   };
 
+  /**
+   * A function to use if an update did not occur by one of the editors.
+   * This function will create the proper data structure to return to the callbacks.
+   * It creates a generic updateData object for all editors.
+   */
+  var getUpdateData = function() {
+    var newCoordinates = [];
+    var coordinates;
+    var coordinateUpdate;
+
+    var updates = {};
+
+    switch(originalFeature.data.type) {
+      case "Point":
+        coordinates = [originalFeature.data.coordinates];
+        break;
+      case "LineString":
+        coordinates = originalFeature.data.coordinates;
+        break;
+      case "Polygon":
+        coordinates = originalFeature.data.coordinates[0];
+        break;
+      default:
+        break;
+    }
+    for (var i = 0; i < coordinates.length; i++) {
+      newCoordinates.push({
+        lat: coordinates[i][1],
+        lon: coordinates[i][0]
+      });
+    }
+
+    coordinateUpdate = {
+      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+      indices: [],
+      coordinates: newCoordinates
+    };
+
+    updates.coordinateUpdate = coordinateUpdate;
+    updates.properties = originalFeature.properties;
+
+    return updates;
+  };
+
   var publicInterface = {
 
     /**
      * Called when the map goes into edit mode.
      */
     edit: function(transaction) {
+
       var symbol = false,
         drawCategory;
 
@@ -220,7 +265,7 @@ emp.editingManager = function(args) {
         });
       }
       else if (feature.format == emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
-        // This is a square. 
+        // This is a square.
         // so there is a separate editor for those.
         activeEditor = new emp.editors.Square({
           feature: feature,
@@ -394,7 +439,7 @@ emp.editingManager = function(args) {
         } else {
           // If we are drawing a new feature, remove it from the map.
           transaction = new emp.typeLibrary.Transaction({
-            intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+            intent: emp.intents.control.FEATURE_REMOVE,
             mapInstanceId: mapInstance.mapInstanceId,
             transactionId: null,
             sender: mapInstance.mapInstanceId,
@@ -446,19 +491,6 @@ emp.editingManager = function(args) {
 
       editTransaction.items[0].updatedFeature = activeEditor.featureCopy;
 
-      if (drawing) {
-        mapInstance.eventing.DrawEnd({
-          transaction: editTransaction
-        });
-      } else {
-        mapInstance.eventing.EditEnd({
-          transaction: editTransaction
-        });
-      }
-
-      // remove editing control points from the map.
-      activeEditor.removeControlPoints();
-
       // if we are drawing a new item, remove the feature from the map. We do this
       // because the responsibility of the draw is the API developer.   draw
       // does not commit the item to the map.
@@ -483,7 +515,7 @@ emp.editingManager = function(args) {
         } else {
           // If we are drawing a new feature, remove it from the map.
           transaction = new emp.typeLibrary.Transaction({
-            intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+            intent: emp.intents.control.FEATURE_REMOVE,
             mapInstanceId: mapInstance.mapInstanceId,
             transactionId: null,
             sender: mapInstance.mapInstanceId,
@@ -513,6 +545,28 @@ emp.editingManager = function(args) {
         });
       }
 
+      // remove editing control points from the map.
+      activeEditor.removeControlPoints();
+
+      // Immediately update the feature to the new state.
+      transaction.run();
+
+      if (drawing) {
+        mapInstance.eventing.DrawEnd({
+          transaction: editTransaction
+        });
+      } else {
+        mapInstance.eventing.EditEnd({
+          transaction: editTransaction
+        });
+      }
+
+      // If updateData is not defined the item was not edited.  Return the
+      // data of the original feature.
+      if (!updateData) {
+        updateData = getUpdateData();
+      }
+
       // Send out the message that will trigger the complete callback.
       editTransaction.items[0].update({
         name: feature.name,
@@ -523,10 +577,6 @@ emp.editingManager = function(args) {
         data: feature.data,
         format: feature.format
       });
-
-
-      // Immediately update the feature to the new state.
-      transaction.run();
 
       // finish running the transaction
       editTransaction.run();
@@ -665,8 +715,6 @@ emp.editingManager = function(args) {
 
     editDragComplete: function(featureId, startX, startY, pointer) {
       var transaction;
-      var lockMapTransaction;
-      var mapLock;
 
       if (originalFeature && featureId === originalFeature.featureId && activeEditor.isFeature(featureId)) {
         updateData = activeEditor.moveFeature(startX, startY, pointer);
@@ -695,6 +743,11 @@ emp.editingManager = function(args) {
           mapInstanceId: mapInstance.mapInstanceId
         });
       }
+    },
+
+    editMouseUp: function() {
+      var lockMapTransaction,
+        mapLock;
 
       mapLock = new emp.typeLibrary.Lock({
         lock: emp3.api.enums.MapMotionLockEnum.UNLOCKED

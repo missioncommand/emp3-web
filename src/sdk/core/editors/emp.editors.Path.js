@@ -456,6 +456,7 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
   currentVertex = this.vertices.find(featureId);
   currentFeature = currentVertex.feature;
   currentFeature.data.coordinates = [pointer.lon, pointer.lat];
+  items.push(currentFeature);
 
   // copy the coordinates into our object, so we can eventually complete
   // the edit.
@@ -472,7 +473,7 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
     backFeature = back.feature;
     nextBackVertexFeature = back.before.feature;
 
-    // get the new location of the backFeature, the feature in before the current feature
+    // get the new location of the backFeature, the feature before the current feature
     pt1 = new LatLon(nextBackVertexFeature.data.coordinates[1], nextBackVertexFeature.data.coordinates[0]);
     pt2 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
 
@@ -517,7 +518,7 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
 
   // Remove the line animation.
   removeTransaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+    intent: emp.intents.control.FEATURE_REMOVE,
     mapInstanceId: this.mapInstance.mapInstanceId,
     transactionId: null,
     sender: this.mapInstance.mapInstanceId,
