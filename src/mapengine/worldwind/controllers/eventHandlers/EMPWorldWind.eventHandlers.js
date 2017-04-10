@@ -131,7 +131,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
     //if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
       //feature.feature.wasClipped)) {
       // optimization - update feature only if inside view region and  (range outside range epsilon or was clipped)
-    ////  this.throttleAddMultiPointEntity.call(this,features);
+      this.throttleAddMultiPointRedraws.call(this,features);
       ////EMPWorldWind.editors.EditorController.redrawMilStdSymbols.call(this,features);
     //}
   }

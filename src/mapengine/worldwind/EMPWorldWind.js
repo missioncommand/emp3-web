@@ -152,7 +152,8 @@ EMPWorldWind.Map = function (wwd) {
         this.secRendererWorker.B = undefined;
         this.secRendererWorker.lastSelected === EMPWorldWind.constants.RendererWorker.B;
 
-        this.throttleAddMultiPointEntity = undefined; ;
+        this.throttleAddMultiPointRedraws = undefined; ;
+    };
 
         // typedefs ============================================================================================================
         /**
@@ -436,7 +437,7 @@ EMPWorldWind.Map = function (wwd) {
                     };
                     this.secRendererWorker.B.onmessage = this.secRendererWorker.onMassage;
 
-                   // this.throttleAddMultiPointEntity = EMPWorldWind.utils.MultiPointRateLimit(EMPWorldWind.editors.EditorController.redrawMilStdSymbols, 1);
+                    this.throttleAddMultiPointRedraws = EMPWorldWind.utils.MultiPointRateLimit(EMPWorldWind.editors.EditorController.redrawMilStdSymbols, 1);
                 },
                 /**
                  *
