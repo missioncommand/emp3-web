@@ -103,8 +103,8 @@ armyc2.c2sd.renderer.utilities.ErrorLogger.LogException = function (sourceClass,
 };
 
 
-var window = {};
-var console = {};
+var window = window || {};
+var console = window.console || {};
 console.log = console.log || function ()
 {};
 console.info = console.info || function ()
