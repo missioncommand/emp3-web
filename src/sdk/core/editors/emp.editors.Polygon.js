@@ -607,7 +607,7 @@ emp.editors.Polygon.prototype.endMoveControlPoint = function(featureId, pointer)
 
   // Remove the line animation.
   removeTransaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+    intent: emp.intents.control.FEATURE_REMOVE,
     mapInstanceId: this.mapInstance.mapInstanceId,
     transactionId: null,
     sender: this.mapInstance.mapInstanceId,
