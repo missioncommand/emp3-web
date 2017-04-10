@@ -949,6 +949,58 @@ EMPWorldWind.utils.getFontInfo = function (name, size, style)
 };
 
 
+// EMPWorldWind.utils.MultiPointRateLimit = function(fn, delay, context) {
+//     var queue = [],
+//         timer = null;
+//     //context.newAddRateLimitQueue = queue;
+//
+//     function processQueue() {
+//         var index = 0;
+//         var items = [];
+//         while (index < 200) {
+//             var item = queue.shift();
+//             if (item && item.context.isFeaturePresent(item.arguments[0].id || item.arguments[0].coreId)) {
+//                 // condition checks the case when the multi point was deleted while this request was in this queue.
+//                 items.push(item.arguments[0]);
+//             }
+//             if (queue.length === 0) {
+//                 break;
+//             }
+//             index = index + 1;
+//         }
+//         if (items.length > 0) {
+//             fn.apply(item.context, [items]);
+//         }
+//         if (items.length > 0) {
+//             // item.context.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
+//         }
+//         if (queue.length === 0)
+//             clearInterval(timer), timer = null;
+//     }
+//
+//     return function limited() {
+//         queue.push({
+//             context: context || this,
+//             arguments: [].slice.call(arguments)
+//         });
+//         if (!timer) {
+//             processQueue(); // start immediately on the first invocation
+//             //                if (queue.length > 20)
+//             //                {
+//             //                    processQueue();
+//             //                }
+//             //                else
+//             //                {
+//             timer = setInterval(processQueue, delay);
+//             //}
+//             //timer = setInterval(processQueue, (queue.length > 20) ? delay * 2 : delay);
+//
+//         }
+//     };
+//
+// };
+
+
 EMPWorldWind.Math = {};
 
 /**

@@ -65,19 +65,18 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
 
   //optimization . isMapMoving uses an epsilon to reduce the calls to triggerRenderUpdate function.
   if (viewEventType === emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED) {
-    EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
-  } else if (this.isMapMoving()) {
-    this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
-    this.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
-    this.bounds = this.getBounds();
-
-    // this.shapesInViewArea = this.pickShapesInViewRegion();
-    EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
+    // set last navigator only when the camera stop moving.
     this.lastNavigator.range = this.worldWindow.navigator.range;
     this.lastNavigator.tilt = this.worldWindow.navigator.tilt;
     this.lastNavigator.roll = this.worldWindow.navigator.roll;
     this.lastNavigator.heading = this.worldWindow.navigator.heading;
     this.lastNavigator.lookAtLocation = emp.helpers.copyObject(this.worldWindow.navigator.lookAtLocation);
+    EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
+  } else if (this.isMapMoving()) {
+    this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
+    this.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
+    this.bounds = this.getBounds();
+    EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
   }
 };
 
@@ -132,7 +131,8 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
     //if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
       //feature.feature.wasClipped)) {
       // optimization - update feature only if inside view region and  (range outside range epsilon or was clipped)
-      EMPWorldWind.editors.EditorController.redrawMilStdSymbols.call(this,features);
+    ////  this.throttleAddMultiPointEntity.call(this,features);
+      ////EMPWorldWind.editors.EditorController.redrawMilStdSymbols.call(this,features);
     //}
   }
 
@@ -166,11 +166,10 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
 
     if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "LineString") {
-        if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3*10) ||
+        if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON1) ||
           feature.feature.wasClipped))
           {
             featuresToRedraw.push(feature.feature);
-          //  _handleMultiPoint.call(this, [feature]);
           }
     } else if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "Point") {
