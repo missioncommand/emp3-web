@@ -158,7 +158,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
 
     if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "LineString") {
-        if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
+        if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3*10) ||
           feature.feature.wasClipped))
           {
             featuresToRedraw.push(feature.feature);
