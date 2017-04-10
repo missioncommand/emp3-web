@@ -25,10 +25,8 @@
 
     var _setLinePropertiesFromStyle = function(style, properties) {
       try {
-        if (style.mark.stroke !== undefined) {
-          properties.lineColor = style.mark.stroke.color;
-          properties.lineWidth = style.mark.stroke.width;
-        }
+        properties.lineColor = style.mark.stroke.color;
+        properties.lineWidth = style.mark.stroke.width;
       } catch (err) {
         // Do nothing
       }
