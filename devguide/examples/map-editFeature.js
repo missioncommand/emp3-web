@@ -29,12 +29,10 @@ function processAdd() {
       }
     },
     onDrawComplete: function(args) {
-      console.log("draw complete");
       // this is what actually adds the feature to the map.
       overlay1.addFeature({
         feature: args.feature,
         onSuccess: function() {
-          console.log("feature add complete");
           // Right click to end the edit
           function myListener(cbArgs) {
             if (cbArgs.event === emp3.api.enums.UserInteractionEventEnum.CLICKED &&
