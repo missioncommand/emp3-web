@@ -439,36 +439,14 @@ emp3.api.MessageHandler = (function() {
           this.overlayClusterRemove(callInfo, message, transactionId);
           break;
         case emp3.api.enums.channel.menuRemove:
-          // TODO delete this
-          //this.menuRemove(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.menuSetVisible:
-          // TODO delete this
-          //this.menuSetVisible(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnLocation:
-          this.centerOnLocation(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnBounds:
-          this.centerOnBounds(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.lookAtLocation:
-          this.lookAtLocation(callInfo, message, transactionId);
+          // No handlers for these in EMP3
           break;
         case emp3.api.enums.channel.featureEdit:
           returnedTransaction = this.featureEdit(callInfo, message, transactionId);
           break;
         case emp3.api.enums.channel.styleOverlay:
           this.styleOverlay(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.zoom:
-          this.zoom(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnOverlay:
-          this.centerOnOverlay(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnFeature:
-          this.centerOnFeature(callInfo, message, transactionId);
           break;
         case emp3.api.enums.channel.hideFeature:
           this.hideFeature(callInfo, message, transactionId);
@@ -3378,70 +3356,6 @@ emp3.api.MessageHandler = (function() {
       });
     };
 
-    this.centerOnBounds = function(callInfo, message, transactionId) {
-      var payload,
-        bounds,
-        southWest,
-        northEast,
-        zoom;
-
-      bounds = {};
-      southWest = {};
-      northEast = {};
-      northEast.lat = message.north;
-      southWest.lon = message.west;
-      southWest.lat = message.south;
-      northEast.lon = message.east;
-      bounds.southWest = southWest;
-      bounds.northEast = northEast;
-      zoom = message.range || "auto";
-
-      payload = {
-        bounds: bounds,
-        zoom: zoom,
-        animate: message.animate,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.centerOnBounds, payload, callInfo);
-    };
-
-    this.centerOnLocation = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        location: {
-          lat: message.camera.latitude,
-          lon: message.camera.longitude
-        },
-        zoom: message.camera.altitude,
-        altitudeMode: message.camera.altitudeMode,
-        heading: message.camera.heading,
-        tilt: message.camera.tilt,
-        roll: message.camera.roll,
-        animate: message.animate,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.centerOnLocation, payload, callInfo);
-    };
-
-    this.lookAtLocation = function(callInfo, message, transactionId) {
-      var payload = {
-        messageId: transactionId,
-        animate: message.animate,
-        range: message.lookAt.range,
-        tilt: message.lookAt.tilt,
-        heading: message.lookAt.heading,
-        latitude: message.lookAt.latitude,
-        longitude: message.lookAt.longitude,
-        altitude: message.lookAt.altitude,
-        altitudeMode: message.lookAt.altitudeMode
-      };
-
-      this.validate(emp3.api.enums.channel.lookAtLocation, payload, callInfo);
-    };
-
     this.styleOverlay = function(callInfo, message, transactionId) {
       var payload = {},
         multiPointStyle,
@@ -3608,61 +3522,6 @@ emp3.api.MessageHandler = (function() {
       }
 
       this.validate(emp3.api.enums.channel.styleOverlay, payload, callInfo);
-    };
-
-    this.zoom = function(callInfo, message, transactionId) {
-      var payload,
-        range;
-
-      if (message.altitude !== undefined) {
-        range = message.altitude;
-      }
-
-      payload = {
-        range: range,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.zoom, payload, callInfo);
-    };
-
-    this.centerOnOverlay = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        overlayId: message.overlayId,
-        zoom: message.range || "auto",
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.centerOnOverlay, payload, callInfo);
-    };
-
-    this.centerOnFeature = function(callInfo, message, transactionId) {
-      var payload;
-      var multiPayload = [];
-
-      // Check if an array of features was sent.
-      if (message.featureIds) {
-        for (var i = 0; i < message.featureIds.length; i += 1) {
-          payload = {
-            featureId: message.featureIds[i],
-            zoom: message.range || "auto",
-            messageId: transactionId
-          };
-          multiPayload.push(payload);
-        }
-
-        this.validate(emp3.api.enums.channel.centerOnFeature, multiPayload, callInfo);
-      }
-      else {
-        payload = {
-          featureId: message.featureId,
-          zoom: message.range || "auto",
-          messageId: transactionId
-        };
-        this.validate(emp3.api.enums.channel.centerOnFeature, payload, callInfo);
-      }
     };
 
     this.hideFeature = function(callInfo, message, transactionId) {
