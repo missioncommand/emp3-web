@@ -442,9 +442,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.menuSetVisible:
           // No handlers for these in EMP3
           break;
-        case emp3.api.enums.channel.centerOnBounds:
-          this.centerOnBounds(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.lookAtLocation:
           this.lookAtLocation(callInfo, message, transactionId);
           break;
@@ -3361,34 +3358,6 @@ emp3.api.MessageHandler = (function() {
         mapId: callInfo.mapId,
         geoId: message.feature.geoId
       });
-    };
-
-    this.centerOnBounds = function(callInfo, message, transactionId) {
-      var payload,
-        bounds,
-        southWest,
-        northEast,
-        zoom;
-
-      bounds = {};
-      southWest = {};
-      northEast = {};
-      northEast.lat = message.north;
-      southWest.lon = message.west;
-      southWest.lat = message.south;
-      northEast.lon = message.east;
-      bounds.southWest = southWest;
-      bounds.northEast = northEast;
-      zoom = message.range || "auto";
-
-      payload = {
-        bounds: bounds,
-        zoom: zoom,
-        animate: message.animate,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.centerOnBounds, payload, callInfo);
     };
 
     this.lookAtLocation = function(callInfo, message, transactionId) {

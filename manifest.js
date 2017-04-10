@@ -272,6 +272,7 @@ var manifest = {
     'src/sdk/api/messages/map.overlay.show.Message.js',
     'src/sdk/api/messages/map.overlay.hide.Message.js',
     'src/sdk/api/messages/map.swap.Message.js',
+    'src/sdk/api/messages/map.view.center.bounds.Message.js',
     'src/sdk/api/messages/map.view.center.feature.Message.js',
     'src/sdk/api/messages/map.view.center.location.Message.js',
     'src/sdk/api/messages/map.view.center.overlay.Message.js',
