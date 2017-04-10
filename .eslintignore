@@ -10,6 +10,9 @@ src/validation/dist/*
 src/mapengine/worldwind/test/*
 src/mapengine/worldwind/worldwind.js
 src/mapengine/worldwind/worldwind.min.js
+src/mapengine/worldwind/renderer/MPCWorker.js
+src/mapengine/worldwind/renderer/savm-bc.js
+src/mapengine/worldwind/renderer/savm-bc.min.js
 test/vendor/*
 test/dist/*
 Gruntfile.js
