@@ -419,11 +419,11 @@ EMPWorldWind.Map.prototype = function() {
                 wwFeature.selected = this.isFeatureSelected(wwFeature.id);
                 // Update the layer
                 layer.addFeature(wwFeature);
-                this.worldWindow.redraw();
               }
             }
           } //  if (this.defined(multiPointObject))
         } // for loop
+        this.worldWindow.redraw();
       }.bind(this);
             this.secRendererWorker.A.onmessage = this.secRendererWorker.onMassage;
 
