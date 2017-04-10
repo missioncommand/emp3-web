@@ -205,7 +205,7 @@ EMPWorldWind.eventHandlers.mouse = (function() {
       // If right or left mouse or both notify the view must have changed
       if (event.buttons !== 0 && event.buttons < 3) {
         this.state.dragging = true;
-        _notifyEMPViewChanged.call(this);
+        _notifyEMPViewChanged.call(this, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
       } else {
         this.state.dragging = false;
       }
