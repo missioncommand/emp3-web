@@ -34,7 +34,9 @@ EMPWorldWind.eventHandlers.mouse = (function() {
   /**
    * Sends a message to EMP that the view has changed
    */
-  var _notifyEMPViewChanged = _throttleWrapper(EMPWorldWind.eventHandlers.notifyViewChange, throttleTime);
+  var _notifyEMPViewChanged = _throttleWrapper(function(state) {
+    EMPWorldWind.eventHandlers.notifyViewChange.call(this, state);
+  }, throttleTime);
 
   return {
     /**

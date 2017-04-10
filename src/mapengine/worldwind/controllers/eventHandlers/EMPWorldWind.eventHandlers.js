@@ -37,7 +37,7 @@ EMPWorldWind.eventHandlers.throttle = function(fn, threshold, scope) {
  * NOTE: The altitude, latitude, and longitude for the returned view may not be accurate as they are still based on
  * the navigator which is based on the lookAt location.
  *
- * @param {emp3.api.enums.CameraEventType} [viewEventType]
+ * @param {emp3.api.enums.CameraEventEnum} [viewEventType]
  * @this EMPWorldWind.Map
  */
 EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
@@ -64,7 +64,9 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
   };
 
   //optimization . isMapMoving uses an epsilon to reduce the calls to triggerRenderUpdate function.
-  if (this.isMapMoving()) {
+  if (viewEventType === emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED) {
+    EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
+  } else if (this.isMapMoving()) {
     this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
     this.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
     this.bounds = this.getBounds();
