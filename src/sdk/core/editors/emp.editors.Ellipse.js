@@ -190,6 +190,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
   var currentFeature,
     currentVertex,
     azimuth,
+    pointAzimuth,
     items = [],
     semiMajor,
     semiMinor,
@@ -218,7 +219,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
   // Calculate the new position of where
   // we want the control point to be.
   if (featureId === this.semiMajor.feature.featureId){
-    azimuth = 90;
+    pointAzimuth = 90;
     //set the alternate so we can update that too
     alternateVertex = this.vertices.find(this.semiMinor.feature.featureId);
     alternateFeature = alternateVertex.feature;
@@ -235,7 +236,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
       semiMinor = semiMajor;
       semiMajor = this.featureCopy.properties.semiMinor;
       this.featureCopy.properties.semiMinor = semiMinor;
-      azimuth = 0;
+      pointAzimuth = 0;
 
       // retrieve the new semiMajor vertex.   
       newSemiMinorPosition = emp.geoLibrary.geodesic_coordinate({
@@ -253,15 +254,27 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     newSemiMajorPosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
-    }, semiMajor, azimuth);
+    }, semiMajor, pointAzimuth);
+
+    if(alternateFeature){
+      newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
+        x: x,
+        y: y
+      }, semiMinor, -90);
+    }else{
+      newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
+        x: x,
+        y: y
+      }, semiMajor, -90);
+    }
     // First update the control point with new pointer info.
     currentFeature.data.coordinates = [newSemiMajorPosition.x, newSemiMajorPosition.y];
-
-
+    this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
     this.featureCopy.properties.semiMajor = semiMajor;
+    items.push(this.azimuth.feature);
 
   }else if (featureId === this.semiMinor.feature.featureId){
-    azimuth = 0;
+    pointAzimuth = 0;
     //set the alternate so we can update that too
     alternateVertex = this.vertices.find(this.semiMajor.feature.featureId);
     alternateFeature = alternateVertex.feature;
@@ -278,7 +291,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
       semiMajor = semiMinor;
       semiMinor = this.featureCopy.properties.semiMajor;
       this.featureCopy.properties.semiMajor = semiMajor;
-      azimuth = 90;
+      pointAzimuth = 90;
 
       // retrieve the new semiMajor vertex.   
       newSemiMajorPosition = emp.geoLibrary.geodesic_coordinate({
@@ -296,13 +309,24 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     newSemiMinorPosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
-    }, semiMinor, azimuth);
+    }, semiMinor, pointAzimuth);
+
+    if(alternateFeature){
+      newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
+        x: x,
+        y: y
+      }, semiMinor, -90);
+    }else{
+      newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
+        x: x,
+        y: y
+      }, semiMajor, -90);
+    }
     // First update the control point with new pointer info.
     currentFeature.data.coordinates = [newSemiMinorPosition.x, newSemiMinorPosition.y];
-
-
-
+    this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
     this.featureCopy.properties.semiMinor = semiMinor;
+    items.push(this.azimuth.feature);
 
   }else if (featureId === this.azimuth.feature.featureId){
         // the rotation vertex was dragged.
