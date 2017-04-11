@@ -943,7 +943,7 @@ emp.map = function(args) {
             if (this.mapDragStart && this.mapDrag !== true) {
 
               // Were we over a feature when we started dragging?
-              if (this.mapDragStart.featureId && (status === emp.map.states.EDIT)) {
+              if (this.mapDragStart.featureId && (status === emp.map.states.EDIT || status === emp.map.states.DRAW)) {
                 this.mapDrag = true;
 
                 // create a feature drag event.
@@ -980,7 +980,7 @@ emp.map = function(args) {
                 fTransaction.run();
               }
             } else if (this.mapDragStart && this.mapDrag === true &&
-                this.mapDragStart.featureId && (status === emp.map.states.EDIT)) {
+                this.mapDragStart.featureId && (status === emp.map.states.EDIT || status === emp.map.states.DRAW)) {
               // pass the pointer to editor manager.
               mapInstance.editingManager.get().editDragMove(
                 this.mapDragStart.featureId,
@@ -992,11 +992,13 @@ emp.map = function(args) {
           } else if (args.type === emp.typeLibrary.Pointer.EventType.MOUSEUP) {
             // we only want to do this if we are not dragging an edit point around.
             if (status === emp.map.states.DRAW && !this.mapDragStart.featureId) {
-              if (!this.drawStart) {
-                editingManager.drawStart(pointer);
-                this.drawStart = true;
-              } else {
-                editingManager.drawClick(pointer);
+              if (!this.mapDragStart.featureId) {
+                if (!this.drawStart) {
+                  editingManager.drawStart(pointer);
+                  this.drawStart = true;
+                } else {
+                  editingManager.drawClick(pointer);
+                }
               }
             }
 

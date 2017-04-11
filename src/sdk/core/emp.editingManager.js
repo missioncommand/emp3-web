@@ -359,6 +359,8 @@ emp.editingManager = function(args) {
           properties: item.properties
         });
 
+
+
         // The feature prior to any changes occurring.
         originalFeature = emp.helpers.copyObject(feature);
       }
@@ -447,7 +449,7 @@ emp.editingManager = function(args) {
             source: emp.api.cmapi.SOURCE,
             messageOriginator: mapInstance.mapInstanceId,
             originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-            items: [originalFeature]
+            items: [activeEditor.featureCopy]
           });
         }
 
@@ -523,7 +525,7 @@ emp.editingManager = function(args) {
             source: emp.api.cmapi.SOURCE,
             messageOriginator: mapInstance.mapInstanceId,
             originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-            items: [originalFeature]
+            items: [activeEditor.featureCopy]
           });
         }
       } else {
@@ -547,9 +549,6 @@ emp.editingManager = function(args) {
 
       // remove editing control points from the map.
       activeEditor.removeControlPoints();
-
-      // Immediately update the feature to the new state.
-      transaction.run();
 
       if (drawing) {
         mapInstance.eventing.DrawEnd({
@@ -579,7 +578,10 @@ emp.editingManager = function(args) {
       });
 
       // finish running the transaction
-      editTransaction.run();
+      editTransaction.run();      
+
+      // Immediately update the feature to the new state.
+      transaction.run();
 
       // We are done editing. Reset state of editingManager.
       editTransaction = undefined;
