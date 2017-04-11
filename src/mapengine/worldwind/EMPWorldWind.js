@@ -152,7 +152,7 @@ EMPWorldWind.Map = function (wwd) {
         this.secRendererWorker.B = undefined;
         this.secRendererWorker.lastSelected === EMPWorldWind.constants.RendererWorker.B;
 
-        this.throttleAddMultiPointRedraws = undefined; ;
+        this.throttleAddMultiPointRedraws = undefined;
     };
 
         // typedefs ============================================================================================================
