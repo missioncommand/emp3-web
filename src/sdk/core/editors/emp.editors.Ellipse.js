@@ -25,10 +25,13 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     semiMinor,
     semiMinorPoint,
     semiMajorPoint,
+    azimuthPoint,
     semiMajorFeature,
     semiMinorFeature,
+    azimuthFeature,
     semiMajorVertex,
     semiMinorVertex,
+    azimuthVertex,
     x, y;
 
 
@@ -75,10 +78,14 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     x: x,
     y: y
   }, semiMajor, 90);
+  azimuthPoint = emp.geoLibrary.geodesic_coordinate({
+    x: x,
+    y: y
+  }, semiMajor, -90);
 
   // create a feature for each of these coordinates.
 
-    semiMinorFeature = new emp.typeLibrary.Feature({
+  semiMinorFeature = new emp.typeLibrary.Feature({
     overlayId: "vertices",
     featureId: emp3.api.createGUID(),
     format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
@@ -117,18 +124,46 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     }
   });
 
+  azimuthFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    name: "azimuth",
+    data: {
+      coordinates: [azimuthPoint.x, azimuthPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.rotationPoint,
+      iconXOffset: 12,
+      iconYOffset: 12,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+
 
   items.push(semiMinorFeature);
   items.push(semiMajorFeature);
+  items.push(azimuthFeature);
+
 
   semiMajorVertex = new emp.editors.Vertex(semiMajorFeature, "add");
   semiMinorVertex = new emp.editors.Vertex(semiMinorFeature, "add");
+  azimuthVertex = new emp.editors.Vertex(azimuthFeature, "add");
+
 
   this.semiMajor = semiMajorVertex;
   this.semiMinor = semiMinorVertex;
+  this.azimuth = azimuthVertex;
+
 
   this.vertices.push(semiMajorVertex);
   this.vertices.push(semiMinorVertex);
+  this.vertices.push(azimuthVertex);
+
 
 
   // run the transaction and add all the symbols on the map.
@@ -154,6 +189,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
 
   var currentFeature,
     currentVertex,
+    azimuth,
     items = [],
     semiMajor,
     semiMinor,
@@ -176,6 +212,8 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
 
   currentVertex = this.vertices.find(featureId);
   currentFeature = currentVertex.feature;
+
+  azimuth = this.featureCopy.properties.azimuth;
 
   // Calculate the new position of where
   // we want the control point to be.
@@ -263,8 +301,87 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     currentFeature.data.coordinates = [newSemiMinorPosition.x, newSemiMinorPosition.y];
 
 
+
     this.featureCopy.properties.semiMinor = semiMinor;
 
+  }else if (featureId === this.azimuth.feature.featureId){
+        // the rotation vertex was dragged.
+    // get the new azimuth from the center to the current mouse position.  that
+    // will determine the new vertex.
+
+    //  asin(o/h) will return the angle in radians of a right sided triangle.
+    o = pointer.lat - y;
+    a = pointer.lon - x;
+    h = Math.sqrt(o*o + a*a);
+
+    // get the angle but convert to radians.
+    newAzimuth = (Math.asin(o/h) * 180 / Math.PI);
+
+    if (azimuth > 180) {
+      azimuth = azimuth - 360;
+    } else if (azimuth < -180) {
+      azimuth = azimuth + 360;
+    }
+
+    // determine the quadrant to correctly calculate the azimuth.
+    if (pointer.lat >= y &&
+        pointer.lon >= x) {
+      newAzimuth = 90 - newAzimuth;
+    } else if (pointer.lat >= y &&
+        pointer.lon < x) {
+      newAzimuth = -90 + newAzimuth;
+    } else if (pointer.lat <= y &&
+        pointer.lon <= x) {
+      newAzimuth = -90 + newAzimuth;
+    } else if (pointer.lat < y &&
+        pointer.lon > x) {
+      newAzimuth = 90 - newAzimuth;
+    }
+
+    // compare the old azimuth to the new azimuth and get the delta.   Add the
+    // delta to the old azimuth to get your new azimuth.  We need to add 90 because
+    // the rotation point is 90 degrees added to azimuth.
+    delta = (newAzimuth - azimuth + 90);
+
+    newAzimuth = azimuth + delta;
+
+    // update our copy of the feature with the new azimuth parameter.
+    this.featureCopy.properties.azimuth = newAzimuth;
+
+
+    // adjust the vertices
+    semiMajor = emp.geoLibrary.measureDistance(this.semiMajor.feature.data.coordinates[1],
+      this.semiMajor.feature.data.coordinates[0],
+      this.center.feature.data.coordinates[1],
+      this.center.feature.data.coordinates[0], "meters");
+
+    semiMinor = emp.geoLibrary.measureDistance(this.semiMinor.feature.data.coordinates[1],
+      this.semiMinor.feature.data.coordinates[0],
+      this.center.feature.data.coordinates[1],
+      this.center.feature.data.coordinates[0], "meters");
+
+    newSemiMajorPosition = emp.geoLibrary.geodesic_coordinate({
+        x: x,
+        y: y
+      }, semiMajor, 90 + newAzimuth);
+
+    newSemiMinorPosition = emp.geoLibrary.geodesic_coordinate({
+        x: x,
+        y: y
+      }, semiMinor, newAzimuth);
+
+    newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
+        x: x,
+        y: y
+      }, semiMajor, -90 + newAzimuth);
+
+    this.semiMajor.feature.data.coordinates = [newSemiMajorPosition.x, newSemiMajorPosition.y];
+    this.semiMinor.feature.data.coordinates = [newSemiMinorPosition.x, newSemiMinorPosition.y];
+    this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
+
+    items.push(this.semiMajor.feature);
+    items.push(this.semiMinor.feature);
+    items.push(this.azimuth.feature);
   }
 
   // make sure the symbol is updated with its new properties.
