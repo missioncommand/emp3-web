@@ -1291,6 +1291,14 @@ EMPWorldWind.Map.prototype = function() {
 
         // Fire the animation
         this.goToAnimator.goTo(goToPosition, function() {
+
+          var coords = EMPWorldWind.utils.getEventCoordinates.call(this, this.state.lastInteractionEvent);
+          coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
+
+          if (coords.lat !== undefined) {
+            this.empMapInstance.eventing.Pointer(coords);
+          }
+
           // Update the state to compete
           this.state.autoPanning.state = EMPWorldWind.constants.PAN_STATE.COMPLETE;
 
@@ -1313,7 +1321,8 @@ EMPWorldWind.Map.prototype = function() {
       this.state.autoPanning = Object.assign(this.state.autoPanning, pan);
 
       // If we are still running a previous auto-pan animation return, the pan callback will use the updated state when it completes
-      if (this.state.autoPanning.state === EMPWorldWind.constants.PAN_STATE.PANNING) {
+      if (this.state.autoPanning.state === EMPWorldWind.constants.PAN_STATE.PANNING ||
+        this.state.lockState !== emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
         return;
       }
 
