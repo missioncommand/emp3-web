@@ -31,11 +31,21 @@ EMPWorldWind.constants.WHITE_CONTRAST = 0;
 EMPWorldWind.constants.BLACK_CONTRAST = 1;
 
 /**
+ * @constant
+ * @enum
+ */
+EMPWorldWind.constants.PAN_STATE = {
+  HALTED: 'halted',
+  PANNING: 'panning',
+  COMPLETE: 'complete'
+};
+
+/**
  * No panning state for autoPanning in smart motion
  * @constant {object}
  */
 EMPWorldWind.constants.NO_PANNING = {
-  inProgress: false,
+  state: String(EMPWorldWind.constants.PAN_STATE.HALTED),
   step: 0,
   up: false,
   down: false,

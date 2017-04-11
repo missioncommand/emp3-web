@@ -79,6 +79,7 @@ EMPWorldWind.Map = function(wwd) {
      * Object for describing autoPanning behavior
      */
     autoPanning: {
+      state: String(EMPWorldWind.constants.PAN_STATE.HALTED),
       step: 0.5,
       up: false,
       down: false,
@@ -162,7 +163,18 @@ EMPWorldWind.Map = function(wwd) {
  * @property {string|undefined} lineColor
  * @property {string|undefined} fillColor
  */
+
+/**
+ * @typedef {object} AutoPanParams
+ * @property {boolean} up
+ * @property {boolean} down
+ * @property {boolean} left
+ * @property {boolean} right
+ */
 //======================================================================================================================
+/**
+ *
+ */
 EMPWorldWind.Map.prototype = function() {
 
   // Private Functions =================================================================================================
@@ -1182,17 +1194,22 @@ EMPWorldWind.Map.prototype = function() {
      * @param {emp.typeLibrary.Lock} lockState
      */
     setLockState: function(lockState) {
-      if (lockState.lock !== emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
-        this.state.autoPanning = EMPWorldWind.constants.NO_PANNING;
+      if (lockState.lock === this.state.lockState) {
+        // The same already, do nothing
+        return;
+      } else if (lockState.lock !== emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
+        // We have changed lock states, make sure to stop auto-panning
+        this.spinGlobe(false);
       }
+      // Update the lock state
       this.state.lockState = lockState.lock;
     },
     /**
      * Spins the globe if autoPanning is enabled
+     * @param {AutoPanParams|boolean} [pan]
      */
-    spinGlobe: function() {
-      var vertical, horizontal, goToPosition,
-        step = this.worldWindow.navigator.range / (WorldWind.EARTH_RADIUS);
+    spinGlobe: function(pan) {
+      var step = this.worldWindow.navigator.range / (WorldWind.EARTH_RADIUS);
 
       /**
        *
@@ -1225,7 +1242,19 @@ EMPWorldWind.Map.prototype = function() {
       }
 
       /**
-       * @returns {boolean}
+       *
+       * @param {AutoPanParams} pan
+       * @private
+       */
+      function _cleanPanArgs(pan) {
+        if (pan && pan.hasOwnProperty('state')) {
+          delete pan['state'];
+        }
+        return pan;
+      }
+
+      /**
+       * @this EMPWorldWind.Map
        * @private
        */
       function _allowPan() {
@@ -1235,21 +1264,65 @@ EMPWorldWind.Map.prototype = function() {
           this.state.autoPanning.right;
       }
 
-      vertical = _getVerticalPan.call(this);
-      horizontal = _getHorizontalPan.call(this);
+      /**
+       *
+       * @private
+       */
+      function _panMap() {
+        var vertical, horizontal, goToPosition,
+          travelTime = 250; // 250 ms
 
-      goToPosition = new WorldWind.Position(
-        this.worldWindow.navigator.lookAtLocation.latitude + vertical,
-        this.worldWindow.navigator.lookAtLocation.longitude + horizontal,
-        this.worldWindow.navigator.range);
-      this.goToAnimator.travelTime = 500; // TODO smooth the transition if this is getting called too often
+        // Get the pan directions
+        vertical = _getVerticalPan.call(this);
+        horizontal = _getHorizontalPan.call(this);
 
-      if (_allowPan.call(this)) {
+        // Get the location to pan to
+        goToPosition = new WorldWind.Position(
+          this.worldWindow.navigator.lookAtLocation.latitude + vertical,
+          this.worldWindow.navigator.lookAtLocation.longitude + horizontal,
+          this.worldWindow.navigator.range);
+        this.goToAnimator.travelTime = travelTime;
+
+        // Update the state
+        this.state.autoPanning.state = EMPWorldWind.constants.PAN_STATE.PANNING;
+
+        // Notify EMP we are moving the camera
         EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
+
+        // Fire the animation
         this.goToAnimator.goTo(goToPosition, function() {
+          // Update the state to compete
+          this.state.autoPanning.state = EMPWorldWind.constants.PAN_STATE.COMPLETE;
+
+          // Fire the animation again, any updates to direction or cancellation will be handled in this subsequent call
           this.spinGlobe();
         }.bind(this));
+      }
+
+      // Explicitly halting the animation and restoring the pan state to no motion
+      if (pan === false) {
+        this.goToAnimator.cancel();
+        this.state.autoPanning = Object.assign({}, EMPWorldWind.constants.NO_PANNING);
+        return;
+      }
+
+      // Make sure we don't overwrite the state internals
+      pan = _cleanPanArgs(pan);
+
+      // Update the panning state directions
+      this.state.autoPanning = Object.assign(this.state.autoPanning, pan);
+
+      // If we are still running a previous auto-pan animation return, the pan callback will use the updated state when it completes
+      if (this.state.autoPanning.state === EMPWorldWind.constants.PAN_STATE.PANNING) {
+        return;
+      }
+
+      if (_allowPan.call(this)) {
+        _panMap.call(this);
       } else {
+        // Our exit route, update the state
+        this.state.autoPanning.state = EMPWorldWind.constants.PAN_STATE.HALTED;
+        // Notify EMP we have stopped moving
         EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
       }
     },
