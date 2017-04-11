@@ -35,6 +35,7 @@ EMPWorldWind.constants.BLACK_CONTRAST = 1;
  * @constant {object}
  */
 EMPWorldWind.constants.NO_PANNING = {
+  inProgress: false,
   step: 0,
   up: false,
   down: false,
@@ -187,7 +188,7 @@ EMPWorldWind.constants.AllLabels = {
   "S": true,
   "AA": true,
   "AB": true,
-  "AC": true, 
+  "AC": true,
   "H": true,
   "M": true,
   "T": true,
