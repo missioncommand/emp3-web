@@ -9,6 +9,16 @@ if (!window.emp3.api) {
  * @extends {emp3.api.Feature}
  * @implements cmapi.IGeoPoint
  * @classdesc This class implements the Point feature that encapsulates a GeoPoint object.
+ * A default image is provided.   You can specify a different image using the
+ * iconURI. Point.iconURI can take a URL or a base64 encoded image URI.
+ * When you provide an image,
+ * you should also supply an image offset which defines the anchor point for the
+ * image.  The default anchor offset is the bottom left of the image.
+ * Use the iconStyle property to set the anchor offset.  Point.iconStyle.offsetX
+ * and Point.iconStyle.offsetY will allow you
+ * to modify the anchor in relation to the bottom left of the image.
+ *
+ * The unit of measurement for the offset is pixels.
  *
  * @param {Object} [args] Parameters are provided as members of the args object and may contain any properties listed
  * here or inherited from {@link cmapi.IGeoPoint}.

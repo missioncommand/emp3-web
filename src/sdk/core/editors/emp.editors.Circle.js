@@ -49,8 +49,8 @@ emp.editors.Circle.prototype.addControlPoints = function() {
     },
     properties: {
       iconUrl: emp.ui.images.editPoint,
-      iconXOffset: 12,
-      iconYOffset: 12,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -88,9 +88,9 @@ emp.editors.Circle.prototype.addControlPoints = function() {
       type: 'Point'
     },
     properties: {
-      iconUrl: emp.ui.images.addPoint,
-      iconXOffset: 8,
-      iconYOffset: 8,
+      iconUrl: emp.ui.images.radius,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND

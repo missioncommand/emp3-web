@@ -63,8 +63,8 @@ emp.editors.EditorBase.prototype.addControlPoints = function() {
       },
       properties: {
         iconUrl: emp.ui.images.editPoint,
-        iconXOffset: 12,
-        iconYOffset: 12,
+        iconXOffset: 10,
+        iconYOffset: 10,
         xUnits: "pixels",
         yUnits: "pixels",
         altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
