@@ -60,7 +60,7 @@ EMPWorldWind.constants.SCALE_LINE_LENGTH = 50;
 EMPWorldWind.constants.propertyDefaults = {
   FILL_COLOR_HEX: "ffffff",
   LINE_COLOR_HEX: "000000",
-  LINE_WIDTH: 3
+  LINE_WIDTH: 1
 };
 
 /**
