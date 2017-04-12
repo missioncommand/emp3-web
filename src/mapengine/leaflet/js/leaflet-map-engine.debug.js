@@ -807,8 +807,10 @@ emp.engineDefs.leafletMapEngine = function (args) {
         var eventData = {},
             smartLockBuffer = 0.05,
             originalEvent = event.originalEvent,
-            element = originalEvent.srcElement || originalEvent.originalTarget,
+            element = originalEvent.srcElement || originalEvent.currentTarget,
             elementBounds = element.getBoundingClientRect(),
+            offsetX = originalEvent.clientX - elementBounds.left,
+            offsetY = originalEvent.clientY - elementBounds.top,
             vertical = 0,
             horizontal = 0,
             step,
@@ -827,10 +829,10 @@ emp.engineDefs.leafletMapEngine = function (args) {
           case 1:
             switch (instanceInterface.getLockState()) {
               case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
-                instanceInterface.smartLockPanning.left = originalEvent.offsetX < elementBounds.width * smartLockBuffer;
-                instanceInterface.smartLockPanning.right = originalEvent.offsetX > elementBounds.width - (elementBounds.width * smartLockBuffer);
-                instanceInterface.smartLockPanning.up = originalEvent.offsetY < elementBounds.height * smartLockBuffer;
-                instanceInterface.smartLockPanning.down = originalEvent.offsetY > elementBounds.height - (elementBounds.height * smartLockBuffer);
+                instanceInterface.smartLockPanning.left = offsetX < elementBounds.width * smartLockBuffer;
+                instanceInterface.smartLockPanning.right = offsetX > elementBounds.width - (elementBounds.width * smartLockBuffer);
+                instanceInterface.smartLockPanning.up = offsetY < elementBounds.height * smartLockBuffer;
+                instanceInterface.smartLockPanning.down = offsetY > elementBounds.height - (elementBounds.height * smartLockBuffer);
                 step = instanceInterface.getView().altitude / (L.CRS.Earth.R);
                 if (instanceInterface.smartLockPanning.up) {
                   vertical = step;
