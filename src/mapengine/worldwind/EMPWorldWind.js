@@ -167,7 +167,7 @@ EMPWorldWind.Map = function(wwd) {
  * @callback EMPWorldWind.map~WMTSCallback
  */
 //======================================================================================================================
-EMPWorldWind.Map.prototype = function() {
+EMPWorldWind.Map.prototype = (function() {
 
   // Private Functions =================================================================================================
   /**
@@ -1477,4 +1477,4 @@ EMPWorldWind.Map.prototype = function() {
       _redrawAllFeatures.call(this);
     }
   };
-}();
+}());
