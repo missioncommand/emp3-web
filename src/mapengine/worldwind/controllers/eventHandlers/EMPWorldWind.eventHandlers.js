@@ -129,10 +129,10 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
    */
   function _handleMultiPoint(features) {
     //if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
-      //feature.feature.wasClipped)) {
-      // optimization - update feature only if inside view region and  (range outside range epsilon or was clipped)
-      this.throttleAddMultiPointRedraws.call(this,features);
-      ////EMPWorldWind.editors.EditorController.redrawMilStdSymbols.call(this,features);
+    //feature.feature.wasClipped)) {
+    // optimization - update feature only if inside view region and  (range outside range epsilon or was clipped)
+    this.throttleAddMultiPointRedraws.call(this, features);
+    ////EMPWorldWind.editors.EditorController.redrawMilStdSymbols.call(this,features);
     //}
   }
 
@@ -166,11 +166,10 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
 
     if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "LineString") {
-        if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON1) ||
-          feature.feature.wasClipped))
-          {
-            featuresToRedraw.push(feature.feature);
-          }
+      if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON1) ||
+        feature.feature.wasClipped)) {
+        featuresToRedraw.push(feature.feature);
+      }
     } else if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "Point") {
       // Optimization required
@@ -178,9 +177,8 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
     }
   }.bind(this));
 
-  if (featuresToRedraw.length > 0)
-  {
-     _handleMultiPoint.call(this, featuresToRedraw);
+  if (featuresToRedraw.length > 0) {
+    _handleMultiPoint.call(this, featuresToRedraw);
   }
 
   this.worldWindow.redraw();
