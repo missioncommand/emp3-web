@@ -15,8 +15,8 @@ function EmpCesium() {
     this.terrainProxyUrl = undefined;
     this.terrainURL = undefined;
     this.terrainProvider = null;
-    this.terrainProviderType = undefined,
-        this.transitioner = undefined;
+    this.terrainProviderType = undefined;
+    this.transitioner = undefined;
     this.imageryLayerCollection = undefined;
     this.entityCollection = undefined;
     /* Max extent altitude in km */
@@ -144,7 +144,7 @@ function EmpCesium() {
     this.enableClusterIcon = true;
     this.currentMultiPointEditorRenderGraphicFuction;
     this.bSmartMapMoving = false;
-    this.bSmartMapReady = false;
+    //this.bSmartMapReady = false;
     this.bSmartMapMovingRightZone = false;
     this.bSmartMapMovingLeftZone = false;
     this.bSmartMapMovingTopZone = false;
@@ -995,10 +995,10 @@ function EmpCesium() {
             position = args.endPosition || args.position;
 
         if (this.defined(position)) {
-            this.bSmartMapMovingRightZone = ((position.x >= (this.canvas.width - zoneWidthInPixels)) && position.x <= this.canvas.width); //&& (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ||
-            this.bSmartMapMovingLeftZone = (position.x >= 0 && position.x <= zoneWidthInPixels); // && (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ;
-            this.bSmartMapMovingTopZone = (position.y >= 0 && position.y <= zoneWidthInPixels);
-            this.bSmartMapMovingBottomZone = ((position.y >= (this.canvas.height - zoneWidthInPixels)) && position.y <= this.canvas.height);
+            this.bSmartMapMovingRightZone = ((position.x >= (this.canvas.width - zoneWidthInPixels)) && position.x <= this.canvas.width - 5); //&& (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ||
+            this.bSmartMapMovingLeftZone = (position.x >= 5 && position.x <= zoneWidthInPixels); // && (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ;
+            this.bSmartMapMovingTopZone = (position.y >= 5 && position.y <= zoneWidthInPixels);
+            this.bSmartMapMovingBottomZone = ((position.y >= (this.canvas.height - zoneWidthInPixels)) && position.y <= this.canvas.height - 5);
 
             this.bSmartMapMovingTopRightZone = false;
             this.bSmartMapMovingBottomRightZone = false;
@@ -1023,13 +1023,13 @@ function EmpCesium() {
             }
         }
 
-        this.bSmartMapReady = this.bSmartMapMovingRightZone || this.bSmartMapMovingLeftZone || this.bSmartMapMovingTopZone || this.bSmartMapMovingBottomZone ||
+        this.bSmartMapMoving = this.bSmartMapMovingRightZone || this.bSmartMapMovingLeftZone || this.bSmartMapMovingTopZone || this.bSmartMapMovingBottomZone ||
             this.bSmartMapMovingTopRightZone || this.bSmartMapMovingBottomRightZone || this.bSmartMapMovingTopLeftZone || this.bSmartMapMovingBottomLeftZone;
         //        if (isWithin)
         //        {
         //            console.log(args.domEvent.originalTarget.localName);
         //        }
-        if (this.bSmartMapReady && args.domEvent && args.domEvent.target && args.domEvent.target.localName !== "canvas") {
+        if (this.bSmartMapMoving && args.domEvent && args.domEvent.target && args.domEvent.target.localName !== "canvas") {
             this.bSmartMapMoving = false; // is withinn but mouse event is occurring over another object (another div tag, compass, pop up window, etc.
             this.bSmartMapReady = false;
             this.bSmartMapMovingLeftZone = false;
@@ -1042,7 +1042,7 @@ function EmpCesium() {
             //send false so the event is not  propagated to core.
         }
         //console.log("bSmartMapReady = " + this.bSmartMapReady + "bSmartMapMoving = " + this.bSmartMapMoving);
-        return this.bSmartMapReady;
+        return this.bSmartMapMoving;
     };
 
     this.getDefaultSkyBoxUrl = function(suffix) {
@@ -1208,7 +1208,7 @@ function EmpCesium() {
         this.oMouseMoveEventData.type = "move";
         var delay = 100;
         //if (this.mapLocked)
-        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION) {
+        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION || this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION ) {
             this.empMapInstance.eventing.Pointer(this.oMouseMoveEventData);
             //delay = 50;
         } else {
@@ -1807,16 +1807,16 @@ function EmpCesium() {
                     this.mousePosition = this.startMousePosition = event.endPosition || event.position;
                     if (this.isMouseWithinCanvas(event)) {
 
-                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION && this.isMouseWithinSmartMoveDetectionZone(event)) {
-                            //                            this.scene.screenSpaceCameraController.enableRotate = true;
-                            //                            this.scene.screenSpaceCameraController.enableTranslate = true;
-                            //                            this.scene.screenSpaceCameraController.enableZoom = true;
-                            //                            this.scene.screenSpaceCameraController.enableTilt = true;
-                            //                            this.scene.screenSpaceCameraController.enableLook = true;
-                            //                            //this.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
-                            //                            this.viewer.cesiumNavigation.setNavigationLocked(false);
-                            //                            //this.bSmartMapMoving = false;
-                        }
+                        // if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION && this.isMouseWithinSmartMoveDetectionZone(event)) {
+                        //     //                            this.scene.screenSpaceCameraController.enableRotate = true;
+                        //     //                            this.scene.screenSpaceCameraController.enableTranslate = true;
+                        //     //                            this.scene.screenSpaceCameraController.enableZoom = true;
+                        //     //                            this.scene.screenSpaceCameraController.enableTilt = true;
+                        //     //                            this.scene.screenSpaceCameraController.enableLook = true;
+                        //     //                            //this.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                        //     //                            this.viewer.cesiumNavigation.setNavigationLocked(false);
+                        //     //                            //this.bSmartMapMoving = false;
+                        // }
 
 
                         var callbackData = {
@@ -1885,25 +1885,25 @@ function EmpCesium() {
                 handler.setInputAction(function(event) {
                     if (this.isMouseWithinCanvas(event)) {
                         // if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION || this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_ZOOM_NO_PAN)
-                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
-                            this.scene.screenSpaceCameraController.enableRotate = false;
-                            this.scene.screenSpaceCameraController.enableTranslate = false;
-                            this.scene.screenSpaceCameraController.enableZoom = false;
-                            this.scene.screenSpaceCameraController.enableTilt = false;
-                            this.scene.screenSpaceCameraController.enableLook = false;
-                            //empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
-                            this.viewer.cesiumNavigation.setNavigationLocked(true);
-                            this.bSmartMapMoving = false;
-                            this.bSmartMapReady = false;
-                            this.bSmartMapMovingRightZone = false;
-                            this.bSmartMapMovingLeftZone = false;
-                            this.bSmartMapMovingTopZone = false;
-                            this.bSmartMapMovingBottomZone = false;
-                            this.bSmartMapMovingTopRightZone = false;
-                            this.bSmartMapMovingBottomRightZone = false;
-                            this.bSmartMapMovingTopLeftZone = false;
-                            this.bSmartMapMovingBottomLeftZone = false;
-                        }
+                        // if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
+                        //     this.scene.screenSpaceCameraController.enableRotate = false;
+                        //     this.scene.screenSpaceCameraController.enableTranslate = false;
+                        //     this.scene.screenSpaceCameraController.enableZoom = false;
+                        //     this.scene.screenSpaceCameraController.enableTilt = false;
+                        //     this.scene.screenSpaceCameraController.enableLook = false;
+                        //     //empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                        //     this.viewer.cesiumNavigation.setNavigationLocked(true);
+                        //     this.bSmartMapMoving = false;
+                        //     this.bSmartMapReady = false;
+                        //     this.bSmartMapMovingRightZone = false;
+                        //     this.bSmartMapMovingLeftZone = false;
+                        //     this.bSmartMapMovingTopZone = false;
+                        //     this.bSmartMapMovingBottomZone = false;
+                        //     this.bSmartMapMovingTopRightZone = false;
+                        //     this.bSmartMapMovingBottomRightZone = false;
+                        //     this.bSmartMapMovingTopLeftZone = false;
+                        //     this.bSmartMapMovingBottomLeftZone = false;
+                        // }
 
                         var callbackData = {
                             button: "left",
@@ -2236,7 +2236,7 @@ function EmpCesium() {
 
                         this.mousePosition = event.endPosition || event.position;
 
-                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION && this.bSmartMapReady && this.isMouseWithinSmartMoveDetectionZone(event)) {
+                        if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION && this.isMouseWithinSmartMoveDetectionZone(event)) {
                             this.bSmartMapMoving = true;
                             this.scene.screenSpaceCameraController.enableRotate = true;
                             this.scene.screenSpaceCameraController.enableTranslate = true;
@@ -2298,6 +2298,11 @@ function EmpCesium() {
                             this.starBurst.updateStarBurst(event.endPosition);
                         }
                         this.cesiumRenderOptimizer.boundNotifyRepaintRequired();
+                    }
+                    else
+                    {
+                        //stop smart map moving if mouse goes outside map area (canvas).
+                        this.bSmartMapMoving = false;
                     }
                 }.bind(this), this.ScreenSpaceEventType.MOUSE_MOVE);
                 handler.setInputAction(function(event) {
@@ -11574,23 +11579,9 @@ var CesiumRenderOptimizer = function(empCesium) {
             //console.log("inside preRenderListener" );
             var position = empCesium.viewer.scene.camera.position,
                 cartographic;
-            if (empCesium.bSmartMapMoving) {
+            if (empCesium.bSmartMapMoving && empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
                 var width = empCesium.canvas.width;
                 var height = empCesium.canvas.height;
-
-                // Coordinate (0.0, 0.0) will be where the mouse was clicked.
-                //var x = (empCesium.mousePosition.x - empCesium.startMousePosition.x) / width;
-                //var y = -(empCesium.mousePosition.y - empCesium.startMousePosition.y) / height;
-                //                var x = empCesium.mousePosition.x;
-                //                var y = empCesium.mousePosition.y;
-
-                // var lookFactor = 0.05;
-                //empCesium.viewer.camera.lookRight(x * lookFactor);
-                //empCesium.viewer.camera.lookUp(y * lookFactor);
-                //                cartographic = empCesium.getLonLatFromPixel({
-                //                    x: x,
-                //                    y: y
-                //                });
 
                 if (!empCesium.defined(this.hProcessSmartMoveTimer)) {
                     this.hProcessSmartMoveTimer = setTimeout(function() {
@@ -11656,16 +11647,19 @@ var CesiumRenderOptimizer = function(empCesium) {
 
                     }.bind(this), 100);
                 }
-                //                    empCesium.camera.flyTo({
-                //                        destination: Cesium.Cartesian3.fromDegrees(-122.19, 46.25, 5000.0),
-                //                        orientation: {
-                //                            heading: Cesium.Math.toRadians(175.0),
-                //                            pitch: Cesium.Math.toRadians(-35.0),
-                //                            roll: 0.0
-                //                        }});
-
-                //empCesium.viewer.camera.twistRight(Cesium.Math.toRadians(10.0));
-                //empCesium.viewer.camera.rotate(new Cesium.Cartesian3(0, 0, 0), Cesium.Math.toRadians(10.0));
+                // send last pixel mouse cursor position as a  mouse  move event. The idea is to relocate the control point to location
+                // of mouse cursor in edit mode while in smart map move..
+                var cartographicSmartMoveMousePosition = empCesium.getLonLatFromPixel({x: empCesium.mousePosition.x, y: empCesium.mousePosition.y });
+                var callbackData = {
+                    button: "mousemove",
+                    position: {
+                        x: empCesium.mousePosition.x,
+                        y: empCesium.mousePosition.y
+                    },
+                    domEvent: undefined
+                };
+                empCesium.prePopulateEvent(callbackData, false);
+                empCesium.handleMove(callbackData);
             }
             //var orientation =
             if (empCesium.isMapMoving()) {
