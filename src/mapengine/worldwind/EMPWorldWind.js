@@ -141,11 +141,10 @@ EMPWorldWind.Map = function(wwd) {
    * Current set of selected objects
    */
   this.empSelections = {};
-  this.optimizationMapMoveEpsilon = EMPWorldWind.Math.EPSILON7;
+  this.optimizationMapMoveEpsilon = EMPWorldWind.Math.EPSILON5;
   this.lastNavigator = {};
   this.shapesInViewArea = undefined;
   this.bounds = undefined;
-
 
   //SEC renderer worker for multipoints
   this.secRendererWorker = {};
@@ -337,6 +336,7 @@ EMPWorldWind.Map.prototype = function() {
       EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
       //initialize sec worker
       this.secRendererWorker.A = new Worker(WorldWind.configuration.baseUrl + 'renderer/MPCWorker.js');
+      this.secRendererWorker.B = new Worker(WorldWind.configuration.baseUrl + 'renderer/MPCWorker.js');
 
       this.secRendererWorker.A.onerror = function(error) {
         //logs error to console
