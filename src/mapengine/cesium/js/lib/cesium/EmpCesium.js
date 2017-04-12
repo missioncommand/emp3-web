@@ -993,7 +993,7 @@ function EmpCesium() {
             isYWithin = false,
             zoneWidthInPixels = 50,
             position = args.endPosition || args.position;
-
+            //console.log ("mouse moving");
         if (this.defined(position)) {
             this.bSmartMapMovingRightZone = ((position.x >= (this.canvas.width - zoneWidthInPixels)) && position.x <= this.canvas.width - 5); //&& (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ||
             this.bSmartMapMovingLeftZone = (position.x >= 5 && position.x <= zoneWidthInPixels); // && (args.endPosition.y >= this.canvas.height - 20 && args.endPosition.y <= this.canvas.height) ;
@@ -1031,7 +1031,7 @@ function EmpCesium() {
         //        }
         if (this.bSmartMapMoving && args.domEvent && args.domEvent.target && args.domEvent.target.localName !== "canvas") {
             this.bSmartMapMoving = false; // is withinn but mouse event is occurring over another object (another div tag, compass, pop up window, etc.
-            this.bSmartMapReady = false;
+            //this.bSmartMapReady = false;
             this.bSmartMapMovingLeftZone = false;
             this.bSmartMapMovingTopZone = false;
             this.bSmartMapMovingBottomZone = false;
@@ -1389,6 +1389,12 @@ function EmpCesium() {
                 // rightClick
                 handler.setInputAction(function(event) {
                     if (this.isMouseWithinCanvas(event)) {
+                        var delaySuspensionSmartMapMoveTimeOut = setTimeout(function ()
+                        {
+                            // stop momentarily the smart map move
+                            // the delay makes sure this flag is not overwritten by a mouse move while clicking
+                            this.bSmartMapMoving = false;
+                         }.bind(this), 70);
                         var callbackData = {
                             button: "right",
                             position: {
@@ -1648,6 +1654,14 @@ function EmpCesium() {
                 // leftClick
                 handler.setInputAction(function(event) {
                     if (this.isMouseWithinCanvas(event)) {
+
+                        var delaySuspensionSmartMapMoveTimeOut = setTimeout(function ()
+                        {
+                            // stop momentarily the smart map move
+                            // the delay makes sure this flag is not overwritten by a mouse move while clicking
+                            this.bSmartMapMoving = false;
+                         }.bind(this), 70);
+
                         var callbackData = {
                             button: "left",
                             position: {
@@ -1747,6 +1761,12 @@ function EmpCesium() {
                 }.bind(this), this.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
                 handler.setInputAction(function(event) {
                     if (this.isMouseWithinCanvas(event)) {
+                        var delaySuspensionSmartMapMoveTimeOut = setTimeout(function ()
+                        {
+                            // stop momentarily the smart map move
+                            // the delay makes sure this flag is not overwritten by a mouse move while clicking
+                            this.bSmartMapMoving = false;
+                         }.bind(this), 70);
                         if (this.viewer) {
                             this.viewer.trackedEntity = undefined;
                         }
@@ -1904,7 +1924,7 @@ function EmpCesium() {
                         //     this.bSmartMapMovingTopLeftZone = false;
                         //     this.bSmartMapMovingBottomLeftZone = false;
                         // }
-
+                        //this.bSmartMapMoving = false;
                         var callbackData = {
                             button: "left",
                             position: {
@@ -1971,6 +1991,12 @@ function EmpCesium() {
                 // middleClick
                 handler.setInputAction(function(event) {
                     if (this.isMouseWithinCanvas(event)) {
+                        var delaySuspensionSmartMapMoveTimeOut = setTimeout(function ()
+                        {
+                            // stop momentarily the smart map move
+                            // the delay makes sure this flag is not overwritten by a mouse move while clicking
+                            this.bSmartMapMoving = false;
+                         }.bind(this), 70);
                         var callbackData = {
                             button: "middle",
                             position: {
@@ -2035,6 +2061,12 @@ function EmpCesium() {
                 // middleDoubleClick
                 handler.setInputAction(function(event) {
                     if (this.isMouseWithinCanvas(event)) {
+                        var delaySuspensionSmartMapMoveTimeOut = setTimeout(function ()
+                        {
+                            // stop momentarily the smart map move
+                            // the delay makes sure this flag is not overwritten by a mouse move while clicking
+                            this.bSmartMapMoving = false;
+                         }.bind(this), 70);
                         var callbackData = {
                             button: "middle",
                             position: {
@@ -2238,6 +2270,7 @@ function EmpCesium() {
 
                         if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION && this.isMouseWithinSmartMoveDetectionZone(event)) {
                             this.bSmartMapMoving = true;
+                            //this.bSmartMapReady = true;
                             this.scene.screenSpaceCameraController.enableRotate = true;
                             this.scene.screenSpaceCameraController.enableTranslate = true;
                             this.scene.screenSpaceCameraController.enableZoom = true;
@@ -2248,6 +2281,7 @@ function EmpCesium() {
                             //this.bSmartMapMoving = false;
                         } else if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
                             this.bSmartMapMoving = false;
+                            //this.bSmartMapReady = false;
                             this.scene.screenSpaceCameraController.enableRotate = false;
                             this.scene.screenSpaceCameraController.enableTranslate = false;
                             this.scene.screenSpaceCameraController.enableZoom = false;
@@ -2255,6 +2289,10 @@ function EmpCesium() {
                             this.scene.screenSpaceCameraController.enableLook = false;
                             //this.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
                             this.viewer.cesiumNavigation.setNavigationLocked(true);
+                        }
+                        else
+                        {
+                            this.bSmartMapMoving = false;
                         }
                         //                            var width = this.canvas.width;
                         //                            var height = this.canvas.height;
@@ -11579,7 +11617,8 @@ var CesiumRenderOptimizer = function(empCesium) {
             //console.log("inside preRenderListener" );
             var position = empCesium.viewer.scene.camera.position,
                 cartographic;
-            if (empCesium.bSmartMapMoving && empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
+                if (empCesium.bSmartMapMoving &&  empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
+                //if (empCesium.bSmartMapMoving && empCesium.bSmartMapReady &&  empCesium.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
                 var width = empCesium.canvas.width;
                 var height = empCesium.canvas.height;
 
