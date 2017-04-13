@@ -31,10 +31,21 @@ EMPWorldWind.constants.WHITE_CONTRAST = 0;
 EMPWorldWind.constants.BLACK_CONTRAST = 1;
 
 /**
+ * @constant
+ * @enum
+ */
+EMPWorldWind.constants.PAN_STATE = {
+  HALTED: 'halted',
+  PANNING: 'panning',
+  COMPLETE: 'complete'
+};
+
+/**
  * No panning state for autoPanning in smart motion
  * @constant {object}
  */
 EMPWorldWind.constants.NO_PANNING = {
+  state: String(EMPWorldWind.constants.PAN_STATE.HALTED),
   step: 0,
   up: false,
   down: false,
@@ -60,7 +71,7 @@ EMPWorldWind.constants.SCALE_LINE_LENGTH = 50;
 EMPWorldWind.constants.propertyDefaults = {
   FILL_COLOR_HEX: "ffffff",
   LINE_COLOR_HEX: "000000",
-  LINE_WIDTH: 3
+  LINE_WIDTH: 1
 };
 
 /**
@@ -187,7 +198,7 @@ EMPWorldWind.constants.AllLabels = {
   "S": true,
   "AA": true,
   "AB": true,
-  "AC": true, 
+  "AC": true,
   "H": true,
   "M": true,
   "T": true,
