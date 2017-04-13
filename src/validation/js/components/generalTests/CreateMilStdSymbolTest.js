@@ -561,7 +561,7 @@ class CreateMilStdSymbolTest extends Component {
       <DropdownList className="mdl-cell mdl-cell--9-col"
                     defaultValue="Friendly"
                     data={_affiliation}
-                    textField="value" dataField="key"
+                    textField="value"
                     onChange={value => this.setState({affiliation: value.key}, this.updateSymbol)}/>
 
       <label className="mdl-cell mdl-cell--3-col">Status</label>
@@ -569,14 +569,14 @@ class CreateMilStdSymbolTest extends Component {
       <DropdownList className="mdl-cell mdl-cell--9-col"
                     defaultValue="Present"
                     data={_status}
-                    textField="value" dataField="key"
+                    textField="value"
                     onChange={value => this.setState({status: value.key}, this.updateSymbol)}/>
 
       <label className="mdl-cell mdl-cell--3-col">Echelon</label>
       <DropdownList className="mdl-cell mdl-cell--9-col"
                     defaultValue="Battalion"
                     data={_echelon}
-                    textField="value" dataField="key"
+                    textField="value"
                     onChange={value => this.setState({echelon: value.key}, this.updateSymbol)}/>
 
       <SymbolExplorer data={this.state.symbolDefs}

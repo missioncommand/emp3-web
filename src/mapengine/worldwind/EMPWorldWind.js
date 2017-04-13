@@ -25,6 +25,9 @@ EMPWorldWind.Map = function(wwd) {
   /** @type {Object.<string, EMPWorldWind.data.EmpFeature>} */
   this.features = {};
 
+  /** @type {Object.<string, *>} */
+  this.services = {};
+
   /**
    * This holds the state of the instance
    * @memberof EMPWorldWind.Map#
@@ -79,6 +82,7 @@ EMPWorldWind.Map = function(wwd) {
      * Object for describing autoPanning behavior
      */
     autoPanning: {
+      state: String(EMPWorldWind.constants.PAN_STATE.HALTED),
       step: 0.5,
       up: false,
       down: false,
@@ -162,7 +166,22 @@ EMPWorldWind.Map = function(wwd) {
  * @property {string|undefined} lineColor
  * @property {string|undefined} fillColor
  */
+
+/**
+ * @callback EMPWorldWind.map~WMTSCallback
+ */
+
+/**
+ * @typedef {object} AutoPanParams
+ * @property {boolean} up
+ * @property {boolean} down
+ * @property {boolean} left
+ * @property {boolean} right
+ */
 //======================================================================================================================
+/**
+ *
+ */
 EMPWorldWind.Map.prototype = (function() {
 
   // Private Functions =================================================================================================
@@ -338,7 +357,7 @@ EMPWorldWind.Map.prototype = (function() {
         //logs error to console
         armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker A", "postMessage", error);
       };
-      this.secRendererWorker.onMassage = function(e) {
+      this.secRendererWorker.onMessage = function(e) {
         //var batchCall = false,
         var rendererData = [];
         if (e.data.id) //not a batch call
@@ -428,14 +447,14 @@ EMPWorldWind.Map.prototype = (function() {
         this.worldWindow.redraw();
       }.bind(this);
 
-      this.secRendererWorker.A.onmessage = this.secRendererWorker.onMassage;
+      this.secRendererWorker.A.onmessage = this.secRendererWorker.onMessage;
 
 
       this.secRendererWorker.B.onerror = function(error) {
         //logs error to console
         armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker B", "postMessage", error);
       };
-      this.secRendererWorker.B.onmessage = this.secRendererWorker.onMassage;
+      this.secRendererWorker.B.onmessage = this.secRendererWorker.onMessage;
 
       this.throttleAddMultiPointRedraws = EMPWorldWind.utils.MultiPointRateLimit(EMPWorldWind.editors.EditorController.redrawMilStdSymbols, 1);
     },
@@ -882,6 +901,104 @@ EMPWorldWind.Map.prototype = (function() {
       return null;
     },
     /**
+     * @param {emp.typeLibrary.WMTS} empWMTS
+     * @param {EMPWorldWind.map~WMTSCallback} callback
+     */
+    addWmtsToMap: function(empWMTS, callback) {
+      var rc = {
+        success: false,
+        message: ''
+      };
+
+      var xhr, url,
+        async = true;
+
+      var _createWMTSLayer = function(xmlDom) {
+        var wmtsCapabilities, wmtsLayerCapabilities, wmtsConfig;
+
+        wmtsCapabilities = new WorldWind.WmtsCapabilities(xmlDom);
+        wmtsLayerCapabilities = wmtsCapabilities.getLayer(empWMTS.layer);
+        wmtsConfig = WorldWind.WmtsLayer.formLayerConfiguration(wmtsLayerCapabilities);
+
+        return new WorldWind.WmtsLayer(wmtsConfig);
+      };
+
+
+      // Handle getting capabilities
+      var xhrSuccess = function() {
+        var wmtsLayer;
+
+        if (xhr.status === 200) {
+          try {
+            wmtsLayer = _createWMTSLayer(xhr.responseXML);
+
+            this.worldWindow.addLayer(wmtsLayer);
+            this.services[empWMTS.coreId] = wmtsLayer;
+
+            this.worldWindow.redraw();
+
+            rc.success = true;
+          } catch (err) {
+            rc.message = err.message;
+          }
+
+          if (typeof callback === "function") {
+            return callback(rc);
+          }
+        }
+      }.bind(this);
+
+      // Handle getting error
+      var xhrError = function() {
+        callback({
+          success: false,
+          message: xhr.statusText
+        });
+      };
+
+      try {
+        url = empWMTS.url + "?SERVICE=WMTS&REQUEST=GetCapabilities&VERSION=1.0.0";
+
+        // Configure the request
+        xhr = new XMLHttpRequest();
+        xhr.open("GET", url, async);
+        xhr.callback = callback;
+        xhr.onload = xhrSuccess;
+        xhr.onerror = xhrError;
+
+        // Make the request
+        xhr.send();
+
+        rc.success = true;
+      } catch (err) {
+        rc.message = err.message;
+      }
+
+      return rc;
+    },
+
+    /**
+     * @param {emp.typeLibrary.WMTS} empWMTS
+     */
+    removeWmtsFromMap: function(empWMTS) {
+      var rc = {
+        success: false,
+        message: ''
+      };
+
+      if (empWMTS.coreId in this.services) {
+        this.worldWindow.removeLayer(this.services[empWMTS.coreId]);
+
+        rc.success = true;
+        this.worldWindow.redraw();
+      } else {
+        rc.message = 'No such service exists on the map';
+      }
+
+      return rc;
+    },
+
+    /**
      *
      * @param id
      */
@@ -1182,14 +1299,22 @@ EMPWorldWind.Map.prototype = (function() {
      * @param {emp.typeLibrary.Lock} lockState
      */
     setLockState: function(lockState) {
+      if (lockState.lock === this.state.lockState) {
+        // The same already, do nothing
+        return;
+      } else if (lockState.lock !== emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
+        // We have changed lock states, make sure to stop auto-panning
+        this.spinGlobe(false);
+      }
+      // Update the lock state
       this.state.lockState = lockState.lock;
     },
     /**
      * Spins the globe if autoPanning is enabled
+     * @param {AutoPanParams|boolean} [pan]
      */
-    spinGlobe: function() {
-      var vertical, horizontal, goToPosition,
-        step = this.worldWindow.navigator.range / (WorldWind.EARTH_RADIUS);
+    spinGlobe: function(pan) {
+      var step = this.worldWindow.navigator.range / (WorldWind.EARTH_RADIUS);
 
       /**
        *
@@ -1221,23 +1346,97 @@ EMPWorldWind.Map.prototype = (function() {
         }
       }
 
-      vertical = _getVerticalPan.call(this);
-      horizontal = _getHorizontalPan.call(this);
+      /**
+       *
+       * @param {AutoPanParams} pan
+       * @private
+       */
+      function _cleanPanArgs(pan) {
+        if (pan && pan.hasOwnProperty('state')) {
+          delete pan['state'];
+        }
+        return pan;
+      }
 
-      goToPosition = new WorldWind.Position(
-        this.worldWindow.navigator.lookAtLocation.latitude + vertical,
-        this.worldWindow.navigator.lookAtLocation.longitude + horizontal,
-        this.worldWindow.navigator.range);
-      this.goToAnimator.travelTime = 500; // TODO smooth the transition if this is getting called too often
+      /**
+       * @this EMPWorldWind.Map
+       * @private
+       */
+      function _allowPan() {
+        return this.state.autoPanning.up ||
+          this.state.autoPanning.left ||
+          this.state.autoPanning.down ||
+          this.state.autoPanning.right;
+      }
 
-      if (this.state.autoPanning.up ||
-        this.state.autoPanning.left ||
-        this.state.autoPanning.down ||
-        this.state.autoPanning.right) {
-        this.goToAnimator.goTo(goToPosition);
+      /**
+       *
+       * @private
+       */
+      function _panMap() {
+        var vertical, horizontal, goToPosition,
+          travelTime = 250; // 250 ms
+
+        // Get the pan directions
+        vertical = _getVerticalPan.call(this);
+        horizontal = _getHorizontalPan.call(this);
+
+        // Get the location to pan to
+        goToPosition = new WorldWind.Position(
+          this.worldWindow.navigator.lookAtLocation.latitude + vertical,
+          this.worldWindow.navigator.lookAtLocation.longitude + horizontal,
+          this.worldWindow.navigator.range);
+        this.goToAnimator.travelTime = travelTime;
+
+        // Update the state
+        this.state.autoPanning.state = EMPWorldWind.constants.PAN_STATE.PANNING;
+
+        // Notify EMP we are moving the camera
         EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_IN_MOTION);
-        setTimeout(this.spinGlobe.bind(this), 250);
+
+        // Fire the animation
+        this.goToAnimator.goTo(goToPosition, function() {
+
+          var coords = EMPWorldWind.utils.getEventCoordinates.call(this, this.state.lastInteractionEvent);
+          coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
+
+          if (coords.lat !== undefined) {
+            this.empMapInstance.eventing.Pointer(coords);
+          }
+
+          // Update the state to compete
+          this.state.autoPanning.state = EMPWorldWind.constants.PAN_STATE.COMPLETE;
+
+          // Fire the animation again, any updates to direction or cancellation will be handled in this subsequent call
+          this.spinGlobe();
+        }.bind(this));
+      }
+
+      // Explicitly halting the animation and restoring the pan state to no motion
+      if (pan === false) {
+        this.goToAnimator.cancel();
+        this.state.autoPanning = Object.assign({}, EMPWorldWind.constants.NO_PANNING);
+        return;
+      }
+
+      // Make sure we don't overwrite the state internals
+      pan = _cleanPanArgs(pan);
+
+      // Update the panning state directions
+      this.state.autoPanning = Object.assign(this.state.autoPanning, pan);
+
+      // If we are still running a previous auto-pan animation return, the pan callback will use the updated state when it completes
+      if (this.state.autoPanning.state === EMPWorldWind.constants.PAN_STATE.PANNING ||
+        this.state.lockState !== emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
+        return;
+      }
+
+      if (_allowPan.call(this)) {
+        _panMap.call(this);
       } else {
+        // Our exit route, update the state
+        this.state.autoPanning.state = EMPWorldWind.constants.PAN_STATE.HALTED;
+        // Notify EMP we have stopped moving
         EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
       }
     },
