@@ -84,10 +84,9 @@ EMPWorldWind.editors.EditorController = (function() {
     return placemark;
   }
 
-
   /**
    *
-   * @param {array of emp.typeLibrary.Feature} feature
+   * @param {emp.typeLibrary.Feature[]} features
    * @private
    */
   function _constructMultiPointMilStdFeature(features) {
@@ -103,12 +102,12 @@ EMPWorldWind.editors.EditorController = (function() {
     data.pixelHeight = this.worldWindow.canvas.clientHeight;
     data.pixelWidth = this.worldWindow.canvas.clientWidth;
     data.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
-    for (var featureIndex = 0; featureIndex < features.length; featureIndex += 1) {
+
+    emp.util.each(features, function(feature) {
       {
         var i,
           modifiers,
-          positions = "",
-          feature = features[featureIndex];
+          positions = "";
         if (feature) {
           modifiers = processModifiers.call(this, feature);
           // Generate position string
@@ -127,14 +126,15 @@ EMPWorldWind.editors.EditorController = (function() {
           batchObject.bbox = data.bbox;
           batchObject.modifiers = modifiers;
           batchObject.format = EMPWorldWind.constants.MultiPointRenderType.GEOJSON;
-          batchObject.symstd = 1; //TODO remove this harcoding of synstd    1;//1=2525C, 0=2525Bch2
+          batchObject.symstd = 1; //TODO remove this hard coding of symstd    1;//1=2525C, 0=2525Bch2
           batchObject.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
           batchObject.altMode = WorldWind.CLAMP_TO_GROUND;
           batchObject.points = positions;
           data.batch.push(batchObject);
         }
       }
-      //call sec renderer worker
+
+      // Call sec renderer worker
       if (this.secRendererWorker.lastSelected === EMPWorldWind.constants.RendererWorker.B) {
         this.secRendererWorker.A.postMessage(data);
         this.secRendererWorker.lastSelected = EMPWorldWind.constants.RendererWorker.A;
@@ -142,7 +142,9 @@ EMPWorldWind.editors.EditorController = (function() {
         this.secRendererWorker.B.postMessage(data);
         this.secRendererWorker.lastSelected = EMPWorldWind.constants.RendererWorker.B;
       }
-    }
+    }.bind(this));
+
+    // TODO remove empty array return, it is a holdover from before using web workers
     return [];
   }
 
@@ -169,7 +171,6 @@ EMPWorldWind.editors.EditorController = (function() {
 
     lowRangeMode = feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
     modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, ((this.state.labelStyles.CN === true) && lowRangeMode));
-    //modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, true);
 
     enhancedModifiers = EMPWorldWind.utils.milstd.checkForRequiredModifiers(feature);
 
@@ -197,7 +198,6 @@ EMPWorldWind.editors.EditorController = (function() {
       modifiers = processModifiers.call(this, feature);
       shapes.push(_constructSinglePointMilStdSymbol.call(this, feature, modifiers, selectionStyle));
     } else if (feature.data.type === "LineString") {
-      // Requires access to the WorldWindow navigator, bind to the current scope
       shapes = shapes.concat(_constructMultiPointMilStdFeature.call(this, [feature]));
     } else {
       // TODO alert the user more gracefully that the type is unhandled
