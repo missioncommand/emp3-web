@@ -313,6 +313,7 @@ EMPWorldWind.Map.prototype = (function() {
           armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker A", "postMessage", error);
         };
 
+        // Overwrite the interface function
         this.secRendererWorker.onMessage = function(e) {
           var rendererData = [];
 
@@ -327,23 +328,27 @@ EMPWorldWind.Map.prototype = (function() {
               return;
             }
 
-            var wwFeature = this.features[rendererItem.id];
-            var shapes = [];
-            var data = rendererItem.geojson;
+            var layer,
+              i,
+              wwFeature = this.features[rendererItem.id],
+              shapes = [],
+              data = rendererItem.geojson;
 
-            for (var i = 0; i < data.features.length; i++) {
-              var componentFeature = data.features[i];
+            emp.util.each(data.features, function(componentFeature) {
+              var lineCount;
+
               // TODO have the renderer return the proper width, manually overwriting the line width for now
               componentFeature.properties.strokeWidth = 1;
               componentFeature.properties.strokeWeight = 1;
+
               switch (componentFeature.geometry.type) {
                 case "MultiLineString":
-                  var lineCount = componentFeature.geometry.coordinates.length;
+                  lineCount = componentFeature.geometry.coordinates.length;
 
-                  for (var j = 0; j < lineCount; j++) {
+                  for (i = 0; i < lineCount; i++) {
                     var subGeoJSON = {
                       properties: componentFeature.properties,
-                      coordinates: componentFeature.geometry.coordinates[j]
+                      coordinates: componentFeature.geometry.coordinates[i]
                     };
 
                     shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON(subGeoJSON, this.state.selectionStyle));
@@ -361,19 +366,22 @@ EMPWorldWind.Map.prototype = (function() {
                 default:
                   window.console.error("Unable to render symbol with type " + componentFeature.geometry.type);
               }
-            }
+            }.bind(this));
 
             if (wwFeature) {
-              var layer = this.getLayer(this.rootOverlayId);
-              wwFeature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+              // Remove the feature from the root layer
+              layer = this.getLayer(this.rootOverlayId);
               layer.removeFeature(wwFeature);
+
               // Clear the primitives from the feature
               wwFeature.clearShapes();
+
+              // Update the empFeature stored in the wwFeature
               wwFeature.addShapes(shapes);
               wwFeature.feature.range = this.worldWindow.navigator.range;
-              // Update the empFeature stored in the wwFeature
-              //wwFeature.feature = empFeature;
+              wwFeature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
               wwFeature.selected = this.isFeatureSelected(wwFeature.id);
+
               // Update the layer
               layer.addFeature(wwFeature);
             }
