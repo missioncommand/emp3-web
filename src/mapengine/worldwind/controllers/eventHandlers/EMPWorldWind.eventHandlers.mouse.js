@@ -159,10 +159,9 @@ EMPWorldWind.eventHandlers.mouse = (function() {
         pan.down = event.offsetY > elementBounds.height - (elementBounds.height * smartAreaBuffer);
 
         if (pan.up || pan.down || pan.left || pan.right) {
-          this.state.autoPanning = pan;
-          this.spinGlobe();
+          this.spinGlobe(pan);
         } else {
-          this.state.autoPanning = EMPWorldWind.constants.NO_PANNING;
+          this.spinGlobe(false);
         }
       }.bind(this);
 

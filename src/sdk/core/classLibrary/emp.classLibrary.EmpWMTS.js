@@ -1,10 +1,10 @@
-emp.classLibrary.privateClass = function () {
+emp.classLibrary.privateClass = function() {
   var publicInterface = {
     /**
      * @memberof emp.classLibrary.EmpWMS#
      * @param {object} args
      */
-    initialize: function (args) {
+    initialize: function(args) {
       /**
        * @memberof emp.classLibrary.EmpWMS#
        */
@@ -29,7 +29,7 @@ emp.classLibrary.privateClass = function () {
     /**
      *
      */
-    getObjectData: function (mapInstanceId, coreParentId) {
+    getObjectData: function(mapInstanceId, coreParentId) {
       var oParent = this.getParentByIndex(0);
 
       var oObj = {
@@ -55,7 +55,7 @@ emp.classLibrary.privateClass = function () {
       return new emp.typeLibrary.WMTS(oObj);
     },
 
-    compareProperty: function (mapInstanceId, sProperty, Value) {
+    compareProperty: function(mapInstanceId, sProperty, Value) {
       var bRet = false;
 
       if (!emp.util.isEmptyString(sProperty)) {
