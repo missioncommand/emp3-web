@@ -4204,6 +4204,7 @@ define('util/WWMath',[
              * @param {Vec3} result A pre-allocated Vec3 instance in which to return the computed point.
              * @returns {boolean} true if the line intersects the ellipsoid, otherwise false
              * @throws {ArgumentError} If the specified line or result is null or undefined.
+             * @deprecated utilize the Globe.intersectsLine method attached implementation
              */
             computeEllipsoidalGlobeIntersection: function (line, equatorialRadius, polarRadius, result) {
                 if (!line) {
@@ -5209,9 +5210,9 @@ define('geom/Location',[
             endLatRadians = Math.asin(Math.sin(latRadians) * Math.cos(pathLengthRadians) +
                 Math.cos(latRadians) * Math.sin(pathLengthRadians) * Math.cos(azimuthRadians));
             endLonRadians = lonRadians + Math.atan2(
-                Math.sin(pathLengthRadians) * Math.sin(azimuthRadians),
-                Math.cos(latRadians) * Math.cos(pathLengthRadians) -
-                Math.sin(latRadians) * Math.sin(pathLengthRadians) * Math.cos(azimuthRadians));
+                    Math.sin(pathLengthRadians) * Math.sin(azimuthRadians),
+                    Math.cos(latRadians) * Math.cos(pathLengthRadians) -
+                    Math.sin(latRadians) * Math.sin(pathLengthRadians) * Math.cos(azimuthRadians));
 
             if (isNaN(endLatRadians) || isNaN(endLonRadians)) {
                 result.latitude = location.latitude;
@@ -5393,8 +5394,7 @@ define('geom/Location',[
             dLon = pathLengthRadians * Math.sin(azimuthRadians) / q;
 
             // Handle latitude passing over either pole.
-            if (WWMath.fabs(endLatRadians) > Math.PI / 2)
-            {
+            if (WWMath.fabs(endLatRadians) > Math.PI / 2) {
                 endLatRadians = endLatRadians > 0 ? Math.PI - endLatRadians : -Math.PI - endLatRadians;
             }
 
@@ -5559,8 +5559,7 @@ define('geom/Location',[
                 endLonRadians;
 
             // Handle latitude passing over either pole.
-            if (WWMath.fabs(endLatRadians) > Math.PI / 2)
-            {
+            if (WWMath.fabs(endLatRadians) > Math.PI / 2) {
                 endLatRadians = endLatRadians > 0 ? Math.PI - endLatRadians : -Math.PI - endLatRadians;
             }
 
@@ -5584,7 +5583,7 @@ define('geom/Location',[
          * @returns {boolean} True if the dateline is crossed, else false.
          * @throws {ArgumentError} If the locations list is null.
          */
-        Location.locationsCrossDateLine = function(locations) {
+        Location.locationsCrossDateLine = function (locations) {
             if (!locations) {
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "Location", "locationsCrossDateline", "missingLocation"));
@@ -5599,7 +5598,8 @@ define('geom/Location',[
                     // and are more than 180 degrees longitude apart
                     if (WWMath.signum(pos.longitude) != WWMath.signum(posNext.longitude)) {
                         var delta = Math.abs(pos.longitude - posNext.longitude);
-                        if (delta > 180 && delta < 360)
+                        //florin added <= 360, handles (90, 180) -> (0, -180) -> (-90, 180)
+                        if (delta > 180 && delta <= 360)
                             return true;
                     }
                 }
@@ -5619,7 +5619,7 @@ define('geom/Location',[
          *
          * @throws IllegalArgumentException if locations is null.
          */
-        Location.greatCircleArcExtremeLocations = function(locations) {
+        Location.greatCircleArcExtremeLocations = function (locations) {
             if (!locations) {
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "Location", "greatCircleArcExtremeLocations", "missingLocation"));
@@ -5664,7 +5664,7 @@ define('geom/Location',[
          *
          * @throws {ArgumentError} If either begin or end are null.
          */
-        Location.greatCircleArcExtremeForTwoLocations = function(begin, end) {
+        Location.greatCircleArcExtremeForTwoLocations = function (begin, end) {
             if (!begin || !end) {
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "Location", "greatCircleArcExtremeForTwoLocations", "missingLocation"));
@@ -5741,7 +5741,7 @@ define('geom/Location',[
          *
          * @throws {ArgumentError} If location is null.
          */
-        Location.greatCircleExtremeLocationsUsingAzimuth = function(location, azimuth) {
+        Location.greatCircleExtremeLocationsUsingAzimuth = function (location, azimuth) {
             if (!location) {
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "Location", "greatCircleArcExtremeLocationsUsingAzimuth", "missingLocation"));
@@ -5777,7 +5777,7 @@ define('geom/Location',[
 
             return [
                 Location.greatCircleLocation(location, azimuth, extremeDistance1, new Location(0, 0)),
-                Location.greatCircleLocation(location, azimuth, extremeDistance2, new Location(0,0))
+                Location.greatCircleLocation(location, azimuth, extremeDistance2, new Location(0, 0))
             ];
         };
 
@@ -5797,7 +5797,7 @@ define('geom/Location',[
          * TODO: this code allocates 4 new Vec3 and 1 new Position; use scratch variables???
          * TODO: Why not? Every location created would then allocated those variables as well, even if they aren't needed :(.
          */
-        Location.intersectionWithMeridian = function(p1, p2, meridian, globe) {
+        Location.intersectionWithMeridian = function (p1, p2, meridian, globe) {
             // TODO: add support for 2D
             //if (globe instanceof Globe2D)
             //{
@@ -5833,6 +5833,34 @@ define('geom/Location',[
             globe.computePositionFromPoint(intersectionPoint[0], intersectionPoint[1], intersectionPoint[2], pos);
 
             return pos.latitude;
+        };
+
+        /**
+         * Determine where a line between two positions crosses a given meridian. The intersection test is performed by
+         * intersecting a line in Cartesian space. Thus, it is most suitable for working with positions that are fairly
+         * close together as the calculation does not take into account great circle or rhumb paths.
+         *
+         * @param {Location | Position} p1 First position.
+         * @param {Location | Position} p2 Second position.
+         * @param {number} meridian Longitude line to intersect with.
+         *
+         * @return {number | null} latitude The intersection latitude along the meridian
+         * or null if the line is collinear with the meridian
+         */
+        Location.meridianIntersection = function(p1, p2, meridian){
+                // y = mx + b case after normalizing negative angles.
+                var lon1 = p1.longitude < 0 ? p1.longitude + 360 : p1.longitude;
+                var lon2 = p2.longitude < 0 ? p2.longitude + 360 : p2.longitude;
+                if (lon1 === lon2) {
+                    //infinite solutions, the line is collinear with the anti-meridian
+                    return null;
+                }
+
+                var med = meridian < 0 ? meridian + 360 : meridian;
+                var slope = (p2.latitude - p1.latitude) / (lon2 - lon1);
+                var lat = p1.latitude + slope * (med - lon1);
+
+                return lat;
         };
 
         /**
@@ -8448,7 +8476,7 @@ define('shapes/Annotation',[
             // annotation
             this.label = dc.textSupport.wrap(
                 this.label,
-                this.attributes.width,this.attributes.height,
+                this.attributes.width, this.attributes.height,
                 this.attributes.textAttributes.font);
 
             // Compute the annotation's model point.
@@ -8511,7 +8539,7 @@ define('shapes/Annotation',[
                 leaderOffsetY = 0;
             }
 
-            if (this.attributes.stateKey != this.lastStateKey){
+            if (this.attributes.stateKey != this.lastStateKey) {
                 this.calloutPoints = this.createCallout(
                     width, height,
                     leaderOffsetX, leaderOffsetY,
@@ -8662,7 +8690,7 @@ define('shapes/Annotation',[
             }
 
             // Remove the last generated vbo data if attributes changed
-            if (calloutAttributesChanged && this.calloutCacheKey){
+            if (calloutAttributesChanged && this.calloutCacheKey) {
                 dc.gpuResourceCache.removeResource(this.calloutCacheKey);
             }
 
@@ -8697,6 +8725,10 @@ define('shapes/Annotation',[
             Annotation.matrix.multiplyMatrix(this.labelTransform);
             program.loadModelviewProjection(gl, Annotation.matrix);
 
+            Annotation.matrix.setToIdentity();
+            Annotation.matrix.multiplyByTextureTransform(this.labelTexture);
+            program.loadTextureMatrix(gl, Annotation.matrix);
+
             program.loadColor(gl, dc.pickingMode ? this.pickColor : this.attributes.textAttributes.color);
             textureBound = this.labelTexture.bind(dc);
             program.loadTextureEnabled(gl, textureBound);
@@ -8714,6 +8746,934 @@ define('shapes/Annotation',[
         };
 
         return Annotation;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+
+define('util/measure/MeasurerUtils',[
+        '../../geom/Location',
+        '../../geom/Position'
+    ],
+    function (Location,
+              Position) {
+        'use strict';
+
+        /**
+         * Provides utilities for Measurements.
+         * @exports MeasurerUtils
+         */
+        var MeasurerUtils = {
+
+            /**
+             * Subdivide a list of positions so that no segment is longer then the provided maxLength.
+             * <p>If needed, new intermediate positions will be created along lines that follow the given pathType one
+             * of WorldWind.LINEAR, WorldWind.RHUMB_LINE or WorldWind.GREAT_CIRCLE.
+             * All position elevations will be either at the terrain surface if followTerrain is true, or interpolated
+             * according to the original elevations.</p>
+             *
+             * @param {Globe} globe
+             * @param {Position[]} positions
+             * @param {Boolean} followTerrain
+             * @param {String} pathType One of WorldWind.LINEAR, WorldWind.RHUMB_LINE or WorldWind.GREAT_CIRCLE
+             * @param {Number} maxLength The maximum length for one segment
+             *
+             * @return {Position[]} a list of positions with no segment longer then maxLength and elevations following
+             * terrain or not.
+             */
+            subdividePositions: function (globe, positions, followTerrain, pathType, maxLength) {
+                var subdividedPositions = [];
+                var loc = new Location(0, 0);
+                var destLatLon = new Location(0, 0);
+                var pos1 = positions[0];
+                var elevation;
+
+                this.addPosition(globe, subdividedPositions, pos1, followTerrain);
+
+                for (var i = 1; i < positions.length; i++) {
+                    var pos2 = positions[i];
+                    var arcLengthRadians = Location.greatCircleDistance(pos1, pos2);
+                    loc = Location.interpolateAlongPath(pathType, 0.5, pos1, pos2, loc);
+                    var arcLength = arcLengthRadians * globe.radiusAt(loc.latitude, loc.longitude);
+                    if (arcLength > maxLength) {
+                        // if necessary subdivide segment at regular intervals smaller then maxLength
+                        var segmentAzimuth = null;
+                        var segmentDistance = null;
+                        var steps = Math.ceil(arcLength / maxLength); // number of intervals - at least two
+                        for (var j = 1; j < steps; j++) {
+                            var s = j / steps;
+                            if (pathType === WorldWind.LINEAR) {
+                                destLatLon = Location.interpolateLinear(s, pos1, pos2, destLatLon);
+                            }
+                            else if (pathType === WorldWind.RHUMB_LINE) {
+                                if (segmentAzimuth == null) {
+                                    segmentAzimuth = Location.rhumbAzimuth(pos1, pos2);
+                                    segmentDistance = Location.rhumbDistance(pos1, pos2);
+                                }
+                                destLatLon = Location.rhumbLocation(pos1, segmentAzimuth, s * segmentDistance,
+                                    destLatLon);
+                            }
+                            else {
+                                //GREAT_CIRCLE
+                                if (segmentAzimuth == null) {
+                                    segmentAzimuth = Location.greatCircleAzimuth(pos1, pos2); //degrees
+                                    segmentDistance = Location.greatCircleDistance(pos1, pos2); //radians
+                                }
+                                //Location, degrees, radians, Location
+                                destLatLon = Location.greatCircleLocation(pos1, segmentAzimuth, s * segmentDistance,
+                                    destLatLon);
+                            }
+
+                            // Set elevation
+                            if (followTerrain) {
+                                elevation = globe.elevationAtLocation(destLatLon.latitude, destLatLon.longitude);
+                            }
+                            else {
+                                elevation = pos1.altitude * (1 - s) + pos2.altitude * s;
+                            }
+
+                            subdividedPositions.push(new Position(destLatLon.latitude, destLatLon.longitude, elevation));
+                        }
+                    }
+
+                    // Finally add the segment end position
+                    this.addPosition(globe, subdividedPositions, pos2, followTerrain);
+
+                    // Prepare for next segment
+                    pos1 = pos2;
+                }
+
+                return subdividedPositions;
+            },
+
+            /**
+             * Adds a position to a list of positions.
+             * If the path is following the terrain the elevation is also computed.
+             *
+             * @param {Globe} globe
+             * @param {Position[]} positions The list of positions to add to
+             * @param {Position} position The position to add to the list
+             * @param {Boolean} followTerrain
+             *
+             * @return {Position[]} The list of positions
+             */
+            addPosition: function (globe, positions, position, followTerrain) {
+                var elevation = position.altitude;
+                if (followTerrain) {
+                    elevation = globe.elevationAtLocation(position.latitude, position.longitude);
+                }
+                positions.push(new Position(position.latitude, position.longitude, elevation));
+                return positions;
+            },
+
+            /**
+             * Determines whether a location is located inside a given polygon.
+             *
+             * @param {Location} location
+             * @param {Location[]}locations The list of positions describing the polygon.
+             * Last one should be the same as the first one.
+             *
+             * @return {Boolean} true if the location is inside the polygon.
+             */
+            isLocationInside: function (location, locations) {
+                var result = false;
+                var p1 = locations[0];
+                for (var i = 1, len = locations.length; i < len; i++) {
+                    var p2 = locations[i];
+                    if (((p2.latitude <= location.latitude && location.latitude < p1.latitude) ||
+                        (p1.latitude <= location.latitude && location.latitude < p2.latitude)) &&
+                        (location.longitude < (p1.longitude - p2.longitude) * (location.latitude - p2.latitude) /
+                        (p1.latitude - p2.latitude) + p2.longitude)) {
+                        result = !result;
+                    }
+                    p1 = p2;
+                }
+                return result;
+            },
+
+            /**
+             * Computes the angle between two Vec3 in radians.
+             *
+             * @param {Vec3} v1
+             * @param {Vec3} v2
+             *
+             * @return {Number} The ange in radians
+             */
+            angleBetweenVectors: function (v1, v2) {
+                var dot = v1.dot(v2);
+                // Compute the sum of magnitudes.
+                var length = v1.magnitude() * v2.magnitude();
+                // Normalize the dot product, if necessary.
+                if (!(length === 0) && (length !== 1.0)) {
+                    dot /= length;
+                }
+
+                // The normalized dot product should be in the range [-1, 1]. Otherwise the result is an error from
+                // floating point roundoff. So if dot is less than -1 or greater than +1, we treat it as -1 and +1
+                // respectively.
+                if (dot < -1.0) {
+                    dot = -1.0;
+                }
+                else if (dot > 1.0) {
+                    dot = 1.0;
+                }
+
+                // Angle is arc-cosine of normalized dot product.
+                return Math.acos(dot);
+            }
+
+        };
+
+        return MeasurerUtils;
+
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports Sector
+ * @version $Id: Sector.js 2933 2015-03-27 01:18:24Z tgaskins $
+ */
+define('geom/Sector',[
+        '../geom/Angle',
+        '../error/ArgumentError',
+        '../geom/Location',
+        '../util/Logger',
+        '../geom/Vec3',
+        '../util/WWMath'
+    ],
+    function (Angle,
+              ArgumentError,
+              Location,
+              Logger,
+              Vec3,
+              WWMath) {
+        "use strict";
+
+        /**
+         * Constructs a Sector from specified minimum and maximum latitudes and longitudes in degrees.
+         * @alias Sector
+         * @constructor
+         * @classdesc Represents a rectangular region in geographic coordinates in degrees.
+         * @param {Number} minLatitude The sector's minimum latitude in degrees.
+         * @param {Number} maxLatitude The sector's maximum latitude in degrees.
+         * @param {Number} minLongitude The sector's minimum longitude in degrees.
+         * @param {Number} maxLongitude The sector's maximum longitude in degrees.
+         */
+        var Sector = function (minLatitude, maxLatitude, minLongitude, maxLongitude) {
+            /**
+             * This sector's minimum latitude in degrees.
+             * @type {Number}
+             */
+            this.minLatitude = minLatitude;
+            /**
+             * This sector's maximum latitude in degrees.
+             * @type {Number}
+             */
+            this.maxLatitude = maxLatitude;
+            /**
+             * This sector's minimum longitude in degrees.
+             * @type {Number}
+             */
+            this.minLongitude = minLongitude;
+            /**
+             * This sector's maximum longitude in degrees.
+             * @type {Number}
+             */
+            this.maxLongitude = maxLongitude;
+        };
+
+        /**
+         * A sector with minimum and maximum latitudes and minimum and maximum longitudes all zero.
+         * @constant
+         * @type {Sector}
+         */
+        Sector.ZERO = new Sector(0, 0, 0, 0);
+
+        /**
+         * A sector that encompasses the full range of latitude ([-90, 90]) and longitude ([-180, 180]).
+         * @constant
+         * @type {Sector}
+         */
+        Sector.FULL_SPHERE = new Sector(-90, 90, -180, 180);
+
+        /**
+         * Sets this sector's latitudes and longitudes to those of a specified sector.
+         * @param {Sector} sector The sector to copy.
+         * @returns {Sector} This sector, set to the values of the specified sector.
+         * @throws {ArgumentError} If the specified sector is null or undefined.
+         */
+        Sector.prototype.copy = function (sector) {
+            if (!sector) {
+                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "copy", "missingSector"));
+            }
+
+            this.minLatitude = sector.minLatitude;
+            this.maxLatitude = sector.maxLatitude;
+            this.minLongitude = sector.minLongitude;
+            this.maxLongitude = sector.maxLongitude;
+
+            return this;
+        };
+
+        /**
+         * Indicates whether this sector has width or height.
+         * @returns {Boolean} true if this sector's minimum and maximum latitudes or minimum and maximum
+         * longitudes do not differ, otherwise false.
+         */
+        Sector.prototype.isEmpty = function () {
+            return this.minLatitude === this.maxLatitude && this.minLongitude === this.maxLongitude;
+        };
+
+        /**
+         * Returns the angle between this sector's minimum and maximum latitudes, in degrees.
+         * @returns {Number} The difference between this sector's minimum and maximum latitudes, in degrees.
+         */
+        Sector.prototype.deltaLatitude = function () {
+            return this.maxLatitude - this.minLatitude;
+        };
+
+        /**
+         * Returns the angle between this sector's minimum and maximum longitudes, in degrees.
+         * @returns {Number} The difference between this sector's minimum and maximum longitudes, in degrees.
+         */
+        Sector.prototype.deltaLongitude = function () {
+            return this.maxLongitude - this.minLongitude;
+        };
+
+        /**
+         * Returns the angle midway between this sector's minimum and maximum latitudes.
+         * @returns {Number} The mid-angle of this sector's minimum and maximum latitudes, in degrees.
+         */
+        Sector.prototype.centroidLatitude = function () {
+            return 0.5 * (this.minLatitude + this.maxLatitude);
+        };
+
+        /**
+         * Returns the angle midway between this sector's minimum and maximum longitudes.
+         * @returns {Number} The mid-angle of this sector's minimum and maximum longitudes, in degrees.
+         */
+        Sector.prototype.centroidLongitude = function () {
+            return 0.5 * (this.minLongitude + this.maxLongitude);
+        };
+
+        /**
+         * Computes the location of the angular center of this sector, which is the mid-angle of each of this sector's
+         * latitude and longitude dimensions.
+         * @param {Location} result A pre-allocated {@link Location} in which to return the computed centroid.
+         * @returns {Location} The specified result argument containing the computed centroid.
+         * @throws {ArgumentError} If the result argument is null or undefined.
+         */
+        Sector.prototype.centroid = function (result) {
+            if (!result) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "centroid", "missingResult"));
+            }
+
+            result.latitude = this.centroidLatitude();
+            result.longitude = this.centroidLongitude();
+
+            return result;
+        };
+
+        /**
+         * Returns this sector's minimum latitude in radians.
+         * @returns {Number} This sector's minimum latitude in radians.
+         */
+        Sector.prototype.minLatitudeRadians = function () {
+            return this.minLatitude * Angle.DEGREES_TO_RADIANS;
+        };
+
+        /**
+         * Returns this sector's maximum latitude in radians.
+         * @returns {Number} This sector's maximum latitude in radians.
+         */
+        Sector.prototype.maxLatitudeRadians = function () {
+            return this.maxLatitude * Angle.DEGREES_TO_RADIANS;
+        };
+
+        /**
+         * Returns this sector's minimum longitude in radians.
+         * @returns {Number} This sector's minimum longitude in radians.
+         */
+        Sector.prototype.minLongitudeRadians = function () {
+            return this.minLongitude * Angle.DEGREES_TO_RADIANS;
+        };
+
+        /**
+         * Returns this sector's maximum longitude in radians.
+         * @returns {Number} This sector's maximum longitude in radians.
+         */
+        Sector.prototype.maxLongitudeRadians = function () {
+            return this.maxLongitude * Angle.DEGREES_TO_RADIANS;
+        };
+
+        /**
+         * Modifies this sector to encompass an array of specified locations.
+         * @param {Location[]} locations An array of locations. The array may be sparse.
+         * @returns {Sector} This sector, modified to encompass all locations in the specified array.
+         * @throws {ArgumentError} If the specified array is null, undefined or empty or has fewer than two locations.
+         */
+        Sector.prototype.setToBoundingSector = function (locations) {
+            if (!locations || locations.length < 2) {
+                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "setToBoundingSector",
+                    "missingArray"));
+            }
+
+            var minLatitude = 90,
+                maxLatitude = -90,
+                minLongitude = 180,
+                maxLongitude = -180;
+
+            for (var idx = 0, len = locations.length; idx < len; idx += 1) {
+                var location = locations[idx];
+
+                if (!location) {
+                    continue;
+                }
+
+                minLatitude = Math.min(minLatitude, location.latitude);
+                maxLatitude = Math.max(maxLatitude, location.latitude);
+                minLongitude = Math.min(minLongitude, location.longitude);
+                maxLongitude = Math.max(maxLongitude, location.longitude);
+            }
+
+            this.minLatitude = minLatitude;
+            this.maxLatitude = maxLatitude;
+            this.minLongitude = minLongitude;
+            this.maxLongitude = maxLongitude;
+
+            return this;
+        };
+
+        /**
+         * Computes bounding sectors from a list of locations that span the dateline.
+         * @param {Location[]} locations The locations to bound.
+         * @returns {Sector[]} Two sectors, one in the eastern hemisphere and one in the western hemisphere.
+         * Returns null if the computed bounding sector has zero width or height.
+         * @throws {ArgumentError} If the specified array is null, undefined or empty or the number of locations
+         * is less than 2.
+         */
+        Sector.splitBoundingSectors = function(locations) {
+            if (!locations || locations.length < 2) {
+                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "splitBoundingSectors",
+                    "missingArray"));
+            }
+
+            var minLat = 90;
+            var minLon = 180;
+            var maxLat = -90;
+            var maxLon = -180;
+
+            var lastLocation = null;
+
+            for (var idx = 0, len = locations.length; idx < len; idx += 1) {
+                var location = locations[idx];
+
+                var lat = location.latitude;
+                if (lat < minLat) {
+                    minLat = lat;
+                }
+                if (lat > maxLat) {
+                    maxLat = lat;
+                }
+
+                var lon = location.longitude;
+                if (lon >= 0 && lon < minLon) {
+                    minLon = lon;
+                }
+                if (lon <= 0 && lon > maxLon) {
+                    maxLon = lon;
+                }
+
+                if (lastLocation != null) {
+                    var lastLon = lastLocation.longitude;
+                    if (WWMath.signum(lon) != WWMath.signum(lastLon)) {
+                        if (Math.abs(lon - lastLon) < 180) {
+                            // Crossing the zero longitude line too
+                            maxLon = 0;
+                            minLon = 0;
+                        }
+                    }
+                }
+                lastLocation = location;
+            }
+
+            if (minLat === maxLat && minLon === maxLon) {
+                return null;
+            }
+
+            return [
+                new Sector(minLat, maxLat, minLon, 180), // Sector on eastern hemisphere.
+                new Sector(minLat, maxLat, -180, maxLon) // Sector on western hemisphere.
+            ];
+        };
+
+        /**
+         * Indicates whether this sector intersects a specified sector.
+         * This sector intersects the specified sector when each sector's boundaries either overlap with the specified
+         * sector or are adjacent to the specified sector.
+         * The sectors are assumed to have normalized angles (angles within the range [-90, 90] latitude and
+         * [-180, 180] longitude).
+         * @param {Sector} sector The sector to test intersection with. May be null or undefined, in which case this
+         * function returns false.
+         * @returns {Boolean} true if the specifies sector intersections this sector, otherwise false.
+         */
+        Sector.prototype.intersects = function (sector) {
+            // Assumes normalized angles: [-90, 90], [-180, 180].
+            return sector
+                && this.minLongitude <= sector.maxLongitude
+                && this.maxLongitude >= sector.minLongitude
+                && this.minLatitude <= sector.maxLatitude
+                && this.maxLatitude >= sector.minLatitude;
+        };
+
+        /**
+         * Indicates whether this sector intersects a specified sector exclusive of the sector boundaries.
+         * This sector overlaps the specified sector when the union of the two sectors defines a non-empty sector.
+         * The sectors are assumed to have normalized angles (angles within the range [-90, 90] latitude and
+         * [-180, 180] longitude).
+         * @param {Sector} sector The sector to test overlap with. May be null or undefined, in which case this
+         * function returns false.
+         * @returns {Boolean} true if the specified sector overlaps this sector, otherwise false.
+         */
+        Sector.prototype.overlaps = function (sector) {
+            // Assumes normalized angles: [-90, 90], [-180, 180].
+            return sector
+                && this.minLongitude < sector.maxLongitude
+                && this.maxLongitude > sector.minLongitude
+                && this.minLatitude < sector.maxLatitude
+                && this.maxLatitude > sector.minLatitude;
+        };
+
+        /**
+         * Indicates whether this sector fully contains a specified sector.
+         * This sector contains the specified sector when the specified sector's boundaries are completely contained
+         * within this sector's boundaries, or are equal to this sector's boundaries.
+         * The sectors are assumed to have normalized angles (angles within the range [-90, 90] latitude and
+         * [-180, 180] longitude).
+         * @param {Sector} sector The sector to test containment with. May be null or undefined, in which case this
+         * function returns false.
+         * @returns {Boolean} true if the specified sector contains this sector, otherwise false.
+         */
+        Sector.prototype.contains = function (sector) {
+            // Assumes normalized angles: [-90, 90], [-180, 180].
+            return sector
+                && this.minLatitude <= sector.minLatitude
+                && this.maxLatitude >= sector.maxLatitude
+                && this.minLongitude <= sector.minLongitude
+                && this.maxLongitude >= sector.maxLongitude;
+        };
+
+        /**
+         * Indicates whether this sector contains a specified geographic location.
+         * @param {Number} latitude The location's latitude in degrees.
+         * @param {Number} longitude The location's longitude in degrees.
+         * @returns {Boolean} true if this sector contains the location, otherwise false.
+         */
+        Sector.prototype.containsLocation = function (latitude, longitude) {
+            // Assumes normalized angles: [-90, 90], [-180, 180].
+            return this.minLatitude <= latitude
+                && this.maxLatitude >= latitude
+                && this.minLongitude <= longitude
+                && this.maxLongitude >= longitude;
+        };
+
+        /**
+         * Sets this sector to the intersection of itself and a specified sector.
+         * @param {Sector} sector The sector to intersect with this one.
+         * @returns {Sector} This sector, set to its intersection with the specified sector.
+         * @throws {ArgumentError} If the specified sector is null or undefined.
+         */
+        Sector.prototype.intersection = function (sector) {
+            if (!sector instanceof Sector) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "intersection", "missingSector"));
+            }
+
+            // Assumes normalized angles: [-180, 180], [-90, 90].
+            if (this.minLatitude < sector.minLatitude)
+                this.minLatitude = sector.minLatitude;
+            if (this.maxLatitude > sector.maxLatitude)
+                this.maxLatitude = sector.maxLatitude;
+            if (this.minLongitude < sector.minLongitude)
+                this.minLongitude = sector.minLongitude;
+            if (this.maxLongitude > sector.maxLongitude)
+                this.maxLongitude = sector.maxLongitude;
+
+            // If the sectors do not overlap in either latitude or longitude, then the result of the above logic results in
+            // the max being greater than the min. In this case, set the max to indicate that the sector is empty in
+            // that dimension.
+            if (this.maxLatitude < this.minLatitude)
+                this.maxLatitude = this.minLatitude;
+            if (this.maxLongitude < this.minLongitude)
+                this.maxLongitude = this.minLongitude;
+
+            return this;
+        };
+
+        /**
+         * Sets this sector to the union of itself and a specified sector.
+         * @param {Sector} sector The sector to union with this one.
+         * @returns {Sector} This sector, set to its union with the specified sector.
+         * @throws {ArgumentError} if the specified sector is null or undefined.
+         */
+        Sector.prototype.union = function (sector) {
+            if (!sector instanceof Sector) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "union", "missingSector"));
+            }
+
+            // Assumes normalized angles: [-180, 180], [-90, 90].
+            if (this.minLatitude > sector.minLatitude)
+                this.minLatitude = sector.minLatitude;
+            if (this.maxLatitude < sector.maxLatitude)
+                this.maxLatitude = sector.maxLatitude;
+            if (this.minLongitude > sector.minLongitude)
+                this.minLongitude = sector.minLongitude;
+            if (this.maxLongitude < sector.maxLongitude)
+                this.maxLongitude = sector.maxLongitude;
+
+            return this;
+        };
+
+        return Sector;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports AreaMeasurer
+ */
+
+define('util/measure/AreaMeasurer',[
+        '../../geom/Angle',
+        '../../error/ArgumentError',
+        '../../geom/Location',
+        '../Logger',
+        './MeasurerUtils',
+        '../../geom/Sector',
+        '../../geom/Vec3'
+    ],
+    function (Angle,
+              ArgumentError,
+              Location,
+              Logger,
+              MeasurerUtils,
+              Sector,
+              Vec3) {
+        'use strict';
+
+        /**
+         * Utility class to compute approximations of projected and surface (terrain following) area on a globe.
+         *
+         * <p>To properly compute surface area the measurer must be provided with a list of positions that describe a
+         * closed path - one which last position is equal to the first.</p>
+         *
+         * <p>Segments which are longer then the current maxSegmentLength will be subdivided along lines following the
+         * current pathType - WorldWind.LINEAR, WorldWind.RHUMB_LINE or WorldWind.GREAT_CIRCLE.</p>
+         *
+         * <p>Projected or non terrain following area is computed in a sinusoidal projection which is equivalent or
+         * equal area.
+         * Surface or terrain following area is approximated by sampling the path bounding sector with square cells
+         * along a grid. Cells which center is inside the path  have their area estimated and summed according to the
+         * overall slope at the cell south-west corner.</p>
+         *
+         * @alias AreaMeasurer
+         * @constructor
+         * @param {WorldWindow} wwd The World Window associated with AreaMeasurer.
+         * @throws {ArgumentError} If the specified world window is null or undefined.
+         */
+        var AreaMeasurer = function (wwd) {
+
+            if (!wwd) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "AreaMeasurer", "constructor", "missingWorldWindow"));
+            }
+
+            this.wwd = wwd;
+
+            // Private. Sampling grid max rows or cols
+            this.DEFAULT_AREA_SAMPLING_STEPS = 32;
+
+            // Private. Documentation is with the defined property below.
+            this._areaTerrainSamplingSteps = this.DEFAULT_AREA_SAMPLING_STEPS;
+
+            // Private. Documentation is with the defined property below.
+            this._maxSegmentLength = 100e3;
+
+            // Private. A list of positions with no segment longer then maxLength and elevations following terrain or not.
+            this.subdividedPositions = null;
+
+            // Private.
+            this.vecZ = new Vec3(0, 0, 1);
+
+            // Private. Reusable Location.
+            this.scratchLocation = new Location(0, 0);
+
+        };
+
+        Object.defineProperties(AreaMeasurer.prototype, {
+            /**
+             * The sampling grid maximum number of rows or columns for terrain following surface area approximation.
+             * @type {Number}
+             * @memberof AreaMeasurer.prototype
+             */
+            areaTerrainSamplingSteps: {
+                get: function () {
+                    return this._areaTerrainSamplingSteps;
+                },
+                set: function (value) {
+                    this._areaTerrainSamplingSteps = value;
+                }
+            },
+
+            /**
+             * The maximum length a segment can have before being subdivided along a line following the current pathType.
+             * @type {Number}
+             * @memberof AreaMeasurer.prototype
+             */
+            maxSegmentLength: {
+                get: function () {
+                    return this._maxSegmentLength;
+                },
+                set: function (value) {
+                    this._maxSegmentLength = value;
+                }
+            }
+        });
+
+        /**
+         * Get the sampling grid maximum number of rows or columns for terrain following surface area approximation.
+         *
+         * @param {Position[]} positions A list of positions describing a polygon
+         * @param {Boolean} followTerrain If true, the computed length will account for terrain deformations as if
+         * someone was walking along that path
+         * @param {String} pathType One of WorldWind.LINEAR, WorldWind.RHUMB_LINE or WorldWind.GREAT_CIRCLE
+         *
+         * @return {Number} area in square meters
+         */
+        AreaMeasurer.prototype.getArea = function (positions, followTerrain, pathType) {
+            var globe = this.wwd.globe;
+            if (followTerrain) {
+                return this.computeSurfaceAreaSampling(globe, positions, pathType);
+            }
+            return this.computeProjectedAreaGeometry(globe, positions, pathType);
+        };
+
+        /**
+         * Sample the path bounding sector with square cells which area are approximated according to the surface normal
+         * at the cell south-west corner.
+         *
+         * @param {Globe} globe
+         * @param {Position[]} positions
+         * @param {String} pathType One of WorldWind.LINEAR, WorldWind.RHUMB_LINE or WorldWind.GREAT_CIRCLE
+         *
+         * @return {Number} area in square meters
+         */
+        AreaMeasurer.prototype.computeSurfaceAreaSampling = function (globe, positions, pathType) {
+            var sector = new Sector(0, 0, 0, 0);
+            sector.setToBoundingSector(positions);
+
+            // Subdivide long segments if needed
+            this.subdividedPositions = MeasurerUtils.subdividePositions(globe, positions, true, pathType,
+                this._maxSegmentLength);
+
+            // Sample the bounding sector with cells about the same length in side - squares
+            var steps = Math.max(this.DEFAULT_AREA_SAMPLING_STEPS, this._areaTerrainSamplingSteps);
+            var deltaLatRadians = sector.deltaLatitude() * Angle.DEGREES_TO_RADIANS;
+            var deltaLonRadians = sector.deltaLongitude() * Angle.DEGREES_TO_RADIANS;
+            var stepsRadians = Math.max(deltaLatRadians / steps, deltaLonRadians / steps);
+            var latSteps = Math.round(deltaLatRadians / stepsRadians);
+            var lonSteps = Math.round(deltaLonRadians / stepsRadians *
+                Math.cos(sector.centroidLatitude() * Angle.DEGREES_TO_RADIANS));
+            var latStepRadians = deltaLatRadians / latSteps;
+            var lonStepRadians = deltaLonRadians / lonSteps;
+
+            var area = 0;
+            for (var i = 0; i < latSteps; i++) {
+                var lat = sector.minLatitude * Angle.DEGREES_TO_RADIANS + latStepRadians * i;
+                // Compute this latitude row cells area
+                var radius = globe.radiusAt((lat + latStepRadians / 2) * Angle.RADIANS_TO_DEGREES, sector.centroidLongitude());
+                var cellWidth = lonStepRadians * radius * Math.cos(lat + latStepRadians / 2);
+                var cellHeight = latStepRadians * radius;
+                var cellArea = cellWidth * cellHeight;
+
+                for (var j = 0; j < lonSteps; j++) {
+                    var lon = sector.minLongitude * Angle.DEGREES_TO_RADIANS + lonStepRadians * j;
+                    var minLat = lat * Angle.RADIANS_TO_DEGREES;
+                    var maxLat = (lat + latStepRadians) * Angle.RADIANS_TO_DEGREES;
+                    var minLon = lon * Angle.RADIANS_TO_DEGREES;
+                    var maxLon = (lon + lonStepRadians) * Angle.RADIANS_TO_DEGREES;
+                    var cellSector = new Sector(minLat, maxLat, minLon, maxLon);
+                    var isLocationInside = MeasurerUtils.isLocationInside(cellSector.centroid(this.scratchLocation),
+                        this.subdividedPositions);
+                    if (isLocationInside) {
+                        // Compute suface area using terrain normal in SW corner
+                        // Corners elevation
+                        var eleSW = globe.elevationAtLocation(minLat, minLon);
+                        var eleSE = globe.elevationAtLocation(minLat, maxLon);
+                        var eleNW = globe.elevationAtLocation(maxLat, minLon);
+
+                        // Compute normal
+                        var vx = new Vec3(cellWidth, 0, eleSE - eleSW);
+                        var vy = new Vec3(0, cellHeight, eleNW - eleSW);
+                        vx.normalize();
+                        vy.normalize();
+                        var normalSW = vx.cross(vy).normalize(); // point toward positive Z
+
+                        // Compute slope factor
+                        var tan = Math.tan(MeasurerUtils.angleBetweenVectors(this.vecZ, normalSW));
+                        var slopeFactor = Math.sqrt(1 + tan * tan);
+
+                        // Add cell area
+                        area += (cellArea * slopeFactor);
+                    }
+                }
+            }
+
+            return area;
+        };
+
+        /**
+         * Tessellate the path in lat-lon space, then sum each triangle area.
+         *
+         * @param {Globe} globe
+         * @param {Position[]} positions
+         * @param {String} pathType One of WorldWind.LINEAR, WorldWind.RHUMB_LINE or WorldWind.GREAT_CIRCLE
+         *
+         * @return {Number} area in square meters
+         */
+        AreaMeasurer.prototype.computeProjectedAreaGeometry = function (globe, positions, pathType) {
+
+            // Subdivide long segments if needed
+            this.subdividedPositions = MeasurerUtils.subdividePositions(globe, positions, false, pathType,
+                this._maxSegmentLength);
+
+            // First: tessellate polygon
+            var verticesCount = this.subdividedPositions.length;
+            var firstPos = this.subdividedPositions[0];
+            var lastPos = this.subdividedPositions[verticesCount - 1];
+            if (firstPos.equals(lastPos)) {
+                verticesCount--;
+            }
+
+            var verts = [];
+            var idx = 0;
+            for (var i = 0; i < verticesCount; i++) {
+                var pos = this.subdividedPositions[i];
+                verts[idx++] = pos.longitude * Angle.DEGREES_TO_RADIANS;
+                verts[idx++] = pos.latitude * Angle.DEGREES_TO_RADIANS;
+                verts[idx++] = 0;
+            }
+
+            var triangles = this.tessellatePolygon(verticesCount, verts);
+
+            // Second: sum triangles area
+            var area = 0;
+            var triangleCount = triangles.length / 9;
+            for (i = 0; i < triangleCount; i++) {
+                idx = i * 9;
+                var triangle = [
+                    triangles[idx + 0], triangles[idx + 1], triangles[idx + 2],
+                    triangles[idx + 3], triangles[idx + 4], triangles[idx + 5],
+                    triangles[idx + 6], triangles[idx + 7], triangles[idx + 8]
+                ];
+                area += this.computeTriangleProjectedArea(globe, triangle);
+            }
+
+            return area;
+
+        };
+
+        /**
+         * Compute triangle area in a sinusoidal projection centered at the triangle center.
+         * Note sinusoidal projection is equivalent or equal area.
+         *
+         * @param {Globe} globe
+         * @param {Number[]} verts A list of 9 positions in radians describing a triangle
+         *
+         * @return {Number} area in square meters
+         */
+        AreaMeasurer.prototype.computeTriangleProjectedArea = function (globe, verts) {
+            // http://www.mathopenref.com/coordtrianglearea.html
+            var ax = verts[0];
+            var ay = verts[1];
+            var bx = verts[3];
+            var by = verts[4];
+            var cx = verts[6];
+            var cy = verts[7];
+
+            var area = Math.abs(
+                ax * (by - cy) +
+                bx * (cy - ay) +
+                cx * (ay - by)
+            );
+            area /= 2;
+
+            var centerLon = (ax + bx + cx) / 3;
+            var centerLat = (ay + by + cy) / 3;
+
+            // Apply globe radius at triangle center and scale down area according to center latitude cosine
+            var radius = globe.radiusAt(centerLat * Angle.RADIANS_TO_DEGREES, centerLon * Angle.RADIANS_TO_DEGREES);
+            area *= Math.cos(centerLat) * radius * radius; // Square meter
+
+            return area;
+        };
+
+        /**
+         * Tessellate a Polygon
+         *
+         * @param {Number} count the number of vertices
+         * @param {Number[]} vertices A list of positions in radians
+         *
+         * @return {Number[]} a list of tessellated vertices
+         */
+        AreaMeasurer.prototype.tessellatePolygon = function (count, vertices) {
+            var tess = new window.libtess.GluTesselator();
+            var triangles = [];
+            var coords;
+
+            tess.gluTessCallback(libtess.gluEnum.GLU_TESS_BEGIN, function (prim) {
+                if (prim !== libtess.primitiveType.GL_TRIANGLES) {
+                    Logger.logMessage(Logger.LEVEL_WARNING, "AreaMeasurer", "tessellatePolygon",
+                        "Tessellation error, primitive is not TRIANGLES.");
+                }
+            });
+
+            tess.gluTessCallback(libtess.gluEnum.GLU_TESS_VERTEX_DATA, function (data, tris) {
+                tris.push(data[0]);
+                tris.push(data[1]);
+                tris.push(data[2]);
+            });
+
+            //prevents triangle fans and strips
+            tess.gluTessCallback(libtess.gluEnum.GLU_TESS_EDGE_FLAG, function () {
+            });
+
+            tess.gluTessCallback(libtess.gluEnum.GLU_TESS_ERROR, function (errno) {
+                Logger.logMessage(Logger.LEVEL_WARNING, "AreaMeasurer", "tessellatePolygon",
+                    "Tessellation error " + errno + ".");
+            });
+
+            // Tessellate the polygon.
+            tess.gluTessBeginPolygon(triangles);
+            tess.gluTessBeginContour();
+            for (var i = 0; i < count; i++) {
+                coords = vertices.slice(3 * i, 3 * i + 3);
+                tess.gluTessVertex(coords, coords);
+            }
+            tess.gluTessEndContour();
+            tess.gluTessEndPolygon();
+
+            return triangles;
+        };
+
+        return AreaMeasurer;
+
     });
 /*
  * Copyright (C) 2014 United States Government as represented by the Administrator of the
@@ -9589,419 +10549,6 @@ define('geom/Matrix3',[
 
         return Matrix3;
 
-    });
-/*
- * Copyright (C) 2014 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. All Rights Reserved.
- */
-/**
- * @exports Sector
- * @version $Id: Sector.js 2933 2015-03-27 01:18:24Z tgaskins $
- */
-define('geom/Sector',[
-        '../geom/Angle',
-        '../error/ArgumentError',
-        '../geom/Location',
-        '../util/Logger',
-        '../geom/Vec3',
-        '../util/WWMath'
-    ],
-    function (Angle,
-              ArgumentError,
-              Location,
-              Logger,
-              Vec3,
-              WWMath) {
-        "use strict";
-
-        /**
-         * Constructs a Sector from specified minimum and maximum latitudes and longitudes in degrees.
-         * @alias Sector
-         * @constructor
-         * @classdesc Represents a rectangular region in geographic coordinates in degrees.
-         * @param {Number} minLatitude The sector's minimum latitude in degrees.
-         * @param {Number} maxLatitude The sector's maximum latitude in degrees.
-         * @param {Number} minLongitude The sector's minimum longitude in degrees.
-         * @param {Number} maxLongitude The sector's maximum longitude in degrees.
-         */
-        var Sector = function (minLatitude, maxLatitude, minLongitude, maxLongitude) {
-            /**
-             * This sector's minimum latitude in degrees.
-             * @type {Number}
-             */
-            this.minLatitude = minLatitude;
-            /**
-             * This sector's maximum latitude in degrees.
-             * @type {Number}
-             */
-            this.maxLatitude = maxLatitude;
-            /**
-             * This sector's minimum longitude in degrees.
-             * @type {Number}
-             */
-            this.minLongitude = minLongitude;
-            /**
-             * This sector's maximum longitude in degrees.
-             * @type {Number}
-             */
-            this.maxLongitude = maxLongitude;
-        };
-
-        /**
-         * A sector with minimum and maximum latitudes and minimum and maximum longitudes all zero.
-         * @constant
-         * @type {Sector}
-         */
-        Sector.ZERO = new Sector(0, 0, 0, 0);
-
-        /**
-         * A sector that encompasses the full range of latitude ([-90, 90]) and longitude ([-180, 180]).
-         * @constant
-         * @type {Sector}
-         */
-        Sector.FULL_SPHERE = new Sector(-90, 90, -180, 180);
-
-        /**
-         * Sets this sector's latitudes and longitudes to those of a specified sector.
-         * @param {Sector} sector The sector to copy.
-         * @returns {Sector} This sector, set to the values of the specified sector.
-         * @throws {ArgumentError} If the specified sector is null or undefined.
-         */
-        Sector.prototype.copy = function (sector) {
-            if (!sector) {
-                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "copy", "missingSector"));
-            }
-
-            this.minLatitude = sector.minLatitude;
-            this.maxLatitude = sector.maxLatitude;
-            this.minLongitude = sector.minLongitude;
-            this.maxLongitude = sector.maxLongitude;
-
-            return this;
-        };
-
-        /**
-         * Indicates whether this sector has width or height.
-         * @returns {Boolean} true if this sector's minimum and maximum latitudes or minimum and maximum
-         * longitudes do not differ, otherwise false.
-         */
-        Sector.prototype.isEmpty = function () {
-            return this.minLatitude === this.maxLatitude && this.minLongitude === this.maxLongitude;
-        };
-
-        /**
-         * Returns the angle between this sector's minimum and maximum latitudes, in degrees.
-         * @returns {Number} The difference between this sector's minimum and maximum latitudes, in degrees.
-         */
-        Sector.prototype.deltaLatitude = function () {
-            return this.maxLatitude - this.minLatitude;
-        };
-
-        /**
-         * Returns the angle between this sector's minimum and maximum longitudes, in degrees.
-         * @returns {Number} The difference between this sector's minimum and maximum longitudes, in degrees.
-         */
-        Sector.prototype.deltaLongitude = function () {
-            return this.maxLongitude - this.minLongitude;
-        };
-
-        /**
-         * Returns the angle midway between this sector's minimum and maximum latitudes.
-         * @returns {Number} The mid-angle of this sector's minimum and maximum latitudes, in degrees.
-         */
-        Sector.prototype.centroidLatitude = function () {
-            return 0.5 * (this.minLatitude + this.maxLatitude);
-        };
-
-        /**
-         * Returns the angle midway between this sector's minimum and maximum longitudes.
-         * @returns {Number} The mid-angle of this sector's minimum and maximum longitudes, in degrees.
-         */
-        Sector.prototype.centroidLongitude = function () {
-            return 0.5 * (this.minLongitude + this.maxLongitude);
-        };
-
-        /**
-         * Computes the location of the angular center of this sector, which is the mid-angle of each of this sector's
-         * latitude and longitude dimensions.
-         * @param {Location} result A pre-allocated {@link Location} in which to return the computed centroid.
-         * @returns {Location} The specified result argument containing the computed centroid.
-         * @throws {ArgumentError} If the result argument is null or undefined.
-         */
-        Sector.prototype.centroid = function (result) {
-            if (!result) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "centroid", "missingResult"));
-            }
-
-            result.latitude = this.centroidLatitude();
-            result.longitude = this.centroidLongitude();
-
-            return result;
-        };
-
-        /**
-         * Returns this sector's minimum latitude in radians.
-         * @returns {Number} This sector's minimum latitude in radians.
-         */
-        Sector.prototype.minLatitudeRadians = function () {
-            return this.minLatitude * Angle.DEGREES_TO_RADIANS;
-        };
-
-        /**
-         * Returns this sector's maximum latitude in radians.
-         * @returns {Number} This sector's maximum latitude in radians.
-         */
-        Sector.prototype.maxLatitudeRadians = function () {
-            return this.maxLatitude * Angle.DEGREES_TO_RADIANS;
-        };
-
-        /**
-         * Returns this sector's minimum longitude in radians.
-         * @returns {Number} This sector's minimum longitude in radians.
-         */
-        Sector.prototype.minLongitudeRadians = function () {
-            return this.minLongitude * Angle.DEGREES_TO_RADIANS;
-        };
-
-        /**
-         * Returns this sector's maximum longitude in radians.
-         * @returns {Number} This sector's maximum longitude in radians.
-         */
-        Sector.prototype.maxLongitudeRadians = function () {
-            return this.maxLongitude * Angle.DEGREES_TO_RADIANS;
-        };
-
-        /**
-         * Modifies this sector to encompass an array of specified locations.
-         * @param {Location[]} locations An array of locations. The array may be sparse.
-         * @returns {Sector} This sector, modified to encompass all locations in the specified array.
-         * @throws {ArgumentError} If the specified array is null, undefined or empty or has fewer than two locations.
-         */
-        Sector.prototype.setToBoundingSector = function (locations) {
-            if (!locations || locations.length < 2) {
-                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "setToBoundingSector",
-                    "missingArray"));
-            }
-
-            var minLatitude = 90,
-                maxLatitude = -90,
-                minLongitude = 180,
-                maxLongitude = -180;
-
-            for (var idx = 0, len = locations.length; idx < len; idx += 1) {
-                var location = locations[idx];
-
-                if (!location) {
-                    continue;
-                }
-
-                minLatitude = Math.min(minLatitude, location.latitude);
-                maxLatitude = Math.max(maxLatitude, location.latitude);
-                minLongitude = Math.min(minLongitude, location.longitude);
-                maxLongitude = Math.max(maxLongitude, location.longitude);
-            }
-
-            this.minLatitude = minLatitude;
-            this.maxLatitude = maxLatitude;
-            this.minLongitude = minLongitude;
-            this.maxLongitude = maxLongitude;
-
-            return this;
-        };
-
-        /**
-         * Computes bounding sectors from a list of locations that span the dateline.
-         * @param {Location[]} locations The locations to bound.
-         * @returns {Sector[]} Two sectors, one in the eastern hemisphere and one in the western hemisphere.
-         * Returns null if the computed bounding sector has zero width or height.
-         * @throws {ArgumentError} If the specified array is null, undefined or empty or the number of locations
-         * is less than 2.
-         */
-        Sector.splitBoundingSectors = function(locations) {
-            if (!locations || locations.length < 2) {
-                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "splitBoundingSectors",
-                    "missingArray"));
-            }
-
-            var minLat = 90;
-            var minLon = 180;
-            var maxLat = -90;
-            var maxLon = -180;
-
-            var lastLocation = null;
-
-            for (var idx = 0, len = locations.length; idx < len; idx += 1) {
-                var location = locations[idx];
-
-                var lat = location.latitude;
-                if (lat < minLat) {
-                    minLat = lat;
-                }
-                if (lat > maxLat) {
-                    maxLat = lat;
-                }
-
-                var lon = location.longitude;
-                if (lon >= 0 && lon < minLon) {
-                    minLon = lon;
-                }
-                if (lon <= 0 && lon > maxLon) {
-                    maxLon = lon;
-                }
-
-                if (lastLocation != null) {
-                    var lastLon = lastLocation.longitude;
-                    if (WWMath.signum(lon) != WWMath.signum(lastLon)) {
-                        if (Math.abs(lon - lastLon) < 180) {
-                            // Crossing the zero longitude line too
-                            maxLon = 0;
-                            minLon = 0;
-                        }
-                    }
-                }
-                lastLocation = location;
-            }
-
-            if (minLat === maxLat && minLon === maxLon) {
-                return null;
-            }
-
-            return [
-                new Sector(minLat, maxLat, minLon, 180), // Sector on eastern hemisphere.
-                new Sector(minLat, maxLat, -180, maxLon) // Sector on western hemisphere.
-            ];
-        };
-
-        /**
-         * Indicates whether this sector intersects a specified sector.
-         * This sector intersects the specified sector when each sector's boundaries either overlap with the specified
-         * sector or are adjacent to the specified sector.
-         * The sectors are assumed to have normalized angles (angles within the range [-90, 90] latitude and
-         * [-180, 180] longitude).
-         * @param {Sector} sector The sector to test intersection with. May be null or undefined, in which case this
-         * function returns false.
-         * @returns {Boolean} true if the specifies sector intersections this sector, otherwise false.
-         */
-        Sector.prototype.intersects = function (sector) {
-            // Assumes normalized angles: [-90, 90], [-180, 180].
-            return sector
-                && this.minLongitude <= sector.maxLongitude
-                && this.maxLongitude >= sector.minLongitude
-                && this.minLatitude <= sector.maxLatitude
-                && this.maxLatitude >= sector.minLatitude;
-        };
-
-        /**
-         * Indicates whether this sector intersects a specified sector exclusive of the sector boundaries.
-         * This sector overlaps the specified sector when the union of the two sectors defines a non-empty sector.
-         * The sectors are assumed to have normalized angles (angles within the range [-90, 90] latitude and
-         * [-180, 180] longitude).
-         * @param {Sector} sector The sector to test overlap with. May be null or undefined, in which case this
-         * function returns false.
-         * @returns {Boolean} true if the specified sector overlaps this sector, otherwise false.
-         */
-        Sector.prototype.overlaps = function (sector) {
-            // Assumes normalized angles: [-90, 90], [-180, 180].
-            return sector
-                && this.minLongitude < sector.maxLongitude
-                && this.maxLongitude > sector.minLongitude
-                && this.minLatitude < sector.maxLatitude
-                && this.maxLatitude > sector.minLatitude;
-        };
-
-        /**
-         * Indicates whether this sector fully contains a specified sector.
-         * This sector contains the specified sector when the specified sector's boundaries are completely contained
-         * within this sector's boundaries, or are equal to this sector's boundaries.
-         * The sectors are assumed to have normalized angles (angles within the range [-90, 90] latitude and
-         * [-180, 180] longitude).
-         * @param {Sector} sector The sector to test containment with. May be null or undefined, in which case this
-         * function returns false.
-         * @returns {Boolean} true if the specified sector contains this sector, otherwise false.
-         */
-        Sector.prototype.contains = function (sector) {
-            // Assumes normalized angles: [-90, 90], [-180, 180].
-            return sector
-                && this.minLatitude <= sector.minLatitude
-                && this.maxLatitude >= sector.maxLatitude
-                && this.minLongitude <= sector.minLongitude
-                && this.maxLongitude >= sector.maxLongitude;
-        };
-
-        /**
-         * Indicates whether this sector contains a specified geographic location.
-         * @param {Number} latitude The location's latitude in degrees.
-         * @param {Number} longitude The location's longitude in degrees.
-         * @returns {Boolean} true if this sector contains the location, otherwise false.
-         */
-        Sector.prototype.containsLocation = function (latitude, longitude) {
-            // Assumes normalized angles: [-90, 90], [-180, 180].
-            return this.minLatitude <= latitude
-                && this.maxLatitude >= latitude
-                && this.minLongitude <= longitude
-                && this.maxLongitude >= longitude;
-        };
-
-        /**
-         * Sets this sector to the intersection of itself and a specified sector.
-         * @param {Sector} sector The sector to intersect with this one.
-         * @returns {Sector} This sector, set to its intersection with the specified sector.
-         * @throws {ArgumentError} If the specified sector is null or undefined.
-         */
-        Sector.prototype.intersection = function (sector) {
-            if (!sector instanceof Sector) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "intersection", "missingSector"));
-            }
-
-            // Assumes normalized angles: [-180, 180], [-90, 90].
-            if (this.minLatitude < sector.minLatitude)
-                this.minLatitude = sector.minLatitude;
-            if (this.maxLatitude > sector.maxLatitude)
-                this.maxLatitude = sector.maxLatitude;
-            if (this.minLongitude < sector.minLongitude)
-                this.minLongitude = sector.minLongitude;
-            if (this.maxLongitude > sector.maxLongitude)
-                this.maxLongitude = sector.maxLongitude;
-
-            // If the sectors do not overlap in either latitude or longitude, then the result of the above logic results in
-            // the max being greater than the min. In this case, set the max to indicate that the sector is empty in
-            // that dimension.
-            if (this.maxLatitude < this.minLatitude)
-                this.maxLatitude = this.minLatitude;
-            if (this.maxLongitude < this.minLongitude)
-                this.maxLongitude = this.minLongitude;
-
-            return this;
-        };
-
-        /**
-         * Sets this sector to the union of itself and a specified sector.
-         * @param {Sector} sector The sector to union with this one.
-         * @returns {Sector} This sector, set to its union with the specified sector.
-         * @throws {ArgumentError} if the specified sector is null or undefined.
-         */
-        Sector.prototype.union = function (sector) {
-            if (!sector instanceof Sector) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "Sector", "union", "missingSector"));
-            }
-
-            // Assumes normalized angles: [-180, 180], [-90, 90].
-            if (this.minLatitude > sector.minLatitude)
-                this.minLatitude = sector.minLatitude;
-            if (this.maxLatitude < sector.maxLatitude)
-                this.maxLatitude = sector.maxLatitude;
-            if (this.minLongitude > sector.minLongitude)
-                this.minLongitude = sector.minLongitude;
-            if (this.maxLongitude < sector.maxLongitude)
-                this.maxLongitude = sector.maxLongitude;
-
-            return this;
-        };
-
-        return Sector;
     });
 /*
  * Copyright (C) 2014 United States Government as represented by the Administrator of the
@@ -15005,7 +15552,7 @@ define('util/PeriodicTimeSequence',[
             var struct;
 
             // upcase the string just in case people don't follow the letter of the law
-            period = period.toUpperCase();
+            period = period.toUpperCase().trim();
 
             // input validation
             if (!period)
@@ -26285,15 +26832,20 @@ define('globe/Globe',[
                 throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "Globe", "intersectsLine", "missingResult"));
             }
 
-            if (this.is2D()) {
-                var vx = line.direction[0],
-                    vy = line.direction[1],
-                    vz = line.direction[2],
-                    sx = line.origin[0],
-                    sy = line.origin[1],
-                    sz = line.origin[2],
-                    t;
+            // Taken from "Mathematics for 3D Game Programming and Computer Graphics, Third Edition", Section 6.2.3.
+            //
+            // Note that the parameter n from equations 6.70 and 6.71 is omitted here. For an ellipsoidal globe this
+            // parameter is always 1, so its square and its product with any other value simplifies to the identity.
 
+            var vx = line.direction[0],
+                vy = line.direction[1],
+                vz = line.direction[2],
+                sx = line.origin[0],
+                sy = line.origin[1],
+                sz = line.origin[2],
+                t;
+
+            if (this.is2D()) {
                 if (vz == 0 && sz != 0) { // ray is parallel to and not coincident with the XY plane
                     return false;
                 }
@@ -26308,9 +26860,39 @@ define('globe/Globe',[
                 result[2] = sz + vz * t;
 
                 return true;
-            }
+            } else {
+                var eqr = this.equatorialRadius, eqr2 = eqr * eqr, m = eqr / this.polarRadius, m2 = m * m, a, b, c, d;
 
-            return WWMath.computeEllipsoidalGlobeIntersection(line, this.equatorialRadius, this.polarRadius, result);
+                a = vx * vx + m2 * vy * vy + vz * vz;
+                b = 2 * (sx * vx + m2 * sy * vy + sz * vz);
+                c = sx * sx + m2 * sy * sy + sz * sz - eqr2;
+                d = b * b - 4 * a * c; // discriminant
+
+                if (d < 0) {
+                    return false;
+                }
+
+                t = (-b - Math.sqrt(d)) / (2 * a);
+                // check if the nearest intersection point is in front of the origin of the ray
+                if (t > 0) {
+                    result[0] = sx + vx * t;
+                    result[1] = sy + vy * t;
+                    result[2] = sz + vz * t;
+                    return true;
+                }
+
+                t = (-b + Math.sqrt(d)) / (2 * a);
+                // check if the second intersection point is in the front of the origin of the ray
+                if (t > 0) {
+                    result[0] = sx + vx * t;
+                    result[1] = sy + vy * t;
+                    result[2] = sz + vz * t;
+                    return true;
+                }
+
+                // the intersection points were behind the origin of the provided line
+                return false;
+            }
         };
 
         /**
@@ -27057,6 +27639,533 @@ define('render/ScreenCreditController',[
  * National Aeronautics and Space Administration. All Rights Reserved.
  */
 /**
+ * @exports HashMap
+ */
+define('util/HashMap',[], function () {
+    'use strict';
+
+    /**
+     * Constructs a hash map.
+     * @alias HashMap
+     * @constructor
+     */
+    var HashMap = function () {
+        this._entries = Object.create(null);
+    };
+
+    /**
+     * Returns the stored value for this key or undefined
+     * @param{String | Number} key
+     * @returns the value for the specified key or undefined
+     */
+    HashMap.prototype.get = function (key) {
+        return this._entries[key];
+    };
+
+    /**
+     * Stores a value for a specified key
+     * @param{String | Number} key
+     * @param value a value to store for the specified key
+     */
+    HashMap.prototype.set = function (key, value) {
+        this._entries[key] = value;
+    };
+
+    /**
+     * Removes the value and key for a specified key
+     * @param{String | Number} key
+     */
+    HashMap.prototype.remove = function (key) {
+        delete this._entries[key];
+    };
+
+    /**
+     * Indicates if the has map contains a key
+     * @param{String | Number} key
+     * @returns {Boolean}
+     */
+    HashMap.prototype.contains = function (key) {
+        return key in this._entries;
+    };
+
+    /**
+     * Internal. Applications should call this function
+     * Creates a new HashMap with the same values as the original but increased indexes.
+     * The keys are used as indexes and are assumed to be natural numbers.
+     * Used by the PolygonSplitter.
+     * @param{HashMap} hashMap the hash map to re-index
+     * @param{Number} fromIndex the index from with to start reindexing
+     * @param{Number} amount the amount by which to increase the index
+     * @returns {HashMap} a new has map with re-indexed keys
+     */
+    HashMap.reIndex = function (hashMap, fromIndex, amount) {
+        var newHashMap = new HashMap();
+        for (var key in hashMap._entries) {
+            var index = parseInt(key);
+            if (index >= fromIndex) {
+                index += amount;
+            }
+            var entry = hashMap.get(key);
+            entry.index = index;
+            newHashMap.set(index, entry);
+        }
+        return newHashMap;
+    };
+
+    return HashMap;
+});
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+
+define('util/PolygonSplitter',[
+        './HashMap',
+        '../geom/Location',
+        '../geom/Position',
+        './WWMath'
+    ],
+    function (HashMap,
+              Location,
+              Position,
+              WWMath) {
+        'use strict';
+
+        /**
+         * Splits polygons that cross the anti-meridian and/or contain a pole.
+         * @exports PolygonSplitter
+         */
+
+        var PolygonSplitter = {
+
+            //Internal
+            //Keeps track of the index of added points so that no point is duplicated
+            addedIndex: -1,
+
+            //Internal
+            //The index where pole insertion began
+            poleIndexOffset: -1,
+
+            /**
+             * Splits an array of polygons that cross the anti-meridian or contain a pole.
+             *
+             * @param {Array} contours an array of arrays of Locations or Positions
+             * Each array entry defines one of this polygon's boundaries.
+             * @param {Array} resultContours an empty array to put the result of the split. Each element will have the
+             * shape of PolygonSplitter.formatContourOutput
+             * @returns {Boolean} true if one of the boundaries crosses the anti-meridian otherwise false
+             * */
+            splitContours: function (contours, resultContours) {
+                var doesCross = false;
+
+                for (var i = 0, len = contours.length; i < len; i++) {
+                    var contourInfo = this.splitContour(contours[i]);
+                    if (contourInfo.polygons.length > 1) {
+                        doesCross = true;
+                    }
+                    resultContours.push(contourInfo);
+                }
+
+                return doesCross;
+            },
+
+            /**
+             * Splits a polygon that cross the anti-meridian or contain a pole.
+             *
+             * @param {Location[] | Position[]} points an array of Locations or Positions that define a polygon
+             * @returns {Object} @see PolygonSplitter.formatContourOutput
+             * */
+            splitContour: function (points) {
+                var iMap = new HashMap();
+                var newPoints = [];
+                var intersections = [];
+                var polygons = [];
+                var iMaps = [];
+                var poleIndex = -1;
+
+                var pole = this.findIntersectionAndPole(points, newPoints, intersections, iMap);
+
+                if (intersections.length === 0) {
+                    polygons.push(newPoints);
+                    iMaps.push(iMap);
+                    return this.formatContourOutput(polygons, pole, poleIndex, iMaps);
+                }
+
+                if (intersections.length > 2) {
+                    intersections.sort(function (a, b) {
+                        return b.latitude - a.latitude;
+                    });
+                }
+
+                if (pole !== Location.poles.NONE) {
+                    newPoints = this.handleOnePole(newPoints, intersections, iMap, pole);
+                    iMap = this.reindexIntersections(intersections, iMap, this.poleIndexOffset);
+                }
+                if (intersections.length === 0) {
+                    polygons.push(newPoints);
+                    iMaps.push(iMap);
+                    poleIndex = 0;
+                    return this.formatContourOutput(polygons, pole, poleIndex, iMaps);
+                }
+
+                this.linkIntersections(intersections, iMap);
+
+                poleIndex = this.makePolygons(newPoints, intersections, iMap, polygons, iMaps);
+
+                return this.formatContourOutput(polygons, pole, poleIndex, iMaps);
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * Finds the intersections with the anti-meridian and if the polygon contains one of the poles.
+             * A new polygon is constructed with the intersections and pole points and stored in newPoints
+             *
+             * @param {Location[] | Position[]} points An array of Locations or Positions that define a polygon
+             * @param {Location[] | Position[]} newPoints An empty array where to store the resulting polygon with intersections
+             * @param {Array} intersections An empty array where to store the intersection latitude and index
+             * @param {HashMap} iMap A hashMap to store intersection data
+             * The key is the index in the newPoints array and value is PolygonSplitter.makeIntersectionEntry
+             * @returns {Number} The pole number @see Location.poles
+             * */
+            findIntersectionAndPole: function (points, newPoints, intersections, iMap) {
+                var containsPole = false;
+                var minLatitude = 90.0;
+                var maxLatitude = -90.0;
+                this.addedIndex = -1;
+
+                for (var i = 0, lenC = points.length; i < lenC; i++) {
+                    var pt1 = points[i];
+                    var pt2 = points[(i + 1) % lenC];
+
+                    minLatitude = Math.min(minLatitude, pt1.latitude);
+                    maxLatitude = Math.max(maxLatitude, pt1.latitude);
+
+                    var doesCross = Location.locationsCrossDateLine([pt1, pt2]);
+                    if (doesCross) {
+                        containsPole = !containsPole;
+
+                        var iLatitude = Location.meridianIntersection(pt1, pt2, 180);
+                        if (iLatitude === null) {
+                            iLatitude = (pt1.latitude + pt2.latitude) / 2;
+                        }
+                        var iLongitude = WWMath.signum(pt1.longitude) * 180 || 180;
+
+                        var iLoc1 = this.createPoint(iLatitude, iLongitude, pt1.altitude);
+                        var iLoc2 = this.createPoint(iLatitude, -iLongitude, pt2.altitude);
+
+                        this.safeAdd(newPoints, pt1, i, lenC);
+
+                        var index = newPoints.length;
+                        iMap.set(index, this.makeIntersectionEntry(index));
+                        iMap.set(index + 1, this.makeIntersectionEntry(index + 1));
+                        intersections.push({
+                            indexEnd: index,
+                            indexStart: index + 1,
+                            latitude: iLatitude
+                        });
+
+                        newPoints.push(iLoc1);
+                        newPoints.push(iLoc2);
+
+                        this.safeAdd(newPoints, pt2, i + 1, lenC);
+                    }
+                    else {
+                        this.safeAdd(newPoints, pt1, i, lenC);
+                        this.safeAdd(newPoints, pt2, i + 1, lenC);
+                    }
+                }
+
+                var pole = Location.poles.NONE;
+                if (containsPole) {
+                    pole = this.determinePole(minLatitude, maxLatitude);
+                }
+
+                return pole;
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * Determine which pole is enclosed. If the shape is entirely in one hemisphere, then assume that it encloses
+             * the pole in that hemisphere. Otherwise, assume that it encloses the pole that is closest to the shape's
+             * extreme latitude.
+             * @param {Number} minLatitude The minimum latitude of a polygon that contains a pole
+             * @param {Number} maxLatitude The maximum latitude of a polygon that contains a pole
+             * @returns {Number} The pole number @see Location.poles
+             * */
+            determinePole: function (minLatitude, maxLatitude) {
+                var pole;
+                if (minLatitude > 0) {
+                    pole = Location.poles.NORTH; // Entirely in Northern Hemisphere.
+                }
+                else if (maxLatitude < 0) {
+                    pole = Location.poles.SOUTH; // Entirely in Southern Hemisphere.
+                }
+                else if (Math.abs(maxLatitude) >= Math.abs(minLatitude)) {
+                    pole = Location.poles.NORTH; // Spans equator, but more north than south.
+                }
+                else {
+                    pole = Location.poles.SOUTH; // Spans equator, but more south than north.
+                }
+                return pole;
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * Creates a new array of points containing the two pole locations on both sides of the anti-meridian
+             *
+             * @param {Location[] | Position[]} points
+             * @param {Array} intersections
+             * @param {HashMap} iMap
+             * @param {Number} pole
+             * @return {Object} an object containing the new points and a new reIndexed iMap
+             * */
+            handleOnePole: function (points, intersections, iMap, pole) {
+                var pointsClone;
+
+                if (pole === Location.poles.NORTH) {
+                    var intersection = intersections.shift();
+                    var poleLat = 90;
+                }
+                else if (pole === Location.poles.SOUTH) {
+                    intersection = intersections.pop();
+                    poleLat = -90;
+                }
+
+                var iEnd = iMap.get(intersection.indexEnd);
+                var iStart = iMap.get(intersection.indexStart);
+                iEnd.forPole = true;
+                iStart.forPole = true;
+
+                this.poleIndexOffset = intersection.indexStart;
+
+                pointsClone = points.slice(0, intersection.indexEnd + 1);
+                var polePoint1 = this.createPoint(poleLat, points[iEnd.index].longitude, points[iEnd.index].altitude);
+                var polePoint2 = this.createPoint(poleLat, points[iStart.index].longitude, points[iStart.index].altitude);
+                pointsClone.push(polePoint1, polePoint2);
+                pointsClone = pointsClone.concat(points.slice(this.poleIndexOffset));
+
+                return pointsClone;
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * Links adjacents pairs of intersection by index
+             * @param {Array} intersections
+             * @param {HashMap} iMap
+             * */
+            linkIntersections: function (intersections, iMap) {
+                for (var i = 0; i < intersections.length - 1; i += 2) {
+                    var i0 = intersections[i];
+                    var i1 = intersections[i + 1];
+
+                    var iEnd0 = iMap.get(i0.indexEnd);
+                    var iStart0 = iMap.get(i0.indexStart);
+                    var iEnd1 = iMap.get(i1.indexEnd);
+                    var iStart1 = iMap.get(i1.indexStart);
+
+                    iEnd0.linkTo = i1.indexStart;
+                    iStart0.linkTo = i1.indexEnd;
+                    iEnd1.linkTo = i0.indexStart;
+                    iStart1.linkTo = i0.indexEnd;
+                }
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * ReIndexes the intersections due to the poles being added to the array of points
+             * @param {Array} intersections
+             * @param {HashMap} iMap
+             * @param {Number} indexOffset the index from which to start reIndexing
+             * @returns {HashMap} a new hash map with the correct indices
+             * */
+            reindexIntersections: function (intersections, iMap, indexOffset) {
+                iMap = HashMap.reIndex(iMap, indexOffset, 2);
+
+                for (var i = 0, len = intersections.length; i < len; i++) {
+                    if (intersections[i].indexEnd >= indexOffset) {
+                        intersections[i].indexEnd += 2;
+                    }
+                    if (intersections[i].indexStart >= indexOffset) {
+                        intersections[i].indexStart += 2;
+                    }
+                }
+
+                return iMap;
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * @param {Location[] | Position[]} points
+             * @param {Array} intersections
+             * @param {HashMap} iMap
+             * @param {Array} polygons an empty array to store the resulting polygons
+             * @param {HashMap[]} iMaps an empty array to store the resulting hasp maps for each polygon
+             * @returns {Number} the pole number @see Location.poles
+             * */
+            makePolygons: function (points, intersections, iMap, polygons, iMaps) {
+                var poleIndex = -1;
+                for (var i = 0; i < intersections.length - 1; i += 2) {
+                    var i0 = intersections[i];
+                    var i1 = intersections[i + 1];
+
+                    var start = i0.indexStart;
+                    var end = i1.indexEnd;
+                    var polygon = [];
+                    var polygonHashMap = new HashMap();
+                    var containsPole = this.makePolygon(start, end, points, iMap, polygon, polygonHashMap);
+                    if (polygon.length) {
+                        polygons.push(polygon);
+                        iMaps.push(polygonHashMap);
+                        if (containsPole) {
+                            poleIndex = polygons.length - 1;
+                        }
+                    }
+
+                    start = i1.indexStart;
+                    end = i0.indexEnd;
+                    polygon = [];
+                    polygonHashMap = new HashMap();
+                    containsPole = this.makePolygon(start, end, points, iMap, polygon, polygonHashMap);
+                    if (polygon.length) {
+                        polygons.push(polygon);
+                        iMaps.push(polygonHashMap);
+                        if (containsPole) {
+                            poleIndex = polygons.length - 1;
+                        }
+                    }
+                }
+
+                return poleIndex;
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * Paths from a start intersection index to an end intersection index and makes a polygon and a hashMap
+             * with the intersection indices
+             * @param {Number} start the index of a start type intersection
+             * @param {Number} end the index of an end type intersection
+             * @param {Location[] | Position[]} points
+             * @param {HashMap} iMap
+             * @param {Location[] | Position[]} resultPolygon an empty array to store the resulting polygon
+             * @param {HashMap} polygonHashMap a hash map to record the indices of the intersections in the polygon
+             * @returns {Boolean} true if the polygon contains a pole
+             * */
+            makePolygon: function (start, end, points, iMap, resultPolygon, polygonHashMap) {
+                var pass = false;
+                var len = points.length;
+                var containsPole = false;
+
+                if (end < start) {
+                    end += len;
+                }
+
+                for (var i = start; i <= end; i++) {
+                    var idx = i % len;
+                    var pt = points[idx];
+                    var intersection = iMap.get(idx);
+
+                    if (intersection) {
+                        if (intersection.visited) {
+                            break;
+                        }
+
+                        resultPolygon.push(pt);
+                        polygonHashMap.set(resultPolygon.length - 1, intersection);
+
+                        if (intersection.forPole) {
+                            containsPole = true;
+                        }
+                        else {
+                            if (pass) {
+                                i = intersection.linkTo - 1;
+                                if (i + 1 === start) {
+                                    break;
+                                }
+                            }
+                            pass = !pass;
+                            intersection.visited = true;
+                        }
+                    }
+                    else {
+                        resultPolygon.push(pt);
+                    }
+                }
+
+                return containsPole;
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * Adds an element to an array preventing duplication
+             * @param {Location[] | Position[]} points
+             * @param {Location | Position} point
+             * @param {Number} index The index of the Point from the source array
+             * @param {Number} len The length of the source array
+             * */
+            safeAdd: function (points, point, index, len) {
+                if (this.addedIndex < index && this.addedIndex < len - 1) {
+                    points.push(point);
+                    this.addedIndex = index;
+                }
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * Creates a Location or a Position
+             * @param {Number} latitude
+             * @param {Number} longitude
+             * @param {Number} altitude
+             * @returns Location | Position
+             * */
+            createPoint: function (latitude, longitude, altitude) {
+                if (altitude == null) {
+                    return new Location(latitude, longitude);
+                }
+                return new Position(latitude, longitude, altitude);
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * @param {Array} polygons an array of arrays of Locations or Positions
+             * @param {Number} pole the pole number @see Location.poles
+             * @param {Number} poleIndex the index of the polygon containing the pole
+             * @param {HashMap[]} iMaps an array of hash maps for each polygon
+             * */
+            formatContourOutput: function (polygons, pole, poleIndex, iMaps) {
+                return {
+                    polygons: polygons,
+                    pole: pole,
+                    poleIndex: poleIndex,
+                    iMap: iMaps
+                };
+            },
+
+            /**
+             * Internal. Applications should not call this method.
+             * @param {Number} index the index of the intersection in the array of points
+             * */
+            makeIntersectionEntry: function (index) {
+                if (index == null) {
+                    index = -1;
+                }
+                return {
+                    visited: false,
+                    forPole: false,
+                    index: index,
+                    linkTo: -1
+                }
+            }
+        };
+
+        return PolygonSplitter;
+
+    });
+
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
  * @exports ShapeAttributes
  * @version $Id: ShapeAttributes.js 3270 2015-06-26 01:09:56Z tgaskins $
  */
@@ -27373,6 +28482,7 @@ define('shapes/SurfaceShape',[
         '../util/Logger',
         '../error/NotYetImplementedError',
         '../pick/PickedObject',
+        '../util/PolygonSplitter',
         '../render/Renderable',
         '../geom/Sector',
         '../shapes/ShapeAttributes',
@@ -27386,6 +28496,7 @@ define('shapes/SurfaceShape',[
               Logger,
               NotYetImplementedError,
               PickedObject,
+              PolygonSplitter,
               Renderable,
               Sector,
               ShapeAttributes,
@@ -27494,6 +28605,11 @@ define('shapes/SurfaceShape',[
 
             // Internal use only. Intentionally not documented.
             this.pickColor = null;
+
+            //the split contours returned from polygon splitter
+            this.contours = [];
+            this.containsPole = false;
+            this.crossesAntiMeridian = false;
         };
 
         SurfaceShape.prototype = Object.create(Renderable.prototype);
@@ -27505,7 +28621,7 @@ define('shapes/SurfaceShape',[
                  * @memberof SurfaceShape.prototype
                  * @type {String}
                  */
-                get: function() {
+                get: function () {
                     // If we don't have a state key for the shape attributes, consider this state key to be invalid.
                     if (!this._attributesStateKey) {
                         // Update the state key for the appropriate attributes for future
@@ -27560,10 +28676,10 @@ define('shapes/SurfaceShape',[
              * @default Surface Shape
              */
             displayName: {
-                get: function() {
+                get: function () {
                     return this._displayName;
                 },
-                set: function(value) {
+                set: function (value) {
                     this.stateKeyInvalid = true;
                     this._displayName = value;
                 }
@@ -27576,10 +28692,10 @@ define('shapes/SurfaceShape',[
              * @default see [ShapeAttributes]{@link ShapeAttributes}
              */
             attributes: {
-                get: function() {
+                get: function () {
                     return this._attributes;
                 },
-                set: function(value) {
+                set: function (value) {
                     this.stateKeyInvalid = true;
                     this._attributes = value;
                     this._attributesStateKey = value.stateKey;
@@ -27595,10 +28711,10 @@ define('shapes/SurfaceShape',[
              * @default null
              */
             highlightAttributes: {
-                get: function() {
+                get: function () {
                     return this._highlightAttributes;
                 },
-                set: function(value) {
+                set: function (value) {
                     this.stateKeyInvalid = true;
                     this._highlightAttributes = value;
                 }
@@ -27611,10 +28727,10 @@ define('shapes/SurfaceShape',[
              * @default false
              */
             highlighted: {
-                get: function() {
+                get: function () {
                     return this._highlighted;
                 },
-                set: function(value) {
+                set: function (value) {
                     this.stateKeyInvalid = true;
                     this._highlighted = value;
                 }
@@ -27627,10 +28743,10 @@ define('shapes/SurfaceShape',[
              * @default true
              */
             enabled: {
-                get: function() {
+                get: function () {
                     return this._enabled;
                 },
-                set: function(value) {
+                set: function (value) {
                     this.stateKeyInvalid = true;
                     this._enabled = value;
                 }
@@ -27648,10 +28764,10 @@ define('shapes/SurfaceShape',[
              * @default WorldWind.GREAT_CIRCLE
              */
             pathType: {
-                get: function() {
+                get: function () {
                     return this._pathType;
                 },
-                set: function(value) {
+                set: function (value) {
                     this.stateKeyInvalid = true;
                     this._pathType = value;
                 }
@@ -27666,10 +28782,10 @@ define('shapes/SurfaceShape',[
              * @default SurfaceShape.DEFAULT_NUM_EDGE_INTERVALS
              */
             maximumNumEdgeIntervals: {
-                get: function() {
+                get: function () {
                     return this._maximumNumEdgeIntervals;
                 },
-                set: function(value) {
+                set: function (value) {
                     this.stateKeyInvalid = true;
                     this._maximumNumEdgeIntervals = value;
                 }
@@ -27700,13 +28816,13 @@ define('shapes/SurfaceShape',[
              * @type {Sector}
              */
             sector: {
-                get: function() {
+                get: function () {
                     return this._sector;
                 }
             }
         });
 
-        SurfaceShape.staticStateKey = function(shape) {
+        SurfaceShape.staticStateKey = function (shape) {
             shape.stateKeyInvalid = false;
 
             if (shape.highlighted) {
@@ -27727,22 +28843,22 @@ define('shapes/SurfaceShape',[
                 }
             }
 
-            return   "dn " + shape.displayName +
-                    " at " + (!shape._attributesStateKey ? "null" : shape._attributesStateKey) +
-                    " hi " + shape.highlighted +
-                    " en " + shape.enabled +
-                    " pt " + shape.pathType +
-                    " ne " + shape.maximumNumEdgeIntervals +
-                    " po " + shape.polarThrottle +
-                    " se " + "[" +
-                        shape.sector.minLatitude + "," +
-                        shape.sector.maxLatitude + "," +
-                        shape.sector.minLongitude + "," +
-                        shape.sector.maxLongitude +
-                    "]";
+            return "dn " + shape.displayName +
+                " at " + (!shape._attributesStateKey ? "null" : shape._attributesStateKey) +
+                " hi " + shape.highlighted +
+                " en " + shape.enabled +
+                " pt " + shape.pathType +
+                " ne " + shape.maximumNumEdgeIntervals +
+                " po " + shape.polarThrottle +
+                " se " + "[" +
+                shape.sector.minLatitude + "," +
+                shape.sector.maxLatitude + "," +
+                shape.sector.minLongitude + "," +
+                shape.sector.maxLongitude +
+                "]";
         };
 
-        SurfaceShape.prototype.computeStateKey = function() {
+        SurfaceShape.prototype.computeStateKey = function () {
             return SurfaceShape.staticStateKey(this);
         };
 
@@ -27759,7 +28875,7 @@ define('shapes/SurfaceShape',[
         };
 
         // Internal function. Intentionally not documented.
-        SurfaceShape.prototype.computeBoundaries = function(globe) {
+        SurfaceShape.prototype.computeBoundaries = function (globe) {
             // This method is in the base class and should be overridden if the boundaries are generated.
             // It should be called only if the geometry has been provided by the user and does not need to be generated.
             // assert(!this._boundaries);
@@ -27769,7 +28885,7 @@ define('shapes/SurfaceShape',[
         };
 
         // Internal function. Intentionally not documented.
-        SurfaceShape.prototype.render = function(dc) {
+        SurfaceShape.prototype.render = function (dc) {
             if (!this.enabled) {
                 return;
             }
@@ -27782,8 +28898,8 @@ define('shapes/SurfaceShape',[
         };
 
         // Internal function. Intentionally not documented.
-        SurfaceShape.prototype.interpolateLocations = function(locations) {
-            var first  = locations[0],
+        SurfaceShape.prototype.interpolateLocations = function (locations) {
+            var first = locations[0],
                 next = first,
                 prev,
                 isNextFirst = true,
@@ -27838,7 +28954,7 @@ define('shapes/SurfaceShape',[
         };
 
         // Internal function. Intentionally not documented.
-        SurfaceShape.prototype.interpolateEdge = function(start, end, locations) {
+        SurfaceShape.prototype.interpolateEdge = function (start, end, locations) {
             var distanceRadians = Location.greatCircleDistance(start, end),
                 steps = Math.round(this._maximumNumEdgeIntervals * distanceRadians / Math.PI),
                 dt,
@@ -27851,6 +28967,15 @@ define('shapes/SurfaceShape',[
                 for (var t = this.throttledStep(dt, location); t < 1; t += this.throttledStep(dt, location)) {
                     location = new Location(0, 0);
                     Location.interpolateAlongPath(this._pathType, t, start, end, location);
+
+                    //florin: ensure correct longitude sign and decimal error for anti-meridian
+                    if (start.longitude === 180 && end.longitude === 180) {
+                        location.longitude = 180;
+                    }
+                    else if (start.longitude === -180 && end.longitude === -180) {
+                        location.longitude = -180;
+                    }
+
                     locations.push(location);
                 }
             }
@@ -27858,7 +28983,7 @@ define('shapes/SurfaceShape',[
 
         // Internal function. Intentionally not documented.
         // Return a throttled step size when near the poles.
-        SurfaceShape.prototype.throttledStep = function(dt, location) {
+        SurfaceShape.prototype.throttledStep = function (dt, location) {
             var cosLat = Math.cos(location.latitude * Angle.DEGREES_TO_RADIANS);
             cosLat *= cosLat; // Square cos to emphasize poles and de-emphasize equator.
 
@@ -27871,8 +28996,10 @@ define('shapes/SurfaceShape',[
         };
 
         // Internal function. Intentionally not documented.
-        SurfaceShape.prototype.prepareBoundaries = function(dc) {
-            if (this.isPrepared) return;
+        SurfaceShape.prototype.prepareBoundaries = function (dc) {
+            if (this.isPrepared) {
+                return;
+            }
 
             // Some shapes generate boundaries, such as ellipses and sectors;
             // others don't, such as polylines and polygons.
@@ -27881,15 +29008,64 @@ define('shapes/SurfaceShape',[
                 this.computeBoundaries(dc);
             }
 
-            if (!this._locations) {
-                this.interpolateLocations(this._boundaries);
-            }
+            var newBoundaries = this.formatBoundaries();
+            this.normalizeAngles(newBoundaries);
+            newBoundaries = this.interpolateBoundaries(newBoundaries);
 
-            this.prepareGeometry(dc);
+            var contoursInfo = [];
+            var doesCross = PolygonSplitter.splitContours(newBoundaries, contoursInfo);
+            this.contours = contoursInfo;
+            this.crossesAntiMeridian = doesCross;
+
+            this.prepareGeometry(dc, contoursInfo);
 
             this.prepareSectors();
 
             this.isPrepared = true;
+        };
+
+        //Internal. Formats the boundaries of a surface shape to be a multi dimensional array
+        SurfaceShape.prototype.formatBoundaries = function () {
+            var boundaries = [];
+            if (!this._boundaries.length) {
+                return boundaries;
+            }
+            if (this._boundaries[0].latitude != null) {
+                //not multi dim array
+                boundaries.push(this._boundaries);
+            }
+            else {
+                boundaries = this._boundaries;
+            }
+            return boundaries;
+        };
+
+        // Internal use only. Intentionally not documented.
+        SurfaceShape.prototype.normalizeAngles = function (boundaries) {
+            for (var i = 0, len = boundaries.length; i < len; i++) {
+                var polygon = boundaries[i];
+                for (var j = 0, lenP = polygon.length; j < lenP; j++) {
+                    var point = polygon[j];
+                    if (point.longitude < -180 || point.longitude > 180) {
+                        point.longitude = Angle.normalizedDegreesLongitude(point.longitude);
+                    }
+                    if (point.latitude < -90 || point.latitude > 90) {
+                        point.latitude = Angle.normalizedDegreesLatitude(point.latitude);
+                    }
+                }
+            }
+        };
+
+        // Internal use only. Intentionally not documented.
+        SurfaceShape.prototype.interpolateBoundaries = function (boundaries) {
+            var newBoundaries = [];
+            for (var i = 0, len = boundaries.length; i < len; i++) {
+                var contour = boundaries[i];
+                this.interpolateLocations(contour);
+                newBoundaries.push(this._locations.slice());
+                this._locations.length = 0;
+            }
+            return newBoundaries;
         };
 
         /**
@@ -27900,7 +29076,7 @@ define('shapes/SurfaceShape',[
          *
          * @return {Sector[]}  Bounding sectors for the shape.
          */
-        SurfaceShape.prototype.computeSectors = function(dc) {
+        SurfaceShape.prototype.computeSectors = function (dc) {
             // Return a previously computed value if it already exists.
             if (this._sectors && this._sectors.length > 0) {
                 return this._sectors;
@@ -27911,270 +29087,167 @@ define('shapes/SurfaceShape',[
             return this._sectors;
         };
 
-        // Internal function. Intentionally not documented.
-        SurfaceShape.prototype.prepareSectors = function() {
-            var boundaries = this._boundaries;
-            if (!boundaries) {
-                return;
-            }
-
-            this._sector = new Sector(-90, 90, -180, 180);
-            this._sector.setToBoundingSector(boundaries);
-
-            var pole = this.containsPole(boundaries);
-            if (pole != Location.poles.NONE) {
-                // If the shape contains a pole, then the bounding sector is defined by the shape's extreme latitude, the
-                // latitude of the pole, and the full range of longitude.
-                if (pole == Location.poles.NORTH) {
-                    this._sector = new Sector(this._sector.minLatitude, 90, -180, 180);
-                }
-                else {
-                    this._sector = new Sector(-90, this._sector.maxLatitude, -180, 180);
-                }
-
-                this._sectors = [this._sector];
-            }
-            else if (Location.locationsCrossDateLine(boundaries)) {
-                this._sectors = Sector.splitBoundingSectors(boundaries);
+        // Internal use only. Intentionally not documented.
+        SurfaceShape.prototype.prepareSectors = function () {
+            this.determineSectors();
+            if (this.crossesAntiMeridian) {
+                this.sectorsOverAntiMeridian();
             }
             else {
-                 if (!this._sector.isEmpty()) {
-                    this._sectors = [this._sector];
-                }
+                this.sectorsNotOverAntiMeridian();
             }
-
-            if (!this._sectors) {
-                return;
-            }
-
-            // Great circle paths between two latitudes may result in a latitude which is greater or smaller than either of
-            // the two latitudes. All other path types are bounded by the defining locations.
-            if (this._pathType === WorldWind.GREAT_CIRCLE) {
-                for (var idx = 0, len = this._sectors.length; idx < len; idx += 1) {
-                    var sector = this._sectors[idx];
-
-                    var extremes = Location.greatCircleArcExtremeLocations(boundaries);
-
-                    var minLatitude = Math.min(sector.minLatitude, extremes[0].latitude);
-                    var maxLatitude = Math.max(sector.maxLatitude, extremes[1].latitude);
-
-                    this._sectors[idx] = new Sector(minLatitude, maxLatitude, sector.minLongitude, sector.maxLongitude);
-                }
-            }
-        };
-
-        // Internal function. Intentionally not documented.
-        SurfaceShape.prototype.prepareGeometry = function(dc) {
-            var datelineLocations;
-
-            this._interiorGeometry = [];
-            this._outlineGeometry = [];
-
-            var locations = this._locations;
-
-            var pole = this.containsPole(locations);
-            if (pole != Location.poles.NONE) {
-                // Wrap the shape interior around the pole and along the anti-meridian. See WWJ-284.
-                var poleLocations = this.cutAlongDateLine(locations, pole, dc.globe);
-                this._interiorGeometry.push(poleLocations);
-
-                // The outline need only compensate for dateline crossing. See WWJ-452.
-                datelineLocations = this.repeatAroundDateline(locations);
-                this._outlineGeometry.push(datelineLocations[0]);
-                if (datelineLocations.length > 1) {
-                    this._outlineGeometry.push(datelineLocations[1]);
-                }
-            }
-            else if (Location.locationsCrossDateLine(locations)) {
-                datelineLocations = this.repeatAroundDateline(locations);
-                this._interiorGeometry.push(datelineLocations[0]); //this._interiorGeometry.addAll(datelineLocations);
-                this._interiorGeometry.push(datelineLocations[1]); //this._interiorGeometry.addAll(datelineLocations);
-                this._outlineGeometry.push(datelineLocations[0]); //this._outlineGeometry.addAll(datelineLocations);
-                this._outlineGeometry.push(datelineLocations[1]); //this._outlineGeometry.addAll(datelineLocations);
-            }
-            else {
-                this._interiorGeometry.push(locations);
-                this._outlineGeometry.push(locations);
-            }
-        };
-
-        /**
-         * Determine if a list of geographic locations encloses either the North or South pole. The list is treated as a
-         * closed loop. (If the first and last positions are not equal the loop will be closed for purposes of this
-         * computation.)
-         *
-         * @param {Location[]} locations Locations to test.
-         *
-         * @return {Number} Location.poles.NORTH if the North Pole is enclosed,
-         *                  Location.poles.SOUTH if the South Pole is enclosed, or
-         *                  Location.poles.NONE if neither pole is enclosed.
-         *                  Always returns Location.poles.NONE if {@link #canContainPole()} returns false.
-         *
-         * TODO: handle a shape that contains both poles.
-         */
-        SurfaceShape.prototype.containsPole = function(locations) {
-            // Determine how many times the path crosses the date line. Shapes that include a pole will cross an odd number of times.
-            var containsPole = false;
-
-            var minLatitude = 90.0;
-            var maxLatitude = -90.0;
-
-            var prev = locations[0];
-            for (var idx = 1, len = locations.length; idx < len; idx += 1) {
-                var next = locations[idx];
-
-                if (Location.locationsCrossDateLine([prev, next])) {
-                    containsPole = !containsPole;
-                }
-
-                minLatitude = Math.min(minLatitude, next.latitude);
-                maxLatitude = Math.max(maxLatitude, next.latitude);
-
-                prev = next;
-            }
-
-            // Close the loop by connecting the last position to the first. If the loop is already closed then the following
-            // test will always fail, and will not affect the result.
-            var first = locations[0];
-            if (Location.locationsCrossDateLine([first, prev])) {
-                containsPole = !containsPole;
-            }
-
-            if (!containsPole) {
-                return Location.poles.NONE;
-            }
-
-            // Determine which pole is enclosed. If the shape is entirely in one hemisphere, then assume that it encloses
-            // the pole in that hemisphere. Otherwise, assume that it encloses the pole that is closest to the shape's
-            // extreme latitude.
-            if (minLatitude > 0) {
-                return Location.poles.NORTH; // Entirely in Northern Hemisphere.
-            }
-            else if (maxLatitude < 0) {
-                return Location.poles.SOUTH; // Entirely in Southern Hemisphere.
-            }
-            else if (Math.abs(maxLatitude) >= Math.abs(minLatitude)) {
-                return Location.poles.NORTH; // Spans equator, but more north than south.
-            }
-            else {
-                return Location.poles.SOUTH; // Spans equator, but more south than north.
-            }
-        };
-
-        /**
-         * Divide a list of locations that encloses a pole along the international date line. This method determines where
-         * the locations cross the date line, and inserts locations to the pole, and then back to the intersection position.
-         * This allows the shape to be "unrolled" when projected in a lat-lon projection.
-         *
-         * @param {Location[]} locations    Locations to cut at date line. This list is not modified.
-         * @param {Number} pole             Pole contained by locations, either AVKey.NORTH or AVKey.SOUTH.
-         * @param {Globe} globe             Current globe.
-         *
-         * @return {Location[]} New location list with locations added to correctly handle date line intersection.
-         */
-        SurfaceShape.prototype.cutAlongDateLine = function(locations, pole, globe)
-        {
-            // If the locations do not contain a pole, then there's nothing to do.
-            if (pole == Location.poles.NONE) {
-                return locations;
-            }
-
-            var newLocations = [];
-
-            var poleLat = pole == Location.poles.NORTH ? 90 : -90;
-
-            var prev = locations[locations.length - 1];
-            for (var idx = 0, len = locations.length; idx < len; idx += 1) {
-                var next = locations[idx];
-
-                newLocations.push(prev);
-                if (Location.locationsCrossDateLine([prev, next])) {
-                    // Determine where the segment crosses the date line.
-                    var latitude = Location.intersectionWithMeridian(prev, next, 180, globe);
-                    var sign = WWMath.signum(prev.longitude);
-
-                    var lat = latitude;
-                    var thisSideLon = 180 * sign;
-                    var otherSideLon = -thisSideLon;
-
-                    // Add locations that run from the intersection to the pole, then back to the intersection. Note
-                    // that the longitude changes sign when the path returns from the pole.
-                    //         . Pole
-                    //      2 ^ | 3
-                    //        | |
-                    //      1 | v 4
-                    // --->---- ------>
-                    newLocations.push(new Location(lat, thisSideLon));
-                    newLocations.push(new Location(poleLat, thisSideLon));
-                    newLocations.push(new Location(poleLat, otherSideLon));
-                    newLocations.push(new Location(lat, otherSideLon));
-                }
-
-                prev = next;
-            }
-            newLocations.push(prev);
-
-            return newLocations;
-        };
-
-        /**
-         * Returns a list containing two copies of the specified list of locations crossing the dateline: one that extends
-         * across the -180 longitude  boundary and one that extends across the +180 longitude boundary. If the list of
-         * locations does not cross the dateline this returns a list containing a copy of the original list.
-         *
-         * @param {Location[]} locations Locations to repeat. This is list not modified.
-         *
-         * @return {Location[][]} A list containing two new location lists, one copy for either side of the date line.
-         */
-        SurfaceShape.prototype.repeatAroundDateline = function(locations) {
-            var lonOffset = 0,
-                applyLonOffset = false;
-
-            var newLocations = [];
-
-            var prev= locations[0];
-            newLocations.push(prev);
-            for (var idx = 1, len = locations.length; idx < len; idx += 1) {
-                var next = locations[idx];
-
-                if (Location.locationsCrossDateLine([prev, next])) {
-                    if (lonOffset == 0) {
-                        lonOffset = prev.longitude < 0 ? -360 : 360;
-                    }
-
-                    applyLonOffset = !applyLonOffset;
-                }
-
-                if (applyLonOffset) {
-                    newLocations.push(new Location(next.latitude, next.longitude + lonOffset));
-                }
-                else {
-                    newLocations.push(next);
-                }
-
-                prev = next;
-            }
-
-            var locationGroup = [newLocations];
-
-            if (lonOffset != 0) {
-                var oldLocations = newLocations;
-                newLocations = [];
-
-                for (idx = 0, len = oldLocations.length; idx < len; idx += 1) {
-                    var cur = oldLocations[idx];
-
-                    newLocations.push(new Location(cur.latitude, cur.longitude - lonOffset));
-                }
-
-                locationGroup.push(newLocations);
-            }
-
-            return locationGroup;
         };
 
         // Internal use only. Intentionally not documented.
-        SurfaceShape.prototype.resetPickColor = function() {
+        SurfaceShape.prototype.determineSectors = function () {
+            for (var i = 0, len = this.contours.length; i < len; i++) {
+                var contour = this.contours[i];
+                var polygons = contour.polygons;
+                contour.sectors = [];
+                for (var j = 0, lenP = polygons.length; j < lenP; j++) {
+                    var polygon = polygons[j];
+                    var sector = new Sector(0, 0, 0, 0);
+                    sector.setToBoundingSector(polygon);
+                    if (this._pathType === WorldWind.GREAT_CIRCLE) {
+                        var extremes = Location.greatCircleArcExtremeLocations(polygon);
+                        var minLatitude = Math.min(sector.minLatitude, extremes[0].latitude);
+                        var maxLatitude = Math.max(sector.maxLatitude, extremes[1].latitude);
+                        sector.minLatitude = minLatitude;
+                        sector.maxLatitude = maxLatitude;
+                    }
+                    contour.sectors.push(sector);
+                }
+            }
+        };
+
+        // Internal use only. Intentionally not documented.
+        SurfaceShape.prototype.sectorsOverAntiMeridian = function () {
+            var eastSector = new Sector(90, -90, 180, -180); //positive
+            var westSector = new Sector(90, -90, 180, -180); //negative
+            for (var i = 0, len = this.contours.length; i < len; i++) {
+                var sectors = this.contours[i].sectors;
+                for (var j = 0, lenS = sectors.length; j < lenS; j++) {
+                    var sector = sectors[j];
+                    if (sector.minLongitude < 0 && sector.maxLongitude > 0) {
+                        westSector.union(sector);
+                        eastSector.union(sector);
+                    }
+                    else if (sector.minLongitude < 0) {
+                        westSector.union(sector);
+                    }
+                    else {
+                        eastSector.union(sector);
+                    }
+                }
+            }
+            var minLatitude = Math.min(eastSector.minLatitude, westSector.minLatitude);
+            var maxLatitude = Math.max(eastSector.maxLatitude, eastSector.maxLatitude);
+            this._sector = new Sector(minLatitude, maxLatitude, -180, 180);
+            this._sectors = [eastSector, westSector];
+        };
+
+        // Internal use only. Intentionally not documented.
+        SurfaceShape.prototype.sectorsNotOverAntiMeridian = function () {
+            this._sector = new Sector(90, -90, 180, -180);
+            for (var i = 0, len = this.contours.length; i < len; i++) {
+                var sectors = this.contours[i].sectors;
+                for (var j = 0, lenS = sectors.length; j < lenS; j++) {
+                    this._sector.union(sectors[j]);
+                }
+            }
+            this._sectors = [this._sector];
+        };
+
+        // Internal use only. Intentionally not documented.
+        SurfaceShape.prototype.prepareGeometry = function (dc, contours) {
+            var interiorPolygons = [];
+            var outlinePolygons = [];
+
+            for (var i = 0, len = contours.length; i < len; i++) {
+                var contour = contours[i];
+                var poleIndex = contour.poleIndex;
+
+                for (var j = 0, lenC = contour.polygons.length; j < lenC; j++) {
+                    var polygon = contour.polygons[j];
+                    var iMap = contour.iMap[j];
+                    interiorPolygons.push(polygon);
+
+                    if (contour.pole !== Location.poles.NONE && lenC > 1) {
+                        //split with pole
+                        if (j === poleIndex) {
+                            this.outlineForPole(polygon, iMap, outlinePolygons);
+                        }
+                        else {
+                            this.outlineForSplit(polygon, iMap, outlinePolygons);
+                        }
+                    }
+                    else if (contour.pole !== Location.poles.NONE && lenC === 1) {
+                        //only pole
+                        this.outlineForPole(polygon, iMap, outlinePolygons);
+                    }
+                    else if (contour.pole === Location.poles.NONE && lenC > 1) {
+                        //only split
+                        this.outlineForSplit(polygon, iMap, outlinePolygons);
+                    }
+                    else if (contour.pole === Location.poles.NONE && lenC === 1) {
+                        //no pole, no split
+                        outlinePolygons.push(polygon);
+                    }
+                }
+            }
+
+            this._interiorGeometry = interiorPolygons;
+            this._outlineGeometry = outlinePolygons;
+        };
+
+        // Internal use only. Intentionally not documented.
+        SurfaceShape.prototype.outlineForPole = function (polygon, iMap, outlinePolygons) {
+            this.containsPole = true;
+            var outlinePolygon = [];
+            var pCount = 0;
+            for (var k = 0, lenP = polygon.length; k < lenP; k++) {
+                var point = polygon[k];
+                var intersection = iMap.get(k);
+                if (intersection && intersection.forPole) {
+                    pCount++;
+                    if (pCount % 2 === 1) {
+                        outlinePolygon.push(point);
+                        outlinePolygons.push(outlinePolygon);
+                        outlinePolygon = [];
+                    }
+                }
+                if (pCount % 2 === 0) {
+                    outlinePolygon.push(point);
+                }
+            }
+            if (outlinePolygon.length) {
+                outlinePolygons.push(outlinePolygon);
+            }
+        };
+
+        // Internal use only. Intentionally not documented.
+        SurfaceShape.prototype.outlineForSplit = function (polygon, iMap, outlinePolygons) {
+            var outlinePolygon = [];
+            var iCount = 0;
+            for (var k = 0, lenP = polygon.length; k < lenP; k++) {
+                var point = polygon[k];
+                var intersection = iMap.get(k);
+                if (intersection && !intersection.forPole) {
+                    iCount++;
+                    if (iCount % 2 === 0) {
+                        outlinePolygon.push(point);
+                        outlinePolygons.push(outlinePolygon);
+                        outlinePolygon = [];
+                    }
+                }
+                if (iCount % 2 === 1) {
+                    outlinePolygon.push(point);
+                }
+            }
+        };
+
+        // Internal use only. Intentionally not documented.
+        SurfaceShape.prototype.resetPickColor = function () {
             this.pickColor = null;
         };
 
@@ -28188,193 +29261,71 @@ define('shapes/SurfaceShape',[
          * @param {Number} dx The additive offset in the horizontal direction.
          * @param {Number} dy The additive offset in the vertical direction.
          */
-        SurfaceShape.prototype.renderToTexture = function(dc, ctx2D, xScale, yScale, dx, dy) {
-            var idx,
-                len,
-                path = [],
-                idxPath,
-                lenPath,
-                isPicking = dc.pickingMode,
-                attributes = (this._highlighted ? (this._highlightAttributes || this._attributes) : this._attributes);
+        SurfaceShape.prototype.renderToTexture = function (dc, ctx2D, xScale, yScale, dx, dy) {
+            var attributes = (this._highlighted ? (this._highlightAttributes || this._attributes) : this._attributes);
+            var drawInterior = (!this._isInteriorInhibited && attributes.drawInterior);
+            var drawOutline = (attributes.drawOutline && attributes.outlineWidth > 0);
 
-            if (isPicking && !this.pickColor) {
+            if (!drawInterior && !drawOutline) {
+                return;
+            }
+
+            if (dc.pickingMode && !this.pickColor) {
                 this.pickColor = dc.uniquePickColor();
             }
 
-            // Fill the interior of the shape.
-            if (!this._isInteriorInhibited && attributes.drawInterior) {
-                ctx2D.fillStyle = isPicking ? this.pickColor.toRGBAString() : attributes.interiorColor.toRGBAString();
+            if (dc.pickingMode) {
+                var pickColor = this.pickColor.toHexString();
+            }
 
-                for (idx = 0, len = this._interiorGeometry.length; idx < len; idx += 1) {
-                    idxPath = 0;
-                    lenPath = this._outlineGeometry[idx].length * 2;
-                    path.splice(0, path.length);
-
-                    // Convert the geometry to a transformed path that can be drawn directly, and as a side effect,
-                    // detect if the path is smaller than a pixel. If it is, don't bother drawing it.
-                    if (this.transformPath(this._interiorGeometry[idx], xScale, yScale, dx, dy, path)) {
-                        ctx2D.beginPath();
-
-                        ctx2D.moveTo(path[idxPath++], path[idxPath++]);
-
-                        while (idxPath < lenPath) {
-                            ctx2D.lineTo(path[idxPath++], path[idxPath++]);
-                        }
-
-                        ctx2D.closePath();
-
-                        ctx2D.fill();
-                    }
+            if (this.crossesAntiMeridian || this.containsPole) {
+                if (drawInterior) {
+                    this.draw(this._interiorGeometry, ctx2D, xScale, yScale, dx, dy);
+                    ctx2D.fillStyle = dc.pickingMode ? pickColor : attributes.interiorColor.toRGBAString();
+                    ctx2D.fill();
+                }
+                if (drawOutline) {
+                    this.draw(this._outlineGeometry, ctx2D, xScale, yScale, dx, dy);
+                    ctx2D.lineWidth = 4 * this.attributes.outlineWidth;
+                    ctx2D.strokeStyle = dc.pickingMode ? pickColor : attributes.outlineColor.toRGBAString();
+                    ctx2D.stroke();
+                }
+            }
+            else {
+                this.draw(this._interiorGeometry, ctx2D, xScale, yScale, dx, dy);
+                if (drawInterior) {
+                    ctx2D.fillStyle = dc.pickingMode ? pickColor : attributes.interiorColor.toRGBAString();
+                    ctx2D.fill();
+                }
+                if (drawOutline) {
+                    ctx2D.lineWidth = 4 * this.attributes.outlineWidth;
+                    ctx2D.strokeStyle = dc.pickingMode ? pickColor : attributes.outlineColor.toRGBAString();
+                    ctx2D.stroke();
                 }
             }
 
-            // Draw the outline of the shape.
-            if (attributes.drawOutline && attributes.outlineWidth > 0) {
-                ctx2D.lineWidth = 4 * attributes.outlineWidth;
-                ctx2D.strokeStyle = isPicking ? this.pickColor.toRGBAString() : attributes.outlineColor.toRGBAString();
-
-                var pattern = this._attributes.outlineStipplePattern,
-                    factor = this._attributes.outlineStippleFactor;
-
-                for (idx = 0, len = this._outlineGeometry.length; idx < len; idx += 1) {
-                    path.splice(0, path.length);
-
-                    // Convert the geometry to a transformed path that can be drawn directly, and as a side effect,
-                    // detect if the path is smaller than a pixel. If it is, don't bother drawing it.
-                    if (this.transformPath(this._outlineGeometry[idx], xScale, yScale, dx, dy, path)) {
-                        // NOTE: this code used to be written as:
-                        //      a single beginPath() call,
-                        //      followed by a single moveTo() call,
-                        //      followed by as many lineTo() calls as there were vertices remaining in the path,
-                        //      followed by a stroke().
-                        // Performance was BAD!
-                        // The code was rewritten this way and it doesn't have any performance issues.
-                        // That shouldn't be the case, but it is.
-                        var xFirst = path[0],
-                            yFirst = path[1],
-                            xPrev = xFirst,
-                            yPrev = yFirst,
-                            xNext = xFirst,
-                            yNext = yFirst,
-                            isPrevFirst = true,
-                            isNextFirst = true,
-                            countFirst = 0;
-
-                        for (idxPath = 2, lenPath = path.length; idxPath < lenPath; ) {
-                            // Remember the previous point in the path.
-                            xPrev = xNext;
-                            yPrev = yNext;
-                            isPrevFirst = isNextFirst;
-
-                            // Extract the next point in the path.
-                            xNext = path[idxPath++];
-                            yNext = path[idxPath++];
-
-                            isNextFirst = xNext == xFirst && yNext == yFirst;
-
-                            // Avoid drawing virtual edges that reconnect to the first point
-                            // when drawing multiply connected domains.
-                            if (isPrevFirst || isNextFirst) {
-                                countFirst += 1;
-
-                                if (countFirst > 2) {
-                                    continue;
-                                }
-                            }
-
-                            // Draw the path one line segment at a time.
-                            ctx2D.beginPath();
-                            ctx2D.moveTo(xPrev, yPrev);
-
-                            ctx2D.lineTo(xNext, yNext);
-
-                            ctx2D.stroke();
-                        }
-                    }
-                }
-            }
-
-            if (isPicking) {
+            if (dc.pickingMode) {
                 var po = new PickedObject(this.pickColor.clone(), this.pickDelegate ? this.pickDelegate : this,
                     null, this.layer, false);
                 dc.resolvePick(po);
             }
         };
 
-        //
-        // Internal use only.
-        // Transform a path and compute its extrema.
-        // In the process of transforming it, optimize out line segments that are too short (shorter than some threshold).
-        // Return an indicator of the path is "big enough".
-        SurfaceShape.prototype.transformPath = function(path, xScale, yScale, xOffset, yOffset, result) {
-            var xPrev, yPrev,
-                xNext, yNext,
-                xFirst, yFirst,
-                xLast, yLast,
-                xMin, yMin,
-                xMax, yMax,
-                dx, dy, dr2,
-                dr2Min = 4, // Squared length of minimum length line that must be drawn.
-                isNextFirst,
-                location, idxResult, idxPath, lenPath;
-
-            idxResult = 0;
-
-            location = path[0];
-
-            xFirst = location.longitude * xScale + xOffset;
-            yFirst = location.latitude * yScale + yOffset;
-
-            isNextFirst = true;
-
-            xMin = xMax = xPrev = xNext = xFirst;
-            yMin = yMax = yPrev = yNext = yFirst;
-
-            result[idxResult++] = xNext;
-            result[idxResult++] = yNext;
-
-            for (idxPath = 1, lenPath = path.length; idxPath < lenPath; idxPath += 1) {
-                location = path[idxPath];
-
-                // Capture the last point even it it was optimized out.
-                xLast = xNext;
-                yLast = yNext;
-
-                xNext = location.longitude * xScale + xOffset;
-                yNext = location.latitude * yScale + yOffset;
-
-                // Detect whether the next point is the same as the first point.
-                isNextFirst = (xNext == xFirst) && (yNext == yFirst);
-
-                // Compute the length from the previous point that was emitted to the next point.
-                dx = xNext - xPrev;
-                dy = yNext - yPrev;
-                dr2 = dx * dx + dy * dy;
-
-                // If the line is smaller than a single pixel, accumulate more data before emitting,
-                // unless the point is the same as the first point, in which case it is always emitted.
-                if (isNextFirst || dr2 >= dr2Min) {
-                    xMin = Math.min(xMin, xNext);
-                    xMax = Math.max(xMax, xNext);
-                    yMin = Math.min(yMin, yNext);
-                    yMax = Math.max(yMax, yNext);
-
-                    // If the last point was optimized out because the line it contributed to was too short,
-                    // force it to be emitted.
-                    if (result[idxResult - 2] != xLast || result[idxResult - 1] != yLast) {
-                        result[idxResult++] = xLast;
-                        result[idxResult++] = yLast;
-                    }
-
-                    result[idxResult++] = xNext;
-                    result[idxResult++] = yNext;
-
-                    xPrev = xNext;
-                    yPrev = yNext;
+        SurfaceShape.prototype.draw = function (contours, ctx2D, xScale, yScale, dx, dy) {
+            ctx2D.beginPath();
+            for (var i = 0, len = contours.length; i < len; i++) {
+                var contour = contours[i];
+                var point = contour[0];
+                var x = point.longitude * xScale + dx;
+                var y = point.latitude * yScale + dy;
+                ctx2D.moveTo(x, y);
+                for (var j = 1, lenC = contour.length; j < lenC; j++) {
+                    point = contour[j];
+                    x = point.longitude * xScale + dx;
+                    y = point.latitude * yScale + dy;
+                    ctx2D.lineTo(x, y);
                 }
             }
-
-            return (xMax - xMin) >= 2 || (yMax - yMin) >= 2;
         };
 
         /**
@@ -28447,7 +29398,7 @@ define('shapes/SurfaceShapeTile',[
          * are less than zero, or the specified image path is null, undefined or empty.
          *
          */
-        var SurfaceShapeTile = function(sector, level, row, column) {
+        var SurfaceShapeTile = function (sector, level, row, column) {
             TextureTile.call(this, sector, level, row, column); // args are checked in the superclass' constructor
 
             /**
@@ -28455,6 +29406,12 @@ define('shapes/SurfaceShapeTile',[
              * @type {SurfaceShape[]}
              */
             this.surfaceShapes = [];
+
+            // Internal use only. Intentionally not documented.
+            this.surfaceShapeStateKeys = [];
+
+            // Internal use only. Intentionally not documented.
+            this.asRenderedSurfaceShapeStateKeys = [];
 
             /**
              * The sector that bounds this tile.
@@ -28468,17 +29425,8 @@ define('shapes/SurfaceShapeTile',[
              */
             this.cacheKey = null;
 
-            /**
-             * Internal use only. Intentionally not documented.
-             * @type {number}
-             */
+            // Internal use only. Intentionally not documented.
             this.pickSequence = 0;
-
-            // Internal use only. Intentionally not documented.
-            this.surfaceShapeStateKeys = [];
-
-            // Internal use only. Intentionally not documented.
-            this.prevSurfaceShapes = [];
 
             this.createCtx2D();
         };
@@ -28488,21 +29436,17 @@ define('shapes/SurfaceShapeTile',[
         /**
          * Clear all collected surface shapes.
          */
-        SurfaceShapeTile.prototype.clearShapes = function() {
-            // Exchange previous and next surface shape lists to avoid allocating memory.
-            var swap = this.prevSurfaceShapes;
-            this.prevSurfaceShapes = this.surfaceShapes;
-            this.surfaceShapes = swap;
-
-            // Clear out next surface shape list.
-            this.surfaceShapes.splice(0, this.surfaceShapes.length);
+        SurfaceShapeTile.prototype.clearShapes = function () {
+            // Clear out next surface shape.
+            this.surfaceShapes = [];
+            this.surfaceShapeStateKeys = [];
         };
 
         /**
          * Query whether any surface shapes have been collected.
          * @returns {boolean} Returns true if there are collected surface shapes.
          */
-        SurfaceShapeTile.prototype.hasShapes = function() {
+        SurfaceShapeTile.prototype.hasShapes = function () {
             return this.surfaceShapes.length > 0;
         };
 
@@ -28510,7 +29454,7 @@ define('shapes/SurfaceShapeTile',[
          * Get all shapes that this tile references.
          * @returns {SurfaceShape[]} The collection of surface shapes referenced by this tile.
          */
-        SurfaceShapeTile.prototype.getShapes = function() {
+        SurfaceShapeTile.prototype.getShapes = function () {
             return this.surfaceShapes;
         };
 
@@ -28518,7 +29462,7 @@ define('shapes/SurfaceShapeTile',[
          * Set the shapes this tile should reference.
          * @param {SurfaceShape[]} surfaceShapes The collection of surface shapes to be referenced by this tile.
          */
-        SurfaceShapeTile.prototype.setShapes = function(surfaceShapes) {
+        SurfaceShapeTile.prototype.setShapes = function (surfaceShapes) {
             this.surfaceShapes = surfaceShapes;
         };
 
@@ -28526,7 +29470,7 @@ define('shapes/SurfaceShapeTile',[
          * The sector that bounds this tile.
          * @returns {Sector}
          */
-        SurfaceShapeTile.prototype.getSector = function() {
+        SurfaceShapeTile.prototype.getSector = function () {
             return this.sector;
         };
 
@@ -28534,55 +29478,23 @@ define('shapes/SurfaceShapeTile',[
          * Add a surface shape to this tile's collection of surface shapes.
          * @param {SurfaceShape} surfaceShape The surface shape to add.
          */
-        SurfaceShapeTile.prototype.addSurfaceShape = function(surfaceShape) {
+        SurfaceShapeTile.prototype.addSurfaceShape = function (surfaceShape) {
             this.surfaceShapes.push(surfaceShape);
             this.surfaceShapeStateKeys.push(surfaceShape.stateKey);
         };
 
-        /**
-         * Add multiple surface shapes to this tile's collection.
-         * @param {SurfaceShape[]} shapes A collection of surface shapes to add to the collection of this tile.
-         */
-        SurfaceShapeTile.prototype.addAllSurfaceShapes = function(shapes) {
-            for (var idx = 0, len = shapes.length; idx < len; idx += 1) {
-                var shape = shapes[idx];
-                this.addAllSurfaceShapes(shape);
-            }
-        };
-
         // Internal use only. Intentionally not documented.
-        SurfaceShapeTile.prototype.needsUpdate = function(dc) {
+        SurfaceShapeTile.prototype.needsUpdate = function (dc) {
             var idx, len, surfaceShape, surfaceShapeStateKey;
 
-            // If the number of shapes have changed, ... (cheap test)
-            if (this.prevSurfaceShapes.length != this.surfaceShapes.length) {
+            // If the number of surface shapes does not match the number of surface shapes already in the texture
+            if (this.surfaceShapes.length != this.asRenderedSurfaceShapeStateKeys.length) {
                 return true;
             }
 
-            // If shapes have been removed since the previous iteration, ...
-            for (idx = 0, len = this.prevSurfaceShapes.length; idx < len; idx += 1) {
-                surfaceShape = this.prevSurfaceShapes[idx];
-
-                if (this.surfaceShapes.indexOf(surfaceShape) < 0) {
-                    return true;
-                }
-            }
-
-            // If shapes added since the previous iteration, ...
+            // If the state key of the shape is different from the saved state key (in order or configuration)
             for (idx = 0, len = this.surfaceShapes.length; idx < len; idx += 1) {
-                surfaceShape = this.surfaceShapes[idx];
-
-                if (this.prevSurfaceShapes.indexOf(surfaceShape) < 0) {
-                    return true;
-                }
-            }
-
-            // If the state key of the shape is different than the saved state key for that shape, ...
-            for (idx = 0, len = this.surfaceShapes.length; idx < len; idx += 1) {
-                surfaceShape = this.surfaceShapes[idx];
-                surfaceShapeStateKey = this.surfaceShapeStateKeys[idx];
-
-                if (surfaceShapeStateKey != surfaceShape.stateKey) {
+                if (this.surfaceShapeStateKeys[idx] !== this.asRenderedSurfaceShapeStateKeys[idx]) {
                     return true;
                 }
             }
@@ -28601,17 +29513,16 @@ define('shapes/SurfaceShapeTile',[
          * @param {DrawContext} dc The draw context.
          * @returns {boolean} True if the surface shape tile has a valid texture, else false.
          */
-        SurfaceShapeTile.prototype.hasTexture = function(dc) {
+        SurfaceShapeTile.prototype.hasTexture = function (dc) {
             if (dc.pickingMode) {
                 return false;
             }
-
-            var gpuResourceCache = dc.gpuResourceCache;
 
             if (!this.gpuCacheKey) {
                 this.gpuCacheKey = this.getCacheKey();
             }
 
+            var gpuResourceCache = dc.gpuResourceCache;
             var texture = gpuResourceCache.resourceForKey(this.gpuCacheKey);
 
             return !!texture;
@@ -28622,14 +29533,13 @@ define('shapes/SurfaceShapeTile',[
          * @param {DrawContext} dc
          * @returns {Texture}
          */
-        SurfaceShapeTile.prototype.updateTexture = function(dc) {
+        SurfaceShapeTile.prototype.updateTexture = function (dc) {
             var gl = dc.currentGlContext,
-                canvas = SurfaceShapeTile.canvas;
+                canvas = SurfaceShapeTile.canvas,
+                ctx2D = SurfaceShapeTile.ctx2D;
 
             canvas.width = this.tileWidth;
             canvas.height = this.tileHeight;
-
-            var ctx2D = SurfaceShapeTile.ctx2D;
 
             // Mapping from lat/lon to x/y:
             //  lon = minlon => x = 0
@@ -28645,19 +29555,20 @@ define('shapes/SurfaceShapeTile',[
                 xOffset = -this.sector.minLongitude * xScale,
                 yOffset = -this.sector.maxLatitude * yScale;
 
+            // Reset the surface shape state keys
+            this.asRenderedSurfaceShapeStateKeys = [];
+
             for (var idx = 0, len = this.surfaceShapes.length; idx < len; idx += 1) {
                 var shape = this.surfaceShapes[idx];
-                this.surfaceShapeStateKeys[idx] = shape.stateKey;
+                this.asRenderedSurfaceShapeStateKeys.push(this.surfaceShapeStateKeys[idx]);
 
                 shape.renderToTexture(dc, ctx2D, xScale, yScale, xOffset, yOffset);
             }
 
-            var texture = new Texture(gl, canvas);
-
-            var gpuResourceCache = dc.gpuResourceCache;
-
             this.gpuCacheKey = this.getCacheKey();
 
+            var gpuResourceCache = dc.gpuResourceCache;
+            var texture = new Texture(gl, canvas);
             gpuResourceCache.putResource(this.gpuCacheKey, texture, texture.size);
 
             return texture;
@@ -28667,11 +29578,11 @@ define('shapes/SurfaceShapeTile',[
          * Get a key suitable for cache look-ups.
          * @returns {string}
          */
-        SurfaceShapeTile.prototype.getCacheKey = function() {
+        SurfaceShapeTile.prototype.getCacheKey = function () {
             if (!this.cacheKey) {
                 this.cacheKey = "SurfaceShapeTile:" +
-                this.tileKey + "," +
-                this.pickSequence.toString();
+                    this.tileKey + "," +
+                    this.pickSequence.toString();
             }
 
             return this.cacheKey;
@@ -28680,7 +29591,7 @@ define('shapes/SurfaceShapeTile',[
         /**
          * Create a new canvas and its 2D context on demand.
          */
-        SurfaceShapeTile.prototype.createCtx2D = function() {
+        SurfaceShapeTile.prototype.createCtx2D = function () {
             // If the context was previously created, ...
             if (!SurfaceShapeTile.ctx2D) {
                 SurfaceShapeTile.canvas = document.createElement("canvas");
@@ -28827,7 +29738,7 @@ define('shapes/SurfaceShapeTileBuilder',[
 
         /**
          * Insert a surface shape to be rendered into the surface shape tile builder.
-         * 
+         *
          * @param {SurfaceShape} surfaceShape A surfave shape to be processed.
          */
         SurfaceShapeTileBuilder.prototype.insertSurfaceShape = function(surfaceShape) {
@@ -28837,7 +29748,7 @@ define('shapes/SurfaceShapeTileBuilder',[
         /**
          * Perform the rendering of any accumulated surface shapes by building the surface shape tiles that contain these
          * shapes and then rendering those tiles.
-         * 
+         *
          * @param {DrawContext} dc The drawing context.
          */
         SurfaceShapeTileBuilder.prototype.doRender = function(dc) {
@@ -28956,7 +29867,7 @@ define('shapes/SurfaceShapeTileBuilder',[
 
         /**
          * Assembles the surface tiles and draws any surface shapes that have been accumulated into those offscreen tiles. The
-         * surface tiles are assembled to meet the necessary resolution of to the draw context's. 
+         * surface tiles are assembled to meet the necessary resolution of to the draw context's.
          * <p/>
          * This does nothing if there are no surface shapes associated with this builder.
          *
@@ -29063,10 +29974,10 @@ define('shapes/SurfaceShapeTileBuilder',[
          *
          * @param {DrawContext} dc              The current DrawContext.
          * @param {LevelSet} levels             The tile's LevelSet.
-         * @param {SurfaceShapeTile} parent     The tile's parent, or null if the tile is a top level tile.
+         * @param {SurfaceShapeTile} parentTile The tile's parent, or null if the tile is a top level tile.
          * @param {SurfaceShapeTile} tile       The tile to add.
          */
-        SurfaceShapeTileBuilder.prototype.addTileOrDescendants = function (dc, levels, parent, tile) {
+        SurfaceShapeTileBuilder.prototype.addTileOrDescendants = function (dc, levels, parentTile, tile) {
             // Ignore this tile if it falls completely outside the frustum. This may be the viewing frustum or the pick
             // frustum, depending on the implementation.
             if (!this.intersectsFrustum(dc, tile)) {
@@ -29077,8 +29988,8 @@ define('shapes/SurfaceShapeTileBuilder',[
             }
 
             // If the parent tile is not null, add any parent surface shapes that intersect this tile.
-            if (parent != null) {
-                this.addIntersectingShapes(dc, parent, tile);
+            if (parentTile != null) {
+                this.addIntersectingShapes(dc, parentTile, tile);
             }
 
             // Ignore tiles that do not intersect any surface shapes.
@@ -29108,51 +30019,31 @@ define('shapes/SurfaceShapeTileBuilder',[
         };
 
         /**
-         * Adds surface shapes from the parent's object list to the specified tile's object list. If the tile's sector
-         * does not intersect the sector bounding the parent's object list, this does nothing. Otherwise, this adds any of
-         * the parent's surface shapes that intersect the tile's sector to the tile's object list.
+         * Adds surface shapes from the parent's object list to the specified tile's object list. Adds any of the
+         * parent's surface shapes that intersect the tile's sector to the tile's object list.
          *
          * @param {DrawContext} dc              The current DrawContext.
-         * @param {SurfaceShapeTile} parent     The tile's parent.
+         * @param {SurfaceShapeTile} parentTile The tile's parent.
          * @param {SurfaceShapeTile} tile       The tile to add intersecting surface shapes to.
          */
-        SurfaceShapeTileBuilder.prototype.addIntersectingShapes = function(dc, parent, tile) {
-            // If the parent has no objects, then there's nothing to add to this tile and we exit immediately.
-            if (!parent.hasShapes())
-                return;
+        SurfaceShapeTileBuilder.prototype.addIntersectingShapes = function (dc, parentTile, tile) {
+            var shapes = parentTile.getShapes();
+            for (var idxShape = 0, lenShapes = shapes.length; idxShape < lenShapes; idxShape += 1) {
+                var shape = shapes[idxShape];
 
-            // If this tile does not intersect the parent's object bounding sector, then none of the parent's objects
-            // intersect this tile. Therefore we exit immediately, and do not add any objects to this tile.
-            if (!tile.sector.intersects(parent.sector))
-                return;
+                var sectors = shape.computeSectors(dc);
+                if (!sectors) {
+                    continue;
+                }
 
-            // If this tile contains the parent's object bounding sector, then all of the parent's objects intersect this
-            // tile. Therefore we just add all of the parent's objects to this tile. Additionally, the parent's object
-            // bounding sector becomes this tile's object bounding sector.
-            if (tile.getSector().contains(parent.sector)) {
-                tile.addAllSurfaceShapes(parent.getShapes());
-            }
-            // Otherwise, the tile may intersect some of the parent's object list. Compute which objects intersect this
-            // tile, and compute this tile's bounding sector as the union of those object's sectors.
-            else {
-                var shapes = parent.getShapes();
-                for (var idxShape = 0, lenShapes = shapes.length; idxShape < lenShapes; idxShape += 1) {
-                    var shape = shapes[idxShape];
+                // Test intersection against each of the surface shape's sectors. We break after finding an
+                // intersection to avoid adding the same object to the tile more than once.
+                for (var idxSector = 0, lenSectors = sectors.length; idxSector < lenSectors; idxSector += 1) {
+                    var sector = sectors[idxSector];
 
-                    var sectors = shape.computeSectors(dc);
-                    if (!sectors) {
-                        continue;
-                    }
-
-                    // Test intersection against each of the surface shape's sectors. We break after finding an
-                    // intersection to avoid adding the same object to the tile more than once.
-                    for (var idxSector = 0, lenSectors = sectors.length; idxSector < lenSectors; idxSector += 1) {
-                        var sector = sectors[idxSector];
-
-                        if (tile.getSector().intersects(sector)) {
-                            tile.addSurfaceShape(shape);
-                            break;
-                        }
+                    if (tile.getSector().intersects(sector)) {
+                        tile.addSurfaceShape(shape);
+                        break;
                     }
                 }
             }
@@ -32175,11 +33066,16 @@ define('shapes/AbstractMesh',[
                             currentData.refreshTexCoordBuffer = false;
                         }
 
-                        program.loadTextureEnabled(gl, true);
                         gl.enableVertexAttribArray(program.vertexTexCoordLocation);
                         gl.vertexAttribPointer(program.vertexTexCoordLocation, 2, gl.FLOAT,
                             false, 0, 0);
+
+                        this.scratchMatrix.setToIdentity();
+                        this.scratchMatrix.multiplyByTextureTransform(this.activeTexture);
+
+                        program.loadTextureEnabled(gl, true);
                         program.loadTextureUnit(gl, gl.TEXTURE0);
+                        program.loadTextureMatrix(gl, this.scratchMatrix);
                         program.loadModulateColor(gl, dc.pickingMode);
                     }
                 }
@@ -32393,79 +33289,56 @@ define('shapes/SurfacePolygon',[
          * @throws {ArgumentError} If the specified boundaries are null or undefined.
          */
         var SurfacePolygon = function (boundaries, attributes) {
-            if (!boundaries) {
+            if (!Array.isArray(boundaries)) {
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "SurfacePolygon", "constructor",
-                        "The specified boundary array is null or undefined."));
+                        "The specified boundary is not an array."));
             }
 
             SurfaceShape.call(this, attributes);
 
-            // Convert the boundaries to the form SurfaceShape wants them.
-            // TODO: Eliminate this once the SurfaceShape code is rewritten to handle multiple boundaries in the
-            // form they were specified.
-            var newBoundaries = null;
+            this._boundaries = boundaries;
 
-            // Determine whether we've been passed a boundary or a boundary list.
-            if (boundaries.length > 0 && boundaries[0].latitude !== undefined) {
-                newBoundaries = boundaries.slice(0);
-                newBoundaries.push(boundaries[0]);
-                this._boundariesSpecifiedSimply = true;
-            } else if (boundaries.length > 1) {
-                var lastLocation = null;
-
-                newBoundaries = [];
-
-                for (var b = 0; b < boundaries.length; b++) {
-                    var firstLocation = boundaries[b][0];
-
-                    for (var i = 0; i < boundaries[b].length; i++) {
-                        newBoundaries.push(boundaries[b][i]);
-                    }
-
-                    newBoundaries.push(firstLocation);
-
-                    // Close the polygon for secondary parts by returning back to the first point
-                    // (which coincides with the last point of the first part in a well-formed shapefile).
-                    if (!!lastLocation) {
-                        newBoundaries.push(lastLocation);
-                    }
-                    else {
-                        lastLocation = newBoundaries[newBoundaries.length - 1];
-                    }
-                }
-            } else if (boundaries.length === 1) {
-                newBoundaries = boundaries[0].slice(0);
-                newBoundaries.push(boundaries[0][0]);
-            }
-
-            this._boundaries = newBoundaries;
+            this._stateId = SurfacePolygon.stateId++;
         };
 
         SurfacePolygon.prototype = Object.create(SurfaceShape.prototype);
 
         Object.defineProperties(SurfacePolygon.prototype, {
-            ///**
-            // * This polygon's boundaries. A two-dimensional array containing the polygon boundaries. Each entry of the
-            // * array specifies the vertices for one boundary of the polygon. If the boundaries were specified to the
-            // * constructor as a simple array of locations, then this property returns them in that form.
-            // * @type {Position[][] | Position[]}
-            // * @memberof SurfacePolygon.prototype
-            // * @readonly
-            // */
-            //boundaries: {
-            //    // TODO: Make this property read/write once the boundaries are interpolated correctly.
-            //    get: function () {
-            //        return this._boundariesSpecifiedSimply ? this._boundaries[0] : this._boundaries;
-            //    }
-            //}
+            /**
+             * This polygon's boundaries. The polygons boundary locations. If this argument is an array of
+             * [Locations]{@link Location} they define this polygon's outer boundary. If it is an array of arrays of
+             * Locations then each array entry defines one of this polygon's boundaries.
+             * @type {Location[][] | Location[]}
+             * @memberof SurfacePolygon.prototype
+             */
+            boundaries: {
+                get: function () {
+                    return this._boundaries;
+                },
+                set: function (boundaries) {
+                    if (!Array.isArray(boundaries)) {
+                        throw new ArgumentError(
+                            Logger.logMessage(Logger.LEVEL_SEVERE, "SurfacePolygon", "set boundaries",
+                                "The specified value is not an array."));
+                    }
+                    this._boundaries = boundaries;
+                    this._stateId = SurfacePolygon.stateId++;
+                    this.isPrepared = false;
+                    this.stateKeyInvalid = true;
+                }
+            }
         });
+
+        // Internal use only. Intentionally not documented.
+        SurfacePolygon.stateId = Number.MIN_SAFE_INTEGER;
 
         // Internal use only. Intentionally not documented.
         SurfacePolygon.staticStateKey = function (shape) {
             var shapeStateKey = SurfaceShape.staticStateKey(shape);
 
-            return shapeStateKey;
+            return shapeStateKey +
+                " pg " + shape._stateId;
         };
 
         // Internal use only. Intentionally not documented.
@@ -33055,9 +33928,13 @@ define('formats/geojson/GeoJSONConstants',[],
 /**
  * @exports GeoJSONGeometry
  */
-define('formats/geojson/GeoJSONGeometry',['./GeoJSONConstants'
+define('formats/geojson/GeoJSONGeometry',['../../error/ArgumentError',
+        './GeoJSONConstants',
+        '../../util/Logger'
     ],
-    function (GeoJSONConstants) {
+    function (ArgumentError,
+              GeoJSONConstants,
+              Logger) {
         "use strict";
 
         /**
@@ -33093,7 +33970,7 @@ define('formats/geojson/GeoJSONGeometry',['./GeoJSONConstants'
             this._coordinates = coordinates;
 
             // Documented in defineProperties below.
-            this._type =  type;
+            this._type = type;
 
             // Documented in defineProperties below.
             this._bbox = bbox ? bbox : null;
@@ -46220,7 +47097,7 @@ define('shapes/Polygon',[
                 }
             }
 
-            this.currentData.eyeDistance = Math.sqrt(eyeDistSquared);
+            this.currentData.eyeDistance = 0;/*DO NOT COMMITMath.sqrt(eyeDistSquared);*/
 
             return boundaryPoints;
         };
@@ -46403,10 +47280,15 @@ define('shapes/Polygon',[
 
                 textureBound = this.activeTexture && this.activeTexture.bind(dc);
                 if (textureBound) {
-                    program.loadTextureEnabled(gl, true);
                     gl.enableVertexAttribArray(program.vertexTexCoordLocation);
                     gl.vertexAttribPointer(program.vertexTexCoordLocation, 2, gl.FLOAT, false, stride, 12);
+
+                    this.scratchMatrix.setToIdentity();
+                    this.scratchMatrix.multiplyByTextureTransform(this.activeTexture);
+
+                    program.loadTextureEnabled(gl, true);
                     program.loadTextureUnit(gl, gl.TEXTURE0);
+                    program.loadTextureMatrix(gl, this.scratchMatrix);
                     program.loadModulateColor(gl, dc.pickingMode);
                 }
             }
@@ -46514,11 +47396,16 @@ define('shapes/Polygon',[
 
                     textureBound = sideTexture && sideTexture.bind(dc);
                     if (textureBound) {
-                        program.loadTextureEnabled(gl, true);
-                        program.loadTextureUnit(gl, gl.TEXTURE0);
                         gl.enableVertexAttribArray(program.vertexTexCoordLocation);
                         gl.vertexAttribPointer(program.vertexTexCoordLocation, 2, gl.FLOAT, false, numBytesPerVertex,
                             coordByteOffset + 12);
+
+                        this.scratchMatrix.setToIdentity();
+                        this.scratchMatrix.multiplyByTextureTransform(this.activeTexture);
+
+                        program.loadTextureEnabled(gl, true);
+                        program.loadTextureUnit(gl, gl.TEXTURE0);
+                        program.loadTextureMatrix(gl, this.scratchMatrix);
                     } else {
                         program.loadTextureEnabled(gl, false);
                         gl.disableVertexAttribArray(program.vertexTexCoordLocation);
@@ -46801,17 +47688,47 @@ define('shapes/SurfacePolyline',[
              */
             this._boundaries = locations;
 
+            this._stateId = SurfacePolyline.stateId++;
+
             // Internal use only.
             this._isInteriorInhibited = true;
         };
 
         SurfacePolyline.prototype = Object.create(SurfaceShape.prototype);
 
+        Object.defineProperties(SurfacePolyline.prototype, {
+            /**
+             * This polyline's boundaries. The polylines locations.
+             * @type {Location[]}
+             * @memberof SurfacePolyline.prototype
+             */
+            boundaries: {
+                get: function () {
+                    return this._boundaries;
+                },
+                set: function (boundaries) {
+                    if (!Array.isArray(boundaries)) {
+                        throw new ArgumentError(
+                            Logger.logMessage(Logger.LEVEL_SEVERE, "SurfacePolyline", "set boundaries",
+                                "The specified value is not an array."));
+                    }
+                    this._boundaries = boundaries;
+                    this._stateId = SurfacePolyline.stateId++;
+                    this.isPrepared = false;
+                    this.stateKeyInvalid = true;
+                }
+            }
+        });
+
+        // Internal use only. Intentionally not documented.
+        SurfacePolyline.stateId = Number.MIN_SAFE_INTEGER;
+
         // Internal use only. Intentionally not documented.
         SurfacePolyline.staticStateKey = function(shape) {
             var shapeStateKey = SurfaceShape.staticStateKey(shape);
 
-            return shapeStateKey;
+            return shapeStateKey +
+                " pl " + shape._stateId;
         };
 
         // Internal use only. Intentionally not documented.
@@ -63927,11 +64844,12 @@ define('formats/kml/util/StyleResolver',[
 
     // Intentionally undocumented. For internal use only
     StyleResolver.prototype.handleStyleUrl = function (styleUrl, resolve, reject, filePromise) {
+        var self = this;
         filePromise = this.handlePromiseOfFile(styleUrl, filePromise);
         filePromise.then(function (kmlFile) {
             kmlFile.resolveStyle(styleUrl).then(function (style) {
                 if (style.isMap) {
-                    style.resolve(resolve, reject);
+                    style.resolve(resolve, self);
                 } else {
                     resolve({normal: style, highlight: null});
                 }
@@ -63955,7 +64873,7 @@ define('formats/kml/util/StyleResolver',[
     // Intentionally undocumented. For internal use only
     StyleResolver.prototype.handleStyleSelector = function (styleSelector, resolve, reject) {
         if (styleSelector.isMap) {
-            styleSelector.resolve(resolve, reject);
+            styleSelector.resolve(resolve, this);
         } else {
             // Move this resolve to the end of the stack to prevent recursion.
             window.setTimeout(function () {
@@ -64055,11 +64973,11 @@ define('formats/kml/util/Pair',[
     /**
      * @inheritDoc
      */
-    Pair.prototype.getStyle = function() {
+    Pair.prototype.getStyle = function(styleResolver) {
         var self = this;
         return new Promise(function (resolve, reject) {
             window.setTimeout(function(){
-                StyleResolver.handleRemoteStyle(self.kmlStyleUrl, self.kmlStyleSelector, resolve, reject);
+                styleResolver.handleRemoteStyle(self.kmlStyleUrl, self.kmlStyleSelector, resolve, reject);
             },0);
         });
     };
@@ -64129,7 +65047,7 @@ define('formats/kml/styles/KmlStyleMap',[
      * Resolve the information from style map and create the options with normal and highlight.
      * @param resolve Callback to be called when all promises are resolved with correct style.
      */
-    KmlStyleMap.prototype.resolve = function(resolve) {
+    KmlStyleMap.prototype.resolve = function(resolve, styleResolver) {
         // Create promise which resolves, when all styles are resolved.
         var self = this;
         var results = {};
@@ -64137,7 +65055,7 @@ define('formats/kml/styles/KmlStyleMap',[
         var pairs = self.kmlPairs;
         pairs.forEach(function(pair) {
             var key = pair.kmlKey;
-            var style = pair.getStyle();
+            var style = pair.getStyle(styleResolver);
             promises.push(style);
             style.then(function(pStyle){
                 results[key] = pStyle.normal;
@@ -64430,7 +65348,12 @@ define('formats/kml/util/RemoteFile',[
             xhr.onreadystatechange = (function () {
                 if (xhr.readyState === 4) {
                     if (xhr.status === 200) {
-                        var text = this.responseText;
+                        var text;
+                        if(options.responseType == 'arraybuffer') {
+                            text = this.response;
+                        } else {
+                            text = this.responseText;
+                        }
                         resolve({text: text, headers: xhr.getAllResponseHeaders()});
                     }
                     else {
@@ -64593,19 +65516,20 @@ define('formats/kml/KmlFile',[
         filePromise = new Promise(function (resolve) {
             var promise = self.requestRemote(url);
             promise.then(function (options) {
-                var rootDocument;
+                var rootDocument = null;
                 var loadedDocument = options.text;
                 self._headers = options.headers;
-                if (url.indexOf('.kmz') == -1) {
+                if (!self.hasExtension("kmz", url)) {
                     rootDocument = loadedDocument;
                 } else {
                     var kmzFile = new JsZip();
                     kmzFile.load(loadedDocument);
-                    kmzFile.files.forEach(function (file) {
-                        if (file.endsWith(".kml") && rootDocument == null) {
+                    for(var key in kmzFile.files) {
+                        var file = kmzFile.files[key];
+                        if (rootDocument == null && self.hasExtension("kml", file.name)) {
                             rootDocument = file.asText();
                         }
-                    });
+                    }
                 }
 
                 self._document = new XmlDocument(rootDocument).dom();
@@ -64659,6 +65583,20 @@ define('formats/kml/KmlFile',[
 
     /**
      * FOR INTERNAL USE ONLY.
+     * Returns a value indicating whether the URL ends with the given extension.
+     * @param url {String} Url to a file
+     * @returns {boolean} true if the extension matches otherwise false
+     */
+    KmlFile.prototype.hasExtension = function (extension, url) {
+        if (url.endsWith) {
+            return url.endsWith("." + extension);
+        } else {
+            return url.lastIndexOf("." + extension) == (url.length - extension.length - 1);
+        }
+    };
+
+    /**
+     * FOR INTERNAL USE ONLY.
      * Based on the information from the URL, return correct Remote object.
      * @param url {String} Url of the document to retrieve.
      * @returns {Promise} Promise of Remote.
@@ -64666,7 +65604,7 @@ define('formats/kml/KmlFile',[
     KmlFile.prototype.requestRemote = function (url) {
         var options = {};
         options.url = url;
-        if ((url.endsWith && url.endsWith(".kmz")) || (url.indexOf(".kmz") != -1)) {
+        if (this.hasExtension("kmz", url)) {
             options.zip = true;
         } else {
             options.ajax = true;
@@ -64695,9 +65633,9 @@ define('formats/kml/KmlFile',[
             }
 
             if (style.nodeName == KmlStyle.prototype.getTagNames()[0]) {
-                resolve(new KmlStyle({objectNode: style}));
+                resolve(new KmlStyle({objectNode: style}, {styleResolver: self._styleResolver}));
             } else if (style.nodeName == KmlStyleMap.prototype.getTagNames()[0]) {
-                resolve(new KmlStyleMap({objectNode: style}));
+                resolve(new KmlStyleMap({objectNode: style}, {styleResolver: self._styleResolver}));
             } else {
                 Logger.logMessage(Logger.LEVEL_WARNING, "KmlFile", "resolveStyle", "Style must contain either" +
                     " Style node or StyleMap node.");
@@ -66801,6 +67739,9 @@ define('formats/kml/geom/KmlLineString',[
      */
     KmlLineString.prototype.createPath = function (styles) {
         this._renderable = new Path(this.prepareLocations(), this.prepareAttributes(styles.normal));
+        if(styles.highlight) {
+            this._renderable.highlightAttributes = this.prepareAttributes(styles.highlight);
+        }
         this.moveValidProperties();
     };
 
@@ -67952,6 +68893,9 @@ define('formats/kml/features/KmlPlacemark',[
                     false,
                     this.prepareAttributes(kmlOptions.lastStyle.normal)
                 );
+                if(kmlOptions.lastStyle.highlight) {
+                    this._renderable.highlightAttributes = this.prepareAttributes(kmlOptions.lastStyle.highlight);
+                }
                 this.moveValidProperties();
                 dc.redrawRequested = true;
             }
@@ -68142,6 +69086,9 @@ define('formats/kml/geom/KmlPolygon',[
      */
     KmlPolygon.prototype.createPolygon = function(styles) {
         this._renderable = new Polygon(this.prepareLocations(), this.prepareAttributes(styles.normal));
+        if(styles.highlight) {
+            this._renderable.highlightAttributes = this.prepareAttributes(styles.highlight);
+        }
         this.moveValidProperties();
     };
 
@@ -68669,6 +69616,221 @@ define('layer/LandsatRestLayer',[
         LandsatRestLayer.prototype = Object.create(TiledImageLayer.prototype);
 
         return LandsatRestLayer;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports LengthMeasurer
+ */
+
+define('util/measure/LengthMeasurer',[
+        '../../error/ArgumentError',
+        '../../geom/Location',
+        '../Logger',
+        './MeasurerUtils',
+        '../../geom/Position',
+        '../../geom/Vec3'
+    ],
+    function (ArgumentError,
+              Location,
+              Logger,
+              MeasurerUtils,
+              Position,
+              Vec3) {
+
+        /**
+         * Utility class to measure length along a path on a globe. <p/> <p>Segments which are longer then the current
+         * maxSegmentLength will be subdivided along lines following the current pathType - WorldWind.LINEAR,
+         * WorldWind.RHUMB_LINE or WorldWind.GREAT_CIRCLE.</p> <p/> <p>For follow terrain, the computed length will
+         * account for terrain deformations as if someone was walking along that path. Otherwise the length is the sum
+         * of the cartesian distance between the positions.</p>
+         * <p/>
+         * <p>When following terrain the measurer will sample terrain elevations at regular intervals along the path.
+         * The minimum number of samples used for the whole length can be set with lengthTerrainSamplingSteps.
+         * However, the minimum sampling interval is 30 meters.
+         * @alias LengthMeasurer
+         * @constructor
+         * @param {WorldWindow} wwd The World Window associated with LengthMeasurer.
+         * @throws {ArgumentError} If the specified world window is null or undefined.
+         */
+        var LengthMeasurer = function (wwd) {
+
+            if (!wwd) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "LengthMeasurer", "constructor", "missingWorldWindow"));
+            }
+
+            this.wwd = wwd;
+
+            // Private. The minimum length of a terrain following subdivision.
+            this.DEFAULT_MIN_SEGMENT_LENGTH = 30;
+
+            // Private. Documentation is with the defined property below.
+            this._maxSegmentLength = 100e3;
+
+            // Private. Documentation is with the defined property below.
+            this._lengthTerrainSamplingSteps = 128;
+
+            // Private. A list of positions with no segment longer then maxLength and elevations following terrain or not.
+            this.subdividedPositions = null;
+        };
+
+        Object.defineProperties(LengthMeasurer.prototype, {
+            /**
+             * The maximum length a segment can have before being subdivided along a line following the current pathType.
+             * @type {Number}
+             * @memberof LengthMeasurer.prototype
+             */
+            maxSegmentLength: {
+                get: function () {
+                    return this._maxSegmentLength;
+                },
+                set: function (value) {
+                    this._maxSegmentLength = value;
+                }
+            },
+
+            /**
+             * The number of terrain elevation samples used along the path to approximate it's terrain following length.
+             * @type {Number}
+             * @memberof LengthMeasurer.prototype
+             */
+            lengthTerrainSamplingSteps: {
+                get: function () {
+                    return this._lengthTerrainSamplingSteps;
+                },
+                set: function (value) {
+                    this._lengthTerrainSamplingSteps = value;
+                }
+            }
+        });
+
+        /**
+         * Get the path length in meter. <p/> <p>If followTerrain is true, the computed length will account
+         * for terrain deformations as if someone was walking along that path. Otherwise the length is the sum of the
+         * cartesian distance between each positions.</p>
+         *
+         * @param {Position[]} positions
+         * @param {Boolean} followTerrain
+         * @param {String} pathType One of WorldWind.LINEAR, WorldWind.RHUMB_LINE or WorldWind.GREAT_CIRCLE
+         *
+         * @return the current path length or -1 if the position list is too short.
+         */
+        LengthMeasurer.prototype.getLength = function (positions, followTerrain, pathType) {
+            pathType = pathType || WorldWind.GREAT_CIRCLE;
+            this.subdividedPositions = null;
+            return this.computeLength(positions, followTerrain, pathType);
+        };
+
+        /**
+         * Get the path length in meter of a Path. <p/> <p>If the path's followTerrain is true, the computed length
+         * will account for terrain deformations as if someone was walking along that path. Otherwise the length is the
+         * sum of the cartesian distance between each positions.</p>
+         *
+         * @param {Path} path
+         *
+         * @return the current path length or -1 if the position list is too short.
+         */
+        LengthMeasurer.prototype.getPathLength = function (path) {
+            this.subdividedPositions = null;
+            return this.computeLength(path.positions, path.followTerrain, path.pathType);
+        };
+
+        /**
+         * Get the great circle, rhumb or linear distance, in meter, of a Path or an array of Positions.
+         *
+         * @param {Path|Position[]} path A Path or an array of Positions
+         * @param {String} pathType Optional argument used when path is an array of Positions.
+         * Defaults to WorldWind.GREAT_CIRCLE.
+         * Recognized values are:
+         * <ul>
+         * <li>[WorldWind.GREAT_CIRCLE]{@link WorldWind#GREAT_CIRCLE}</li>
+         * <li>[WorldWind.RHUMB_LINE]{@link WorldWind#RHUMB_LINE}</li>
+         * <li>[WorldWind.LINEAR]{@link WorldWind#LINEAR}</li>
+         * </ul>
+         *
+         * @return {Number} the current path length or -1 if the position list is too short.
+         */
+        LengthMeasurer.prototype.getGeographicDistance = function (path, pathType) {
+            if (path instanceof WorldWind.Path) {
+                var positions = path.positions;
+                var _pathType = path.pathType;
+            }
+            else if (Array.isArray(path)) {
+                positions = path;
+                _pathType = pathType || WorldWind.GREAT_CIRCLE;
+            }
+
+            if (!positions || positions.length < 2) {
+                return -1;
+            }
+
+            var fn = Location.greatCircleDistance;
+            if (_pathType === WorldWind.RHUMB_LINE) {
+                fn = Location.rhumbDistance;
+            }
+            else if (_pathType === WorldWind.LINEAR) {
+                fn = Location.linearDistance;
+            }
+
+            var distance = 0;
+            for (var i = 0, len = positions.length - 1; i < len; i++) {
+                var pos1 = positions[i];
+                var pos2 = positions[i + 1];
+                distance += fn(pos1, pos2);
+            }
+
+            return distance * this.wwd.globe.equatorialRadius;
+        };
+
+        /**
+         * Computes the length.
+         * @param {Position[]} positions
+         * @param {Boolean} followTerrain
+         * @param {String} pathType One of WorldWind.LINEAR, WorldWind.RHUMB_LINE or WorldWind.GREAT_CIRCLE
+         */
+        LengthMeasurer.prototype.computeLength = function (positions, followTerrain, pathType) {
+            if (!positions || positions.length < 2) {
+                return -1;
+            }
+
+            var globe = this.wwd.globe;
+
+            if (this.subdividedPositions == null) {
+                // Subdivide path so as to have at least segments smaller then maxSegmentLength. If follow terrain,
+                // subdivide so as to have at least lengthTerrainSamplingSteps segments, but no segments shorter then
+                // DEFAULT_MIN_SEGMENT_LENGTH either.
+                var maxLength = this._maxSegmentLength;
+                if (followTerrain) {
+                    // Recurse to compute overall path length not following terrain
+                    var pathLength = this.computeLength(positions, false, pathType);
+                    // Determine segment length to have enough sampling points
+                    maxLength = pathLength / this._lengthTerrainSamplingSteps;
+                    maxLength = Math.min(Math.max(maxLength, this.DEFAULT_MIN_SEGMENT_LENGTH), this._maxSegmentLength);
+                }
+                this.subdividedPositions = MeasurerUtils.subdividePositions(globe, positions, followTerrain, pathType,
+                    maxLength);
+            }
+
+            var distance = 0;
+            var pos0 = this.subdividedPositions[0];
+            var p1 = new Vec3(0, 0, 0);
+            var p2 = new Vec3(0, 0, 0);
+            p1 = globe.computePointFromPosition(pos0.latitude, pos0.longitude, pos0.altitude, p1);
+            for (var i = 1, len = this.subdividedPositions.length; i < len; i++) {
+                var pos = this.subdividedPositions[i];
+                p2 = globe.computePointFromPosition(pos.latitude, pos.longitude, pos.altitude, p2);
+                distance += p1.distanceTo(p2);
+                p1.copy(p2);
+            }
+
+            return distance;
+        };
+
+        return LengthMeasurer;
+
     });
 /*
  * Copyright (C) 2014 United States Government as represented by the Administrator of the
@@ -76774,9 +77936,9 @@ define('util/WcsTileUrlBuilder',[
 /**
  * @exports OwsLanguageString
  */
-define('ogc/OwsLanguageString',[
-        '../error/ArgumentError',
-        '../util/Logger'
+define('ogc/wmts/OwsLanguageString',[
+        '../../error/ArgumentError',
+        '../../util/Logger'
     ],
     function (ArgumentError,
               Logger) {
@@ -76799,7 +77961,18 @@ define('ogc/OwsLanguageString',[
                     Logger.logMessage(Logger.LEVEL_SEVERE, "LanguageString", "constructor", "missingDomElement"));
             }
 
+            /**
+             * The text content of the element.
+             * @type {string}
+             */
             this.value = element.textContent;
+
+            /**
+             * Identifier of a language used by the data(set) contents. This language identifier shall be as specified
+             * in IETF RFC 4646. When this element is omitted, the language used is not identified.
+             * @type {string}
+             */
+            this.lang;
 
             var lang = element.getAttribute("lang");
             if (lang) {
@@ -76816,9 +77989,9 @@ define('ogc/OwsLanguageString',[
 /**
  * @exports OwsConstraint
  */
-define('ogc/OwsConstraint',[
-        '../error/ArgumentError',
-        '../util/Logger'
+define('ogc/wmts/OwsConstraint',[
+        '../../error/ArgumentError',
+        '../../util/Logger'
     ],
     function (ArgumentError,
               Logger) {
@@ -76874,10 +78047,10 @@ define('ogc/OwsConstraint',[
 /**
  * @exports OwsOperationsMetadata
  */
-define('ogc/OwsOperationsMetadata',[
-        '../error/ArgumentError',
-        '../util/Logger',
-        '../ogc/OwsConstraint'
+define('ogc/wmts/OwsOperationsMetadata',[
+        '../../error/ArgumentError',
+        '../../util/Logger',
+        '../../ogc/wmts/OwsConstraint'
     ],
     function (ArgumentError,
               Logger,
@@ -76913,6 +78086,42 @@ define('ogc/OwsOperationsMetadata',[
             }
         };
 
+        /**
+         * Attempts to find the first OwsOperationsMetadata object named GetCapabilities.
+         * @returns {OwsOperationsMetadata} if a matching OwsOperationsMetadata object is found, otherwise null.
+         */
+        OwsOperationsMetadata.prototype.getGetCapabilities = function () {
+            return this.getOperationMetadataByName("GetCapabilities");
+        };
+
+        /**
+         * Attempts to find the first OwsOperationsMetadata object named GetTile.
+         * @returns {OwsOperationsMetadata} if a matching OwsOperationsMetadata object is found, otherwise null.
+         */
+        OwsOperationsMetadata.prototype.getGetTile = function () {
+            return this.getOperationMetadataByName("GetTile");
+        };
+
+        /**
+         * Searches for the OWS Operations Metadata objects for the operation with a name matching the  provided name.
+         * Returns the first successful match.
+         * @returns {OwsOperationsMetadata} of a matching name or null if none was found
+         */
+        OwsOperationsMetadata.prototype.getOperationMetadataByName = function (name) {
+            if (!name) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "OwsOperationsMetadata", "getOperationsMetadataByName", "missingName"));
+            }
+
+            for (var i = 0; i < this.operation.length; i++) {
+                if (this.operation[i].name === name) {
+                    return this.operation[i];
+                }
+            }
+
+            return null;
+        };
+
         OwsOperationsMetadata.assembleOperation = function (element) {
             var operation = {};
 
@@ -76940,35 +78149,28 @@ define('ogc/OwsOperationsMetadata',[
                 var child = children[c];
 
                 if (child.localName === "HTTP") {
-                    dcp.http = OwsOperationsMetadata.assembleHttp(child);
+                    var httpMethods = child.children || child.childNodes;
+                    for (var c2 = 0; c2 < httpMethods.length; c2++) {
+                        var httpMethod = httpMethods[c2];
+
+                        if (httpMethod.localName === "Get") {
+                            dcp.getMethods = dcp.getMethods || [];
+                            dcp.getMethods.push(OwsOperationsMetadata.assembleMethod(httpMethod));
+                        } else if (httpMethod.localName === "Post") {
+                            dcp.postMethods = dcp.postMethods || [];
+                            dcp.postMethods.push(OwsOperationsMetadata.assembleMethod(httpMethod));
+                        }
+                    }
                 }
             }
 
             return dcp;
         };
 
-        OwsOperationsMetadata.assembleHttp = function (element) {
+        OwsOperationsMetadata.assembleMethod = function (element) {
             var result = {};
 
-            var children = element.children;
-            for (var c = 0; c < children.length; c++) {
-                var child = children[c];
-
-                if (child.localName === "Get") {
-                    result.get = result.get || [];
-                    result.get.push(OwsOperationsMetadata.assembleGet(child));
-                }
-
-                // TODO: Post
-            }
-
-            return result;
-        };
-
-        OwsOperationsMetadata.assembleGet = function (element) {
-            var result = {};
-
-            result.href = element.getAttribute("xlink:href");
+            result.url = element.getAttribute("xlink:href");
 
             var children = element.children;
             for (var c = 0; c < children.length; c++) {
@@ -76986,18 +78188,80 @@ define('ogc/OwsOperationsMetadata',[
         return OwsOperationsMetadata;
     });
 /*
+ * Copyright (C) 2017 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports OwsDescription
+ */
+define('ogc/wmts/OwsDescription',[
+        '../../error/ArgumentError',
+        '../../util/Logger',
+        '../../ogc/wmts/OwsLanguageString'
+    ],
+
+    function (ArgumentError,
+              Logger,
+              OwsLanguageString) {
+        "use strict";
+
+        /**
+         * Constructs an OWS Description instance from an XML DOM.
+         * @alias OwsDescription
+         * @constructor
+         * @classdesc Represents an OWS Description element of an OGC document.
+         * This object holds as properties all the fields specified in the OWS Description definition.
+         * Fields can be accessed as properties named according to their document names converted to camel case.
+         * For example, "value".
+         * @param {Element} element An XML DOM element representing the OWS Description element.
+         * @throws {ArgumentError} If the specified XML DOM element is null or undefined.
+         */
+        var OwsDescription = function (element) {
+            if (!element) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "OwsDescription", "assembleDescriptions", "missingDomElement"));
+            }
+
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+
+                if (child.localName === "Title") {
+                    this.titles = this.titles || [];
+                    this.titles.push(new OwsLanguageString(child));
+                } else if (child.localName === "Abstract") {
+                    this.abstracts = this.abstracts || [];
+                    this.abstracts.push(new OwsLanguageString(child));
+                } else if (child.localName === "Keywords") {
+                    this.keywords = this.keywords || [];
+                    var keywords = child.children || child.childNodes;
+                    for (var i = 0; i < keywords.length; i++) {
+                        var keyword = keywords[i];
+                        this.keywords.push(new OwsLanguageString(keyword));
+                    }
+                }
+            }
+
+        };
+
+        return OwsDescription;
+    }
+);
+/*
  * Copyright (C) 2015 United States Government as represented by the Administrator of the
  * National Aeronautics and Space Administration. All Rights Reserved.
  */
 /**
  * @exports OwsServiceIdentification
  */
-define('ogc/OwsServiceIdentification',[
-        '../error/ArgumentError',
-        '../util/Logger'
+define('ogc/wmts/OwsServiceIdentification',[
+        '../../error/ArgumentError',
+        '../../util/Logger',
+        '../../ogc/wmts/OwsDescription'
     ],
     function (ArgumentError,
-              Logger) {
+              Logger,
+              OwsDescription) {
         "use strict";
 
         /**
@@ -77018,6 +78282,8 @@ define('ogc/OwsServiceIdentification',[
                     Logger.logMessage(Logger.LEVEL_SEVERE, "OwsServiceIdentification", "constructor", "missingDomElement"));
             }
 
+            OwsDescription.call(this, element);
+
             var children = element.children;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
@@ -77025,25 +78291,21 @@ define('ogc/OwsServiceIdentification',[
                 if (child.localName === "ServiceType") {
                     this.serviceType = child.textContent;
                 } else if (child.localName === "ServiceTypeVersion") {
-                    this.serviceTypeVersion = child.textContent;
+                    this.serviceTypeVersions = this.serviceTypeVersions || [];
+                    this.serviceTypeVersions.push(child.textContent);
                 } else if (child.localName === "Profile") {
                     this.profile = this.profiles || [];
                     this.profile.push(child.textContent);
-                } else if (child.localName === "Title") {
-                    this.title = this.title|| [];
-                    this.title.push(child.textContent);
-                } else if (child.localName === "Abstract") {
-                    this.abstract = this.title|| [];
-                    this.abstract.push(child.textContent);
                 } else if (child.localName === "Fees") {
                     this.fees = child.textContent;
                 } else if (child.localName === "AccessConstraints") {
                     this.accessConstraints = this.accessConstraints || [];
                     this.accessConstraints.push(child.textContent);
                 }
-                // TODO: Keywords
             }
         };
+
+        OwsServiceIdentification.prototype = Object.create(OwsDescription.prototype);
 
         return OwsServiceIdentification;
     });
@@ -77054,9 +78316,9 @@ define('ogc/OwsServiceIdentification',[
 /**
  * @exports OwsServiceProvider
  */
-define('ogc/OwsServiceProvider',[
-        '../error/ArgumentError',
-        '../util/Logger'
+define('ogc/wmts/OwsServiceProvider',[
+        '../../error/ArgumentError',
+        '../../util/Logger'
     ],
     function (ArgumentError,
               Logger) {
@@ -77079,18 +78341,125 @@ define('ogc/OwsServiceProvider',[
                     Logger.logMessage(Logger.LEVEL_SEVERE, "OwsServiceProvider", "constructor", "missingDomElement"));
             }
 
-            var children = element.children;
+            var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
                 var child = children[c];
 
                 if (child.localName === "ProviderName") {
                     this.providerName = child.textContent;
                 } else if (child.localName === "ProviderSite") {
-                    this.providerSite = child.getAttribute("xlink:href");
+                    this.providerSiteUrl = child.getAttribute("xlink:href");
+                } else if (child.localName === "ServiceContact") {
+                    this.serviceContact = OwsServiceProvider.assembleServiceContact(child);
                 }
-                // TODO: Service Contact
             }
         };
+
+        OwsServiceProvider.assembleServiceContact = function (element) {
+            if (!element) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "OwsServiceProvider", "assembleServiceContact", "missingDomElement"));
+            }
+
+            var result = {};
+
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+
+                if (child.localName === "IndividualName") {
+                    result.individualName = child.textContent;
+                } else if (child.localName === "PositionName") {
+                    result.positionName = child.textContent;
+                } else if (child.localName === "ContactInfo") {
+                    result.contactInfo = OwsServiceProvider.assembleContacts(child);
+                }
+            }
+
+            return result;
+        }
+
+        OwsServiceProvider.assembleContacts = function (element) {
+            if (!element) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "OwsServiceProvider", "assembleContacts", "missingDomElement"));
+            }
+
+            var result = {};
+
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+
+                if (child.localName === "HoursOfService") {
+                    result.hoursOfService = child.textContent;
+                } else if (child.localName === "ContactInstructions") {
+                    result.contactInstructions = child.textContent;
+                } else if (child.localName === "Phone") {
+                    result.phone = OwsServiceProvider.assemblePhone(child);
+                } else if (child.localName === "Address") {
+                    result.address = OwsServiceProvider.assembleAddress(child);
+                }
+            }
+
+            return result;
+        }
+
+        OwsServiceProvider.assemblePhone = function (element) {
+            if (!element) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "OwsServiceProvider", "assemblePhone", "missingDomElement"));
+            }
+
+            var result = {};
+
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+
+                if (child.localName === "Voice") {
+                    result.voice = child.textContent;
+                } else if (child.localName === "Facsimile") {
+                    result.facsimile = child.textContent;
+                }
+            }
+
+            return result;
+        }
+
+        OwsServiceProvider.assembleAddress = function (element) {
+            if (!element) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "OwsServiceProvider", "assembleAddress", "missingDomElement"));
+            }
+
+            var result = {};
+
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+
+                if (child.localName === "DeliveryPoint") {
+                    result.deliveryPoints = result.deliveryPoints || [];
+                    result.deliveryPoints.push(child.textContent);
+                } else if (child.localName === "City") {
+                    result.city = child.textContent;
+                } else if (child.localName === "AdministrativeArea") {
+                    result.administrativeArea = child.textContent;
+                } else if (child.localName === "PostalCode") {
+                    result.postalCodes = result.postalCodes || [];
+                    result.postalCodes.push(child.textContent);
+                } else if (child.localName === "Country") {
+                    result.countries = result.countries || [];
+                    result.countries.push(child.textContent);
+                } else if (child.localName === "ElectronicMailAddress") {
+                    result.electronicMailAddresses = result.electronicMailAddresses || [];
+                    result.electronicMailAddresses.push(child.textContent);
+                }
+            }
+
+            return result;
+        }
 
         return OwsServiceProvider;
     });
@@ -77104,10 +78473,10 @@ define('ogc/OwsServiceProvider',[
 define('ogc/WfsCapabilities',[
         '../error/ArgumentError',
         '../util/Logger',
-        '../ogc/OwsLanguageString',
-        '../ogc/OwsOperationsMetadata',
-        '../ogc/OwsServiceIdentification',
-        '../ogc/OwsServiceProvider'
+        '../ogc/wmts/OwsLanguageString',
+        '../ogc/wmts/OwsOperationsMetadata',
+        '../ogc/wmts/OwsServiceIdentification',
+        '../ogc/wmts/OwsServiceProvider'
     ],
     function (ArgumentError,
               Logger,
@@ -77580,9 +78949,9 @@ define('ogc/WfsCapabilities',[
  * @exports WmsLayerCapabilities
  * @version $Id: WmsLayerCapabilities.js 3055 2015-04-29 21:39:51Z tgaskins $
  */
-define('ogc/WmsLayerCapabilities',[
-        '../error/ArgumentError',
-        '../util/Logger'
+define('ogc/wms/WmsLayerCapabilities',[
+        '../../error/ArgumentError',
+        '../../util/Logger'
     ],
     function (ArgumentError,
               Logger) {
@@ -77992,6 +79361,26 @@ define('ogc/WmsLayerCapabilities',[
                 }
             }
         });
+
+        WmsLayerCapabilities.prototype.style = function(name) {
+            if (!name) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmsLayerCapabilities", "style",
+                        "Style name is null or undefined."));
+            }
+
+            var styles = this.styles;
+            if (!styles) {
+                return null;
+            }
+
+            for (var i = 0, len = styles.length, style; i < len; i++) {
+                style = styles[i];
+                if (style.name === name) {
+                    return style;
+                }
+            }
+        }
 
         WmsLayerCapabilities.accumulate = function (layer, propertyName, accumulation) {
             // Accumulate all of the named properties in the specified layer and its ancestors.
@@ -78445,10 +79834,10 @@ define('ogc/WmsLayerCapabilities',[
  * @exports WmsCapabilities
  * @version $Id: WmsCapabilities.js 3055 2015-04-29 21:39:51Z tgaskins $
  */
-define('ogc/WmsCapabilities',[
-        '../error/ArgumentError',
-        '../util/Logger',
-        '../ogc/WmsLayerCapabilities'
+define('ogc/wms/WmsCapabilities',[
+        '../../error/ArgumentError',
+        '../../util/Logger',
+        '../../ogc/wms/WmsLayerCapabilities'
     ],
     function (ArgumentError,
               Logger,
@@ -78463,7 +79852,7 @@ define('ogc/WmsCapabilities',[
          * specified in the given WMS Capabilities document. Most fields can be accessed as properties named
          * according to their document names converted to camel case. For example, "version", "service.title",
          * "service.contactInformation.contactPersonPrimary". The exceptions are online resources, whose property
-         * path has been shortened. For example "capability.request.getMap.formats" and "capability.request.getMap.url".
+         * path has been shortened. For example "capability.request.getMap.formats" and "capability.request.getMap.getUrl".
          * @param {{}} xmlDom An XML DOM representing the WMS Capabilities document.
          * @throws {ArgumentError} If the specified XML DOM is null or undefined.
          */
@@ -78474,6 +79863,59 @@ define('ogc/WmsCapabilities',[
             }
 
             this.assembleDocument(xmlDom);
+        };
+
+        /**
+         * Finds all named layers documented in this WMS capabilities document. Will recursively search sub-layers for
+         * named layers.
+         * @returns {WmsLayerCapabilities[]}
+         */
+        WmsCapabilities.prototype.getNamedLayers = function () {
+            return this.accumulateNamedLayers(this.capability.layers);
+        };
+
+        WmsCapabilities.prototype.accumulateNamedLayers = function (startLayers, namedLayersArray) {
+            var namedLayers = namedLayersArray || [];
+            
+            if (!startLayers) {
+                return namedLayers;
+            }
+
+            for (var i = 0, len = startLayers.length; i < len; i++) {
+                var layer = startLayers[i];
+                if (layer.name) {
+                    namedLayers.push(layer);
+                }
+                if (layer.layers) {
+                    this.accumulateNamedLayers(layer.layers, namedLayers);
+                }
+            }
+
+            return namedLayers;
+        };
+
+        /**
+         * Searches for a named layer matching the provided name and returns the WmsLayerCapabilities object representing 
+         * the named layer.
+         * @param {String} name the layer name to find
+         * @returns {WmsLayerCapabilities} if a matching named layer is found or null
+         * @throws {ArgumentError} If the specified name is null or empty.
+         */
+        WmsCapabilities.prototype.getNamedLayer = function (name) {
+            if (!name || (name.length === 0)) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmsCapabilities", "getNamedLayer", "No WMS layer name provided."));
+            }
+
+            var namedLayers = this.getNamedLayers();
+
+            for (var i = 0, len = namedLayers.length; i < len; i++) {
+                if (name === namedLayers[i].name) {
+                    return namedLayers[i];
+                }
+            }
+
+            return null;
         };
 
         WmsCapabilities.prototype.assembleDocument = function (dom) {
@@ -78512,7 +79954,7 @@ define('ogc/WmsCapabilities',[
                 } else if (child.localName === "KeywordList") {
                     service.keywordList = this.assembleKeywordList(child);
                 } else if (child.localName === "OnlineResource") {
-                    service.onlineResource = child.getAttribute("xlink:href");
+                    service.url = child.getAttribute("xlink:href");
                 } else if (child.localName === "Fees") {
                     service.fees = child.textContent;
                 } else if (child.localName === "AccessConstraints") {
@@ -78679,7 +80121,7 @@ define('ogc/WmsCapabilities',[
                                     for (var c4 = 0; c4 < children4.length; c4++) {
                                         var child4 = children4[c4];
                                         if (child4.localName === "OnlineResource") {
-                                            request.url = child4.getAttribute("xlink:href");
+                                            request.getUrl = child4.getAttribute("xlink:href");
                                         }
                                     }
                                 }
@@ -78848,7 +80290,7 @@ define('layer/WmsLayer',[
             }
 
             // Determine the GetMap service address.
-            config.service = getMapInfo.url;
+            config.service = getMapInfo.getUrl;
 
             // Determine the coordinate system to use.
             var coordinateSystems = wmsLayerCapabilities.crses; // WMS 1.3.0 and greater
@@ -78989,16 +80431,16 @@ define('layer/WmsTimeDimensionedLayer',[
 /**
  * @exports WmtsLayerCapabilities
  */
-define('ogc/WmtsLayerCapabilities',[
-        '../error/ArgumentError',
-        '../util/Logger',
-        '../ogc/OwsLanguageString',
-        '../ogc/WmsCapabilities'
+define('ogc/wmts/WmtsLayerCapabilities',[
+        '../../error/ArgumentError',
+        '../../geom/Sector',
+        '../../ogc/wmts/OwsDescription',
+        '../../util/Logger'
     ],
     function (ArgumentError,
-              Logger,
-              OwsLanguageString,
-              WmsCapabilities) {
+              Sector,
+              OwsDescription,
+              Logger) {
         "use strict";
 
         /**
@@ -79016,6 +80458,8 @@ define('ogc/WmtsLayerCapabilities',[
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayerCapabilities", "constructor", "missingDomElement"));
             }
+
+            OwsDescription.call(this, layerElement);
 
             /**
              * This layer's WMTS capabilities document, as specified to the constructor of this object.
@@ -79095,7 +80539,9 @@ define('ogc/WmtsLayerCapabilities',[
 
             /**
              * The dimensions associated with this layer. The returned array contains objects with the following
-             * properties: TODO
+             * properties:
+             * @type {Object[]}
+             * @readonly
              */
             this.dimension;
 
@@ -79125,6 +80571,28 @@ define('ogc/WmtsLayerCapabilities',[
             this.assembleLayer(layerElement);
         };
 
+        WmtsLayerCapabilities.prototype = Object.create(OwsDescription.prototype);
+
+        /**
+         * Provides an array of the TileMatrixSet objects supported by this layer.
+         * @returns {Array}
+         */
+        WmtsLayerCapabilities.prototype.getLayerSupportedTileMatrixSets = function () {
+            var tileMatrixSets = [];
+
+            for (var i = 0, lenA = this.tileMatrixSetLink.length; i < lenA; i++) {
+                var supportedTileMatrixSetIdentifier = this.tileMatrixSetLink[i].tileMatrixSet;
+                for (var j = 0, lenB = this.capabilities.contents.tileMatrixSet.length; j < lenB; j++) {
+                    var tileMatrixSetIdentifier = this.capabilities.contents.tileMatrixSet[j].identifier;
+                    if (tileMatrixSetIdentifier === supportedTileMatrixSetIdentifier) {
+                        tileMatrixSets.push(this.capabilities.contents.tileMatrixSet[j]);
+                    }
+                }
+            }
+
+            return tileMatrixSets;
+        };
+
         WmtsLayerCapabilities.prototype.assembleLayer = function (element) {
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -79132,12 +80600,6 @@ define('ogc/WmtsLayerCapabilities',[
 
                 if (child.localName === "Identifier") {
                     this.identifier = child.textContent;
-                } else if (child.localName === "Title") {
-                    this.title = this.title || [];
-                    this.title.push(new OwsLanguageString(child));
-                } else if (child.localName === "Abstract") {
-                    this.abstract = this.abstract || [];
-                    this.abstract.push(new OwsLanguageString(child));
                 } else if (child.localName === "WGS84BoundingBox") {
                     this.wgs84BoundingBox = WmtsLayerCapabilities.assembleBoundingBox(child);
                 } else if (child.localName === "BoundingBox") {
@@ -79165,13 +80627,12 @@ define('ogc/WmtsLayerCapabilities',[
                     this.tileMatrixSetLink = this.tileMatrixSetLink || [];
                     this.tileMatrixSetLink.push(WmtsLayerCapabilities.assembleTileMatrixSetLink(child));
                 }
-                // TODO: Keywords
             }
 
         };
 
         WmtsLayerCapabilities.assembleStyle = function (element) {
-            var result = {};
+            var result = new OwsDescription(element);
 
             result.isDefault = element.getAttribute("isDefault");
 
@@ -79181,17 +80642,10 @@ define('ogc/WmtsLayerCapabilities',[
 
                 if (child.localName === "Identifier") {
                     result.identifier = child.textContent;
-                } else if (child.localName === "Title") {
-                    result.title = result.title || [];
-                    result.title.push(new OwsLanguageString(child));
-                } else if (child.localName === "Abstract") {
-                    result.abstract = result.abstract || [];
-                    result.abstract.push(new OwsLanguageString(child));
                 } else if (child.localName === "LegendURL") {
                     result.legendUrl = result.legendUrl || [];
                     result.legendUrl.push(WmtsLayerCapabilities.assembleLegendUrl(child));
                 }
-                // TODO: keywords
             }
 
             return result;
@@ -79218,11 +80672,18 @@ define('ogc/WmtsLayerCapabilities',[
                 }
             }
 
+            // Add a utility which provides a Sector based on the WGS84BoundingBox element
+            if (element.localName === "WGS84BoundingBox") {
+                result.getSector = function () {
+                    return new Sector(result.lowerCorner[1], result.upperCorner[1], result.lowerCorner[0], result.upperCorner[0]);
+                }
+            }
+
             return result;
         };
 
         WmtsLayerCapabilities.assembleDimension = function (element) {
-            var result = {};
+            var result = new OwsDescription(element);
 
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -79230,12 +80691,6 @@ define('ogc/WmtsLayerCapabilities',[
 
                 if (child.localName === "Identifier") {
                     result.identifier = child.textContent;
-                } else if (child.localName === "Title") {
-                    result.title = result.title || [];
-                    result.title.push(new OwsLanguageString(child));
-                } else if (child.localName === "Abstract") {
-                    result.abstract = result.abstract || [];
-                    result.abstract.push(new OwsLanguageString(child));
                 } else if (child.localName === "UOM") {
                     result.uom = {
                         name: child.getAttribute("name"),
@@ -79258,6 +80713,40 @@ define('ogc/WmtsLayerCapabilities',[
 
         WmtsLayerCapabilities.assembleMetadata = function (element) { // TODO
             var result = {};
+
+            var link = element.getAttribute("xlink:href");
+            if (link) {
+                result.url = link;
+            }
+
+            var about = element.getAttribute("about");
+            if (link) {
+                result.about = about;
+            }
+
+            var type = element.getAttribute("xlink:type");
+            if (type) {
+                result.type = type;
+            }
+
+            var role = element.getAttribute("xlink:role");
+            if (role) {
+                result.role = role;
+            }
+
+            var title = element.getAttribute("xlink:title");
+            if (title) {
+                result.title = title;
+            }
+
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+
+                if (child.localName === "Metadata") {
+                    result.metadata = WmsLayerCapabilities.assembleMetadata(child);
+                }
+            }
 
             return result;
         };
@@ -79351,18 +80840,20 @@ define('ogc/WmtsLayerCapabilities',[
 /**
  * @exports WmtsCapabilities
  */
-define('ogc/WmtsCapabilities',[
-        '../error/ArgumentError',
-        '../util/Logger',
-        '../ogc/OwsLanguageString',
-        '../ogc/OwsOperationsMetadata',
-        '../ogc/OwsServiceIdentification',
-        '../ogc/OwsServiceProvider',
-        '../ogc/WmsCapabilities',
-        '../ogc/WmtsLayerCapabilities'
+define('ogc/wmts/WmtsCapabilities',[
+        '../../error/ArgumentError',
+        '../../util/Logger',
+        '../../ogc/wmts/OwsDescription',
+        '../../ogc/wmts/OwsLanguageString',
+        '../../ogc/wmts/OwsOperationsMetadata',
+        '../../ogc/wmts/OwsServiceIdentification',
+        '../../ogc/wmts/OwsServiceProvider',
+        '../../ogc/wms/WmsCapabilities',
+        '../../ogc/wmts/WmtsLayerCapabilities'
     ],
     function (ArgumentError,
               Logger,
+              OwsDescription,
               OwsLanguageString,
               OwsOperationsMetadata,
               OwsServiceIdentification,
@@ -79391,6 +80882,38 @@ define('ogc/WmtsCapabilities',[
             this.assembleDocument(xmlDom);
         };
 
+        /**
+         * Provides all of the layers associated with this WMTS. This method is for convienence and returns the layer
+         * array captured in the contents of this WmtsCapabilities object.
+         * @returns {WmtsLayerCapabilities[]}
+         */
+        WmtsCapabilities.prototype.getLayers = function () {
+            return this.contents.layer;
+        };
+
+        /**
+         * Retrieve the WmtsLayerCapabilities object for the provided identifier.
+         * @param identifier
+         * @returns {WmtsLayerCapabilities} object for the provided identifier or null if no identifier was found in the
+         * WmtsCapabilities object.
+         * @throws {ArgumentError} If the specified identifier is null or undefined.
+         */
+        WmtsCapabilities.prototype.getLayer = function (identifier) {
+            if (!identifier) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsCapabilities", "getLayer", "empty identifier"));
+            }
+
+            for (var i = 0, len = this.contents.layer.length; i < len; i++) {
+                var wmtsLayerCapabilities = this.contents.layer[i];
+                if (wmtsLayerCapabilities.identifier === identifier) {
+                    return wmtsLayerCapabilities;
+                }
+            }
+
+            return null;
+        };
+
         WmtsCapabilities.prototype.assembleDocument = function (dom) {
             var root = dom.documentElement;
 
@@ -79409,11 +80932,13 @@ define('ogc/WmtsCapabilities',[
                     this.operationsMetadata = new OwsOperationsMetadata(child);
                 } else if (child.localName === "Contents") {
                     this.contents = this.assembleContents(child);
+                } else if (child.localName === "Themes") {
+                    this.themes = WmtsCapabilities.assembleThemes(child);
+                } else if (child.localName === "ServiceMetadataURL") {
+                    this.serviceMetadataUrls = this.serviceMetadataUrls || [];
+                    this.serviceMetadataUrls.push(WmtsCapabilities.assembleServiceMetadataURL(child));
                 }
-                // TODO: Themes
             }
-
-            this.resolveTileMatrixSetLinks();
         };
 
         WmtsCapabilities.prototype.assembleContents = function (element) {
@@ -79447,7 +80972,7 @@ define('ogc/WmtsCapabilities',[
         };
 
         WmtsCapabilities.assembleTileMatrixSet = function (element) {
-            var tileMatrixSet = {};
+            var tileMatrixSet = new OwsDescription(element);
 
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -79464,15 +80989,10 @@ define('ogc/WmtsCapabilities',[
                 } else if (child.localName === "TileMatrix") {
                     tileMatrixSet.tileMatrix = tileMatrixSet.tileMatrix || [];
                     tileMatrixSet.tileMatrix.push(WmtsCapabilities.assembleTileMatrix(child));
-                } else if (child.localName === "Title") {
-                    tileMatrixSet.title = tileMatrixSet.title || [];
-                    tileMatrixSet.title.push(new OwsLanguageString(child));
-                } else if (child.localName === "Abstract") {
-                    tileMatrixSet.abstract = tileMatrixSet.abstract || [];
-                    tileMatrixSet.abstract.push(new OwsLanguageString(child));
                 }
-                // TODO: Keywords
             }
+
+            WmtsCapabilities.sortTileMatrices(tileMatrixSet);
 
             for (var i = 0; i < tileMatrixSet.tileMatrix.length; i++) {
                 tileMatrixSet.tileMatrix[i].levelNumber = i;
@@ -79482,7 +81002,7 @@ define('ogc/WmtsCapabilities',[
         };
 
         WmtsCapabilities.assembleTileMatrix = function (element) {
-            var tileMatrix = {};
+            var tileMatrix = new OwsDescription(element);
 
             var children = element.children || element.childNodes;
             for (var c = 0; c < children.length; c++) {
@@ -79490,12 +81010,6 @@ define('ogc/WmtsCapabilities',[
 
                 if (child.localName === "Identifier") {
                     tileMatrix.identifier = child.textContent;
-                } else if (child.localName === "Title") {
-                    tileMatrix.title = tileMatrixSet.title || [];
-                    tileMatrix.title.push(new OwsLanguageString(child));
-                } else if (child.localName === "Abstract") {
-                    tileMatrix.abstract = tileMatrixSet.abstract || [];
-                    tileMatrix.abstract.push(new OwsLanguageString(child));
                 } else if (child.localName === "ScaleDenominator") {
                     tileMatrix.scaleDenominator = parseFloat(child.textContent);
                 } else if (child.localName === "TileWidth") {
@@ -79510,36 +81024,79 @@ define('ogc/WmtsCapabilities',[
                     var values = child.textContent.split(" ");
                     tileMatrix.topLeftCorner = [parseFloat(values[0]), parseFloat(values[1])];
                 }
-
-                // TODO: Keywords
             }
 
             return tileMatrix;
         };
 
-        WmtsCapabilities.prototype.resolveTileMatrixSetLinks = function() {
-            for (var i = 0; i < this.contents.layer.length; i++) {
-                var layer = this.contents.layer[i];
+        WmtsCapabilities.assembleThemes = function (element) {
+            var themes;
 
-                for (var j = 0; j < layer.tileMatrixSetLink.length; j++) {
-                    var link = layer.tileMatrixSetLink[j];
-
-                    for (var k = 0; k < this.contents.tileMatrixSet.length; k++) {
-                        if (this.contents.tileMatrixSet[k].identifier === link.tileMatrixSet) {
-                            link.tileMatrixSetRef = this.contents.tileMatrixSet[k];
-                            break;
-                        }
-                    }
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+                if (child.localName === "Theme") {
+                    themes = themes || [];
+                    themes.push(WmtsCapabilities.assembleTheme(child));
                 }
             }
+
+            return themes;
+        };
+
+        WmtsCapabilities.assembleTheme = function (element) {
+            var theme = new OwsDescription(element);
+
+            var children = element.children || element.childNodes;
+            for (var c = 0; c < children.length; c++) {
+                var child = children[c];
+
+                if (child.localName === "Identifier") {
+                    theme.identifier = child.textContent;
+                } else if (child.localName === "LayerRef") {
+                    theme.layerRef = theme.layerRef || [];
+                    theme.layerRef.push(child.textContent);
+                } else if (child.localName === "Theme") {
+                    theme.themes = theme.themes || [];
+                    theme.themes.push(WmtsCapabilities.assembleTheme(child));
+                }
+            }
+
+            return theme;
+        };
+
+        WmtsCapabilities.assembleServiceMetadataURL = function (element) {
+            var result = {};
+
+            var link = element.getAttribute("xlink:href");
+            if (link) {
+                result.url = link;
+            }
+
+            return result;
+        };
+
+        /**
+         * Sorts a tile matrix set by the tile matrices scale denominator.
+         * @param tileMatrixSet
+         */
+        WmtsCapabilities.sortTileMatrices = function (tileMatrixSet) {
+            // This operation is not required by the WMTS specification. The WMTS specification assumes Tile Matrix
+            // selection based on a scale denominator value. Web World Wind currently matches the tile's Level to the
+            // corresponding Tile Matrix index in the Tile Matrix Set. If the Tile Matrices are not ordered in a
+            // typical pyramid fashion, this could result in undefined behavior. Sorting the matrices by the scale
+            // denominator should ensure the World Wind Level will match the Tile Matrix index. This operation will not
+            // be required once a system which matches the scale denominator is implemented.
+            tileMatrixSet.tileMatrix.sort(function (a, b) {
+                return b.scaleDenominator - a.scaleDenominator;
+            });
         };
 
         WmtsCapabilities.prototype.getGetTileKvpAddress = function () {
             for (var i = 0; i < this.operationsMetadata.operation.length; i++) {
                 var operation = this.operationsMetadata.operation[i];
-
                 if (operation.name === "GetTile") {
-                    return operation.dcp[0].http.get[0].href;
+                    return operation.dcp[0].getMethods[0].url;
                 }
             }
 
@@ -79628,30 +81185,20 @@ define('layer/WmtsLayerTile',[
                         "The specified tile factory is null or undefined."));
             }
 
-            var subFactorLat,
-                subFactorLon,
-                subRow,
+            var subRow,
                 subCol,
-                children = [];
+                children = [],
+                subFactorLat = tileMatrix.matrixHeight / this.tileMatrix.matrixHeight,
+                subFactorLon = tileMatrix.matrixWidth / this.tileMatrix.matrixWidth;
 
-            subFactorLat = tileMatrix.matrixHeight / this.tileMatrix.matrixHeight;
-            subFactorLon = tileMatrix.matrixWidth / this.tileMatrix.matrixWidth;
+            for (var i = 0; i < subFactorLat; i++) {
+                for (var j = 0; j < subFactorLon; j++) {
+                    subRow = subFactorLat * this.row + i;
+                    subCol = subFactorLon * this.column + j;
 
-            subRow = subFactorLat * this.row;
-            subCol = subFactorLon * this.column;
-            children.push(tileFactory.createTile(tileMatrix, subRow, subCol));
-
-            subRow = subFactorLat * this.row;
-            subCol = subFactorLon * this.column + 1;
-            children.push(tileFactory.createTile(tileMatrix, subRow, subCol));
-
-            subRow = subFactorLat * this.row + 1;
-            subCol = subFactorLon * this.column;
-            children.push(tileFactory.createTile(tileMatrix, subRow, subCol));
-
-            subRow = subFactorLat * this.row + 1;
-            subCol = subFactorLon * this.column + 1;
-            children.push(tileFactory.createTile(tileMatrix, subRow, subCol));
+                    children.push(tileFactory.createTile(tileMatrix, subRow, subCol));
+                }
+            }
 
             return children;
         };
@@ -79719,6 +81266,7 @@ define('layer/WmtsLayerTile',[
                 extremes = globe.minAndMaxElevationsForSector(this.sector),
                 minHeight = extremes ? (extremes[0] * verticalExaggeration) : 0,
                 maxHeight = extremes ? (extremes[1] * verticalExaggeration) : 0;
+
             if (minHeight == maxHeight) {
                 minHeight = maxHeight + 10; // TODO: Determine if this is necessary.
             }
@@ -79812,15 +81360,22 @@ define('layer/WmtsLayer',[
          * @constructor
          * @augments Layer
          * @classdesc Displays a WMTS image layer.
-         * @param {WmtsLayerCapabilities} layerCaps The WMTS layer capabilities describing this layer.
-         * @param {String} styleIdentifier The style to use for this layer. Must be one of those listed in the accompanying
-         * layer capabilities. May be null, in which case the WMTS server's default style is used.
+         * @param {{}} config Specifies configuration information for the layer. Must contain the following
+         * properties:
+         * <ul>
+         *     <li>identifier: {String} The layer name.</li>
+         *     <li>service: {String} The URL of the WMTS server</li>
+         *     <li>format: {String} The mime type of the image format to request, e.g., image/png.</li>
+         *     <li>tileMatrixSet: {{}} The tile matrix set to use for this layer.</li>
+         *     <li>style: {String} The style to use for this layer.</li>
+         *     <li>title: {String} The display name for this layer.</li>
+         * </ul>
          * @param {String} timeString The time parameter passed to the WMTS server when imagery is requested. May be
          * null, in which case no time parameter is passed to the server.
          * @throws {ArgumentError} If the specified layer capabilities reference is null or undefined.
          */
-        var WmtsLayer = function (layerCaps, styleIdentifier, timeString) {
-            if (!layerCaps) {
+        var WmtsLayer = function (config, timeString) {
+            if (!config) {
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "constructor",
                         "No layer configuration specified."));
@@ -79833,14 +81388,14 @@ define('layer/WmtsLayer',[
              * @type {String}
              * @readonly
              */
-            this.layerIdentifier = layerCaps.identifier;
+            this.layerIdentifier = config.identifier;
 
             /**
              * The style identifier specified to this layer's constructor.
              * @type {String}
              * @readonly
              */
-            this.styleIdentifier = styleIdentifier;
+            this.styleIdentifier = config.style;
 
             /**
              * The time string passed to this layer's constructor.
@@ -79849,118 +81404,82 @@ define('layer/WmtsLayer',[
              */
             this.timeString = timeString;
 
-            // Determine image format
-            var formats = layerCaps.format;
+            /**
+             * The image format specified to this layer's constructor.
+             * @type {String}
+             * @readonly
+             */
+            this.imageFormat = config.format;
 
-            if (formats.indexOf("image/png") >= 0) {
-                this.imageFormat = "image/png";
-            } else if (formats.indexOf("image/jpeg") >= 0) {
-                this.imageFormat = "image/jpeg";
-            } else if (formats.indexOf("image/tiff") >= 0) {
-                this.imageFormat = "image/tiff";
-            } else if (formats.indexOf("image/gif") >= 0) {
-                this.imageFormat = "image/gif";
-            } else {
-                this.imageFormat = formats[0];
-            }
+            /**
+             * The url specified to this layer's constructor.
+             * @type {String}
+             * @readonly
+             */
+            this.resourceUrl = config.resourceUrl;
+            this.serviceUrl = config.service;
 
-            if (!this.imageFormat) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "constructor",
-                        "Layer does not provide a supported image format."));
-            }
+            /**
+             * The tileMatrixSet specified to this layer's constructor.
+             * @type {String}
+             * @readonly
+             */
+            this.tileMatrixSet = config.tileMatrixSet;
 
-            if (layerCaps.resourceUrl && (layerCaps.resourceUrl.length > 1)) {
-                for (var i = 0; i < layerCaps.resourceUrl.length; i++) {
-                    if (this.imageFormat === layerCaps.resourceUrl[i].format) {
-                        this.resourceUrl = layerCaps.resourceUrl[i].template;
-                        break;
-                    }
-                }
-            } else { // resource-oriented interface not supported, so use KVP interface
-                this.serviceUrl = layerCaps.capabilities.getGetTileKvpAddress();
-                if (this.serviceUrl) {
-                    this.serviceUrl = WmsUrlBuilder.fixGetMapString(this.serviceUrl);
-                }
-            }
-
-            if (!this.resourceUrl && !this.serviceUrl) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "constructor",
-                        "No resource URL or KVP GetTile service URL specified in WMTS capabilities."));
-            }
-
-            // Validate that the specified style identifier exists, or determine one if not specified.
-            if (this.styleIdentifier) {
-                var styleIdentifierFound = false;
-                for (var i = 0; i < layerCaps.style.length; i++) {
-                    if (layerCaps.style[i].identifier === this.styleIdentifier) {
-                        styleIdentifierFound = true;
-                        break;
-                    }
-                }
-
-                if (!styleIdentifierFound) {
-                    Logger.logMessage(Logger.LEVEL_WARNING, "WmtsLayer", "constructor",
-                        "The specified style identifier is not available. The server's default style will be used.");
-                    this.styleIdentifier = null;
-                }
-            }
-
-            if (!this.styleIdentifier) {
-                for (i = 0; i < layerCaps.style.length; i++) {
-                    if (layerCaps.style[i].isDefault) {
-                        this.styleIdentifier = layerCaps.style[i].identifier;
-                        break;
-                    }
-                }
-            }
-
-            if (!this.styleIdentifier) {
-                Logger.logMessage(Logger.LEVEL_WARNING, "WmtsLayer", "constructor",
-                    "No default style available. A style will not be specified in tile requests.");
-            }
-
-            // Find the tile matrix set we want to use. Prefer EPSG:4326, then EPSG:3857.
-            var tms, tms4326 = null, tms3857 = null;
-            for (i = 0; i < layerCaps.tileMatrixSetLink.length; i++) {
-                tms = layerCaps.tileMatrixSetLink[i].tileMatrixSetRef;
-
-                if (WmtsLayer.isEpsg4326Crs(tms.supportedCRS)) {
-                    tms4326 = tms4326 || tms;
-                } else if (WmtsLayer.isEpsg3857Crs(tms.supportedCRS)) {
-                    tms3857 = tms3857 || tms;
-                }
-            }
-
-            this.tileMatrixSet = tms4326 || tms3857;
-
-            if (!this.tileMatrixSet) {
-                throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "constructor",
-                        "No supported Tile Matrix Set could be found."));
-            }
 
             // Determine the layer's sector if possible. Mandatory for EPSG:4326 tile matrix sets. (Others compute
             // it from tile Matrix Set metadata.)
-            if (layerCaps.wgs84BoundingBox) {
-                this.sector = new Sector(
-                    layerCaps.wgs84BoundingBox.lowerCorner[1],
-                    layerCaps.wgs84BoundingBox.upperCorner[1],
-                    layerCaps.wgs84BoundingBox.lowerCorner[0],
-                    layerCaps.wgs84BoundingBox.upperCorner[0]);
+            // Sometimes BBOX defined in Matrix and not in Layer
+            if (!config.wgs84BoundingBox && !config.boundingBox) {
+                if (this.tileMatrixSet.boundingBox) {
+                    this.sector = new Sector(
+                        config.tileMatrixSet.boundingBox.lowerCorner[1],
+                        config.tileMatrixSet.boundingBox.upperCorner[1],
+                        config.tileMatrixSet.boundingBox.lowerCorner[0],
+                        config.tileMatrixSet.boundingBox.upperCorner[0]);
+                } else {
+                    // Throw an exception if there is no bounding box.
+                    throw new ArgumentError(
+                        Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "constructor",
+                            "No bounding box was specified in the layer or tile matrix set capabilities."));
+                }
+            } else if (config.wgs84BoundingBox) {
+                this.sector = config.wgs84BoundingBox.getSector();
             } else if (this.tileMatrixSet.boundingBox &&
-                WmtsLayerCapabilities.isEpsg4326Crs(this.tileMatrixSet.boundingBox.crs)) {
+                WmtsLayer.isEpsg4326Crs(this.tileMatrixSet.boundingBox.crs)) {
                 this.sector = new Sector(
                     this.tileMatrixSet.boundingBox.lowerCorner[1],
                     this.tileMatrixSet.boundingBox.upperCorner[1],
                     this.tileMatrixSet.boundingBox.lowerCorner[0],
                     this.tileMatrixSet.boundingBox.upperCorner[0]);
-            } else if (WmtsLayerCapabilities.isEpsg4326Crs(this.tileMatrixSet.supportedCRS)) {
+            } else if (WmtsLayer.isEpsg4326Crs(this.tileMatrixSet.supportedCRS)) {
                 // Throw an exception if there is no 4326 bounding box.
                 throw new ArgumentError(
                     Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "constructor",
                         "No EPSG:4326 bounding box was specified in the layer or tile matrix set capabilities."));
+            }
+
+            // Check if tile subdivision is valid
+            var tileMatrix = config.tileMatrixSet.tileMatrix,
+                widthArray = [],
+                heightArray = [],
+                invalidLevel;
+
+            tileMatrix.forEach(function (matrix) {
+                widthArray.push(matrix.matrixWidth);
+                heightArray.push(matrix.matrixHeight);
+            });
+
+            if (WmtsLayer.checkTileSubdivision(widthArray) !== 0) {
+                invalidLevel = WmtsLayer.checkTileSubdivision(widthArray);
+                Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "constructor",
+                    "Tile subdivision not supported for layer : " + config.identifier + ". Display until level " + (invalidLevel - 1));
+                tileMatrix.splice(invalidLevel);
+            } else if (WmtsLayer.checkTileSubdivision(heightArray) !== 0) {
+                invalidLevel = WmtsLayer.checkTileSubdivision(heightArray);
+                Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "constructor",
+                    "Tile subdivision not supported for layer : " + config.identifier + ". Display until level " + (invalidLevel - 1));
+                tileMatrix.splice(invalidLevel);
             }
 
             // Form a unique string to identify cache entries.
@@ -79970,14 +81489,12 @@ define('layer/WmtsLayer',[
                 this.cachePath = this.cachePath + timeString;
             }
 
-            // Determine a default display name.
-            if (layerCaps.title.length > 0) {
-                this.displayName = layerCaps.title[0].value;
-            } else {
-                this.displayName = layerCaps.identifier;
-            }
-
-            this.pickEnabled = false;
+            /**
+             * The displayName specified to this layer's constructor.
+             * @type {String}
+             * @readonly
+             */
+            this.displayName = config.title;
 
             this.currentTiles = [];
             this.currentTilesInvalid = true;
@@ -79995,6 +81512,336 @@ define('layer/WmtsLayer',[
              * @default 1.75
              */
             this.detailControl = 1.75;
+        };
+
+        WmtsLayer.checkTileSubdivision = function (dimensionArray) {
+            if (dimensionArray.length < 1) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "checkTileSubdivision",
+                        "Empty dimension array"));
+            }
+
+            var ratio,
+                invalidLevel = 0,
+                i = 0;
+
+            while (++i < dimensionArray.length && invalidLevel == 0) {
+                var newRatio = dimensionArray[i] / dimensionArray[i - 1];
+
+                // If the ratio is not an integer, the level is invalid
+                if ((dimensionArray[i] % dimensionArray[i - 1]) !== 0) {
+                    invalidLevel = i;
+                } else if (ratio && (ratio !== newRatio)) {
+                    // If ratios are different, the level is invalid
+                    invalidLevel = i;
+                }
+                ratio = newRatio;
+            }
+
+            // Tile subdivision is valid when invalidLevel == 0
+            return invalidLevel;
+        };
+
+
+        /**
+         * Constructs a tile matrix set object.
+         * @param {{}} params Specifies parameters for the tile matrix set. Must contain the following
+         * properties:
+         * <ul>
+         *     <li>matrixSet: {String} The matrix name.</li>
+         *     <li>prefix: {Boolean} It represents if the identifier of the matrix must be prefixed by the matrix name.</li>
+         *     <li>projection: {String} The projection of the tiles.</li>
+         *     <li>topLeftCorner: {Array} The coordinates of the top left corner.</li>
+         *     <li>extent: {Array} The boundinx box for this matrix.</li>
+         *     <li>resolutions: {Array} The resolutions array.</li>
+         *     <li>matrixSet: {Number} The tile size.</li>
+         * </ul>
+         * @throws {ArgumentError} If the specified params.matrixSet is null or undefined. The name of the matrix to
+         * use for this layer.
+         * @throws {ArgumentError} If the specified params.prefix is null or undefined. It represents if the
+         * identifier of the matrix must be prefixed by the matrix name
+         * @throws {ArgumentError} If the specified params.projection is null or undefined.
+         * @throws {ArgumentError} If the specified params.extent is null or undefined.
+         * @throws {ArgumentError} If the specified params.resolutions is null or undefined.
+         * @throws {ArgumentError} If the specified params.tileSize is null or undefined.
+         * @throws {ArgumentError} If the specified params.topLeftCorner is null or undefined.
+         */
+        WmtsLayer.createTileMatrixSet = function (params) {
+
+            if (!params.matrixSet) { // matrixSet
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "createTileMatrixSet",
+                        "No matrixSet provided."));
+            }
+            if (!params.projection) { // projection
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "createTileMatrixSet",
+                        "No projection provided."));
+            }
+            if (!params.extent || params.extent.length != 4) { // extent
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "createTileMatrixSet",
+                        "No extent provided."));
+            }
+
+            // Define the boundingBox
+            var boundingBox = {
+                lowerCorner: [params.extent[0], params.extent[1]],
+                upperCorner: [params.extent[2], params.extent[3]]
+            };
+
+            // Resolutions
+            if (!params.resolutions) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "createTileMatrixSet",
+                        "No resolutions provided."));
+            }
+
+            // Tile size
+            if (!params.tileSize) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "createTileMatrixSet",
+                        "No tile size provided."));
+            }
+
+            // Top left corner
+            if (!params.topLeftCorner || params.topLeftCorner.length != 2) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "createTileMatrixSet",
+                        "No extent provided."));
+            }
+
+            // Prefix
+            if (params.prefix === undefined) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "createTileMatrixSet",
+                        "Prefix not provided."));
+            }
+
+            // Check if the projection is supported
+            if (!(WmtsLayer.isEpsg4326Crs(params.projection) || WmtsLayer.isOGCCrs84(params.projection) || WmtsLayer.isEpsg3857Crs(params.projection))) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "createTileMatrixSet",
+                        "Projection provided not supported."));
+            }
+
+            var tileMatrixSet = [],
+                scale;
+
+            // Construct the tileMatrixSet
+            for (var i = 0; i < params.resolutions.length; i++) {
+                // Compute the scaleDenominator
+                if (WmtsLayer.isEpsg4326Crs(params.projection) || WmtsLayer.isOGCCrs84(params.projection)) {
+                    scale = params.resolutions[i] * 6378137.0 * 2.0 * Math.PI / 360 / 0.00028;
+                } else if (WmtsLayer.isEpsg3857Crs(params.projection)) {
+                    scale = params.resolutions[i] / 0.00028;
+                }
+
+                // Compute the matrix width / height
+                var unitWidth = params.tileSize * params.resolutions[i];
+                var unitHeight = params.tileSize * params.resolutions[i];
+                var matrixWidth = Math.ceil((params.extent[2] - params.extent[0] - 0.01 * unitWidth) / unitWidth);
+                var matrixHeight = Math.ceil((params.extent[3] - params.extent[1] - 0.01 * unitHeight) / unitHeight);
+
+                // Define the tile matrix
+                var tileMatrix = {
+                    identifier: params.prefix ? params.matrixSet + ":" + i : i,
+                    levelNumber: i,
+                    matrixHeight: matrixHeight,
+                    matrixWidth: matrixWidth,
+                    tileHeight: params.tileSize,
+                    tileWidth: params.tileSize,
+                    topLeftCorner: params.topLeftCorner,
+                    scaleDenominator: scale
+                };
+
+                tileMatrixSet.push(tileMatrix);
+            }
+
+            return {
+                identifier: params.matrixSet,
+                supportedCRS: params.projection,
+                boundingBox: boundingBox,
+                tileMatrix: tileMatrixSet
+            };
+        };
+
+
+        /**
+         * Forms a configuration object for a specified {@link WmtsLayerCapabilities} layer description. The
+         * configuration object created and returned is suitable for passing to the WmtsLayer constructor.
+         * <p>
+         *     This method also parses any time dimensions associated with the layer and returns them in the
+         *     configuration object's "timeSequences" property. This property is a mixed array of Date objects
+         *     and {@link PeriodicTimeSequence} objects describing the dimensions found.
+         * @param wmtsLayerCapabilities {WmtsLayerCapabilities} The WMTS layer capabilities to create a configuration for.
+         * @param style {string} The style to apply for this layer.  May be null, in which case the first style recognized is used.
+         * @param matrixSet {string} The matrix to use for this layer.  May be null, in which case the first tileMatrixSet recognized is used.
+         * @param imageFormat {string} The image format to use with this layer.  May be null, in which case the first image format recognized is used.
+         * @returns {{}} A configuration object.
+         * @throws {ArgumentError} If the specified WMTS layer capabilities is null or undefined.
+         */
+        WmtsLayer.formLayerConfiguration = function (wmtsLayerCapabilities, style, matrixSet, imageFormat) {
+
+            var config = {};
+
+            /**
+             * The WMTS layer identifier of this layer.
+             * @type {String}
+             * @readonly
+             */
+            config.identifier = wmtsLayerCapabilities.identifier;
+
+            // Validate that the specified image format exists, or determine one if not specified.
+            if (imageFormat) {
+                var formatIdentifierFound = false;
+                for (var i = 0; i < wmtsLayerCapabilities.format.length; i++) {
+                    if (wmtsLayerCapabilities.format[i] === imageFormat) {
+                        formatIdentifierFound = true;
+                        config.format = wmtsLayerCapabilities.format[i];
+                        break;
+                    }
+                }
+
+                if (!formatIdentifierFound) {
+                    Logger.logMessage(Logger.LEVEL_WARNING, "WmtsLayer", "formLayerConfiguration",
+                        "The specified image format is not available. Another one will be used.");
+                    config.format = null;
+                }
+            }
+
+            if (!config.format) {
+                if (wmtsLayerCapabilities.format.indexOf("image/png") >= 0) {
+                    config.format = "image/png";
+                } else if (wmtsLayerCapabilities.format.indexOf("image/jpeg") >= 0) {
+                    config.format = "image/jpeg";
+                } else if (wmtsLayerCapabilities.format.indexOf("image/tiff") >= 0) {
+                    config.format = "image/tiff";
+                } else if (wmtsLayerCapabilities.format.indexOf("image/gif") >= 0) {
+                    config.format = "image/gif";
+                } else {
+                    config.format = wmtsLayerCapabilities.format[0];
+                }
+            }
+
+            if (!config.format) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "formLayerConfiguration",
+                        "Layer does not provide a supported image format."));
+            }
+
+            // Configure URL
+            if (wmtsLayerCapabilities.resourceUrl && (wmtsLayerCapabilities.resourceUrl.length >= 1)) {
+                for (var i = 0; i < wmtsLayerCapabilities.resourceUrl.length; i++) {
+                    if (config.format === wmtsLayerCapabilities.resourceUrl[i].format) {
+                        config.resourceUrl = wmtsLayerCapabilities.resourceUrl[i].template;
+                        break;
+                    }
+                }
+            } else { // resource-oriented interface not supported, so use KVP interface
+                config.service = wmtsLayerCapabilities.capabilities.getGetTileKvpAddress();
+                if (config.service) {
+                    config.service = WmsUrlBuilder.fixGetMapString(config.service);
+                }
+            }
+
+            if (!config.resourceUrl && !config.service) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "formLayerConfiguration",
+                        "No resource URL or KVP GetTile service URL specified in WMTS capabilities."));
+            }
+
+            // Validate that the specified style identifier exists, or determine one if not specified.
+            if (style) {
+                var styleIdentifierFound = false;
+                for (var i = 0; i < wmtsLayerCapabilities.style.length; i++) {
+                    if (wmtsLayerCapabilities.style[i].identifier === style) {
+                        styleIdentifierFound = true;
+                        config.style = wmtsLayerCapabilities.style[i].identifier;
+                        break;
+                    }
+                }
+
+                if (!styleIdentifierFound) {
+                    Logger.logMessage(Logger.LEVEL_WARNING, "WmtsLayer", "formLayerConfiguration",
+                        "The specified style identifier is not available. The server's default style will be used.");
+                    config.style = null;
+                }
+            }
+
+            if (!config.style) {
+                for (i = 0; i < wmtsLayerCapabilities.style.length; i++) {
+                    if (wmtsLayerCapabilities.style[i].isDefault) {
+                        config.style = wmtsLayerCapabilities.style[i].identifier;
+                        break;
+                    }
+                }
+            }
+
+            if (!config.styleIdentifier) {
+                Logger.logMessage(Logger.LEVEL_WARNING, "WmtsLayer", "formLayerConfiguration",
+                    "No default style available. A style will not be specified in tile requests.");
+            }
+
+            // Retrieve the supported tile matrix sets for testing against provided tile matrix set or for tile matrix
+            // set negotiation.
+            var supportedTileMatrixSets = wmtsLayerCapabilities.getLayerSupportedTileMatrixSets();
+
+            // Validate that the specified style identifier exists, or determine one if not specified.
+            if (matrixSet) {
+                var tileMatrixSetFound = false;
+                for (var i = 0, len = supportedTileMatrixSets.length; i < len; i++) {
+                    if (supportedTileMatrixSets[i].identifier === matrixSet) {
+                        tileMatrixSetFound = true;
+                        config.tileMatrixSet = supportedTileMatrixSets[i];
+                        break;
+                    }
+                }
+
+                if (!tileMatrixSetFound) {
+                    Logger.logMessage(Logger.LEVEL_WARNING, "WmtsLayer", "formLayerConfiguration",
+                        "The specified tileMatrixSet is not available. Another one will be used.");
+                    config.tileMatrixSet = null;
+                }
+            }
+
+            if (!config.tileMatrixSet) {
+                // Find the tile matrix set we want to use. Prefer EPSG:4326, then EPSG:3857.
+                var tms, tms4326 = null, tms3857 = null, tmsCRS84 = null;
+
+                for (var i = 0, len = supportedTileMatrixSets.length; i < len; i++) {
+                    tms = supportedTileMatrixSets[i];
+
+                    if (WmtsLayer.isEpsg4326Crs(tms.supportedCRS)) {
+                        tms4326 = tms4326 || tms;
+                    } else if (WmtsLayer.isEpsg3857Crs(tms.supportedCRS)) {
+                        tms3857 = tms3857 || tms;
+                    } else if (WmtsLayer.isOGCCrs84(tms.supportedCRS)) {
+                        tmsCRS84 = tmsCRS84 || tms;
+                    }
+                }
+
+                config.tileMatrixSet = tms4326 || tms3857 || tmsCRS84;
+            }
+
+            if (!config.tileMatrixSet) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "WmtsLayer", "formLayerConfiguration",
+                        "No supported Tile Matrix Set could be found."));
+            }
+
+            // Configure boundingBox
+            config.boundingBox = wmtsLayerCapabilities.boundingBox;
+            config.wgs84BoundingBox = wmtsLayerCapabilities.wgs84BoundingBox;
+
+            // Determine a default display name.
+            if (wmtsLayerCapabilities.titles.length > 0) {
+                config.title = wmtsLayerCapabilities.titles[0].value;
+            } else {
+                config.title = wmtsLayerCapabilities.identifier;
+            }
+
+            return config;
         };
 
         WmtsLayer.prototype = Object.create(Layer.prototype);
@@ -80053,6 +81900,14 @@ define('layer/WmtsLayer',[
         };
 
         WmtsLayer.prototype.addTileOrDescendants = function (dc, tile) {
+            // Check if the new sub-tile fits in TileMatrix ranges
+            if (tile.column >= tile.tileMatrix.matrixWidth) {
+                tile.column = tile.column - tile.tileMatrix.matrixWidth;
+            }
+            if (tile.column < 0) {
+                tile.column = tile.column + tile.tileMatrix.matrixWidth;
+            }
+
             if (this.tileMeetsRenderingCriteria(dc, tile)) {
                 this.addTile(dc, tile);
                 return;
@@ -80065,7 +81920,6 @@ define('layer/WmtsLayer',[
                     ancestorTile = this.currentAncestorTile;
                     this.currentAncestorTile = tile;
                 }
-
                 var nextLevel = this.tileMatrixSet.tileMatrix[tile.tileMatrix.levelNumber + 1],
                     subTiles = tile.subdivideToCache(nextLevel, this, this.tileCache);
 
@@ -80123,6 +81977,7 @@ define('layer/WmtsLayer',[
             if (tile.sector.minLatitude >= 75 || tile.sector.maxLatitude <= -75) {
                 s *= 1.2;
             }
+
             return tile.tileMatrix.levelNumber === (this.tileMatrixSet.tileMatrix.length - 1) || !tile.mustSubdivide(dc, s);
         };
 
@@ -80178,13 +82033,10 @@ define('layer/WmtsLayer',[
             var url;
 
             if (this.resourceUrl) {
-                url = this.resourceUrl.replace("{Style}", this.styleIdentifier).
-                    replace("{TileMatrixSet}", this.tileMatrixSet.identifier).
-                    replace("{TileMatrix}", tile.tileMatrix.identifier).
-                    replace("{TileCol}", tile.column).replace("{TileRow}", tile.row);
+                url = this.resourceUrl.replace("{Style}", this.styleIdentifier).replace("{TileMatrixSet}", this.tileMatrixSet.identifier).replace("{TileMatrix}", tile.tileMatrix.identifier).replace("{TileCol}", tile.column).replace("{TileRow}", tile.row);
 
                 if (this.timeString) {
-                    url.replace("{Time}", this.timeString);
+                    url = url.replace("{Time}", this.timeString);
                 }
             } else {
                 url = this.serviceUrl + "service=WMTS&request=GetTile&version=1.0.0";
@@ -80221,7 +82073,6 @@ define('layer/WmtsLayer',[
             var tileMatrix = this.tileMatrixSet.tileMatrix[0];
 
             this.topLevelTiles = [];
-
             for (var j = 0; j < tileMatrix.matrixHeight; j++) {
                 for (var i = 0; i < tileMatrix.matrixWidth; i++) {
                     this.topLevelTiles.push(this.createTile(tileMatrix, j, i));
@@ -80234,11 +82085,28 @@ define('layer/WmtsLayer',[
                 return this.createTile4326(tileMatrix, row, column);
             } else if (WmtsLayer.isEpsg3857Crs(this.tileMatrixSet.supportedCRS)) {
                 return this.createTile3857(tileMatrix, row, column);
+            } else if (WmtsLayer.isOGCCrs84(this.tileMatrixSet.supportedCRS)) {
+                return this.createTileCrs84(tileMatrix, row, column);
             }
         };
 
+
+        WmtsLayer.prototype.createTileCrs84 = function (tileMatrix, row, column) {
+            var tileDeltaLat = this.sector.deltaLatitude() / tileMatrix.matrixHeight,
+                tileDeltaLon = this.sector.deltaLongitude() / tileMatrix.matrixWidth,
+                maxLat = tileMatrix.topLeftCorner[1] - row * tileDeltaLat,
+                minLat = maxLat - tileDeltaLat,
+                minLon = tileMatrix.topLeftCorner[0] + tileDeltaLon * column,
+                maxLon = minLon + tileDeltaLon;
+
+            var sector = new Sector(minLat, maxLat, minLon, maxLon);
+
+            return this.makeTile(sector, tileMatrix, row, column);
+        };
+
+
         WmtsLayer.prototype.createTile4326 = function (tileMatrix, row, column) {
-            var tileDeltaLat = this.sector.deltaLatitude() / tileMatrix.matrixHeight, // TODO: calculate from metadata
+            var tileDeltaLat = this.sector.deltaLatitude() / tileMatrix.matrixHeight,
                 tileDeltaLon = this.sector.deltaLongitude() / tileMatrix.matrixWidth,
                 maxLat = tileMatrix.topLeftCorner[0] - row * tileDeltaLat,
                 minLat = maxLat - tileDeltaLat,
@@ -80296,7 +82164,6 @@ define('layer/WmtsLayer',[
         WmtsLayer.prototype.makeTile = function (sector, tileMatrix, row, column) {
             var path = this.cachePath + "-layer/" + tileMatrix.identifier + "/" + row + "/" + column + "."
                 + WWUtil.suffixForMimeType(this.imageFormat);
-
             return new WmtsLayerTile(sector, tileMatrix, row, column, path);
         };
 
@@ -80305,6 +82172,8 @@ define('layer/WmtsLayer',[
                 return new Texture(dc.currentGlContext, image);
             } else if (WmtsLayer.isEpsg3857Crs(this.tileMatrixSet.supportedCRS)) {
                 return this.createTexture3857(dc, tile, image);
+            } else if (WmtsLayer.isOGCCrs84(this.tileMatrixSet.supportedCRS)) {
+                return new Texture(dc.currentGlContext, image);
             }
         };
 
@@ -80362,7 +82231,7 @@ define('layer/WmtsLayer',[
         };
 
         WmtsLayer.isEpsg4326Crs = function (crs) {
-            return (crs.indexOf("EPSG") >= 0) && (crs.indexOf("4326") >= 0);
+            return ((crs.indexOf("EPSG") >= 0) && (crs.indexOf("4326") >= 0));
         };
 
         WmtsLayer.isEpsg3857Crs = function (crs) {
@@ -80370,8 +82239,13 @@ define('layer/WmtsLayer',[
                 && ((crs.indexOf("3857") >= 0) || (crs.indexOf("900913") >= 0)); // 900913 is google's 3857 alias
         };
 
+        WmtsLayer.isOGCCrs84 = function (crs) {
+            return (crs.indexOf("OGC") >= 0) && (crs.indexOf("CRS84") >= 0);
+        };
+
         return WmtsLayer;
     });
+
 /*
  * Copyright (C) 2014 United States Government as represented by the Administrator of the
  * National Aeronautics and Space Administration. All Rights Reserved.
@@ -81681,6 +83555,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         './geom/Angle',
         './shapes/Annotation',
         './shapes/AnnotationAttributes',
+        './util/measure/AreaMeasurer',
         './error/ArgumentError',
         './layer/AtmosphereLayer',
         './shaders/AtmosphereProgram',
@@ -81737,6 +83612,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         './cache/GpuResourceCache',
         './shaders/GpuShader',
         './shaders/GroundProgram',
+        './util/HashMap',
         './util/HighlightController',
         './formats/kml/util/ImagePyramid',
         './util/ImageSource',
@@ -81792,6 +83668,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         './formats/kml/geom/KmlTrack',
         './layer/LandsatRestLayer',
         './layer/Layer',
+        './util/measure/LengthMeasurer',
         './util/Level',
         './util/LevelRowColumnUrlBuilder',
         './util/LevelSet',
@@ -81800,6 +83677,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         './util/Logger',
         './navigate/LookAtNavigator',
         './geom/Matrix',
+        './util/measure/MeasurerUtils',
         './cache/MemoryCache',
         './cache/MemoryCacheListener',
         './layer/MercatorTiledImageLayer',
@@ -81820,6 +83698,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         './shapes/PlacemarkAttributes',
         './geom/Plane',
         './shapes/Polygon',
+        './util/PolygonSplitter',
         './geom/Position',
         './projections/ProjectionEquirectangular',
         './projections/ProjectionGnomonic',
@@ -81879,14 +83758,14 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         './formats/kml/util/ViewVolume',
         './util/WcsTileUrlBuilder',
         './ogc/WfsCapabilities',
-        './ogc/WmsCapabilities',
+        './ogc/wms/WmsCapabilities',
         './layer/WmsLayer',
-        './ogc/WmsLayerCapabilities',
+        './ogc/wms/WmsLayerCapabilities',
         './layer/WmsTimeDimensionedLayer',
         './util/WmsUrlBuilder',
-        './ogc/WmtsCapabilities',
+        './ogc/wmts/WmtsCapabilities',
         './layer/WmtsLayer',
-        './ogc/WmtsLayerCapabilities',
+        './ogc/wmts/WmtsLayerCapabilities',
         './WorldWindow',
         './util/WWMath',
         './util/WWMessage',
@@ -81897,6 +83776,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
               Angle,
               Annotation,
               AnnotationAttributes,
+              AreaMeasurer,
               ArgumentError,
               AtmosphereLayer,
               AtmosphereProgram,
@@ -81953,6 +83833,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
               GpuResourceCache,
               GpuShader,
               GroundProgram,
+              HashMap,
               HighlightController,
               ImagePyramid,
               ImageSource,
@@ -82008,6 +83889,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
               KmlTrack,
               LandsatRestLayer,
               Layer,
+              LengthMeasurer,
               Level,
               LevelRowColumnUrlBuilder,
               LevelSet,
@@ -82016,6 +83898,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
               Logger,
               LookAtNavigator,
               Matrix,
+              MeasurerUtils,
               MemoryCache,
               MemoryCacheListener,
               MercatorTiledImageLayer,
@@ -82036,6 +83919,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
               PlacemarkAttributes,
               Plane,
               Polygon,
+              PolygonSplitter,
               Position,
               ProjectionEquirectangular,
               ProjectionGnomonic,
@@ -82322,6 +84206,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         WorldWind['Angle'] = Angle;
         WorldWind['Annotation'] = Annotation;
         WorldWind['AnnotationAttributes'] = AnnotationAttributes;
+        WorldWind['AreaMeasurer'] = AreaMeasurer;
         WorldWind['ArgumentError'] = ArgumentError;
         WorldWind['AtmosphereLayer'] = AtmosphereLayer;
         WorldWind['AtmosphereProgram'] = AtmosphereProgram;
@@ -82378,6 +84263,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         WorldWind['GpuResourceCache'] = GpuResourceCache;
         WorldWind['GpuShader'] = GpuShader;
         WorldWind['GroundProgram'] = GroundProgram;
+        WorldWind['HashMap'] = HashMap;
         WorldWind['HighlightController'] = HighlightController;
         WorldWind['ImageSource'] = ImageSource;
         WorldWind['ImageTile'] = ImageTile;
@@ -82385,6 +84271,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         WorldWind['KmlFile'] = KmlFile;
         WorldWind['LandsatRestLayer'] = LandsatRestLayer;
         WorldWind['Layer'] = Layer;
+        WorldWind['LengthMeasurer'] = LengthMeasurer;
         WorldWind['Level'] = Level;
         WorldWind['LevelRowColumnUrlBuilder'] = LevelRowColumnUrlBuilder;
         WorldWind['LevelSet'] = LevelSet;
@@ -82393,6 +84280,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         WorldWind['Logger'] = Logger;
         WorldWind['LookAtNavigator'] = LookAtNavigator;
         WorldWind['Matrix'] = Matrix;
+        WorldWind['MeasurerUtils'] = MeasurerUtils;
         WorldWind['MemoryCache'] = MemoryCache;
         WorldWind['MemoryCacheListener'] = MemoryCacheListener;
         WorldWind['MercatorTiledImageLayer'] = MercatorTiledImageLayer;
@@ -82412,6 +84300,7 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         WorldWind['PlacemarkAttributes'] = PlacemarkAttributes;
         WorldWind['Plane'] = Plane;
         WorldWind['Polygon'] = Polygon;
+        WorldWind['PolygonSplitter'] = PolygonSplitter;
         WorldWind['Position'] = Position;
         WorldWind['ProjectionEquirectangular'] = ProjectionEquirectangular;
         WorldWind['ProjectionGnomonic'] = ProjectionGnomonic;
