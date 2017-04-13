@@ -350,7 +350,7 @@ EMPWorldWind.Map.prototype = (function() {
         //logs error to console
         armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker A", "postMessage", error);
       };
-      this.secRendererWorker.onMassage = function(e) {
+      this.secRendererWorker.onMessage = function(e) {
         //var batchCall = false,
         var rendererData = [];
         if (e.data.id) //not a batch call
@@ -440,14 +440,14 @@ EMPWorldWind.Map.prototype = (function() {
         this.worldWindow.redraw();
       }.bind(this);
 
-      this.secRendererWorker.A.onmessage = this.secRendererWorker.onMassage;
+      this.secRendererWorker.A.onmessage = this.secRendererWorker.onMessage;
 
 
       this.secRendererWorker.B.onerror = function(error) {
         //logs error to console
         armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker B", "postMessage", error);
       };
-      this.secRendererWorker.B.onmessage = this.secRendererWorker.onMassage;
+      this.secRendererWorker.B.onmessage = this.secRendererWorker.onMessage;
 
       this.throttleAddMultiPointRedraws = EMPWorldWind.utils.MultiPointRateLimit(EMPWorldWind.editors.EditorController.redrawMilStdSymbols, 1);
     },
