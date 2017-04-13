@@ -939,6 +939,7 @@ emp.map = function(args) {
             //  Check to see if this is a mouse move
           } else if (args.type === emp.typeLibrary.Pointer.EventType.MOVE) {
 
+
             // if mouse button is still down, start drag
             if (this.mapDragStart && this.mapDrag !== true) {
 

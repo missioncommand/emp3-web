@@ -63,6 +63,16 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
+    else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+      drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE)) {
+      // This is a circle defined by a point and radius.  It uses a GEOJSON point and
+      // a distance in meters to represent
+      // itself.
+      activeEditor = new emp.editors.MilStdAutoshape({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    }
     /*
     else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
       (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
@@ -578,7 +588,7 @@ emp.editingManager = function(args) {
       });
 
       // finish running the transaction
-      editTransaction.run();      
+      editTransaction.run();
 
       // Immediately update the feature to the new state.
       transaction.run();

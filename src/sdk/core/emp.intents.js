@@ -404,6 +404,9 @@ emp.intents.control.useNewDrawing = function(args) {
   } else if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
     (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
     result = true;
+  } else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+    drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE)) {
+    result = true;
   }
 
   return result;
@@ -1564,7 +1567,7 @@ emp.intents.control.intentSequenceMapper = (function() {
 
   intentSequenceMapper[emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE] = function() {
     return {
-      forward: [        
+      forward: [
         cmapi.channel.support.genericFeatureRemove
       ],
       exit: [emp.transactionQueue._custom]
