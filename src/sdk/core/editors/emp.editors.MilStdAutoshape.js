@@ -212,7 +212,7 @@ emp.editors.MilStdAutoshape = function(args) {
 
     controlPoint1.data.coordinates = [topLeft.x, topLeft.y];
     controlPoint2.data.coordinates = [topRight.x, topRight.y];
-    controlPoint1.data.coordinates = [bottom.x, bottom.y];
+    controlPoint3.data.coordinates = [bottom.x, bottom.y];
 
     items.push(controlPoint1);
     items.push(controlPoint2);
@@ -233,7 +233,7 @@ emp.editors.MilStdAutoshape = function(args) {
   /**
    * Calculates sample points for a 4-point MIL-STD-2525 shape.
    */
-  this.calculateThreePointShape = function(width, height, x, y) {
+  this.calculateFourPointShape = function(width, height, x, y) {
     var controlPoint1,
       controlPoint2,
       controlPoint3,
@@ -417,8 +417,8 @@ emp.editors.MilStdAutoshape.prototype.drawStart = function(pointer) {
     bounds.north,
     bounds.west, "meters");
 
-  width = mapWidth / 6;
-  height = mapHeight / 6;
+  width = mapWidth / 8;
+  height = mapHeight / 8;
 
   // create the feature, don't populate the coordinate, we will populate later
   this.featureCopy = new emp.typeLibrary.Feature({
