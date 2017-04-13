@@ -312,93 +312,73 @@ EMPWorldWind.Map.prototype = (function() {
           //logs error to console
           armyc2.c2sd.renderer.utilities.ErrorLogger.LogException("MPWorker A", "postMessage", error);
         };
+
         this.secRendererWorker.onMessage = function(e) {
-          //var batchCall = false,
           var rendererData = [];
-          if (e.data.id) //not a batch call
-          {
+
+          if (e.data.id) { // Not a batch call
             rendererData.push = e.data.result;
           } else {
-            //batchCall = true;
             rendererData = e.data.result;
           }
-          if (rendererData && rendererData !== null && typeof rendererData === 'string') {
-            //console.log("Render error: " + rendererData);
-            return;
-          }
 
-          for (var index = 0; index < rendererData.length; index++) {
-            if (!EMPWorldWind.utils.defined(rendererData[index])) {
-              //console.log("Render error: renderer data is undefined");
-              return;
-            }
-            if (typeof rendererData[index] === 'string') {
-              //console.log("Render error: " + rendererData[index]);
+          emp.util.each(rendererData, function(rendererItem) {
+            if (!EMPWorldWind.utils.defined(rendererItem) || typeof rendererItem === 'string') {
               return;
             }
 
-            if (EMPWorldWind.utils.defined(rendererData[index])) {
-              if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] === 'string') {
-                //result.success = false;
-                //result.message = rendererData[index];
-                //result.jsError = "function: this.secRendererWorker.A.onmessage ";
-                return;
-              }
+            var wwFeature = this.features[rendererItem.id];
+            var shapes = [];
+            var data = rendererItem.geojson;
 
-              if (rendererData[index] && rendererData[index] !== null && typeof rendererData[index] !== 'string') {
+            for (var i = 0; i < data.features.length; i++) {
+              var componentFeature = data.features[i];
+              // TODO have the renderer return the proper width, manually overwriting the line width for now
+              componentFeature.properties.strokeWidth = 1;
+              componentFeature.properties.strokeWeight = 1;
+              switch (componentFeature.geometry.type) {
+                case "MultiLineString":
+                  var lineCount = componentFeature.geometry.coordinates.length;
 
-                var wwFeature = this.features[rendererData[index].id];
-                var shapes = [];
-                var data = rendererData[index].geojson;
-                //var data = JSON.parse(rendererData[index].geojson);
-                for (var i = 0; i < data.features.length; i++) {
-                  var componentFeature = data.features[i];
-                  // TODO have the renderer return the proper width, manually overwriting the line width for now
-                  componentFeature.properties.strokeWidth = 1;
-                  componentFeature.properties.strokeWeight = 1;
-                  switch (componentFeature.geometry.type) {
-                    case "MultiLineString":
-                      var lineCount = componentFeature.geometry.coordinates.length;
+                  for (var j = 0; j < lineCount; j++) {
+                    var subGeoJSON = {
+                      properties: componentFeature.properties,
+                      coordinates: componentFeature.geometry.coordinates[j]
+                    };
 
-                      for (var j = 0; j < lineCount; j++) {
-                        var subGeoJSON = {
-                          properties: componentFeature.properties,
-                          coordinates: componentFeature.geometry.coordinates[j]
-                        };
-
-                        shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON(subGeoJSON, this.state.selectionStyle));
-                      }
-                      break;
-                    case "LineString":
-                      shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON(componentFeature, this.state.selectionStyle));
-                      break;
-                    case "Point":
-                      shapes.push(EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON(componentFeature, this.state.selectionStyle));
-                      break;
-                    case "Polygon":
-                      shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygonFromGeoJSON(componentFeature, this.state.selectionStyle));
-                      break;
-                    default:
-                      window.console.error("Unable to render symbol with type " + componentFeature.geometry.type);
+                    shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON(subGeoJSON, this.state.selectionStyle));
                   }
-                }
-                if (wwFeature) {
-                  var layer = this.getLayer(this.rootOverlayId);
-                  wwFeature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
-                  layer.removeFeature(wwFeature);
-                  // Clear the primitives from the feature
-                  wwFeature.clearShapes();
-                  wwFeature.addShapes(shapes);
-                  wwFeature.feature.range = this.worldWindow.navigator.range;
-                  // Update the empFeature stored in the wwFeature
-                  //wwFeature.feature = empFeature;
-                  wwFeature.selected = this.isFeatureSelected(wwFeature.id);
-                  // Update the layer
-                  layer.addFeature(wwFeature);
-                }
+                  break;
+                case "LineString":
+                  shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolylineFromGeoJSON(componentFeature, this.state.selectionStyle));
+                  break;
+                case "Point":
+                  shapes.push(EMPWorldWind.editors.primitiveBuilders.constructTextFromGeoJSON(componentFeature, this.state.selectionStyle));
+                  break;
+                case "Polygon":
+                  shapes.push(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygonFromGeoJSON(componentFeature, this.state.selectionStyle));
+                  break;
+                default:
+                  window.console.error("Unable to render symbol with type " + componentFeature.geometry.type);
               }
-            } //  if (this.defined(multiPointObject))
-          } // for loop
+            }
+
+            if (wwFeature) {
+              var layer = this.getLayer(this.rootOverlayId);
+              wwFeature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
+              layer.removeFeature(wwFeature);
+              // Clear the primitives from the feature
+              wwFeature.clearShapes();
+              wwFeature.addShapes(shapes);
+              wwFeature.feature.range = this.worldWindow.navigator.range;
+              // Update the empFeature stored in the wwFeature
+              //wwFeature.feature = empFeature;
+              wwFeature.selected = this.isFeatureSelected(wwFeature.id);
+              // Update the layer
+              layer.addFeature(wwFeature);
+            }
+          }.bind(this));
+
           this.worldWindow.redraw();
         }.bind(this);
 
