@@ -25,6 +25,9 @@ EMPWorldWind.Map = function(wwd) {
   /** @type {Object.<string, EMPWorldWind.data.EmpFeature>} */
   this.features = {};
 
+  /** @type {Object.<string, *>} */
+  this.services = {};
+
   /**
    * This holds the state of the instance
    * @memberof EMPWorldWind.Map#
@@ -907,56 +910,64 @@ EMPWorldWind.Map.prototype = (function() {
         message: ''
       };
 
-      var xmlHttpRequest, url,
-        async = true,
-        that = this;
+      var xhr, url,
+        async = true;
+
+      var _createWMTSLayer = function(xmlDom) {
+        var wmtsCapabilities, wmtsLayerCapabilities, wmtsConfig;
+
+        wmtsCapabilities = new WorldWind.WmtsCapabilities(xmlDom);
+        wmtsLayerCapabilities = wmtsCapabilities.getLayer(empWMTS.layer);
+        wmtsConfig = WorldWind.WmtsLayer.formLayerConfiguration(wmtsLayerCapabilities);
+
+        return new WorldWind.WmtsLayer(wmtsConfig);
+      };
+
 
       // Handle getting capabilities
-      function xhrSuccess() {
-        var wmtsLayerCapabilities, wmtsCapabilities, wmtsConfig, wmtsLayer;
+      var xhrSuccess = function() {
+        var wmtsLayer;
 
-        if (this.status === 200) {
+        if (xhr.status === 200) {
           try {
-            wmtsCapabilities = new WorldWind.WmtsCapabilities(this.responseXML);
-            wmtsLayerCapabilities = wmtsCapabilities.getLayer(empWMTS.layer);
-            wmtsConfig = WorldWind.WmtsLayer.formLayerConfiguration(wmtsLayerCapabilities);
-            wmtsLayer = new WorldWind.WmtsLayer(wmtsConfig);
+            wmtsLayer = _createWMTSLayer(xhr.responseXML);
 
-            that.worldWindow.addLayer(wmtsLayer);
-            that.services[empWMTS.coreId] = wmtsLayer;
+            this.worldWindow.addLayer(wmtsLayer);
+            this.services[empWMTS.coreId] = wmtsLayer;
 
-            that.worldWindow.redraw();
+            this.worldWindow.redraw();
 
             rc.success = true;
-            callback(rc);
           } catch (err) {
-            // TODO pass this up to the call
             rc.message = err.message;
-            callback(rc);
+          }
+
+          if (typeof callback === "function") {
+            return callback(rc);
           }
         }
-      }
+      }.bind(this);
 
       // Handle getting error
-      function xhrError() {
+      var xhrError = function() {
         callback({
           success: false,
-          message: this.statusText
+          message: xhr.statusText
         });
-      }
+      };
 
       try {
         url = empWMTS.url + "?SERVICE=WMTS&REQUEST=GetCapabilities&VERSION=1.0.0";
 
         // Configure the request
-        xmlHttpRequest = new XMLHttpRequest();
-        xmlHttpRequest.open("GET", url, async);
-        xmlHttpRequest.callback = callback;
-        xmlHttpRequest.onload = xhrSuccess;
-        xmlHttpRequest.onerror = xhrError;
+        xhr = new XMLHttpRequest();
+        xhr.open("GET", url, async);
+        xhr.callback = callback;
+        xhr.onload = xhrSuccess;
+        xhr.onerror = xhrError;
 
         // Make the request
-        xmlHttpRequest.send();
+        xhr.send();
 
         rc.success = true;
       } catch (err) {
@@ -969,11 +980,20 @@ EMPWorldWind.Map.prototype = (function() {
     /**
      * @param {emp.typeLibrary.WMTS} empWMTS
      */
-    removeWmtsFromMap: function(/* empWMTS */) {
+    removeWmtsFromMap: function(empWMTS) {
       var rc = {
         success: false,
         message: ''
       };
+
+      if (empWMTS.coreId in this.services) {
+        this.worldWindow.removeLayer(this.services[empWMTS.coreId]);
+
+        rc.success = true;
+        this.worldWindow.redraw();
+      } else {
+        rc.message = 'No such service exists on the map';
+      }
 
       return rc;
     },
