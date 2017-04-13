@@ -61,7 +61,6 @@ emp.storage.removeChild = function(coreId) {
   var item = emp.storage._storage.store[coreId];
 
   if (item !== undefined) {
-    //console.log("SE Removing " + item.name + " (" + item.coreId + ").");
     // Make sure the items is in storage.
     // Loop while it has children
 
@@ -77,7 +76,6 @@ emp.storage.removeChild = function(coreId) {
     item.removeFromAllParent();
     // Now delete the child.
     delete emp.storage._storage.store[coreId];
-    //console.log("     DELETED " + item.name + " (" + item.coreId + ").");
   }
 };
 
@@ -642,7 +640,6 @@ emp.storage.removeItems = function(transaction) {
     if (item === undefined)
       continue;
 
-    //console.log("SE Removing " + item.name + " (" + item.coreId + ").");
     if (item.hasChildren()) {
       // Go thru the children.
       var coreIdList = item.getChildrenCoreIds();
@@ -656,7 +653,6 @@ emp.storage.removeItems = function(transaction) {
     item.removeFromAllParent();
     // Now delete the item
     delete store[item.coreId];
-    //console.log("   DELETED " + item.name + " (" + item.coreId + ").");
   }
 };
 
@@ -2907,23 +2903,7 @@ emp.storage.overlay.remove = function(oTransaction) {
     aMapList = oStorageEntry.getParentMapInstanceList();
 
     emp.storage.processRequest(oTransactions, aPrevMapList, aMapList, oParent, oStorageEntry, false);
-    /*
-     // This next loop will eliminate from aPrevMapList the instances
-     // that are in aMapList. Therefore the remaining ones are
-     // those map instances that the feature must be removed from.
-     for (iMapIndex = 0; iMapIndex < aMapList.length; iMapIndex++) {
-     iTempIndex = aPrevMapList.indexOf(aMapList[iMapIndex]);
-     if (iTempIndex !== -1) {
-     // Remove the element.
-     aPrevMapList.splice(iTempIndex, 1);
-     }
-     }
 
-     // The following loop creates the remove transaction.
-     for (iMapIndex = 0; iMapIndex < aPrevMapList.length; iMapIndex++) {
-     emp.storage.addToRemoveTransaction(oTransactions, aPrevMapList[iMapIndex], oParent, oStorageEntry);
-     }
-     */
     if (aMapList.length === 0) {
       // The storage entry has no more parents.
       // Delete all children with no other parents.
@@ -2934,15 +2914,6 @@ emp.storage.overlay.remove = function(oTransaction) {
 
     aMapList = oParent.getParentMapInstanceList();
 
-    // Loop thru the maps of the parent to send an update so the UI
-    // can update.  <--- took this out because remove is already updating the item now.
-    /*
-     for (iMapIndex = 0; iMapIndex < aMapList.length; iMapIndex++) {
-     emp.storage.addToObjectUpdateTransaction(oTransactions, aMapList[iMapIndex], oParent);
-     }
-     */
-
-    //console.log("   DELETED " + oItem.name + " (" + oItem.coreId + ").");
     iIndex++;
   }
 

@@ -40,7 +40,7 @@ emp.editors.Square.prototype.addControlPoints = function() {
   // We have an issue in that GEO_SQUARE uses GeoJSON Point
   x = this.featureCopy.data.coordinates[0];
   y = this.featureCopy.data.coordinates[1];
-  
+
 
   // Create a feature on the map for the center of the square.  This is
   // the center vertex.
@@ -74,7 +74,7 @@ emp.editors.Square.prototype.addControlPoints = function() {
   width = this.featureCopy.properties.width;
   height = this.featureCopy.properties.height || this.featureCopy.properties.width;
   azimuth = this.featureCopy.properties.azimuth;
-  
+
 
   // get the position of the point that controls the width of the feature.
   widthPoint = emp.geoLibrary.geodesic_coordinate({
@@ -213,7 +213,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
   // Normal GEO_SQUARE will use GeoJSON type "Point",
   x = this.featureCopy.data.coordinates[0];
   y = this.featureCopy.data.coordinates[1];
-  
+
 
   // Find the vertex in our vertices collection and retrieve the feature.
   currentVertex = this.vertices.find(featureId);
@@ -221,7 +221,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
 
   // get the old azimuth.
   azimuth = this.featureCopy.properties.azimuth;
-  
+
 
   // Determine which control point was moved and react appropriately.
   // Because this is a square we only want to display and update the height control point
@@ -236,9 +236,9 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
-    // store the new height in the feature. 
+    // store the new height in the feature.
     this.featureCopy.properties.height = heightDistance * 2;
-    
+
 
     // Calculate the position of the new height control point.
     newHeightPosition = emp.geoLibrary.geodesic_coordinate({
@@ -254,7 +254,7 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     // since we are measuring the distance between the edget and center we multiply
     // the width by 2.  L
     this.featureCopy.properties.width = widthDistance * 2;
-    
+
 
     // Get the positions of where the new control points will be.
     newWidthPosition = emp.geoLibrary.geodesic_coordinate({
