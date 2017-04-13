@@ -220,18 +220,15 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
  
   x = this.featureCopy.data.coordinates[0];
   y = this.featureCopy.data.coordinates[1];
-
-
+  
   currentVertex = this.vertices.find(featureId);
   currentFeature = currentVertex.feature;
-
-
-
   azimuth = this.featureCopy.properties.azimuth;
 
   // Calculate the new position of where
   // we want the control point to be.
   if (featureId === this.semiMajor.feature.featureId){
+
     // measure the distance between the mouse location and the center.  This
     // will be the new semiMajor.
     distance = emp.geoLibrary.measureDistance(pointer.lat,
@@ -243,8 +240,16 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     if(distance < this.featureCopy.properties.semiMinor){
       this.featureCopy.properties.semiMajor = this.featureCopy.properties.semiMinor;
       this.featureCopy.properties.semiMinor = distance;
+      if(this.featureCopy.properties.azimuth < 90){
+        this.featureCopy.properties.azimuth = this.featureCopy.properties.azimuth + 90;
+      }else{
+        this.featureCopy.properties.azimuth = this.featureCopy.properties.azimuth - 90;
+      }
+      this.semiMajor.feature.featureId = this.semiMinor.feature.featureId;
+      this.semiMinor.feature.featureId = featureId;
     }else{
       this.featureCopy.properties.semiMajor = distance;
+
     }
 
     // retrieve the new semiMajor vertex.   
@@ -260,6 +265,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
 
     // First update the control point with new pointer info.
     currentFeature.data.coordinates = [newFeaturePosition.x, newFeaturePosition.y];
+
     this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
 
     items.push(this.azimuth.feature);
@@ -276,6 +282,15 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     if(distance > this.featureCopy.properties.semiMajor){
       this.featureCopy.properties.semiMinor = this.featureCopy.properties.semiMajor;
       this.featureCopy.properties.semiMajor = distance;
+
+      if(this.featureCopy.properties.azimuth < 90){
+        this.featureCopy.properties.azimuth = this.featureCopy.properties.azimuth + 90;
+      }else{
+        this.featureCopy.properties.azimuth = this.featureCopy.properties.azimuth - 90;
+      }
+
+      this.semiMinor.feature.featureId = this.semiMajor.feature.featureId;
+      this.semiMajor.feature.featureId = featureId;
     }else{
       this.featureCopy.properties.semiMinor = distance;
     }
@@ -288,7 +303,6 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
 
     // First update the control point with new pointer info.
     currentFeature.data.coordinates = [newFeaturePosition.x, newFeaturePosition.y];
-
   }else if (featureId === this.azimuth.feature.featureId){
         // the rotation vertex was dragged.
     // get the new azimuth from the center to the current mouse position.  that
@@ -375,6 +389,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
   // Add our updated feature onto the items we will be updating in our
   // transaction.
   items.push(currentFeature);
+
 
   var transaction = new emp.typeLibrary.Transaction({
       intent: emp.intents.control.FEATURE_ADD,
