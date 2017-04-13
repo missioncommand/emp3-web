@@ -549,9 +549,19 @@ EMPWorldWind.Map.prototype = (function() {
       this.worldWindow.navigator.roll = args.roll || 0;
       this.worldWindow.navigator.tilt = args.tilt || 0;
 
+      var _goToCompleteCallback = function() {
+        // Notify the view has changed, this also triggers a re-render of any graphics in view
+        EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
+
+        // Fire the original callback
+        if (typeof args.animateCB === "function") {
+          return args.animateCB();
+        }
+      }.bind(this);
+
       // Fire the move
       this.goToAnimator.travelTime = args.animate ? EMPWorldWind.constants.globeMoveTime : 0;
-      this.goToAnimator.goTo(position, args.animateCB);
+      this.goToAnimator.goTo(position, _goToCompleteCallback);
     },
     /**
      *

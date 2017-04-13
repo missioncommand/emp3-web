@@ -92,61 +92,65 @@ EMPWorldWind.editors.EditorController = (function() {
   function _constructMultiPointMilStdFeature(features) {
     var bbox, bounds, scale, featureCoords,
       data = {};
+
     bounds = this.getBounds();
     bbox = bounds.west + "," + bounds.south + "," + bounds.east + "," + bounds.north;
+    data.bbox = bbox;
+
     data.batch = [];
+
     scale = EMPWorldWind.utils.boundsWidth(bounds) >> 2;
     data.scale = scale;
-    data.bbox = bbox;
+
     data.format = EMPWorldWind.constants.MultiPointRenderType.GEOJSON;
     data.pixelHeight = this.worldWindow.canvas.clientHeight;
     data.pixelWidth = this.worldWindow.canvas.clientWidth;
     data.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
 
     emp.util.each(features, function(feature) {
-      {
-        var i,
-          modifiers,
-          positions = "";
-        if (feature) {
-          modifiers = processModifiers.call(this, feature);
-          // Generate position string
-          featureCoords = feature.data.coordinates.join().split(",");
-          for (i = 0; i < featureCoords.length; i += 2) {
-            positions += featureCoords[i] + "," + featureCoords[i + 1] + " ";
-          }
-          positions = positions.trim();
-          modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.GeoJSONFormat] = 1; // 0 for string geojson, 1 for object geojson
-          var batchObject = {};
-          batchObject.id = feature.coreId;
-          batchObject.name = feature.name;
-          batchObject.description = unescape(feature.description);
-          batchObject.symbolID = feature.symbolCode;
-          batchObject.scale = scale; //scale;
-          batchObject.bbox = data.bbox;
-          batchObject.modifiers = modifiers;
-          batchObject.format = EMPWorldWind.constants.MultiPointRenderType.GEOJSON;
-          batchObject.symstd = 1; //TODO remove this hard coding of symstd    1;//1=2525C, 0=2525Bch2
-          batchObject.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
-          batchObject.altMode = WorldWind.CLAMP_TO_GROUND;
-          batchObject.points = positions;
-          data.batch.push(batchObject);
-        }
-      }
+      var i,
+        modifiers,
+        positions = "";
 
-      // Call sec renderer worker
-      if (this.secRendererWorker.lastSelected === EMPWorldWind.constants.RendererWorker.B) {
-        this.secRendererWorker.A.postMessage(data);
-        this.secRendererWorker.lastSelected = EMPWorldWind.constants.RendererWorker.A;
-      } else {
-        this.secRendererWorker.B.postMessage(data);
-        this.secRendererWorker.lastSelected = EMPWorldWind.constants.RendererWorker.B;
+      // Get the correct modifiers
+      modifiers = processModifiers.call(this, feature);
+
+      // Generate position string
+      featureCoords = feature.data.coordinates.join().split(",");
+      for (i = 0; i < featureCoords.length; i += 2) {
+        positions += featureCoords[i] + "," + featureCoords[i + 1] + " ";
       }
+      positions = positions.trim();
+      modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.GeoJSONFormat] = 1; // 0 for string geojson, 1 for object geojson
+      var batchObject = {};
+      batchObject.id = feature.coreId;
+      batchObject.name = feature.name;
+      batchObject.description = unescape(feature.description);
+      batchObject.symbolID = feature.symbolCode;
+      batchObject.scale = scale; //scale;
+      batchObject.bbox = data.bbox;
+      batchObject.modifiers = modifiers;
+      batchObject.format = EMPWorldWind.constants.MultiPointRenderType.GEOJSON;
+      batchObject.symstd = 1; //TODO remove this hard coding of symstd    1;//1=2525C, 0=2525Bch2
+      batchObject.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
+      batchObject.altMode = WorldWind.CLAMP_TO_GROUND;
+      batchObject.points = positions;
+      data.batch.push(batchObject);
+
     }.bind(this));
 
+    // Call sec renderer worker
+    if (this.secRendererWorker.lastSelected === EMPWorldWind.constants.RendererWorker.B) {
+      this.secRendererWorker.A.postMessage(data);
+      this.secRendererWorker.lastSelected = EMPWorldWind.constants.RendererWorker.A;
+    } else {
+      this.secRendererWorker.B.postMessage(data);
+      this.secRendererWorker.lastSelected = EMPWorldWind.constants.RendererWorker.B;
+    }
     // TODO remove empty array return, it is a holdover from before using web workers
     return [];
   }
+
 
   /**
    * Requires access to the current scope ie .bind .call .apply
@@ -154,24 +158,31 @@ EMPWorldWind.editors.EditorController = (function() {
    * @param {emp.typeLibrary.Feature} feature
    */
   function processModifiers(feature) {
-    var modifiers, enhancedModifiers, override, lowRangeMode;
+    var modifiers, enhancedModifiers, override, lowRangeMode, showLabels;
+
+    lowRangeMode = feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
     if (feature.data.type === "Point") {
       modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(
         feature.properties,
         feature.name,
         this.state.labelStyles, // Single-point shows symbols based on settings
         this.state.pixelSize);
+
+      // Show labels conditionally
+      showLabels = (this.state.labelStyles.CN === true) && lowRangeMode;
     } else {
       modifiers = EMPWorldWind.utils.milstd.updateModifierLabels(
         feature.properties,
         feature.name,
         EMPWorldWind.constants.AllLabels, // Multi-point always shows symbols
         this.state.pixelSize);
+
+      // TODO apply some altitude filtering
+      // Always show labels
+      showLabels = true;
     }
 
-    lowRangeMode = feature.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE;
-    modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, ((this.state.labelStyles.CN === true) && lowRangeMode));
-
+    modifiers = EMPWorldWind.utils.milstd.convertModifierStringTo2525(modifiers, showLabels);
     enhancedModifiers = EMPWorldWind.utils.milstd.checkForRequiredModifiers(feature);
 
     for (override in enhancedModifiers) {
@@ -445,7 +456,7 @@ EMPWorldWind.editors.EditorController = (function() {
      * Requires access to the current scope.
      * ie .bind .call .apply
      *
-     * @param {array of emp.typeLibrary.Feature } features
+     * @param {emp.typeLibrary.Feature[]} features
      */
     redrawMilStdSymbols: function(features) {
       // Process the modifiers
@@ -454,4 +465,4 @@ EMPWorldWind.editors.EditorController = (function() {
       _constructMultiPointMilStdFeature.call(this, features);
     }
   };
-})();
+}());
