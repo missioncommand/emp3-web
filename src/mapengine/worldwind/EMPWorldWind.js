@@ -182,7 +182,7 @@ EMPWorldWind.Map = function(wwd) {
 /**
  *
  */
-EMPWorldWind.Map.prototype = (function() {
+EMPWorldWind.Map.prototype = function() {
 
   // Private Functions =================================================================================================
   /**
@@ -1325,7 +1325,7 @@ EMPWorldWind.Map.prototype = (function() {
        * @this EMPWorldWind.Map
        * @private
        */
-      function _getVerticalPan() {
+      var _getVerticalPan = function() {
         if (this.state.autoPanning.up) {
           return step;
         } else if (this.state.autoPanning.down) {
@@ -1333,14 +1333,14 @@ EMPWorldWind.Map.prototype = (function() {
         } else {
           return 0;
         }
-      }
+      }.bind(this);
 
       /**
        *
        * @this EMPWorldWind.Map
        * @private
        */
-      function _getHorizontalPan() {
+      var _getHorizontalPan = function() {
         if (this.state.autoPanning.left) {
           return -step;
         } else if (this.state.autoPanning.right) {
@@ -1348,48 +1348,63 @@ EMPWorldWind.Map.prototype = (function() {
         } else {
           return 0;
         }
-      }
+      }.bind(this);
 
       /**
        *
        * @param {AutoPanParams} pan
        * @private
        */
-      function _cleanPanArgs(pan) {
+      var _cleanPanArgs = function(pan) {
         if (pan && pan.hasOwnProperty('state')) {
           delete pan['state'];
         }
         return pan;
-      }
+      };
 
       /**
        * @this EMPWorldWind.Map
        * @private
        */
-      function _allowPan() {
+      var _allowPan = function() {
         return this.state.autoPanning.up ||
           this.state.autoPanning.left ||
           this.state.autoPanning.down ||
           this.state.autoPanning.right;
-      }
+      }.bind(this);
 
       /**
        *
        * @private
        */
-      function _panMap() {
+      var _notifyEMPPointer = function() {
+        var coords = EMPWorldWind.utils.getEventCoordinates.call(this, this.state.lastInteractionEvent);
+        coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
+
+        if (coords.lat !== undefined) {
+          this.empMapInstance.eventing.Pointer(coords);
+        }
+      }.bind(this);
+
+      /**
+       *
+       * @private
+       */
+      var _panMap = function() {
         var vertical, horizontal, goToPosition,
           travelTime = 250; // 250 ms
 
         // Get the pan directions
-        vertical = _getVerticalPan.call(this);
-        horizontal = _getHorizontalPan.call(this);
+        vertical = _getVerticalPan();
+        horizontal = _getHorizontalPan();
 
         // Get the location to pan to
         goToPosition = new WorldWind.Position(
           this.worldWindow.navigator.lookAtLocation.latitude + vertical,
           this.worldWindow.navigator.lookAtLocation.longitude + horizontal,
           this.worldWindow.navigator.range);
+
+        // Set the travel time
         this.goToAnimator.travelTime = travelTime;
 
         // Update the state
@@ -1400,21 +1415,23 @@ EMPWorldWind.Map.prototype = (function() {
 
         // Fire the animation
         this.goToAnimator.goTo(goToPosition, function() {
-
-          var coords = EMPWorldWind.utils.getEventCoordinates.call(this, this.state.lastInteractionEvent);
-          coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
-
-          if (coords.lat !== undefined) {
-            this.empMapInstance.eventing.Pointer(coords);
-          }
+          // Update EMP pointer location for moving control points
+          _notifyEMPPointer();
 
           // Update the state to compete
           this.state.autoPanning.state = EMPWorldWind.constants.PAN_STATE.COMPLETE;
 
-          // Fire the animation again, any updates to direction or cancellation will be handled in this subsequent call
-          this.spinGlobe();
+          // Check if we still need to pan
+          if (_allowPan()) {
+            _panMap();
+          } else {
+            // Our exit route, update the state
+            this.state.autoPanning.state = EMPWorldWind.constants.PAN_STATE.HALTED;
+            // Notify EMP we have stopped moving
+            EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
+          }
         }.bind(this));
-      }
+      }.bind(this);
 
       // Explicitly halting the animation and restoring the pan state to no motion
       if (pan === false) {
@@ -1435,13 +1452,9 @@ EMPWorldWind.Map.prototype = (function() {
         return;
       }
 
-      if (_allowPan.call(this)) {
-        _panMap.call(this);
-      } else {
-        // Our exit route, update the state
-        this.state.autoPanning.state = EMPWorldWind.constants.PAN_STATE.HALTED;
-        // Notify EMP we have stopped moving
-        EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
+      // Start the pan if the state is set to
+      if (_allowPan()) {
+        _panMap();
       }
     },
     /**
@@ -1595,4 +1608,4 @@ EMPWorldWind.Map.prototype = (function() {
       _redrawAllFeatures.call(this);
     }
   };
-}());
+}();
