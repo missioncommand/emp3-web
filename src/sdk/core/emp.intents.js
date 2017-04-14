@@ -327,7 +327,7 @@ emp.intents.control.useNewEditing = function(args) {
 
     drawCategory = emp.util.getDrawCategory(originalFeature);
     }
-  
+
   if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
     originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
     originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
@@ -391,16 +391,15 @@ emp.intents.control.useNewDrawing = function(args) {
   }
 
   if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT)) {
-    result = true;
-  } else if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
-    result = true;
-  } else if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
-    result = true;
-  } else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
-    drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE)) {
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
+    (symbol &&
+      (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW))) {
     result = true;
   }
 

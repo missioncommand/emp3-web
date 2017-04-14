@@ -663,8 +663,7 @@ emp.editors.Polygon.prototype.moveFeature = function() {
  * occurs until the mouse is moved.
  */
 emp.editors.Polygon.prototype.drawStart = function(pointer) {
-  var coordinateUpdate,
-    updateData = {},
+  var updateData = {},
     controlPoint,
     vertex,
     items = [],
@@ -710,7 +709,6 @@ emp.editors.Polygon.prototype.drawStart = function(pointer) {
     properties: this.featureCopy.properties
   });
 
-
   // Place the vertex that you clicked on the map.
   transaction = new emp.typeLibrary.Transaction({
     intent: emp.intents.control.FEATURE_ADD,
@@ -725,7 +723,6 @@ emp.editors.Polygon.prototype.drawStart = function(pointer) {
   });
 
   transaction.run();
-
 
   // Create the return object.  This will tell you which index was changed,
   // the locations of the new indeces, and the type of change it was.

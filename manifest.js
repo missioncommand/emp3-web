@@ -76,6 +76,7 @@ var manifest = {
     'src/sdk/core/editors/emp.editors.Square.js',
     'src/sdk/core/editors/emp.editors.AxisOfAdvance.js',
     'src/sdk/core/editors/emp.editors.MilStdAutoshape.js',
+    'src/sdk/core/editors/emp.editors.MilStdArrow.js',
     'src/sdk/core/environment/owf/emp.environment.owf.js',
     'src/sdk/core/environment/browser/emp.environment.browser.js',
     'src/sdk/core/environment/browser/emp.environment.browser.mediator.js',

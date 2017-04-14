@@ -72,6 +72,12 @@ emp.editingManager = function(args) {
         feature: feature,
         mapInstance: args.mapInstance
       });
+    } else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW)) {
+      // This is an arrow.  It is a line with the coordinates reversed when drawn.
+      activeEditor = new emp.editors.MilStdArrow({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
     }
     /*
     else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
