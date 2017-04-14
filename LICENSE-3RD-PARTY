@@ -917,6 +917,14 @@ This code is released into the "public domain" by its author(s).  Anybody may us
 If you find a bug or make an improvement, it would be courteous to let the author know, but it is not compulsory.
 
 // =====================================================================================================================
+// Fonts and Icons
+// =====================================================================================================================
+Font Awesome by Dave Gandy - http://fontawesome.io
+
+Very Basic Globe Icon provided by Icons8
+http://icons8.com/license/
+
+// =====================================================================================================================
 // Additional Attributions
 // =====================================================================================================================
 Babel - https://babeljs.io/
@@ -976,8 +984,6 @@ tv4 - https://github.com/geraintluff/tv4
 
 D3 - https://d3js.org/
 d3-tip
-
-Font Awesome by Dave Gandy - http://fontawesome.io
 
 JQuery - https://jquery.com/
 Lodash - https://lodash.com/
