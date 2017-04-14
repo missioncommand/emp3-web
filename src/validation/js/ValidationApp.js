@@ -8,7 +8,7 @@ import {DragDropContext} from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import {guid} from './util/UUIDGen';
 
-import {Map, Navbar} from './components/app';
+import {Map, Navbar, About} from './components/app';
 
 // Import containers
 import ControlPanel from './components/ControlPanel';
@@ -286,6 +286,7 @@ class ValidationApp extends Component {
                 goto={this.mapGoto}
                 showResults={this.showResults}
                 toggleSettings={() => this.setState({isSettingsOpen: !this.state.isSettingsOpen})}
+                toggleAbout={() => this.setState({isAboutOpen: !this.state.isAboutOpen})}
                 isSettingsOpen={this.state.isSettingsOpen}
                 addMapContainer={this.addMapContainer}
                 createOverlay={this.createOverlay}
@@ -293,8 +294,12 @@ class ValidationApp extends Component {
                 setActiveScript={scriptName => this.setState({activeScript: scriptName})}
                 activeScript={this.state.activeScript}/>
 
+        { /** Modals */ }
         <Results isResultsOpen={this.state.isResultsOpen}
                  hideResults={this.hideResults}/>
+
+        <About isOpen={this.state.isAboutOpen}
+               close={() => this.setState({isAboutOpen: false})}/>
 
         {ghostbar}
         {dragbar}

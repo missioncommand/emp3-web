@@ -16,7 +16,7 @@ class CreateKMLLayerTest extends Component {
       selectedMapId: selectedMapId,
       name: '',
       geoId: '',
-      url: 'https://developers.google.com/maps/documentation/javascript/examples/kml/westcampus.kml',
+      url: './resources/KML_samples.kml',
       description: '',
       kmlString: '',
       useProxy: false

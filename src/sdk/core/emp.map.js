@@ -1040,7 +1040,7 @@ emp.map = function(args) {
             // if a drag was started, then always call the editingManager
             // so it can unlock the map.  When a drag starts, the map is locked
             // so we can perform a drag.
-            if (this.mapDragStart.featureId) {
+            if (this.mapDragStart && this.mapDragStart.featureId) {
               mapInstance.editingManager.get().editMouseUp();
             }
 

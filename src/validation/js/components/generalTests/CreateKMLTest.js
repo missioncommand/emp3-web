@@ -13,22 +13,12 @@ class CreateKMLTest extends Component {
     if (props.overlays.length > 0) {
       selectedOverlayId = _.first(props.overlays).geoId;
     }
+
     this.state = {
       feature: {
         name: '',
         geoId: '',
-        KMLString: '<?xml version="1.0" encoding="UTF-8"?>\n' +
-        '<kml xmlns="http://www.opengis.net/kml/2.2">\n' +
-        '  <Placemark>\n' +
-        '    <name>Simple placemark</name>\n' +
-        '    <description>\n' +
-        '      Attached to the ground. Intelligently places itself at the height of the underlying terrain.\n' +
-        '    </description>\n' +
-        '    <Point>\n' +
-        '      <coordinates>-122.0822035425683,37.42228990140251,0</coordinates>\n' +
-        '    </Point>\n' +
-        '  </Placemark>\n' +
-        '</kml>'
+        KMLString: ''
       },
       selectedOverlayId: selectedOverlayId,
       featureProps: {}
@@ -40,6 +30,14 @@ class CreateKMLTest extends Component {
     this.updateKML = this.updateKML.bind(this);
     this.updateKMLProperties = this.updateKMLProperties.bind(this);
     this.apply = this.apply.bind(this);
+  }
+
+  componentDidMount() {
+    $.ajax('resources/KML_samples.kml').then((xmlDoc) => {
+      let newFeature = {...this.state.feature};
+      newFeature.KMLString = new XMLSerializer().serializeToString(xmlDoc);
+      this.setState({feature: newFeature});
+    });
   }
 
   componentDidUpdate() {
