@@ -35,7 +35,7 @@ emp.editors.MilStdArrow.prototype.drawClick = function(pointer) {
 
     // create a midPoint vertex.
     // find the mid point between this point and the next point.
-    var pt1 = new LatLon(this.vertices.tail.feature.data.coordinates[1], this.vertices.tail.feature.data.coordinates[0]);
+    var pt1 = new LatLon(this.vertices.head.feature.data.coordinates[1], this.vertices.head.feature.data.coordinates[0]);
     var pt2 = new LatLon(pointer.lat, pointer.lon);
 
     // Get the mid point between this vertex and the next vertex.
