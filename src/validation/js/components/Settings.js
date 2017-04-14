@@ -150,6 +150,14 @@ class Settings extends Component {
                        }}/>
               </div>
             </div>
+
+            { /* Dummy apply button to take focus out of the input fields */ }
+            { /* Will eventually be smarter but doesn't need to for now */ }
+            <button
+              className="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-cell mdl-cell--8-col">
+              Apply
+            </button>
+
           </div>
         </div>
         <div id='settings-maps' className='mdl-tabs__panel'>
