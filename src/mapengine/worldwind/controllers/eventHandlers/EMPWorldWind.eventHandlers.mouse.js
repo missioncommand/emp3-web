@@ -115,7 +115,6 @@ EMPWorldWind.eventHandlers.mouse = (function() {
         EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
       }
 
-      this.state.autoPanning = EMPWorldWind.constants.NO_PANNING;
       this.empMapInstance.eventing.Pointer(mouseupEvent);
     },
     /**
