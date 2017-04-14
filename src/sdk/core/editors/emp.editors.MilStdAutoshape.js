@@ -402,7 +402,9 @@ emp.editors.MilStdAutoshape.prototype.drawStart = function(pointer) {
     width,
     height,
     items = [],
-    transaction;
+    transaction,
+    updateData,
+    indices;
 
   // determine the current map size
   bounds = this.mapInstance.status.getViewBounds();
@@ -437,12 +439,15 @@ emp.editors.MilStdAutoshape.prototype.drawStart = function(pointer) {
   switch (this.numPoints) {
     case 2:
       items = this.calculateTwoPointShape(width, height, pointer.lon, pointer.lat);
+      indices = [0,1];
       break;
     case 3:
       items = this.calculateThreePointShape(width, height, pointer.lon, pointer.lat);
+      indices = [0,1,2];
       break;
     case 4:
       items = this.calculateFourPointShape(width, height, pointer.lon, pointer.lat);
+      indices = [0,1,2,3];
       break;
   }
 
@@ -463,6 +468,19 @@ emp.editors.MilStdAutoshape.prototype.drawStart = function(pointer) {
   });
 
   transaction.run();
+
+  // return updateData
+  // Create the return object.  This will tell you which index was added,
+  // the locations of the new indices, and the type of change it was.
+  updateData = this.getUpdateData();
+
+  if (updateData) {
+    // override the default indices passed back, as this editor adds all
+    // the points at once.
+    updateData.coordinateUpdate.indices = indices;
+  }
+
+  return updateData;
 };
 
 /**

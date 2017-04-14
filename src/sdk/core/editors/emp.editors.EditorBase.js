@@ -21,6 +21,51 @@ emp.editors.EditorBase = function(args) {
   // Retrieve the mapInstance used for this feature.
   this.mapInstance = args.mapInstance;
 
+  this.getUpdateData = function() {
+    var newCoordinates = [],
+      i,
+      index,
+      length,
+      coordinates,
+      coordinateUpdate,
+      updateData = {};
+
+    // Normalize the coordinates so we can handle them the same.
+    if (this.featureCopy.data.type === 'Point') {
+      length = 1;
+      coordinates = [this.featureCopy.data.coordinates];
+    } else if (this.featureCopy.data.type === 'LineString') {
+      length = this.featureCopy.data.coordinates.length;
+      coordinates = this.featureCopy.data.coordinates;
+    } else if (this.featureCopy.data.type === 'Polygon') {
+      length = this.featureCopy.data.coordinates[0].length;
+      coordinates = this.featureCopy.data.coordinates[0];
+    }
+
+    // Reformat the coordinates so that they are in the proper format.
+    for (i = 0; i < length; i++) {
+      newCoordinates.push({
+        lat: coordinates[i][1],
+        lon: coordinates[i][0]
+      });
+    }
+
+    // By default we will say the index that is changed is the last one in the list.
+    index = this.vertices.vertexLength - 1;
+
+    // prepare the coordinate update parameter with the list.
+    coordinateUpdate = {
+      type: emp.typeLibrary.CoordinateUpdateType.ADD,
+      indices: [index],
+      coordinates: newCoordinates
+    };
+
+    updateData.coordinateUpdate = coordinateUpdate;
+    updateData.properties = this.featureCopy.properties;
+
+    return updateData;
+  };
+
 };
 
 
@@ -39,6 +84,7 @@ emp.editors.EditorBase.prototype.addControlPoints = function() {
 
   // Normalize the coordinates so we can handle them the same.
   if (this.featureCopy.data.type === 'Point') {
+    length = 1;
     coordinates = [this.featureCopy.data.coordinates];
   } else if (this.featureCopy.data.type === 'LineString') {
     length = this.featureCopy.data.coordinates.length;

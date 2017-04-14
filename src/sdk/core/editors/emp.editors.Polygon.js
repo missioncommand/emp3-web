@@ -729,15 +729,7 @@ emp.editors.Polygon.prototype.drawStart = function(pointer) {
 
   // Create the return object.  This will tell you which index was changed,
   // the locations of the new indeces, and the type of change it was.
-  coordinateUpdate = {
-    type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-    indices: [0],
-    coordinates: this.vertices.getVerticesAsLineString()
-  };
-
-  updateData.coordinateUpdate = coordinateUpdate;
-  updateData.properties = this.featureCopy.properties;
-
+  updateData = this.getUpdateData();
   return updateData;
 
 };
@@ -746,21 +738,18 @@ emp.editors.Polygon.prototype.drawStart = function(pointer) {
  * Occurs when the map is clicked after the draw has started.
  */
 emp.editors.Polygon.prototype.drawClick = function(pointer) {
-  var coordinateUpdate,
-    updateData = {},
+  var updateData = {},
     controlPoint,
     vertex,
     addVertex,
     addVertex2,
     items = [],
-    newCoordinates,
-    index,
     updateTransaction,
     midpoint,
     midpoint2,
     addPoint,
     addPoint2,
-    pt1, pt2, pt3, i;
+    pt1, pt2, pt3;
 
   // second and third points and fourth points are very different.  For second point, we draw a line
   // just to show marking.
@@ -1030,26 +1019,7 @@ emp.editors.Polygon.prototype.drawClick = function(pointer) {
     // Create the return object.  This will tell you which index was added,
     // the locations of the new indices, and the type of change it was.
 
-    newCoordinates = [];
-
-    for (i = 0; i < this.featureCopy.data.coordinates[0].length; i++) {
-      newCoordinates.push({
-        lat: this.featureCopy.data.coordinates[0][i][1],
-        lon: this.featureCopy.data.coordinates[0][i][0]
-      });
-    }
-
-    index = this.vertices.vertexLength - 1;
-
-    coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index],
-      coordinates: newCoordinates
-    };
-
-    updateData.coordinateUpdate = coordinateUpdate;
-    updateData.properties = this.featureCopy.properties;
-
+    updateData = this.getUpdateData();
   }
 
   return updateData;
