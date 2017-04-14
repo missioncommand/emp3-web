@@ -41,6 +41,8 @@ EMPWorldWind.eventHandlers.throttle = function(fn, threshold, scope) {
  * @this EMPWorldWind.Map
  */
 EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
+  var bounds = this.getBounds();
+
   var view = {
     range: this.worldWindow.navigator.range,
     tilt: this.worldWindow.navigator.tilt,
@@ -51,7 +53,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
       lat: this.worldWindow.navigator.lookAtLocation.latitude,
       lon: this.worldWindow.navigator.lookAtLocation.longitude
     },
-    bounds: this.getBounds()
+    bounds: bounds
   };
 
   var lookAt = {
@@ -75,7 +77,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
   } else if (this.isMapMoving()) {
     this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
     this.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
-    this.bounds = this.getBounds();
+    this.bounds = bounds;
     EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
   }
 };
@@ -123,7 +125,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
   }
 
   /**
-   * @param feature
+   * @param features
    * @this EMPWorldWind.Map
    * @private
    */
