@@ -848,6 +848,9 @@ EMPWorldWind.Map.prototype = (function() {
           kmlRenderableLayer.addRenderable(kmlFile);
           this.worldWindow.addLayer(kmlRenderableLayer);
 
+          // Update the map
+          this.worldWindow.redraw();
+
           // Record the layer so we can remove/modify it later
           this.layers[kmlLayer.id] = kmlLayer;
           if (typeof cb === "function") {
