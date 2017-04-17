@@ -330,7 +330,9 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    */
   engineInterface.feature.remove = function(transaction) {
     var rc;
+
     emp.util.each(transaction.items, function(feature) {
+
       rc = empWorldWind.unplotFeature(feature);
       if (!rc.success) {
         transaction.fail(new emp.typeLibrary.Error({

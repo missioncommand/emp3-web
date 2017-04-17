@@ -178,6 +178,15 @@ EMPWorldWind.Map = function(wwd) {
  * @property {boolean} left
  * @property {boolean} right
  */
+
+/**
+ * @callback PlotFeatureCB
+ * @param {object} cbArgs
+ * @param {EMPWorldWind.data.Feature} cbArgs.feature
+ * @param {boolean} cbArgs.success
+ * @param {string} [cbArgs.message]
+ * @param {string} [cbArgs.jsError]
+ */
 //======================================================================================================================
 /**
  *
@@ -635,8 +644,8 @@ EMPWorldWind.Map.prototype = function() {
           }
         }
 
-        if (callback) {
-          callback(cbArgs);
+        if (typeof callback === "function") {
+          return callback(cbArgs);
         }
       }.bind(this);
 
@@ -653,14 +662,7 @@ EMPWorldWind.Map.prototype = function() {
         EMPWorldWind.editors.EditorController.plotFeature.call(this, feature, _callback);
       }
     },
-    /**
-     * @callback PlotFeatureCB
-     * @param {object} cbArgs
-     * @param {EMPWorldWind.data.Feature} cbArgs.feature
-     * @param {boolean} cbArgs.success
-     * @param {string} [cbArgs.message]
-     * @param {string} [cbArgs.jsError]
-     */
+
     /**
      *
      * @param {emp.typeLibrary.Feature} feature
@@ -672,21 +674,59 @@ EMPWorldWind.Map.prototype = function() {
           message: ""
         };
 
-      layer = this.getLayer(feature.parentCoreId);
-      if (layer) {
-        layer.removeFeatureById(feature.coreId);
+      /**
+       * KML features are actually layers in WorldWind
+       * @private
+       */
+      var _handleKMLFeature = function() {
+        if (feature.coreId in this.layers) {
+          // Remove it from the map
+          this.worldWindow.removeLayer(this.layers[feature.coreId]);
 
-        this.removeFeatureSelection(feature.coreId);
-        if (this.features.hasOwnProperty(feature.coreId)) {
+          // Remove our record of the KML feature
+          delete this.layers[feature.coreId];
           delete this.features[feature.coreId];
-        }
-        this.worldWindow.redraw();
-        rc.success = true;
-      } else {
-        rc.messge = 'Could not find the parent overlay';
-      }
 
-      return rc;
+          // Update the map
+          this.worldWindow.redraw();
+
+          rc.success = true;
+        }
+        return rc;
+      }.bind(this);
+
+      /**
+       * Remove the features normally
+       * @private
+       */
+      var _handleDefaultFeature = function() {
+        layer = this.getLayer(feature.parentCoreId);
+        if (layer) {
+          // Remove it from the layer
+          layer.removeFeatureById(feature.coreId);
+
+          // Clear it from the selection hash
+          this.removeFeatureSelection(feature.coreId);
+
+          // Remove it from the list of features
+          if (this.features.hasOwnProperty(feature.coreId)) {
+            delete this.features[feature.coreId];
+          }
+
+          // Update the map
+          this.worldWindow.redraw();
+          rc.success = true;
+        } else {
+          rc.messge = 'Could not find the parent overlay';
+        }
+        return rc;
+      }.bind(this);
+
+
+      if (feature.format === "kml") { // KML features are actually layers
+        return _handleKMLFeature();
+      }
+      return _handleDefaultFeature();
     },
     /**
      *
