@@ -255,7 +255,7 @@ function initializeCesium(args)
                     var layers = option.split(",");
                     //for (var layerIndex = 0; layerIndex < layers.length; layers++)
                     //{
-                    var layerName = layers[0]; 
+                    var layerName = layers[0];
                     var webMapTileServiceImageryProvider = new empCesium.WebMapTileServiceImageryProvider({
                         url: imageryJsonObject.url,
                         style: 'default',
@@ -492,13 +492,14 @@ function initializeCesium(args)
                 geocoder: false,
                 animation: false,
                 scene3DOnly: true,
+                contextOptions: {webgl:{failIfMajorPerformanceCaveat:false}},
                 navigationInstructionsInitiallyVisible: false,
                 selectionIndicator: false,
                 fullscreenButton: false,
                 showRenderLoopErrors: false
             });
             viewer.scene.fxaa = true;
-            viewer.scene.debugShowFramesPerSecond = false;   
+            viewer.scene.debugShowFramesPerSecond = true;
             viewer.clock.shouldAnimate = false;
             if (args.extent)
             {
@@ -615,7 +616,7 @@ function initializeCesium(args)
             // dropDown.options.add(new Option("Natural Earth Raster"));
             empCesium.addLayer(layer);
             empCesium.enableLayer(layer, true);
-            
+
             // brightness tile imagery
             empCesium.stiBrightnessWhite = new empCesium.SingleTileImageryProvider({
                 url: defaultSingleTileImageBrightnessWhite,
@@ -643,7 +644,7 @@ function initializeCesium(args)
             empCesium.stiBrightnessWhite =  layerBrightnessWhite.providers[0].imageryLayer;
             //empCesium.setBackgroundBrightness ((args.configProperties.brightness)?args.configProperties.brightness:0);
            // empCesium.stiBrightnessWhite.alpha = 0.1;
-            
+
             empCesium.stiBrightnessBlack = new empCesium.SingleTileImageryProvider({
                 url: defaultSingleTileImageBrightnessBlack,
                 rectangle: new empCesium.Rectangle(
@@ -652,7 +653,7 @@ function initializeCesium(args)
                         empCesium.Math.toRadians(180.0),
                         empCesium.Math.toRadians(90.0))
             });
-            
+
             var layerBrightnessBlack= new EmpLayer("BrightnessBlackBackground", cesiumEngine.utils.createGUID(), EmpLayer.WMS_LAYER, empCesium);
             layerBrightnessBlack.globalType = EmpCesiumConstants.layerType.IMAGE_LAYER;
             layerBrightnessBlack.providers = [];
@@ -669,9 +670,9 @@ function initializeCesium(args)
             empCesium.stiBrightnessBlack =  layerBrightnessBlack.providers[0].imageryLayer;
             empCesium.setBackgroundBrightness ((args.configProperties.brightness)?args.configProperties.brightness:50);
             //   brightness tile imagery end
-            
-            
-            
+
+
+
 
             //get ready the Cesium content folder in the explorer
             empCesium.cesiumContentCoreId = emp.helpers.id.newGUID();
