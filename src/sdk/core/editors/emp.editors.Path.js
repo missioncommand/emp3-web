@@ -48,8 +48,8 @@ emp.editors.Path.prototype.addControlPoints = function() {
         },
         properties: {
           iconUrl: emp.ui.images.editPoint,
-          iconXOffset: 12,
-          iconYOffset: 12,
+          iconXOffset: 10,
+          iconYOffset: 10,
           xUnits: "pixels",
           yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -83,8 +83,8 @@ emp.editors.Path.prototype.addControlPoints = function() {
           },
           properties: {
             iconUrl: emp.ui.images.addPoint,
-            iconXOffset: 8,
-            iconYOffset: 8,
+            iconXOffset: 6,
+            iconYOffset: 6,
             xUnits: "pixels",
             yUnits: "pixels",
             altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -179,8 +179,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
         },
         properties: {
           iconUrl: emp.ui.images.addPoint,
-          iconXOffset: 8,
-          iconYOffset: 8,
+          iconXOffset: 6,
+          iconYOffset: 6,
           xUnits: "pixels",
           yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -207,8 +207,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
         },
         properties: {
           iconUrl: emp.ui.images.addPoint,
-          iconXOffset: 8,
-          iconYOffset: 8,
+          iconXOffset: 6,
+          iconYOffset: 6,
           xUnits: "pixels",
           yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -594,8 +594,8 @@ emp.editors.Path.prototype.drawStart = function(pointer) {
     },
     properties: {
       iconUrl: emp.ui.images.editPoint,
-      iconXOffset: 12,
-      iconYOffset: 12,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -694,8 +694,8 @@ emp.editors.Path.prototype.drawClick = function(pointer) {
       },
       properties: {
         iconUrl: emp.ui.images.addPoint,
-        iconXOffset: 8,
-        iconYOffset: 8,
+        iconXOffset: 6,
+        iconYOffset: 6,
         xUnits: "pixels",
         yUnits: "pixels",
         altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -713,8 +713,8 @@ emp.editors.Path.prototype.drawClick = function(pointer) {
       },
       properties: {
         iconUrl: emp.ui.images.editPoint,
-        iconXOffset: 12,
-        iconYOffset: 12,
+        iconXOffset: 10,
+        iconYOffset: 10,
         xUnits: "pixels",
         yUnits: "pixels",
         altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND

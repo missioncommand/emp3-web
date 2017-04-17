@@ -59,6 +59,15 @@ cmapi.channel.handler[cmapi.channel.names.MAP_FEATURE_PLOT] = {
                 visible: payload.visible
             });
 
+            // If its a point and it does not have an image URL, assign it a url
+            // immediately.
+            if (oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT &&
+              !oItem.properties.iconUrl) {
+              oItem.properties.iconUrl = emp.ui.images.defaultPoint;
+              oItem.properties.offsetX = 12;
+              oItem.properties.offsetY = 0;
+            }
+
             if (oItem.format === emp.typeLibrary.featureFormatType.GEOJSON ||
               oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
               oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
