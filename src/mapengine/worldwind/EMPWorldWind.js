@@ -1444,7 +1444,7 @@ EMPWorldWind.Map.prototype = function() {
       pan = _cleanPanArgs(pan);
 
       // Update the panning state directions
-      this.state.autoPanning = Object.assign(this.state.autoPanning, pan);
+      this.state.autoPanning = Object.assign({}, this.state.autoPanning, pan);
 
       // If we are still running a previous auto-pan animation return, the pan callback will use the updated state when it completes
       if (this.state.autoPanning.state === EMPWorldWind.constants.PAN_STATE.PANNING ||
