@@ -687,7 +687,8 @@ EMPWorldWind.Map.prototype = (function() {
           delete this.layers[feature.coreId];
           delete this.features[feature.coreId];
 
-          this.worldWind.redraw();
+          // Update the map
+          this.worldWindow.redraw();
 
           rc.success = true;
         }
