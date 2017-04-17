@@ -72,9 +72,21 @@ emp.editingManager = function(args) {
         feature: feature,
         mapInstance: args.mapInstance
       });
-    } else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW)) {
+    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW ) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.MilStdArrow({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW ) {
+      // This is an arrow.  It is a line with the coordinates reversed when drawn.
+      activeEditor = new emp.editors.MilStdTwoPointArrow({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ) {
+      // This is an arrow.  It is a line with the coordinates reversed when drawn.
+      activeEditor = new emp.editors.MilStdTwoPointLine({
         feature: feature,
         mapInstance: args.mapInstance
       });

@@ -29,6 +29,7 @@ emp.editors.MilStdArrow.prototype.drawClick = function(pointer) {
     midpoint,
     addPoint;
 
+
   // Verify this point is different than the last point. Otherwise ignore.
   if (this.vertices.tail.feature.data.coordinates[0] !== pointer.lon ||
     this.vertices.tail.feature.data.coordinates[1] !== pointer.lat) {
@@ -87,6 +88,7 @@ emp.editors.MilStdArrow.prototype.drawClick = function(pointer) {
     // For an arrow, we want to put the vertices in backwards.
     this.vertices.insert(this.vertices.head.feature.featureId, addVertex);
     this.vertices.insert(this.vertices.head.feature.featureId, vertex);
+
     items.push(addPoint);
     items.push(controlPoint);
 
