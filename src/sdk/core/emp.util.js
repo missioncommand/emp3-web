@@ -237,7 +237,12 @@ emp.util.getDrawCategory = function(feature) {
 
     // Get which standard the symbol is using, by default it is MIL-STD-2525C.
     if (feature.properties && feature.properties.modifiers) {
-      standard = feature.properties.modifiers.standard || 1;
+
+      if (feature.properties.modifiers === "2525b") {
+        standard = 0;
+      } else {
+        standard = 1;
+      }
     }
 
     basicCode = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(symbolCode, standard);
@@ -258,6 +263,25 @@ emp.util.getDrawCategory = function(feature) {
   }
 
   return drawCategory;
+};
+
+/**
+ * Retrieves the drawCategory of a MIL-STD-2525 symbol id. If no milstd
+ * is passed in it uses MIL-STD-2525C as default.
+ */
+emp.util.getDrawCategoryBySymbolId = function(symbolId, milstd) {
+  var feature = {
+    data: {
+      symbolCode: symbolId
+    },
+    properties: {
+      modifiers: {
+        standard: (milstd !== undefined) ? milstd : 1
+      }
+    }
+  };
+
+  return emp.util.getDrawCategory(feature);
 };
 
 /**

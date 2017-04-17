@@ -155,9 +155,7 @@ class MapEditFeatureTest extends Component {
         </button>
 
         <RelatedTests relatedTests={[
-          {text: 'Cancel the edit'},
-          {text: 'Complete the edit'},
-          {text: 'Edit a feature'}
+          {text: 'Draw a Feature', target: 'mapEditFeatureTest'}
         ]}/>
       </div>
     );

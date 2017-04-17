@@ -457,10 +457,6 @@ emp3.api.MessageHandler = (function() {
         case emp3.api.enums.channel.statusRequest:
           this.statusRequest(callInfo, transaction, transactionId);
           break;
-        case emp3.api.enums.channel.menuDrawingCreate:
-        case emp3.api.enums.channel.menuDrawingRemove:
-          // No handlers for these in EMP3
-          break;
         case emp3.api.enums.channel.clearMap:
           this.clearMap(callInfo, message, transactionId);
           break;
@@ -2660,7 +2656,8 @@ emp3.api.MessageHandler = (function() {
           geoId: message.featureId,
           name: message.name,
           coordinates: emp3.api.convertGeoJsonToCMAPIPositions(message.feature),
-          properties: message.properties
+          properties: message.properties,
+          symbolCode: message.feature.symbolCode
         });
       }
       if (callbacks) {
@@ -2697,13 +2694,14 @@ emp3.api.MessageHandler = (function() {
       if (message.updates) {
         // make sure message.properties.featureType is defined -- if not we
         // won't know what to build.
-        if (message.properties && message.properties.featureType) {
+        if (message.properties && message.properties.featureType && message.feature) {
           args.feature = emp3.api.buildFeature({
             type: message.properties.featureType,
             geoId: message.featureId,
             name: message.name,
             coordinates: emp3.api.convertLocationArrayToCMAPI(message.updates.coordinates),
-            properties: message.properties
+            properties: message.properties,
+            symbolCoce: message.feature.symbolCode
           });
         }
         args.updateList.push({
@@ -2742,13 +2740,14 @@ emp3.api.MessageHandler = (function() {
       args.map = mapHash.getItem(sender.id);
       // make sure message.properties.featureType is defined -- if not we
       // won't know what to build.
-      if (message.updates && message.properties && message.properties.featureType) {
+      if (message.updates && message.properties && message.properties.featureType && message.feature) {
         args.feature = emp3.api.buildFeature({
           type: message.properties.featureType,
           geoId: message.featureId,
           name: message.name,
           coordinates: emp3.api.convertLocationArrayToCMAPI(message.updates.coordinates),
-          properties: message.properties
+          properties: message.properties,
+          symbolCode: message.feature.symbolCode
         });
       }
       if (callbacks) {

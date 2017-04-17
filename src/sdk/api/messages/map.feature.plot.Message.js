@@ -46,6 +46,7 @@
           break;
       }
 
+      // TODO: We need to follow the standard for MIL-STD-2525 according to CMAPI 1.3 spec.
       payload = {
         overlayId: message.overlayId,
         featureId: feature.geoId,
@@ -55,7 +56,7 @@
         feature: convertedFeature,
         name: feature.name,
         readOnly: feature.readOnly,
-        properties: emp3.api.getProperties(feature)
+        properties:emp3.api.getProperties(feature)
       };
       payload.properties.modifiers = payload.properties.modifiers || {};
       payload.properties.modifiers.standard = feature.symbolStandard;

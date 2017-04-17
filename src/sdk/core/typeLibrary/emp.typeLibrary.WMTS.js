@@ -118,21 +118,20 @@ emp.typeLibrary.WMTS = function(args) {
   /**
    * @private
    */
-  this.version = this.params.version || "";
+  this.version = this.params.version || args.version || "";
   // capabilities will only be provided for wms adds where no default layers are provided
 
 
   /**
    * @private
    */
-  this.format = this.params.format || "image/png";
+  this.format = this.params.format ||  args.format || "image/png";
 
+  this.layer = this.params.layer || args.layer;
 
-  this.layer = this.params.layer;
+  this.style = this.params.style || args.style;
 
-  this.style = this.params.style;
-
-  this.sampleDimensions = this.params.sampleDimensions;
+  this.sampleDimensions = this.params.sampleDimensions || args.sampleDimensions;
 
   /**
    * @field

@@ -62,7 +62,7 @@ class Navbar extends Component {
 
   render() {
     const {clearTest, prevTest, nextTest, scripts, setActiveScript, executeScript, activeScript} = this.props;
-    const {createOverlay, showResults, toggleSettings, isSettingsOpen, goto, addMapContainer} = this.props;
+    const {createOverlay, showResults, toggleSettings, isSettingsOpen, goto, addMapContainer, toggleAbout} = this.props;
 
     return (
       <div role='navigation' id='navbar'>
@@ -87,8 +87,6 @@ class Navbar extends Component {
           </ul>
         </NavbarItem>
 
-        <Separator />
-
         <NavbarItem>
           <ul>
             {/* Button to add a new map container */}
@@ -109,7 +107,8 @@ class Navbar extends Component {
 
         <NavbarItem right>
           <ul>
-            <li onClick={() => showResults()}><i className='fa fa-arrow-down' aria-hidden='true'/> Results</li>
+            <li title="About" onClick={toggleAbout}>
+              <a href="#"><i className="fa fa-book"/></a></li>
           </ul>
         </NavbarItem>
 
@@ -117,8 +116,19 @@ class Navbar extends Component {
 
         <NavbarItem right>
           <ul>
-            <li onClick={() => toggleSettings()} style={{backgroundColor: isSettingsOpen ? 'cyan' : null}}><i
-              className='fa fa-cog' aria-hidden='true'/> Settings
+            <li onClick={() => showResults()} title="Show Results">
+              <i className='fa fa-arrow-down' aria-hidden='true'/> Results
+            </li>
+          </ul>
+        </NavbarItem>
+
+        <Separator right/>
+
+        <NavbarItem right>
+          <ul>
+            <li onClick={() => toggleSettings()} style={{backgroundColor: isSettingsOpen ? 'cyan' : null}}
+                title="Toggle Settings">
+              <i className='fa fa-cog' aria-hidden='true'/> Settings
             </li>
           </ul>
         </NavbarItem>
@@ -127,6 +137,7 @@ class Navbar extends Component {
 
         <NavbarItem style={{padding: '3px 8px 0 0'}} right>
           <a style={{padding: '0 8px'}}
+             title="Run Script"
              disabled={activeScript === ''}
              onClick={executeScript}
              href='#'><i className='fa fa-flash'/></a>
@@ -147,7 +158,9 @@ class Navbar extends Component {
             event.preventDefault();
             goto(this.state.goto);
             return false;
-          }} noValidate>
+          }}
+                title="Go To Location"
+                noValidate>
             <a href="#"
                style={{padding: '0 8px'}}
                onClick={() => goto(this.state.goto)}>
@@ -160,6 +173,8 @@ class Navbar extends Component {
                    onChange={event => this.setState({goto: event.target.value})}/>
           </form>
         </NavbarItem>
+
+        <Separator right/>
       </div>
     );
   }
@@ -177,6 +192,7 @@ Navbar.propTypes = {
   createOverlay: PropTypes.func.isRequired,
   showResults: PropTypes.func.isRequired,
   toggleSettings: PropTypes.func.isRequired,
+  toggleAbout: PropTypes.func.isRequired,
   isSettingsOpen: PropTypes.bool.isRequired,
   goto: PropTypes.func.isRequired
 };

@@ -196,89 +196,6 @@ emp.typeLibrary.Transaction = function(args) {
     }
   };
 
-
-  // /**
-  //  * @private
-  //  */
-  /*
-   this.breakCoreId = function(args) {
-   var returnVar = [],
-   i,
-   coreId;
-
-   for (i = 0; i < args.length; i = i + 1) {
-
-   coreId = args[i].coreId;
-   coreId = coreId.split(".");
-   if (coreId.length === 1) {
-   returnVar.push({
-   overlayId: coreId[0]
-   });
-   } else if (coreId.length === 2) {
-   returnVar.push({
-   overlayId: coreId[0],
-   featureId: coreId[1]
-   });
-   } else if (coreId.length === 3) {
-   returnVar.push({
-   overlayId: coreId[0],
-   parentId: coreId[1],
-   featureId: coreId[2]
-   });
-   }
-   }
-   return returnVar;
-   };
-   */
-  /**
-   * Used by CMAPI to finalize transaction prior to publishing.
-   * @return {void}
-   */
-
-  /**
-   * @private
-   */
-  /*
-   this.close = function() {
-
-   var r = [],
-   i;
-   for (i = 0; i < this.items.length; i = i + 1) {
-   r.push({
-   coreId: this.items[i].coreId
-   });
-   }
-
-   if (this.items.length > 0) {
-   if ((this.items[0].bounds !== undefined &&
-   this.items[0].bounds !== null) ||
-   (this.items[0].location !== undefined &&
-   this.items[0].location !== null) ||
-   (this.items[0].range !== undefined &&
-   this.items[0].range !== null)) {
-   this.successes = [{
-   bounds: this.items[0].bounds,
-   center: this.items[0].location,
-   range: this.items[0].range
-   }];
-   } else if (this.intent === "map.get") {
-   this.successes = {
-   overlay: this.items[0].overlay,
-   feature: this.items[0].feature
-
-   };
-   } else {
-   this.successes = this.breakCoreId(r);
-   }
-   }
-
-   this.state = "closed";
-   };
-   */
-  /*
-   this is our setup for -INITIAL- validation errors.
-   This will not work twice.
-   */
   /**
    * List of failed items in the transaction.
    * @type {Array}
@@ -364,14 +281,11 @@ emp.typeLibrary.Transaction = function(args) {
    * @private
    */
   this.runner = function() {
-
     var control = emp.intents.getSequence(this),
       i,
       e;
 
     this.inTask = true;
-    //console.log(this.intent + "  TransID:" + this.transactionId + " In runner.");
-
 
     if (this.state === "paused") {
       this.inTask = false;
@@ -418,7 +332,6 @@ emp.typeLibrary.Transaction = function(args) {
             //bail.
             // need to increment...
             this.sequenceNumber = this.sequenceNumber + 1;
-            //console.log(this.intent + "  TransID:" + this.transactionId + " Runner exit. Paused by action.");
             this.inTask = false;
             return false;
           }
@@ -428,7 +341,6 @@ emp.typeLibrary.Transaction = function(args) {
     // make sure we don't exit even if only one action.
     if (this.state === "paused") {
       this.sequenceNumber++;
-      //console.log(this.intent + "  TransID:" + this.transactionId + " Runner exit. Paused after forward loop.");
       this.inTask = false;
       return false;
     } else {
@@ -454,7 +366,6 @@ emp.typeLibrary.Transaction = function(args) {
       }
     }
 
-    //console.log(this.intent + "  TransID:" + this.transactionId + " Runner clean exit.");
     this.inTask = false;
   };
 
@@ -508,7 +419,6 @@ emp.typeLibrary.Transaction = function(args) {
           var sTempStr = JSON.stringify(this);
 
           if (sTempStr.length > 2000000) {
-            //console.log("Splicing transaction " + this.intent + " with " + this.items.length + " items.");
             this.pendingItems = this.items;
             this.items = [];
             this.getNextItemSet();
@@ -550,7 +460,6 @@ emp.typeLibrary.Transaction = function(args) {
         this.pendingItems.splice(0, 1);
         iItemCnt++;
       }
-      //console.log("     Processing next " + iItemCnt + " items. " + iCumSize + " Bytes");
 
       this.sequenceNumber = 0;
       this.lastNumber = 1;
