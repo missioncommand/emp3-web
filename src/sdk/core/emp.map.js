@@ -1468,7 +1468,7 @@ emp.map = function(args) {
           }
         }
         // check to see if we need to display confirmation window
-        // in fo confirmation is needed, the message will be an empty string
+        // if confirmation is needed, the message will be an empty string
         if (confirmationMessage !== "") {
           bConfirmResponse = confirm(confirmationMessage);
           if (bConfirmResponse) {

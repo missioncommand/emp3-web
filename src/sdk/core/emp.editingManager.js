@@ -499,11 +499,13 @@ emp.editingManager = function(args) {
         });
       }
 
+      // finish running the edit transaction
+      editTransaction.run();
+
       // undo any changes that were made during the edit.
       transaction.run();
 
-      // finish running the edit transaction
-      editTransaction.run();
+
 
       // We are done editing. Reset state of editingManager.
       editTransaction = undefined;
