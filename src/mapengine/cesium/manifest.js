@@ -496,7 +496,7 @@ function initializeCesium(args)
                 navigationInstructionsInitiallyVisible: false,
                 selectionIndicator: false,
                 fullscreenButton: false,
-                showRenderLoopErrors: false
+                showRenderLoopErrors: true
             });
             viewer.scene.fxaa = true;
             viewer.scene.debugShowFramesPerSecond = true;
