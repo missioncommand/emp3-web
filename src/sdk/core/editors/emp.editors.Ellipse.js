@@ -196,7 +196,6 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     semiMinor,
     newSemiMajorPosition,
     newSemiMinorPosition,
-    alternateFeature,
     index,
     coordinateUpdate,
     updateData = {},
@@ -209,6 +208,9 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     delta,
     newAzimuth,
     newFeaturePosition,
+    semiMinorPoint,
+    semiMajorPoint,
+    azimuthPoint,
     o, a, h, x, y;
 
  
@@ -417,6 +419,42 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     items.push(this.semiMajor.feature);
     items.push(this.semiMinor.feature);
     items.push(this.azimuth.feature);
+  }else{
+    currentFeature = this.vertices.find(featureId).feature;
+
+    currentFeature.data.coordinates = [pointer.lon, pointer.lat];
+
+    this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+
+
+    // Get the properties for width, height and azimuth.  
+    semiMajor = this.featureCopy.properties.semiMajor;
+    semiMinor = this.featureCopy.properties.semiMinor;
+    azimuth = this.featureCopy.properties.azimuth;
+
+
+    // Calculate the new positions of the control points.
+    semiMinorPoint = emp.geoLibrary.geodesic_coordinate({
+      x: x,
+      y: y
+    }, semiMinor, 0 + azimuth);
+    semiMajorPoint = emp.geoLibrary.geodesic_coordinate({
+      x: x,
+      y: y
+    }, semiMajor, 90 + azimuth);
+    azimuthPoint = emp.geoLibrary.geodesic_coordinate({
+      x: x,
+      y: y
+    }, semiMajor, -90 + azimuth);
+
+    // update the control point positions.
+    this.semiMajor.feature.data.coordinates = [semiMajorPoint.x, semiMajorPoint.y];
+    this.semiMinor.feature.data.coordinates = [semiMinorPoint.x, semiMinorPoint.y];
+    this.azimuth.feature.data.coordinates = [azimuthPoint.x, azimuthPoint.y];
+
+    items.push(this.semiMajor.feature);
+    items.push(this.semiMinor.feature);
+    items.push(this.azimuth.feature);
   }
 
   // make sure the symbol is updated with its new properties.
@@ -425,10 +463,6 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
   // Add our updated feature onto the items we will be updating in our
   // transaction.
   items.push(currentFeature);
-
-  if(alternateFeature){
-    items.push(alternateFeature);
-  }
 
 
   var transaction = new emp.typeLibrary.Transaction({
