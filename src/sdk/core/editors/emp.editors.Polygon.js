@@ -301,7 +301,15 @@ emp.editors.Polygon.prototype.startMoveControlPoint = function(featureId, pointe
       type: 'LineString'
     },
     properties: {
-      lineColor: "FFFFFF00"
+      lineColor: "FFFFFF00",
+      strokeStyle: {
+        strokeColor: {
+          red: 255,
+          green: 255,
+          blue: 0,
+          alpha: 1.0
+        }
+      }
     }
   });
 
