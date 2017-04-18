@@ -16,12 +16,12 @@ if (!window.emp3.api) {
  */
 emp3.api.global = emp3.api.global || {
 
-    version: "2.4.0_dev",
+    version: "2.5.0_dev",
     /**
      * @name emp3.api.global#configuration
      */
     configuration: (function() {
-      var _urlProxy = "../urlproxy.jsp";
+      var _urlProxy = "../urlproxy.jsp"; // NOTICE: this file location was selected on purpose
 
       /**
        * @name emp3.api.global.configuration#urlProxy

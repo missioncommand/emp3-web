@@ -1851,7 +1851,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //
 //                // Assign the class level variable.
 //                empCesium.iconLabels = newIconLabelSettings;
-//                //check altitude range mode before calling the throttlering. If icon label option is none 
+//                //check altitude range mode before calling the throttlering. If icon label option is none
 //                //and the range mode is mid or high then there is no need to render because teh icons are already with no labels.
 //                if (empCesium.iconLabelOption === "none" && (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
 //                        empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
@@ -1970,13 +1970,16 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
                     break;
                 case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
-                    empCesium.scene.screenSpaceCameraController.enableRotate = true;
-                    empCesium.scene.screenSpaceCameraController.enableTranslate = true;
-                    empCesium.scene.screenSpaceCameraController.enableZoom = true;
-                    empCesium.scene.screenSpaceCameraController.enableTilt = true;
-                    empCesium.scene.screenSpaceCameraController.enableLook = true;
-                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
-                    empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
+                var delayUnlockingMapTimeOut = setTimeout(function ()
+                   {
+                      empCesium.scene.screenSpaceCameraController.enableRotate = true;
+                      empCesium.scene.screenSpaceCameraController.enableTranslate = true;
+                      empCesium.scene.screenSpaceCameraController.enableZoom = true;
+                      empCesium.scene.screenSpaceCameraController.enableTilt = true;
+                      empCesium.scene.screenSpaceCameraController.enableLook = true;
+                      empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                      empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
+                    }.bind(this), 70);
                     break;
                 case emp3.api.enums.MapMotionLockEnum.NO_PAN:
                     empCesium.scene.screenSpaceCameraController.enableRotate = false;
@@ -2175,7 +2178,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 
                         // Assign the class level variable.
                         empCesium.iconLabels = newMilStdIconLabelSetting;
-                        //check altitude range mode before calling the throttlering. If icon label option is none 
+                        //check altitude range mode before calling the throttlering. If icon label option is none
                         //and the range mode is mid or high then there is no need to render because teh icons are already with no labels.
                         if (empCesium.iconLabelOption === "none" && (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
                                 empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)

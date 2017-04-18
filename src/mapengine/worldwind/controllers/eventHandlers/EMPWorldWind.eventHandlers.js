@@ -37,10 +37,12 @@ EMPWorldWind.eventHandlers.throttle = function(fn, threshold, scope) {
  * NOTE: The altitude, latitude, and longitude for the returned view may not be accurate as they are still based on
  * the navigator which is based on the lookAt location.
  *
- * @param {emp3.api.enums.CameraEventType} [viewEventType]
+ * @param {emp3.api.enums.CameraEventEnum} [viewEventType]
  * @this EMPWorldWind.Map
  */
 EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
+  var bounds = this.getBounds();
+
   var view = {
     range: this.worldWindow.navigator.range,
     tilt: this.worldWindow.navigator.tilt,
@@ -51,7 +53,7 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
       lat: this.worldWindow.navigator.lookAtLocation.latitude,
       lon: this.worldWindow.navigator.lookAtLocation.longitude
     },
-    bounds: this.getBounds()
+    bounds: bounds
   };
 
   var lookAt = {
@@ -64,20 +66,20 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
   };
 
   //optimization . isMapMoving uses an epsilon to reduce the calls to triggerRenderUpdate function.
-  if (this.isMapMoving()) {
-    this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
-    this.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
-    this.bounds = this.getBounds();
-    // this.shapesInViewArea = this.pickShapesInViewRegion();
-    EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
+  if (viewEventType === emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED) {
+    // set last navigator only when the camera stop moving.
     this.lastNavigator.range = this.worldWindow.navigator.range;
     this.lastNavigator.tilt = this.worldWindow.navigator.tilt;
     this.lastNavigator.roll = this.worldWindow.navigator.roll;
     this.lastNavigator.heading = this.worldWindow.navigator.heading;
     this.lastNavigator.lookAtLocation = emp.helpers.copyObject(this.worldWindow.navigator.lookAtLocation);
+    EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
+  } else if (this.isMapMoving()) {
+    this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
+    this.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
+    this.bounds = bounds;
+    EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
   }
-
-
 };
 
 /**
@@ -86,6 +88,12 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
  * @this EMPWorldWind.Map
  */
 EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
+  var featuresToRedraw = [];
+  // Don't render until the map has stopped being dragged
+  if (this.state.dragging) {
+    return;
+  }
+
   this.state.lastRender.bounds = this.getBounds();
   this.state.lastRender.altitude = this.worldWindow.navigator.range;
 
@@ -117,16 +125,17 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
   }
 
   /**
-   * @param feature
+   * @param features
    * @this EMPWorldWind.Map
    * @private
    */
-  function _handleMultiPoint(feature) {
-    if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
-      feature.feature.wasClipped)) {
-      // optimization - update feature only if inside view region and  (range outside range epsilon or was clipped)
-      this.plotFeature(feature);
-    }
+  function _handleMultiPoint(features) {
+    //if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON3) ||
+    //feature.feature.wasClipped)) {
+    // optimization - update feature only if inside view region and  (range outside range epsilon or was clipped)
+    this.throttleAddMultiPointRedraws.call(this, features);
+    ////EMPWorldWind.editors.EditorController.redrawMilStdSymbols.call(this,features);
+    //}
   }
 
   /**
@@ -159,13 +168,20 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
 
     if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "LineString") {
-      _handleMultiPoint.call(this, feature);
+      if (this.isMilStdMultiPointShapeInViewRegion(feature.feature) && (!EMPWorldWind.Math.equalsEpsilon(feature.feature.range, this.lastNavigator.range, EMPWorldWind.Math.EPSILON1) ||
+        feature.feature.wasClipped)) {
+        featuresToRedraw.push(feature.feature);
+      }
     } else if (feature.feature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL &&
       feature.feature.data.type === "Point") {
       // Optimization required
       _handleSinglePoint.call(this, feature);
     }
   }.bind(this));
+
+  if (featuresToRedraw.length > 0) {
+    _handleMultiPoint.call(this, featuresToRedraw);
+  }
 
   this.worldWindow.redraw();
 };

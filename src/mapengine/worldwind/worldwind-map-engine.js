@@ -330,7 +330,9 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    */
   engineInterface.feature.remove = function(transaction) {
     var rc;
+
     emp.util.each(transaction.items, function(feature) {
+
       rc = empWorldWind.unplotFeature(feature);
       if (!rc.success) {
         transaction.fail(new emp.typeLibrary.Error({
@@ -481,7 +483,92 @@ emp.engineDefs.worldWindMapEngine = function(args) {
     }
   };
 
-// return the engineInterface object as a new engineTemplate instance
+  /**
+   * Creates a KML layer
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.kmllayer.add = function(transaction) {
+    var items = transaction.items.length;
+
+    /**
+     * Resume the transaction once all items have been processed
+     * @private
+     */
+    function _complete(args) {
+      items--;
+
+      if (!args.success) {
+        transaction.failures.push(new emp.typeLibrary.Error({
+          message: args.message,
+          coreId: args.id
+        }));
+      }
+
+      // There are other layers to add
+      if (items > 0) {
+        return;
+      }
+
+      transaction.run();
+    }
+
+    // Pause the transaction, KML is async in WorldWind
+    transaction.pause();
+    emp.util.each(transaction.items, function(kmlLayer) {
+      empWorldWind.addKML(kmlLayer, _complete);
+    });
+  };
+
+  /**
+   * Remove a KML Layer
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.kmllayer.remove = function(transaction) {
+    emp.util.each(transaction.items, function(kmlLayer) {
+      empWorldWind.removeKML(kmlLayer);
+    });
+  };
+
+  /**
+   *
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.wmts.add = function(transaction) {
+    var itemCount = transaction.items.length;
+
+    // Pause the transaction, we have to manually get the capabilities
+    transaction.pause();
+
+    while (itemCount--) {
+      empWorldWind.addWmtsToMap(transaction.items[itemCount], function(count, cbArgs) {
+        if (!cbArgs.success) {
+          transaction.fail(new emp.typeLibrary.Error(cbArgs));
+        }
+
+        if (count === 0) {
+          transaction.run();
+        }
+      }.bind(this, itemCount));
+    }
+  };
+
+  /**
+   *
+   * @param {emp.typeLibrary.Transaction} transaction
+   */
+  engineInterface.wmts.remove = function(transaction) {
+    var failures = [];
+
+    emp.util.each(transaction.items, function(wmts) {
+      var rc = empWorldWind.removeWmtsFromMap(wmts);
+      if (!rc.success) {
+        failures.push(wmts);
+      }
+    });
+
+    transaction.failures = failures;
+  };
+
+  // return the engineInterface object as a new engineTemplate instance
   return engineInterface;
-}
-;
+};

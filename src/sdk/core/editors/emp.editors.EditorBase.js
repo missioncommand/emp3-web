@@ -63,8 +63,8 @@ emp.editors.EditorBase.prototype.addControlPoints = function() {
       },
       properties: {
         iconUrl: emp.ui.images.editPoint,
-        iconXOffset: 12,
-        iconYOffset: 12,
+        iconXOffset: 10,
+        iconYOffset: 10,
         xUnits: "pixels",
         yUnits: "pixels",
         altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -106,7 +106,7 @@ emp.editors.EditorBase.prototype.removeControlPoints = function() {
   items = vertices;
 
   transaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+    intent: emp.intents.control.FEATURE_REMOVE,
     mapInstanceId: this.mapInstance.mapInstanceId,
     transactionId: null,
     sender: this.mapInstance.mapInstanceId,
@@ -326,5 +326,27 @@ emp.editors.EditorBase.prototype.moveFeature = function(startX, startY, pointer)
   //} else if (featureCopy.data.type === 'Polygon') {
 
   //  }
+
+};
+
+/**
+ * Occurs when the map is clicked for the frist time after the draw has started.
+ */
+emp.editors.EditorBase.prototype.drawStart = function(/*pointer*/) {
+  // do nothing
+};
+
+/**
+ * Occurs when the map is clicked after the draw has started.
+ */
+emp.editors.EditorBase.prototype.drawClick = function(/*pointer*/) {
+  // do nothing
+};
+
+/**
+ * Occurs after the draw has started and user is moving mouse.
+ * Animation should occur here.
+ */
+emp.editors.EditorBase.prototype.drawMove = function(/*pointer*/) {
 
 };

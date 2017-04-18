@@ -212,8 +212,8 @@ emp.editors.AxisOfAdvance.prototype.addControlPoints = function() {
           },
           properties: {
             iconUrl: emp.ui.images.editPoint,
-            iconXOffset: 12,
-            iconYOffset: 12,
+            iconXOffset: 10,
+            iconYOffset: 10,
             xUnits: "pixels",
             yUnits: "pixels",
             altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -233,8 +233,8 @@ emp.editors.AxisOfAdvance.prototype.addControlPoints = function() {
           },
           properties: {
             iconUrl: emp.ui.images.rotationPoint,
-            iconXOffset: 12,
-            iconYOffset: 12,
+            iconXOffset: 10,
+            iconYOffset: 10,
             xUnits: "pixels",
             yUnits: "pixels",
             altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -269,8 +269,8 @@ emp.editors.AxisOfAdvance.prototype.addControlPoints = function() {
           },
           properties: {
             iconUrl: emp.ui.images.addPoint,
-            iconXOffset: 8,
-            iconYOffset: 8,
+            iconXOffset: 6,
+            iconYOffset: 6,
             xUnits: "pixels",
             yUnits: "pixels",
             altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -388,8 +388,8 @@ emp.editors.AxisOfAdvance.prototype.startMoveControlPoint = function(featureId, 
         },
         properties: {
           iconUrl: emp.ui.images.addPoint,
-          iconXOffset: 8,
-          iconYOffset: 8,
+          iconXOffset: 6,
+          iconYOffset: 6,
           xUnits: "pixels",
           yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -416,8 +416,8 @@ emp.editors.AxisOfAdvance.prototype.startMoveControlPoint = function(featureId, 
         },
         properties: {
           iconUrl: emp.ui.images.addPoint,
-          iconXOffset: 8,
-          iconYOffset: 8,
+          iconXOffset: 6,
+          iconYOffset: 6,
           xUnits: "pixels",
           yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -643,113 +643,4 @@ emp.editors.AxisOfAdvance.prototype.endMoveControlPoint = function(featureId, po
   }
 
   return updateData;
-
-  /*
-  var items =[],
-    newCoordinates,
-    coordinateUpdate,
-    updateData = {},
-    index,
-    addTransaction,
-    currentVertex,
-    currentFeature,
-    back,
-    front,
-    backFeature,
-    nextBackVertexFeature,
-    frontFeature,
-    nextFrontVertexFeature,
-    pt1,
-    pt2,
-    pt3,
-    midpoint;
-
-  // First update the control point with new pointer info.
-  currentVertex = this.vertices.find(featureId);
-  currentFeature = currentVertex.feature;
-  currentFeature.data.coordinates = [pointer.lon, pointer.lat];
-
-  // copy the coordinates into our object, so we can eventually complete
-  // the edit.
-  this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
-  items.push(this.featureCopy);
-
-  // now that this point moved, we need to update the points directly to the leaflet
-  // and right of this feature.
-  back = currentVertex.before;
-  front = currentVertex.next;
-
-  // Make sure that we are not moving the head.  If we are, skip.
-  if (back !== null && front !== null) {
-    backFeature = back.feature;
-    nextBackVertexFeature = back.before.feature;
-
-    // get the new location of the backFeature, the feature in before the current feature
-    pt1 = new LatLon(nextBackVertexFeature.data.coordinates[1], nextBackVertexFeature.data.coordinates[0]);
-    pt2 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
-
-    // Get the mid point between this vertex and the next vertex.
-    pt3 = pt1.midpointTo(pt2);
-    midpoint = [pt3.lon(), pt3.lat()];
-
-    backFeature.data.coordinates = midpoint;
-
-    items.push(backFeature);
-
-  }
-
-  // Make sure that we are not moving the tail.  If we are skip.
-  if (front !== null && front.next !== null) {
-    frontFeature = front.feature;
-    nextFrontVertexFeature = front.next.feature;
-    // get the new location of the frontFeature. the feature after the current feature.
-    pt1 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
-    pt2 = new LatLon(nextFrontVertexFeature.data.coordinates[1], nextFrontVertexFeature.data.coordinates[0]);
-
-    // Get the mid point between this vertex and the next vertex.
-    pt3 = pt1.midpointTo(pt2);
-    midpoint = [pt3.lon(), pt3.lat()];
-
-    frontFeature.data.coordinates = midpoint;
-
-    items.push(frontFeature);
-  }
-
-  addTransaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
-  });
-
-  addTransaction.run();
-
-  // Create the return object.  This will tell you which index was changed,
-  // the locations of the new indeces, and the type of change it was.
-  newCoordinates = [];
-  for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-    newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[i][1],
-      lon: this.featureCopy.data.coordinates[i][0]
-    });
-  }
-
-  index = this.vertices.getIndex(featureId);
-
-  coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index], //TODO: Get the correct index.
-      coordinates: newCoordinates
-  };
-
-  updateData.coordinateUpdate = coordinateUpdate;
-  updateData.properties = this.featureCopy.properties;
-
-  return updateData;
-  */
 };

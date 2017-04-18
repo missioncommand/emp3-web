@@ -105,53 +105,14 @@ class CreateWMTSTest extends Component {
   }
 
   updateWMTS(event) {
+    let prop = event.target.id.split('-')[1],
+      newState = {...this.state};
 
-    switch (event.target.id) {
-      case 'createWMTS-name':
-        this.setState({
-          name: event.target.value
-        });
-        break;
-      case 'createWMTS-geoId':
-        this.setState({
-          geoId: event.target.value
-        });
-        break;
-      case 'createWMTS-url':
-        this.setState({
-          url: event.target.value
-        }, _.debounce(this.parseCapabilities, 2000));
-        break;
-      case 'createWMTS-layer':
-        this.setState({
-          layer: event.target.value
-        });
-        break;
-      case 'createWMTS-tileFormat':
-        this.setState({
-          tileFormat: event.target.value
-        });
-        break;
-      case 'createWMTS-version':
-        this.setState({
-          version: event.target.value
-        });
-        break;
-      case 'createWMTS-description':
-        this.setState({
-          description: event.target.value
-        });
-        break;
-      case 'createWMTS-style':
-        this.setState({
-          style: event.target.value
-        });
-        break;
-      case 'createWMTS-sampleDimensions':
-        this.setState({
-          sampleDimensions: event.target.value
-        });
-        break;
+    newState[prop] = event.target.value;
+    if (prop === 'url') {
+      this.setState(newState, _.debounce(this.parseCapabilities, 2000));
+    } else {
+      this.setState(newState);
     }
   }
 
@@ -167,19 +128,27 @@ class CreateWMTSTest extends Component {
       sampleDimensions,
       wmts;
 
+    /**
+     * Return a string or undefined
+     * @param version
+     * @private
+     */
+    function _getVersionOrUndefined(version) {
+      if (version) {
+        version = version.replace(/_/g, '.');
+        version = version.replace('WMTS', '');
+        if (!version) {
+          return;
+        }
+        return version;
+      }
+    }
+
 
     // Translate the values in the selection box to be the actual values
     // of the wms version enumeration.  If the value is just WMTS, that is
     // considered undefined.
-    if (version && version !== '') {
-      version = version.replace(/_/g, '.');
-      version = version.replace('WMTS', '');
-      if (version === '') {
-        version = undefined;
-      }
-    } else {
-      version = undefined;
-    }
+    version = _getVersionOrUndefined(version);
 
     if (this.state.sampleDimensions !== '') {
       try {
@@ -211,7 +180,6 @@ class CreateWMTSTest extends Component {
     }
 
     return wmts;
-
   }
 
   createWMTSAddToMap() {
@@ -235,65 +203,109 @@ class CreateWMTSTest extends Component {
         });
       } catch (err) {
         this.addError(err.message, 'createWMTSAddToMap:Critical');
-        toastr.error(err.message, 'Create WMTS Add To Map:Critcal');
+        toastr.error(err.message, 'Create WMTS Add To Map:Critical');
       }
     }
   }
 
   render() {
+    const {maps} = this.props;
+
     return (
-      <div>
-        <h3>Create a WMTS Service</h3>
+      <div className="mdl-grid">
+        <span className="mdl-layout-title">Create a WMTS Service</span>
 
-        <MapSelect id='createWMTS-mapSelect' label='Choose which map to add the service to'
-                   selectedMapId={this.state.selectedMapId} callback={this.updateSelectedMapId}/>
+        <div className="mdl-cell mdl-cell--12-col">
+          <MapSelect id='createWMTS-mapSelect' label='Choose which map to add the service to'
+                     selectedMapId={this.state.selectedMapId} callback={this.updateSelectedMapId}/>
+        </div>
 
-        <VText id='createWMTS-geoId' value={this.state.geoId} label='GeoID' callback={this.updateWMTS}/>
-        <VText id='createWMTS-name' value={this.state.name} label='Name' callback={this.updateWMTS}/>
-        <VText id='createWMTS-description' value={this.state.description} label='Description'
+        <VText id='createWMTS-geoId'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.geoId} label='GeoID'
                callback={this.updateWMTS}/>
-        <VText id='createWMTS-url' value={this.state.url} label='URL' callback={this.updateWMTS}/>
-        <div style={{overflowX: 'auto', width: '400px'}}>
-          <label htmlFor='availableLayersList'>Available Layers</label>
-          <ul id='availableLayersList' style={{listStyle: 'none', maxHeight: '400px', overflowY: 'auto'}}>
+
+        <VText id='createWMTS-name'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.name} label='Name'
+               callback={this.updateWMTS}/>
+
+        <VText id='createWMTS-description'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.description}
+               label='Description'
+               callback={this.updateWMTS}/>
+
+        <VText id='createWMTS-url'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.url} label='URL'
+               callback={this.updateWMTS}/>
+
+        <div className="mdl-cell mdl-cell--12-col">
+          <span className='mdl-layout-title'>Available Layers</span>
+          <ul id='availableLayersList' style={{listStyle: 'none'}}>
             {this.state.availableLayers.length === 0 ? <li>No Layers Available</li> : null}
             {this.state.availableLayers.map((layer, i) => {
               if (i > 50) {
                 return; // TODO paginate the results
               }
-              let checked = (this.state.selectedLayer === layer.id) ? true : false;
+              let checked = (this.state.selectedLayer === layer.id);
+
               return (
                 <li key={layer.id}>
                   <label htmlFor={layer.id}>
-
                     <input type='checkbox' id={layer.id} value={layer.id}
                            onChange={this.toggleLayer} checked={checked}/>
                     {layer.id}
                     <span style={{fontSize: '0.8em', fontStyle: 'oblique'}}> {layer.name}</span>
                   </label>
-
                 </li>);
             })}
           </ul>
         </div>
-        <VSelect id='createWMTS-version' label='WMTS Version' values={WMTSVERSION} value={this.state.version}
+
+        <VSelect id='createWMTS-version'
+                 className="mdl-cell mdl-cell--12-col"
+                 label='WMTS Version'
+                 values={WMTSVERSION}
+                 value={this.state.version}
                  callback={this.updateWMTS}/>
-        <VText id='createWMTS-layer' value={this.state.layer} label='Layer' callback={this.updateWMTS}/>
-        <VText id='createWMTS-style' value={this.state.style} label='Style' callback={this.updateWMTS}/>
-        <VText id='createWMTS-tileFormat' value={this.state.tileFormat} label='Format' callback={this.updateWMTS}/>
-        <VText id='createWMTS-sampleDimensions' value={this.state.sampleDimensions} label='Sample Dimensions'
+
+        <VText id='createWMTS-layer'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.layer}
+               label='Layer'
                callback={this.updateWMTS}/>
-        <VCheckBox id='createWMTS-useProxy' checked={this.state.useProxy} label='Use Proxy'
+
+        <VText id='createWMTS-style'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.style}
+               label='Style' callback={this.updateWMTS}/>
+
+        <VText id='createWMTS-tileFormat'
+               className="mdl-cell mdl-cell--12-col"
+               value={this.state.tileFormat}
+               label='Format' callback={this.updateWMTS}/>
+
+        <VText id='createWMTS-sampleDimensions'
+               value={this.state.sampleDimensions}
+               label='Sample Dimensions'
+               callback={this.updateWMTS}/>
+
+        <VCheckBox id='createWMTS-useProxy'
+                   checked={this.state.useProxy} label='Use Proxy'
                    callback={event => this.setState({useProxy: event.target.checked})}/>
 
-        <button className='blocky mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored'
-                onClick={this.createWMTS}>
+        <button
+          className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
+          onClick={this.createWMTS}>
           Create WMTS
         </button>
 
         <button
-          className='blocky addButton mdl-button mdl-js-button  mdl-button--raised mdl-button--colored mdl-js-ripple-effect'
-          onClick={this.createWMTSAddToMap} disabled={this.props.maps.length === 0}>
+          className='mdl-button mdl-js-button  mdl-button--raised mdl-button--colored mdl-js-ripple-effect mdl-cell mdl-cell--12-col'
+          onClick={this.createWMTSAddToMap}
+          disabled={maps.length === 0}>
           Add WMTS
         </button>
 

@@ -439,36 +439,11 @@ emp3.api.MessageHandler = (function() {
           this.overlayClusterRemove(callInfo, message, transactionId);
           break;
         case emp3.api.enums.channel.menuRemove:
-          // TODO delete this
-          //this.menuRemove(callInfo, message, transactionId);
-          break;
         case emp3.api.enums.channel.menuSetVisible:
-          // TODO delete this
-          //this.menuSetVisible(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnLocation:
-          this.centerOnLocation(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnBounds:
-          this.centerOnBounds(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.lookAtLocation:
-          this.lookAtLocation(callInfo, message, transactionId);
+          // No handlers for these in EMP3
           break;
         case emp3.api.enums.channel.featureEdit:
           returnedTransaction = this.featureEdit(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.styleOverlay:
-          this.styleOverlay(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.zoom:
-          this.zoom(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnOverlay:
-          this.centerOnOverlay(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.centerOnFeature:
-          this.centerOnFeature(callInfo, message, transactionId);
           break;
         case emp3.api.enums.channel.hideFeature:
           this.hideFeature(callInfo, message, transactionId);
@@ -481,14 +456,6 @@ emp3.api.MessageHandler = (function() {
           break;
         case emp3.api.enums.channel.statusRequest:
           this.statusRequest(callInfo, transaction, transactionId);
-          break;
-        case emp3.api.enums.channel.menuDrawingCreate:
-          // TODO delete this
-          //returnedTransaction = this.menuDrawingCreate(callInfo, message, transactionId);
-          break;
-        case emp3.api.enums.channel.menuDrawingRemove:
-          // TODO delete this
-          //returnedTransaction = this.menuDrawingRemove(callInfo, message, transactionId);
           break;
         case emp3.api.enums.channel.clearMap:
           this.clearMap(callInfo, message, transactionId);
@@ -2689,7 +2656,8 @@ emp3.api.MessageHandler = (function() {
           geoId: message.featureId,
           name: message.name,
           coordinates: emp3.api.convertGeoJsonToCMAPIPositions(message.feature),
-          properties: message.properties
+          properties: message.properties,
+          symbolCode: message.feature.symbolCode
         });
       }
       if (callbacks) {
@@ -2726,13 +2694,14 @@ emp3.api.MessageHandler = (function() {
       if (message.updates) {
         // make sure message.properties.featureType is defined -- if not we
         // won't know what to build.
-        if (message.properties && message.properties.featureType) {
+        if (message.properties && message.properties.featureType && message.feature) {
           args.feature = emp3.api.buildFeature({
             type: message.properties.featureType,
             geoId: message.featureId,
             name: message.name,
             coordinates: emp3.api.convertLocationArrayToCMAPI(message.updates.coordinates),
-            properties: message.properties
+            properties: message.properties,
+            symbolCoce: message.feature.symbolCode
           });
         }
         args.updateList.push({
@@ -2771,13 +2740,14 @@ emp3.api.MessageHandler = (function() {
       args.map = mapHash.getItem(sender.id);
       // make sure message.properties.featureType is defined -- if not we
       // won't know what to build.
-      if (message.updates && message.properties && message.properties.featureType) {
+      if (message.updates && message.properties && message.properties.featureType && message.feature) {
         args.feature = emp3.api.buildFeature({
           type: message.properties.featureType,
           geoId: message.featureId,
           name: message.name,
           coordinates: emp3.api.convertLocationArrayToCMAPI(message.updates.coordinates),
-          properties: message.properties
+          properties: message.properties,
+          symbolCode: message.feature.symbolCode
         });
       }
       if (callbacks) {
@@ -3381,293 +3351,6 @@ emp3.api.MessageHandler = (function() {
         mapId: callInfo.mapId,
         geoId: message.feature.geoId
       });
-    };
-
-    this.centerOnBounds = function(callInfo, message, transactionId) {
-      var payload,
-        bounds,
-        southWest,
-        northEast,
-        zoom;
-
-      bounds = {};
-      southWest = {};
-      northEast = {};
-      northEast.lat = message.north;
-      southWest.lon = message.west;
-      southWest.lat = message.south;
-      northEast.lon = message.east;
-      bounds.southWest = southWest;
-      bounds.northEast = northEast;
-      zoom = message.range || "auto";
-
-      payload = {
-        bounds: bounds,
-        zoom: zoom,
-        animate: message.animate,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.centerOnBounds, payload, callInfo);
-    };
-
-    this.centerOnLocation = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        location: {
-          lat: message.camera.latitude,
-          lon: message.camera.longitude
-        },
-        zoom: message.camera.altitude,
-        altitudeMode: message.camera.altitudeMode,
-        heading: message.camera.heading,
-        tilt: message.camera.tilt,
-        roll: message.camera.roll,
-        animate: message.animate,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.centerOnLocation, payload, callInfo);
-    };
-
-    this.lookAtLocation = function(callInfo, message, transactionId) {
-      var payload = {
-        messageId: transactionId,
-        animate: message.animate,
-        range: message.lookAt.range,
-        tilt: message.lookAt.tilt,
-        heading: message.lookAt.heading,
-        latitude: message.lookAt.latitude,
-        longitude: message.lookAt.longitude,
-        altitude: message.lookAt.altitude,
-        altitudeMode: message.lookAt.altitudeMode
-      };
-
-      this.validate(emp3.api.enums.channel.lookAtLocation, payload, callInfo);
-    };
-
-    this.styleOverlay = function(callInfo, message, transactionId) {
-      var payload = {},
-        multiPointStyle,
-        pointStyle,
-        lineStyle,
-        polygonStyle;
-
-      switch (callInfo.method) {
-        case "styleMultiPoints":
-          payload.properties = {};
-          if (message.multiPointStyle.mark.fill !== undefined) {
-            payload.properties.fillColor = message.multiPointStyle.mark.fill.color;
-          }
-          if (message.multiPointStyle.mark.stroke !== undefined) {
-            payload.properties.lineColor = message.multiPointStyle.mark.stroke.color;
-            payload.properties.lineWidth = message.multiPointStyle.mark.stroke.width;
-          }
-          if (message.multiPointStyle.mark.wellKnownName !== undefined) {
-            payload.properties.iconUrl = message.multiPointStyle.mark.wellKnownName;
-          }
-          if (message.multiPointStyle.mark.graphicHeight !== undefined) {
-            payload.properties.graphicHeight = message.multiPointStyle.mark.graphicHeight;
-          }
-          if (message.multiPointStyle.mark.graphicWidth !== undefined) {
-            payload.properties.graphicWidth = message.multiPointStyle.mark.graphicWidth;
-          }
-          payload.type = "multigeometry";
-          payload.messageId = transactionId;
-          payload.overlayId = message.overlayId;
-          break;
-        case "stylePolygons":
-          payload.properties = {};
-          if (message.polygonStyle.mark.fill !== undefined) {
-            payload.properties.fillColor = message.polygonStyle.mark.fill.color;
-          }
-          if (message.polygonStyle.mark.stroke !== undefined) {
-            payload.properties.lineColor = message.polygonStyle.mark.stroke.color;
-            payload.properties.lineWidth = message.polygonStyle.mark.stroke.width;
-          }
-          if (message.polygonStyle.mark.wellKnownName !== undefined) {
-            payload.properties.iconUrl = message.polygonStyle.mark.wellKnownName;
-          }
-          payload.type = "polygon";
-          payload.messageId = transactionId;
-          payload.overlayId = message.overlayId;
-          break;
-        case "styleLines":
-          payload.properties = {};
-          if (message.lineStyle.mark.fill !== undefined) {
-            payload.properties.fillColor = message.lineStyle.mark.fill.color;
-          }
-          if (message.lineStyle.mark.stroke !== undefined) {
-            payload.properties.lineColor = message.lineStyle.mark.stroke.color;
-            payload.properties.lineWidth = message.lineStyle.mark.stroke.width;
-          }
-          if (message.lineStyle.mark.wellKnownName !== undefined) {
-            payload.properties.iconUrl = message.lineStyle.mark.wellKnownName;
-          }
-          payload.type = "line";
-          payload.messageId = transactionId;
-          payload.overlayId = message.overlayId;
-          break;
-        case "stylePoints":
-          payload.properties = {};
-          if (message.pointStyle.mark.fill !== undefined) {
-            payload.properties.fillColor = message.pointStyle.mark.fill.color;
-          }
-          if (message.pointStyle.mark.stroke !== undefined) {
-            payload.properties.lineColor = message.pointStyle.mark.stroke.color;
-            payload.properties.lineWidth = message.pointStyle.mark.stroke.width;
-          }
-          if (message.pointStyle.mark.wellKnownName !== undefined) {
-            payload.properties.iconUrl = message.pointStyle.mark.wellKnownName;
-          }
-          if (message.pointStyle.mark.graphicHeight !== undefined) {
-            payload.properties.graphicHeight = message.pointStyle.mark.graphicHeight;
-          }
-          if (message.pointStyle.mark.graphicWidth !== undefined) {
-            payload.properties.graphicWidth = message.pointStyle.mark.graphicWidth;
-          }
-          payload.type = "point";
-          payload.messageId = transactionId;
-          payload.overlayId = message.overlayId;
-          break;
-        case "styleOverlay":
-          payload = [];
-          multiPointStyle = {};
-          multiPointStyle.properties = {};
-          pointStyle = {};
-          pointStyle.properties = {};
-          lineStyle = {};
-          lineStyle.properties = {};
-          polygonStyle = {};
-          polygonStyle.properties = {};
-
-          if (message.pointStyle.mark.fill !== undefined) {
-            pointStyle.properties.fillColor = message.pointStyle.mark.fill.color;
-          }
-          if (message.pointStyle.mark.stroke !== undefined) {
-            pointStyle.properties.lineColor = message.pointStyle.mark.stroke.color;
-            pointStyle.properties.lineWidth = message.pointStyle.mark.stroke.width;
-          }
-          if (message.pointStyle.mark.wellKnownName !== undefined) {
-            pointStyle.properties.iconUrl = message.pointStyle.mark.wellKnownName;
-          }
-          if (message.pointStyle.mark.graphicHeight !== undefined) {
-            pointStyle.properties.graphicHeight = message.pointStyle.mark.graphicHeight;
-          }
-          if (message.pointStyle.mark.graphicWidth !== undefined) {
-            pointStyle.properties.graphicWidth = message.pointStyle.mark.graphicWidth;
-          }
-          pointStyle.type = "point";
-          pointStyle.overlayId = message.overlayId;
-
-          if (message.multiPointStyle.mark.fill !== undefined) {
-            multiPointStyle.properties.fillColor = message.multiPointStyle.mark.fill.color;
-          }
-          if (message.multiPointStyle.mark.stroke !== undefined) {
-            multiPointStyle.properties.lineColor = message.multiPointStyle.mark.stroke.color;
-            multiPointStyle.properties.lineWidth = message.multiPointStyle.mark.stroke.width;
-          }
-          if (message.multiPointStyle.mark.wellKnownName !== undefined) {
-            multiPointStyle.properties.iconUrl = message.multiPointStyle.mark.wellKnownName;
-          }
-          multiPointStyle.type = "multigeometry";
-          multiPointStyle.overlayId = message.overlayId;
-
-          if (message.lineStyle.mark.fill !== undefined) {
-            lineStyle.properties.fillColor = message.lineStyle.mark.fill.color;
-          }
-          if (message.lineStyle.mark.stroke !== undefined) {
-            lineStyle.properties.lineColor = message.lineStyle.mark.stroke.color;
-            lineStyle.properties.lineWidth = message.lineStyle.mark.stroke.width;
-          }
-          if (message.lineStyle.mark.wellKnownName !== undefined) {
-            lineStyle.properties.iconUrl = message.lineStyle.mark.wellKnownName;
-          }
-          lineStyle.type = "line";
-          lineStyle.overlayId = message.overlayId;
-
-          if (message.polygonStyle.mark.fill !== undefined) {
-            polygonStyle.properties.fillColor = message.polygonStyle.mark.fill.color;
-          }
-          if (message.polygonStyle.mark.stroke !== undefined) {
-            polygonStyle.properties.lineColor = message.polygonStyle.mark.stroke.color;
-            polygonStyle.properties.lineWidth = message.polygonStyle.mark.stroke.width;
-          }
-          if (message.polygonStyle.mark.wellKnownName !== undefined) {
-            polygonStyle.properties.iconUrl = message.polygonStyle.mark.wellKnownName;
-          }
-          polygonStyle.type = "polygon";
-          polygonStyle.overlayId = message.overlayId;
-
-          pointStyle.messageId = transactionId;
-          lineStyle.messageId = transactionId;
-          polygonStyle.messageId = transactionId;
-          multiPointStyle.messageId = transactionId;
-
-          payload.push(pointStyle);
-          payload.push(lineStyle);
-          payload.push(polygonStyle);
-          payload.push(multiPointStyle);
-          break;
-      }
-
-      this.validate(emp3.api.enums.channel.styleOverlay, payload, callInfo);
-    };
-
-    this.zoom = function(callInfo, message, transactionId) {
-      var payload,
-        range;
-
-      if (message.altitude !== undefined) {
-        range = message.altitude;
-      }
-
-      payload = {
-        range: range,
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.zoom, payload, callInfo);
-    };
-
-    this.centerOnOverlay = function(callInfo, message, transactionId) {
-      var payload;
-
-      payload = {
-        overlayId: message.overlayId,
-        zoom: message.range || "auto",
-        messageId: transactionId
-      };
-
-      this.validate(emp3.api.enums.channel.centerOnOverlay, payload, callInfo);
-    };
-
-    this.centerOnFeature = function(callInfo, message, transactionId) {
-      var payload;
-      var multiPayload = [];
-
-      // Check if an array of features was sent.
-      if (message.featureIds) {
-        for (var i = 0; i < message.featureIds.length; i += 1) {
-          payload = {
-            featureId: message.featureIds[i],
-            zoom: message.range || "auto",
-            messageId: transactionId
-          };
-          multiPayload.push(payload);
-        }
-
-        this.validate(emp3.api.enums.channel.centerOnFeature, multiPayload, callInfo);
-      }
-      else {
-        payload = {
-          featureId: message.featureId,
-          zoom: message.range || "auto",
-          messageId: transactionId
-        };
-        this.validate(emp3.api.enums.channel.centerOnFeature, payload, callInfo);
-      }
     };
 
     this.hideFeature = function(callInfo, message, transactionId) {
