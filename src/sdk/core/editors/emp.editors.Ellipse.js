@@ -28,11 +28,7 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     semiMinorPoint,
     semiMajorPoint,
     azimuthPoint,
-    semiMajorFeature,
-    semiMinorFeature,
     azimuthFeature,
-    semiMajorVertex,
-    semiMinorVertex,
     addFeature,
     addFeature2,
     azimuthVertex,
@@ -194,38 +190,32 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
 emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointer) {
 
   var currentFeature,
-    currentVertex,
     azimuth,
-    pointAzimuth,
     items = [],
     semiMajor,
     semiMinor,
-    azimuth,
     newSemiMajorPosition,
     newSemiMinorPosition,
-    semiMajorCoreId,
-    semiMajorFeatureId,
-    semiMinorCoreId,
-    semiMinorFeatureId,
-    alternateVertex,
     alternateFeature,
-    alternateFeaturePosition,
     index,
     coordinateUpdate,
     updateData = {},
     type = emp.typeLibrary.CoordinateUpdateType.UPDATE,
     moveAzimuth = false,
     newCoordinates,
-    tempDistance,
     tempAzimuth,
-    x, y;
+    distance,
+    newAzimuthPosition,
+    delta,
+    newAzimuth,
+    newFeaturePosition,
+    o, a, h, x, y;
 
  
   x = this.featureCopy.data.coordinates[0];
   y = this.featureCopy.data.coordinates[1];
 
-  //currentVertex = this.vertices.find(featureId);
-  //currentFeature = currentVertex.feature;
+
   azimuth = this.featureCopy.properties.azimuth;
 
   // Calculate the new position of where
