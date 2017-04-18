@@ -351,6 +351,34 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     items.push(this.height.feature);
     items.push(this.azimuth.feature);
 
+  }else{
+    currentFeature.data.coordinates = [pointer.lon, pointer.lat];
+
+
+    this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+
+    widthDistance = this.featureCopy.properties.width;
+    heightDistance = this.featureCopy.properties.height;
+    azimuth = this.featureCopy.properties.azimuth;
+
+
+    // Calculate the new positions of the control points.
+    newHeightPosition = emp.geoLibrary.geodesic_coordinate({
+      x: x,
+      y: y
+    }, heightDistance / 2, azimuth);
+
+    newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
+      x: x,
+      y: y
+    }, widthDistance / 2, -90 + azimuth);
+
+    // update the control point positions.
+    this.height.feature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
+    this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
+
+    items.push(this.height.feature);
+    items.push(this.azimuth.feature);
   }
 
   items.push(this.featureCopy);
