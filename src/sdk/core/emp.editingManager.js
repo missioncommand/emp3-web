@@ -256,8 +256,7 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       }
-      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE ||
-        (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
+      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE ) {
         // This is a ellipse defined by a point and radius.  It uses a GEOJSON point and
         // a distance in meters to represent
         // itself.

@@ -52,8 +52,8 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     },
     properties: {
       iconUrl: emp.ui.images.editPoint,
-      iconXOffset: 12,
-      iconYOffset: 12,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -97,10 +97,10 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
       type: 'Point'
     },
     properties: {
-      iconUrl: emp.ui.images.addPoint,
+      iconUrl: emp.ui.images.distancePoint,
       title: "addFeature",
-      iconXOffset: 8,
-      iconYOffset: 8,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -117,10 +117,10 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
       type: 'Point'
     },
     properties: {
-      iconUrl: emp.ui.images.addPoint,
+      iconUrl: emp.ui.images.distancePoint,
       title: "addFeature2",
-      iconXOffset: 8,
-      iconYOffset: 8,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -137,8 +137,8 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     },
     properties: {
       iconUrl: emp.ui.images.rotationPoint,
-      iconXOffset: 12,
-      iconYOffset: 12,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
