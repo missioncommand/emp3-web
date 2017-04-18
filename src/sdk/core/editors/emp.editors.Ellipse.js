@@ -96,7 +96,6 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     overlayId: "vertices",
     featureId: emp3.api.createGUID(),
     format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-    name: "Feature1",
     data: {
       coordinates: [semiMajorPoint.x, semiMajorPoint.y],
       type: 'Point'
@@ -117,7 +116,6 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     overlayId: "vertices",
     featureId: emp3.api.createGUID(),
     format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-    name: "Feature2",
     data: {
       coordinates: [semiMinorPoint.x, semiMinorPoint.y],
       type: 'Point'
@@ -137,7 +135,6 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
     overlayId: "vertices",
     featureId: emp3.api.createGUID(),
     format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-    name: "azimuth",
     data: {
       coordinates: [azimuthPoint.x, azimuthPoint.y],
       type: 'Point'
@@ -278,7 +275,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
 
       tempAzimuth = 90 + azimuth;
     }else{
-      tempAzimuth = azimuth;
+      tempAzimuth = azimuth - 90;
     }
 
     // retrieve the new semiMajor vertex.   
