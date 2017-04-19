@@ -253,8 +253,16 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
       type: 'LineString'
     },
     properties: {
-      lineColor: "FFFFFF00"
-    }
+      lineColor: "FFFFFF00",
+      strokeStyle: {
+        strokeColor: {
+          red: 255,
+          green: 255,
+          blue: 0,
+          alpha: 1.0
+        }
+      }
+    }    
   });
 
   items.push(this.animation);

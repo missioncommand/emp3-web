@@ -939,6 +939,7 @@ emp.map = function(args) {
             //  Check to see if this is a mouse move
           } else if (args.type === emp.typeLibrary.Pointer.EventType.MOVE) {
 
+
             // if mouse button is still down, start drag
             if (this.mapDragStart && this.mapDrag !== true) {
 
@@ -1467,7 +1468,7 @@ emp.map = function(args) {
           }
         }
         // check to see if we need to display confirmation window
-        // in fo confirmation is needed, the message will be an empty string
+        // if confirmation is needed, the message will be an empty string
         if (confirmationMessage !== "") {
           bConfirmResponse = confirm(confirmationMessage);
           if (bConfirmResponse) {
