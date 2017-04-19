@@ -306,7 +306,7 @@ emp.editors.Circle.prototype.drawStart = function(pointer) {
   }, height, 0);
 
   var symbolCode = this.featureCopy.data.symbolCode;
-  
+
   this.featureCopy = new emp.typeLibrary.Feature({
     overlayId: this.featureCopy.overlayId,
     featureId: this.featureCopy.featureId,
@@ -373,8 +373,8 @@ emp.editors.Circle.prototype.drawStart = function(pointer) {
   this.vertices.push(this.center);
   this.vertices.push(this.radius);
 
-  //items.push(radiusFeature);
-  //items.push(centerFeature);
+  items.push(radiusFeature);
+  items.push(centerFeature);
   items.push(this.featureCopy);
 
   var transaction = new emp.typeLibrary.Transaction({

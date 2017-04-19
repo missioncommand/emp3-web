@@ -520,3 +520,207 @@ emp.editors.Rectangle.prototype.endMoveControlPoint = function(featureId, pointe
 emp.editors.Rectangle.prototype.moveFeature = function() {
 
 };
+
+emp.editors.Rectangle.prototype.drawStart = function(pointer) {
+  var bounds,
+    mapHeight,
+    mapWidth,
+    height,
+    width,
+    widthPoint,
+    heightPoint,
+    azimuthPoint,
+    items = [],
+    widthFeature,
+    heightFeature,
+    azimuthFeature,
+    centerFeature,
+    widthVertex,
+    heightVertex,
+    azimuthVertex,
+    centerVertex,
+    updateData;
+
+  // determine the current map size
+  bounds = this.mapInstance.status.getViewBounds();
+
+  mapHeight = emp.geoLibrary.measureDistance(
+    bounds.south,
+    bounds.west,
+    bounds.north,
+    bounds.west, "meters");
+  mapWidth = emp.geoLibrary.measureDistance(
+    bounds.south,
+    bounds.west,
+    bounds.south,
+    bounds.east, "meters");
+  height = mapHeight / 8;
+  width = mapWidth / 8;
+
+  // project out the radius right above the center point of the circle.
+  widthPoint = emp.geoLibrary.geodesic_coordinate({
+    x: pointer.lon,
+    y: pointer.lat
+  }, width / 2, 90);
+
+  // project out the radius right above the center point of the circle.
+  azimuthPoint = emp.geoLibrary.geodesic_coordinate({
+    x: pointer.lon,
+    y: pointer.lat
+  }, width / 2, -90);
+
+  // project out the radius right above the center point of the circle.
+  heightPoint = emp.geoLibrary.geodesic_coordinate({
+    x: pointer.lon,
+    y: pointer.lat
+  }, height / 2, 0);
+
+  // not quite sure why, but we have to instantiate the feature again.
+  // for some reason, the coreParent is not set if we do not.  Haven't
+  // figured out why yet.
+  var symbolCode = this.featureCopy.data.symbolCode;
+  this.featureCopy = new emp.typeLibrary.Feature({
+    overlayId: this.featureCopy.overlayId,
+    featureId: this.featureCopy.featureId,
+    format: this.featureCopy.format,
+    properties: this.featureCopy.properties
+  });
+
+  // This could be a MIL_STD_SYMBOL or a rectangle.  If it is a military symbolCode
+  // then use the LineString event though we only store one point.
+  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) {
+    this.featureCopy.data.type = "Point";
+    this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+    this.featureCopy.properties.height = height;
+    this.featureCopy.properties.width = width;
+    this.featureCopy.properties.azimuth = 0;
+  } else {
+    this.featureCopy.data.type = "LineString";
+    this.featureCopy.data.coordinates = [[pointer.lon, pointer.lat]];
+    this.featureCopy.data.symbolCode = symbolCode;
+    this.featureCopy.properties.modifiers.distance = [width, height];
+    this.featureCopy.properties.modifiers.azimuth = [0];
+  }
+
+  // create center of the feature from the point that was clicked.
+  centerFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [pointer.lon, pointer.lat],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.editPoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  // create a feature for each of these coordinates.  This
+  // will be our radius control point that is displayed by the map.
+  heightFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [heightPoint.x, heightPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.distancePoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  // create a feature for each of these coordinates.  This
+  // will be our radius control point that is displayed by the map.
+  widthFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [widthPoint.x, widthPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.distancePoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  // create a feature for each of these coordinates.  This
+  // will be our radius control point that is displayed by the map.
+  azimuthFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [azimuthPoint.x, azimuthPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.rotationPoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  centerVertex = new emp.editors.Vertex(centerFeature, "vertex");
+  heightVertex = new emp.editors.Vertex(heightFeature, "add");
+  widthVertex = new emp.editors.Vertex(widthFeature, "add");
+  azimuthVertex = new emp.editors.Vertex(azimuthFeature, "add");
+
+  this.height = heightVertex;
+  this.width = widthVertex;
+  this.azimuth = azimuthVertex;
+  this.center = centerVertex;
+
+  this.vertices.push(this.center);
+  this.vertices.push(widthVertex);
+  this.vertices.push(heightVertex);
+  this.vertices.push(azimuthVertex);
+
+  items.push(centerFeature);
+  items.push(widthFeature);
+  items.push(azimuthFeature);
+  items.push(heightFeature);
+  items.push(this.featureCopy);
+
+  var transaction = new emp.typeLibrary.Transaction({
+      intent: emp.intents.control.FEATURE_ADD,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+      items: items
+  });
+
+  transaction.run();
+
+  // return updateData
+  // Create the return object.  This will tell you which index was added,
+  // the locations of the new indices, and the type of change it was.
+
+  updateData = this.getUpdateData();
+
+  return updateData;
+};
