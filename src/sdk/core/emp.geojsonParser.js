@@ -1,4 +1,6 @@
-/*globals emp, geEngine*/
+/*globals geEngine*/
+
+var emp = window.emp || {};
 
 /**
  * Geo Json Parser

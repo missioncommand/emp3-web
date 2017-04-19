@@ -25,3 +25,8 @@ rules:
     - allow:
         - "warn"
         - "error"
+  complexity:
+    - off
+    #- error # comment `off` out and `error` in to find places to reduce complexity
+    - 6
+  no-extra-bind: error

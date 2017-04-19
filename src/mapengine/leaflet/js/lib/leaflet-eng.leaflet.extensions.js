@@ -116,12 +116,11 @@ leafLet.internalPrivateClass.EmpIcon = function () {
             var img = this._createIcon('icon');
 
             this.options.oIconImag = img;
-
+            this._applyAnchorRef();
             img.onload = function () {
                 var i = img;
                 this.style.width = i.width + 'px';
                 this.style.height = i.height + 'px';
-                oThis._applyAnchorRef();
                 this.style.display = '';
             };
 

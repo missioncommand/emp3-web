@@ -1,22 +1,22 @@
-describe('emp3.api.MessageHandler', function () {
+describe('emp3.api.MessageHandler', function() {
   var sandbox,
-      engine = {
-        "mapEngineId": 'leafletMapEngine',
-        "engineBasePath": "/emp3/leaflet/"
-      },
-      containerId = "containerId";
+    engine = {
+      "mapEngineId": 'leafletMapEngine',
+      "engineBasePath": "/emp3/leaflet/"
+    },
+    containerId = "containerId";
 
-  beforeEach(function () {
+  beforeEach(function() {
     sandbox = sinon.sandbox.create();
   });
 
-  afterEach(function () {
+  afterEach(function() {
     emp3.api.MessageHandler.destroyInstance();
     sandbox.restore();
   });
 
-  describe('getInstance', function () {
-    it('returns the MessageHandler singleton', function () {
+  describe('getInstance', function() {
+    it('returns the MessageHandler singleton', function() {
       var handler = emp3.api.MessageHandler.getInstance();
       handler.should.exist;
       handler.should.have.property('sendMessage');
@@ -25,15 +25,15 @@ describe('emp3.api.MessageHandler', function () {
     });
   });
 
-  describe('sendMessage', function () {
-    it('will not publish a message if no map engine is running', function () {
+  describe('sendMessage', function() {
+    it('will not publish a message if no map engine is running', function() {
       var cmd = {
         cmd: emp3.api.enums.channel.plotFeature,
         overlayId: '1234-5678-9ABC',
         features: [new emp3.api.Circle()],
-        onSuccess: function () {
+        onSuccess: function() {
         },
-        onError: function () {
+        onError: function() {
         }
       };
       var message = {
@@ -43,14 +43,14 @@ describe('emp3.api.MessageHandler', function () {
       };
 
       sandbox.stub(emp3.api.MessageHandler.getInstance(), 'isAMapReady').returns(false);
-      var sendMessage = function () {
+      var sendMessage = function() {
         emp3.api.MessageHandler.getInstance().sendMessage(cmd, message);
       };
 
       sendMessage.should.throw('There is no map engine available to publish messages to');
     });
 
-    it('will publish a message if a map engine is running', function () {
+    it('will publish a message if a map engine is running', function() {
       var cmd = {
         cmd: emp3.api.enums.channel.plotFeature,
         overlayId: '1234-5678-9ABC',
@@ -68,7 +68,7 @@ describe('emp3.api.MessageHandler', function () {
       sandbox.stub(emp3.api.MessageHandler.getInstance(), 'isAMapReady').returns(true);
       var publishStub = sandbox.stub(emp3.api.MessageHandler.getInstance(), 'publish');
 
-      expect(function () {
+      expect(function() {
         emp3.api.MessageHandler.getInstance().sendMessage(cmd, message);
       })
         .to.not.throw();
@@ -76,12 +76,12 @@ describe('emp3.api.MessageHandler', function () {
     });
   });
 
-  describe('publish', function () {
+  describe('publish', function() {
     it('uses the correct channel handler to send messages to the environment');
   });
 
-  describe('addEventListener', function () {
-    it('adds an event listener to the eventListeners hashMap', function () {
+  describe('addEventListener', function() {
+    it('adds an event listener to the eventListeners hashMap', function() {
       var callback = sandbox.spy();
       var args = {
         id: '1234-5678-9ABC-DEF0',
@@ -96,8 +96,8 @@ describe('emp3.api.MessageHandler', function () {
     });
   });
 
-  describe('getEventListeners', function () {
-    it('retrieves the list of callbacks for events', function () {
+  describe('getEventListeners', function() {
+    it('retrieves the list of callbacks for events', function() {
       var callback1 = sandbox.spy();
       var callback2 = sandbox.spy();
       var callback3 = sandbox.spy();
@@ -148,46 +148,8 @@ describe('emp3.api.MessageHandler', function () {
     });
   });
 
-  describe('getVisibility', function () {
-    it('sends a getVisibility message to the validator', function () {
-
-      var callInfo = {
-        mapId: "mapId",
-        source: new emp3.api.Map({
-          engine: engine,
-          container: containerId
-        }),
-        method: 'Map.getVisibility',
-        args: {}
-      };
-
-      var message = {
-        target: {
-          geoId: "overlay1"
-        },
-        parent: {
-          geoId: "overlay2"
-        }
-      };
-
-      var transactionId = "flarbagarba1";
-
-      var validateStub = sandbox.stub(emp3.api.MessageHandler.getInstance(), 'validate');
-
-      emp3.api.MessageHandler.getInstance().getVisibility(callInfo, message, transactionId);
-
-      validateStub.should.have.been.calledWithMatch(emp3.api.enums.channel.getVisibility,
-        {
-          targetId: message.target.geoId,
-          parentId: message.parent.geoId,
-          messageId: transactionId
-        },
-        callInfo);
-    });
-  });
-
-  describe('handleGetVisibilityTransactionComplete', function () {
-    it('runs success callback for Map.getVisibility calls when no errors are present', function () {
+  describe('handleGetVisibilityTransactionComplete', function() {
+    it('runs success callback for Map.getVisibility calls when no errors are present', function() {
 
       var onSuccess = sandbox.spy();
       var callbacks = {
@@ -219,9 +181,9 @@ describe('emp3.api.MessageHandler', function () {
     });
   });
 
-  describe('handleCenterOnLocationTransactionComplete', function () {
+  describe('handleCenterOnLocationTransactionComplete', function() {
 
-    it('calls onSuccess when Camera is set using Map.setCamera', function () {
+    it('calls onSuccess when Camera is set using Map.setCamera', function() {
       var successSpy = sandbox.spy();
       var errorSpy = sandbox.spy();
 
@@ -266,19 +228,19 @@ describe('emp3.api.MessageHandler', function () {
           tilt: details.tilt,
           roll: details.roll,
           heading: details.heading
-        }        
+        }
       });
     });
   });
 
   describe('handleFeatureAdd', function() {
-    it('calls handleFeatureEvent', function () {
+    it('calls handleFeatureEvent', function() {
       sandbox.stub(emp3.api.MessageHandler.getInstance(), 'handleFeatureEvent');
 
       var sender = {};
       var message = {};
 
-      var handleFeatureAdd = function () {
+      var handleFeatureAdd = function() {
         emp3.api.MessageHandler.getInstance().handleFeatureAdd(sender, message);
       };
       handleFeatureAdd.should.not.throw(/any error/);
@@ -287,13 +249,13 @@ describe('emp3.api.MessageHandler', function () {
 
   describe('handleFeatureUpdate', function() {
 
-    it('calls handleFeatureEvent', function () {
+    it('calls handleFeatureEvent', function() {
       sandbox.stub(emp3.api.MessageHandler.getInstance(), 'handleFeatureEvent');
 
       var sender = {};
       var message = {};
 
-      var handleFeatureAdd = function () {
+      var handleFeatureAdd = function() {
         emp3.api.MessageHandler.getInstance().handleFeatureUpdate(sender, message);
       };
       handleFeatureAdd.should.not.throw(/any error/);
@@ -302,13 +264,13 @@ describe('emp3.api.MessageHandler', function () {
 
   describe('handleFeatureRemove', function() {
 
-    it('calls handleFeatureEvent', function () {
+    it('calls handleFeatureEvent', function() {
       sandbox.stub(emp3.api.MessageHandler.getInstance(), 'handleFeatureEvent');
 
       var sender = {};
       var message = {};
 
-      var handleFeatureAdd = function () {
+      var handleFeatureAdd = function() {
         emp3.api.MessageHandler.getInstance().handleFeatureRemove(sender, message);
       };
       handleFeatureAdd.should.not.throw(/any error/);
@@ -333,10 +295,10 @@ describe('emp3.api.MessageHandler', function () {
         }]
       };
 
-    it('can create feature add events', function () {
+    it('can create feature add events', function() {
 
       var eventType = emp3.api.enums.EventType.MAP_FEATURE_ADDED,
-        messageHandler =  emp3.api.MessageHandler.getInstance(),
+        messageHandler = emp3.api.MessageHandler.getInstance(),
         callback = sandbox.spy(),
         addEventListenerArgs = {
           id: sender.id,
@@ -355,9 +317,9 @@ describe('emp3.api.MessageHandler', function () {
 
     });
 
-    it('can create feature update events', function () {
+    it('can create feature update events', function() {
       var eventType = emp3.api.enums.EventType.MAP_FEATURE_UPDATED,
-        messageHandler =  emp3.api.MessageHandler.getInstance(),
+        messageHandler = emp3.api.MessageHandler.getInstance(),
         callback = sandbox.spy(),
         addEventListenerArgs = {
           id: sender.id,
@@ -375,9 +337,9 @@ describe('emp3.api.MessageHandler', function () {
       });
     });
 
-    it('can create feature removed events', function () {
+    it('can create feature removed events', function() {
       var eventType = emp3.api.enums.EventType.MAP_FEATURE_REMOVED,
-        messageHandler =  emp3.api.MessageHandler.getInstance(),
+        messageHandler = emp3.api.MessageHandler.getInstance(),
         callback = sandbox.spy(),
         addEventListenerArgs = {
           id: sender.id,
@@ -396,8 +358,8 @@ describe('emp3.api.MessageHandler', function () {
     });
   });
 
-  describe('get', function () {
-    it('sends a payload to to the validator with a `get` command for overlays or features', function () {
+  describe('get', function() {
+    it('sends a payload to to the validator with a `get` command for overlays or features', function() {
       var args = {
         onSuccess: sandbox.spy(),
         onError: sandbox.spy()
@@ -434,8 +396,8 @@ describe('emp3.api.MessageHandler', function () {
     });
   });
 
-  describe('validate', function () {
-    it('sends validated messages to the environment pubSub `publish` method', function () {
+  describe('validate', function() {
+    it('sends validated messages to the environment pubSub `publish` method', function() {
       var channel = 'map.get';
       var args = {
         onSuccess: sandbox.spy(),
@@ -468,7 +430,7 @@ describe('emp3.api.MessageHandler', function () {
       });
     });
 
-    it('should split the message into chunks of 500 if the message channel is plotFeatureBatch, unplotFeatureBatch, featureSelectedBatch, or  featureDeselectedBatch', function () {
+    it('should split the message into chunks of 500 if the message channel is plotFeatureBatch, unplotFeatureBatch, featureSelectedBatch, or  featureDeselectedBatch', function() {
 
       var args = {
         onSuccess: sandbox.spy(),
@@ -517,8 +479,8 @@ describe('emp3.api.MessageHandler', function () {
     });
   });
 
-  describe('clearFeatures', function () {
-    it('passes a clearFeatures payload to the validate function', function () {
+  describe('clearFeatures', function() {
+    it('passes a clearFeatures payload to the validate function', function() {
       var messageHandler = emp3.api.MessageHandler.getInstance();
       var validateStub = sandbox.stub(messageHandler, 'validate');
       var callInfo = {
@@ -543,45 +505,8 @@ describe('emp3.api.MessageHandler', function () {
     });
   });
 
-  describe('lookAtLocation', function () {
-    it('passes a LookAt payload to the validate function', function () {
-      var messageHandler = emp3.api.MessageHandler.getInstance();
-      var validateStub = sandbox.stub(messageHandler, 'validate');
-
-      var lookAt = new emp3.api.LookAt({range: 0});
-      var callInfo = {
-        method: 'Map.setLookAt',
-        source: new emp3.api.Map({
-          engine: engine,
-          container: containerId
-        }),
-        args: {
-          lookAt: lookAt,
-          onSuccess: sandbox.spy(),
-          onError: sandbox.spy()
-        }
-      };
-
-      var message = {
-        lookAt: lookAt
-      };
-
-      var transactionId = '1234-5678-9ABC-DEF0';
-
-      messageHandler.lookAtLocation(callInfo, message, transactionId);
-      validateStub.should.have.been.calledWithMatch(emp3.api.enums.channel.lookAtLocation, {
-        latitude: lookAt.latitude,
-        longitude: lookAt.longitude,
-        altitude: lookAt.altitude,
-        range: lookAt.range,
-        heading: lookAt.heading,
-        tilt: lookAt.tilt
-      }, callInfo);
-    });
-  });
-
   describe('manageSelection', function() {
-    it ('adds features into the selectionHash', function() {
+    it('adds features into the selectionHash', function() {
       var sender = {
         id: 'map1'
       };
@@ -592,7 +517,7 @@ describe('emp3.api.MessageHandler', function () {
             featureId: 'feature1',
             name: 'feature1',
             feature: {
-              coordinates: [40,40],
+              coordinates: [40, 40],
               type: 'Point'
             },
             properties: {
@@ -611,7 +536,7 @@ describe('emp3.api.MessageHandler', function () {
   });
 
   describe('manageDeselection', function() {
-    it ('calls removeSelection to remove items out of selectionHash', function() {
+    it('calls removeSelection to remove items out of selectionHash', function() {
 
       var sender = {
         id: 'map1'
@@ -623,7 +548,7 @@ describe('emp3.api.MessageHandler', function () {
             featureId: 'feature1',
             name: 'feature1',
             feature: {
-              coordinates: [40,40],
+              coordinates: [40, 40],
               type: 'Point'
             },
             properties: {
@@ -640,7 +565,7 @@ describe('emp3.api.MessageHandler', function () {
       // unfortunately cannot test the validate function is called.  the selectionHash
       // must be populated, but it is a private variable.
       messageHandler.manageSelection(sender, msg);
-      messageHandler.isSelected('map1','feature1').should.equal(true);
+      messageHandler.isSelected('map1', 'feature1').should.equal(true);
       messageHandler.manageDeselection(sender, msg);
 
       removeSelectionStub.should.have.been.calledWithMatch('map1', ['feature1']);
@@ -648,7 +573,7 @@ describe('emp3.api.MessageHandler', function () {
   });
 
   describe('removeSelection', function() {
-    it ('removes items out of the selectionHash', function() {
+    it('removes items out of the selectionHash', function() {
       var sender = {
         id: 'map1'
       };
@@ -659,7 +584,7 @@ describe('emp3.api.MessageHandler', function () {
             featureId: 'feature1',
             name: 'feature1',
             feature: {
-              coordinates: [40,40],
+              coordinates: [40, 40],
               type: 'Point'
             },
             properties: {
@@ -672,14 +597,14 @@ describe('emp3.api.MessageHandler', function () {
       var messageHandler = emp3.api.MessageHandler.getInstance();
 
       messageHandler.manageSelection(sender, msg);
-      messageHandler.isSelected('map1','feature1').should.equal(true);
+      messageHandler.isSelected('map1', 'feature1').should.equal(true);
       messageHandler.removeSelection('map1', ['feature1']);
-      messageHandler.isSelected('map1','feature1').should.equal(false);
+      messageHandler.isSelected('map1', 'feature1').should.equal(false);
     });
   });
 
   describe('isSelected', function() {
-    it ('finds a feature selected', function() {
+    it('finds a feature selected', function() {
       var sender = {
         id: 'map1'
       };
@@ -690,7 +615,7 @@ describe('emp3.api.MessageHandler', function () {
             featureId: 'feature1',
             name: 'feature1',
             feature: {
-              coordinates: [40,40],
+              coordinates: [40, 40],
               type: 'Point'
             },
             properties: {
@@ -702,14 +627,14 @@ describe('emp3.api.MessageHandler', function () {
 
       var messageHandler = emp3.api.MessageHandler.getInstance();
       messageHandler.manageSelection(sender, msg);
-      messageHandler.isSelected('map1','feature1').should.equal(true);
+      messageHandler.isSelected('map1', 'feature1').should.equal(true);
       messageHandler.manageDeselection(sender, msg);
-      messageHandler.isSelected('map1','feature1').should.equal(false);
+      messageHandler.isSelected('map1', 'feature1').should.equal(false);
     });
 
-    it ('finds a feature unselected', function() {
+    it('finds a feature unselected', function() {
       var messageHandler = emp3.api.MessageHandler.getInstance();
-      messageHandler.isSelected('map1','feature1').should.equal(false);
+      messageHandler.isSelected('map1', 'feature1').should.equal(false);
     });
   });
 });

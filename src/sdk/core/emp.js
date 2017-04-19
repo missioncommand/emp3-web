@@ -3,7 +3,11 @@
  * @namespace
  */
 var emp = window.emp || {};
-emp.version = "3.0.0 Beta 1";
+
+/**
+ * Setting of whether or not to allow tv4 to run validation on {@link emp.typeLibrary.base} classes
+ * @type {boolean}
+ */
 emp.validate = true;
 
 /**

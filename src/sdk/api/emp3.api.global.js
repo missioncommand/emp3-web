@@ -15,12 +15,13 @@ if (!window.emp3.api) {
  * and other map service related requests.
  */
 emp3.api.global = emp3.api.global || {
-    version: "2.3.0",
+
+    version: "2.4.0",
     /**
      * @name emp3.api.global#configuration
      */
     configuration: (function() {
-      var _urlProxy = "../urlproxy.jsp";
+      var _urlProxy = "../urlproxy.jsp"; // NOTICE: this file location was selected on purpose
 
       /**
        * @name emp3.api.global.configuration#urlProxy

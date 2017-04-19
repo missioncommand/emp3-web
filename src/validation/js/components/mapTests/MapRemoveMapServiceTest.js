@@ -21,15 +21,15 @@ class MapRemoveMapServiceTest extends Component {
   }
 
   componentDidMount() {
-    if (this.state.selectedMapId !== '') {
+    if (this.state.selectedMapId) {
       this.getMapServices();
     }
   }
 
   componentWillReceiveProps(props) {
-    if (props.maps.length > 0 && this.state.selectedMapId === '') {
+    if (props.maps.length > 0 && !this.state.selectedMapId) {
       this.setState({selectedMapId: _.first(props.maps).geoId}, () => {
-        setTimeout(this.getMapServices(), 2000); // This should account for the map loading initially
+        setTimeout(this.getMapServices, 2000); // This should account for the map loading initially
       });
     }
   }
@@ -41,8 +41,10 @@ class MapRemoveMapServiceTest extends Component {
   }
 
   removeService(serviceId) {
-    const map = _.find(this.props.maps, {geoId: this.state.selectedMapId});
-    const service = _.find(this.state.mapServices, {geoId: serviceId});
+    const {maps, addError} = this.props,
+      map = _.find(maps, {geoId: this.state.selectedMapId}),
+      service = _.find(this.state.mapServices, {geoId: serviceId});
+
     try {
       map.removeMapService({
         mapService: service,
@@ -52,18 +54,19 @@ class MapRemoveMapServiceTest extends Component {
         },
         onError: err => {
           toastr.error('Failed To Remove Map Service');
-          this.props.addError(err, 'Map.removeMapService');
+          addError(err, 'Map.removeMapService');
         }
       });
     } catch (err) {
       toastr.error(err.message, 'Map.removeMapService: Critical');
-      this.props.addError(err.message, 'Map.removeMapService: Critical');
+      addError(err.message, 'Map.removeMapService: Critical');
     }
 
   }
 
   getMapServices() {
-    const map = _.find(this.props.maps, {geoId: this.state.selectedMapId});
+    const {maps, addError} = this.props,
+      map = _.find(maps, {geoId: this.state.selectedMapId});
 
     try {
       map.getMapServices({
@@ -72,7 +75,7 @@ class MapRemoveMapServiceTest extends Component {
         },
         onError: err => {
           toastr.error('Failed Retrieving Services');
-          this.props.addError(err, 'Map.getMapServices');
+          addError(err, 'Map.getMapServices');
         }
       });
     } catch (err) {
@@ -81,39 +84,51 @@ class MapRemoveMapServiceTest extends Component {
   }
 
   render() {
+    const {maps} = this.props;
 
     return (
-      <div>
-        <h3>Remove Map Service</h3>
+      <div className="mdl-grid">
+        <span className="mdl-layout-title">Remove Map Service</span>
 
-        <label htmlFor='mapSelect'>Remove Services From </label>
-        <select id='mapSelect' value={this.state.selectedMapId} onChange={this.updateSelectedMap}>
-          {this.props.maps.map(map => {
-            return <option key={map.geoId} value={map.geoId}>{map.container}</option>;
-          })}
-        </select>
+        <div className="mdl-cell mdl-cell--12-col">
+          <label htmlFor='mapSelect'>Remove Services From </label>
+          <select id='mapSelect' value={this.state.selectedMapId} onChange={this.updateSelectedMap}>
+            {maps.map(map => {
+              return <option key={map.geoId} value={map.geoId}>{map.container}</option>;
+            })}
+          </select>
+        </div>
 
-        <h5>Map Services</h5>
-        <ul className='mdl-list' style={{maxHeight: '500px', overflowY:'auto'}}>
+        <button className="mdl-button mdl-js-button mdl-button--raised mdl-js-ripple-effect mdl-cell mdl-cell--12-col"
+                disabled={!this.state.selectedMapId}
+                onClick={this.getMapServices}>
+          <i className="fa fa-refresh"/> Refresh
+        </button>
+
+        <div className='mdl-cell mdl-cell--12-col mdl-list'>
           {this.state.mapServices.map(service => {
             return (
-            <li key={service.geoId} className='mdl-list__item mdl-list__item--two-line'>
-              <span className='mdl-list__item-primary-content'>
-                  {service.name}
-                  <span className='mdl-list__item-sub-title'>{service.url}</span>
-              </span>
-              <span className='mdl-list__item-secondary-action'>
-                <button className='mdl-button mdl-js-button mdl-button--fab mdl-button--mini-fab'
-                        onClick={() => this.removeService(service.geoId)}>
+              <div key={service.geoId} className='mdl-list__item mdl-list__item--two-line'
+                   title={service.url}>
+                <span className='mdl-list__item-primary-content'>
+                  <span>{service.name}</span>
+                  <span className="mdl-list__item-sub-title">
+                    {service.url.substring(0, 24) + '...' + service.url.substr(-10)}
+                  </span>
+                </span>
+                <a href="#"
+                   onClick={() => this.removeService(service.geoId)}
+                   className='mdl-list__item-secondary-action'>
                   <i className='fa fa-times'/>
-                </button>
-              </span>
-            </li>);
+                </a>
+              </div>
+            );
           })}
-          {this.state.mapServices.length === 0 ? <li className='mdl-list__item'>
-            <span className='mdl-list__item-primary-content'>No Services Exist On This Map</span>
-          </li> : null}
-        </ul>
+          {this.state.mapServices.length === 0 ?
+            <div className='mdl-list__item'>
+              <span className='mdl-list__item-primary-content'>No Services Exist On This Map</span>
+            </div> : null}
+        </div>
 
         <RelatedTests relatedTests={[
           {text: 'Add a Map Service', target: 'mapAddMapServiceTest'},
@@ -127,10 +142,11 @@ class MapRemoveMapServiceTest extends Component {
 }
 
 MapRemoveMapServiceTest.propTypes = {
-  maps: PropTypes.array.isRequired,
-  removeMapServices: PropTypes.func.isRequired,
-  addResult: PropTypes.func.isRequired,
-  addError: PropTypes.func.isRequired
+  maps: PropTypes.array,
+  mapServices: PropTypes.array,
+  removeMapServices: PropTypes.func,
+  addResult: PropTypes.func,
+  addError: PropTypes.func
 };
 
 export default MapRemoveMapServiceTest;
