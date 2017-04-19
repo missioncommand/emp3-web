@@ -287,6 +287,8 @@ emp3.api.Overlay.prototype.addOverlays = function (args) {
  * The only properties which may be updated in the fashion are the name and description.
  * Changing the properties locally without calling apply will cause updates to be lost.
  *
+ * @deprecated Use emp3.api.Overlay.prototype.update
+ *
  * @param {object} [args]
  * @param {emp3.api.Overlay~applyCallback} [args.onSuccess]
  * @param {emp3.api.Overlay~errorCallback} [args.onError]
@@ -303,6 +305,7 @@ emp3.api.Overlay.prototype.addOverlays = function (args) {
  * });
  */
 emp3.api.Overlay.prototype.apply = function (args) {
+  console.log("emp3.api.Overlay.prototype.apply function is deprecated. Use emp3.api.Overlay.prototype.update");
   args = args || {};
 
   var cmd = {
@@ -315,6 +318,43 @@ emp3.api.Overlay.prototype.apply = function (args) {
   emp3.api.MessageHandler.getInstance().sendMessage(cmd, {
     source: this,
     method: "Overlay.apply",
+    args: args
+  });
+};
+
+/**
+ * This method triggers an update of the overlay.
+ * The only properties which may be updated in the fashion are the name and description.
+ * Changing the properties locally without calling update will cause updates to be lost.
+ *
+ * @param {object} [args]
+ * @param {emp3.api.Overlay~updateCallback} [args.onSuccess]
+ * @param {emp3.api.Overlay~errorCallback} [args.onError]
+ *
+ * @example <caption>Renaming an overlay</caption>
+ * var weatherOverlay = new emp3.api.Overlay({name: 'wetter map', geoId: 'weatherMap'});
+ * map.addOverlay({
+ *   overlay: weatherOverlay,
+ *   onSuccess: function() {
+ *     // fix spelling of name
+ *     weatherOverlay.name = "weather map";
+ *     weatherOverlay.update();
+ *   }
+ * });
+ */
+emp3.api.Overlay.prototype.update = function (args) {
+  args = args || {};
+
+  var cmd = {
+    cmd: emp3.api.enums.channel.updateOverlay,
+    overlay: this,
+    onSuccess: args.onSuccess,
+    onError: args.onError
+  };
+
+  emp3.api.MessageHandler.getInstance().sendMessage(cmd, {
+    source: this,
+    method: "Overlay.update",
     args: args
   });
 };

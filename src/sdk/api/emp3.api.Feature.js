@@ -178,6 +178,8 @@ emp3.api.Feature.prototype = new emp3.api.Container();
  *
  * Certain properties will not be affected by apply depending on the feature type.
  *
+ * @deprecated Use emp3.api.Feature.prototype.update
+ *
  * @example <caption>Change the name and position of a feature</caption>
  * var circle = new emp3.api.Circle({
  *   name: 'circle',
@@ -190,7 +192,7 @@ emp3.api.Feature.prototype = new emp3.api.Container();
  * circle.apply();
  */
 emp3.api.Feature.prototype.apply = function () {
-
+  console.log("emp3.api.Feature.prototype.apply function is deprecated. Use emp3.api.Feature.prototype.update");
   // Validate properties
   if (this.positions) {
     var numPositions = this.positions.length;
@@ -205,6 +207,42 @@ emp3.api.Feature.prototype.apply = function () {
   }
 
   emp3.api.MessageHandler.getInstance().apply(this);
+};
+
+/**
+ * Updates this feature on the map.  To update this feature you can set the
+ * properties of the feature first (such as feature.name and feature.strokeStyle). The change
+ * will not be registered until update is called;
+ *
+ * Certain properties will not be affected by update depending on the feature type.
+ *
+ *
+ * @example <caption>Change the name and position of a feature</caption>
+ * var circle = new emp3.api.Circle({
+ *   name: 'circle',
+ *   position: {latitude: 0, longitude: 0},
+ *   radius: 10000
+ * });
+ *
+ * circle.name = 'updatedCircle';
+ * circle.position = {latitude: 5, longitude, 0};
+ * circle.update();
+ */
+emp3.api.Feature.prototype.update = function () {
+  // Validate properties
+  if (this.positions) {
+    var numPositions = this.positions.length;
+    for (var idx = 0; idx < numPositions; idx++) {
+      if (this.positions[idx].latitude > 90.0 || this.positions[idx].latitude < -90.0) {
+        throw new Error('Invalid latitude: latitude must be between 90.0 and -90.0');
+      }
+      if (this.positions[idx].longitude > 180.0 || this.positions[idx].longitude < -180.0) {
+        throw new Error('Invalid longitude: longitude must be between 180.0 and -180.0');
+      }
+    }
+  }
+
+  emp3.api.MessageHandler.getInstance().update(this);
 };
 
 /**
