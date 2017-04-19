@@ -1,6 +1,6 @@
 module.exports = {
   appToDist: {
-    files:[{
+    files: [{
       expand: true,
       cwd: 'src/app/',
       src: ['**'],
@@ -27,14 +27,13 @@ module.exports = {
   cesiumSrc: {
     expand: true,
     cwd: 'src/mapengine/cesium/',
-    src: ['**'],
-    src: ['manifest.js', 'emp3-cesium.min.js', 'emp3-cesium.min.js.map','emp3-cesium.min.css', 'emp3-cesium.min.css.map', 'js/**', '!**js/lib/cesium/Assets/Textures/maki/**', '!**js/lib/cesium/Assets/Textures/NaturalEarthII/**', '!**js/lib/cesium/Assets/IAU2006_XYS/**' ,'!**/test/**'],
+    src: ['manifest.js', 'emp3-cesium.min.js', 'emp3-cesium.min.js.map', 'emp3-cesium.min.css', 'emp3-cesium.min.css.map', 'js/**', '!**js/lib/cesium/Assets/Textures/maki/**', '!**js/lib/cesium/Assets/Textures/NaturalEarthII/**', '!**js/lib/cesium/Assets/IAU2006_XYS/**', '!**/test/**'],
     dest: 'dist/emp3/emp3-cesium'
   },
   worldwindRequired: {
     expand: true,
     cwd: 'src/mapengine/worldwind/',
-    src: ['manifest.js', 'emp3-worldwind.min.js', 'emp3-worldwind.min.js.map', 'worldwind.min.js', 'images/**', "renderer/**"],
+    src: ['manifest.js', 'emp3-worldwind.min.js', 'emp3-worldwind.min.js.map', 'worldwind.min.js', 'images/**', "renderer/savm-bc.js"],
     dest: 'dist/emp3/emp3-worldwind'
   },
   min: {
