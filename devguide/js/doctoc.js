@@ -55,6 +55,10 @@ var doctoc = [{
         {
           key: "pages/example.html?example=examples/map-addEventListener.js",
           title: "Event listeners"
+        },
+        {
+          key: "pages/example.html?example=examples/map-purge.js",
+          title: "Destroying a Map"
         }
       ]
     },
