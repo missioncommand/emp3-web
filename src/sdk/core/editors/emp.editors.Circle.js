@@ -305,6 +305,8 @@ emp.editors.Circle.prototype.drawStart = function(pointer) {
     y: pointer.lat
   }, height, 0);
 
+  var symbolCode = this.featureCopy.data.symbolCode;
+  
   this.featureCopy = new emp.typeLibrary.Feature({
     overlayId: this.featureCopy.overlayId,
     featureId: this.featureCopy.featureId,
@@ -319,10 +321,9 @@ emp.editors.Circle.prototype.drawStart = function(pointer) {
   } else {
     this.featureCopy.data.type = "LineString";
     this.featureCopy.data.coordinates = [[pointer.lon, pointer.lat]];
-    this.featureCopy.data.symbolCode = this.featureCopy.symbolCode;
+    this.featureCopy.data.symbolCode = symbolCode;
     this.featureCopy.properties.modifiers.distance = [height];
   }
-
 
   // create center of the feature from the point that was clicked.
   centerFeature = new emp.typeLibrary.Feature({
