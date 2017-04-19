@@ -49,6 +49,10 @@ var doctoc = [{
           title: "Zoom to a Feature"
         },
         {
+          key: "pages/example.html?example=examples/map-selection.js",
+          title: "Select Features"
+        },
+        {
           key: "pages/example.html?example=examples/map-addEventListener.js",
           title: "Event listeners"
         }
