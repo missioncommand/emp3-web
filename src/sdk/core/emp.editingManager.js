@@ -284,6 +284,15 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       }
+      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE ) {
+        // This is a ellipse defined by a point and radius.  It uses a GEOJSON point and
+        // a distance in meters to represent
+        // itself.
+        activeEditor = new emp.editors.Ellipse({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
       else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
         (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
         // This is a rectangle defined by a point, width, height and azimuth.
