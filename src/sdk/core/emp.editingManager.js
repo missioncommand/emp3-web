@@ -55,6 +55,14 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
+    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+      // This is a polygon.   MIL-STD polygons are handled slightly different
+      // so there is a separate editor for those.
+      activeEditor = new emp.editors.Square({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    }
     else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON) {
       // This is a MIL-STD polygon.  It uses a GEOJSON linestring to represent
       // itself.  It is stored slightly different than the regular polygon.
