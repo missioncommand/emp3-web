@@ -11278,8 +11278,8 @@ function EmpCesium() {
       // destroy workers
       this.secRendererWorker.A.terminate();
       this.secRendererWorker.B.terminate();
-      this.secRendererWorker.Selection.terminate();
-      this.secRendererWorker.DeSelection.terminate();
+      //this.secRendererWorker.Selection.terminate();
+      //this.secRendererWorker.DeSelection.terminate();
       //window.empCesium = null;
       this.globe = null;
       this.empLayers = null;
