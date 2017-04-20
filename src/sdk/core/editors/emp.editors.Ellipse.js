@@ -185,7 +185,7 @@ emp.editors.Ellipse.prototype.addControlPoints = function() {
 };
 
 /**
- * Begins the movement of a control point.  
+ * Begins the movement of a control point.
  */
 emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointer) {
 
@@ -213,7 +213,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     azimuthPoint,
     o, a, h, x, y;
 
- 
+
   x = this.featureCopy.data.coordinates[0];
   y = this.featureCopy.data.coordinates[1];
 
@@ -253,7 +253,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
       this.featureCopy.properties.semiMajor = distance;
     }
 
-    
+
 
     if(moveAzimuth){
       newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
@@ -270,7 +270,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
       tempAzimuth = azimuth - 90;
     }
 
-    // retrieve the new semiMajor vertex.   
+    // retrieve the new semiMajor vertex.
     newFeaturePosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
@@ -278,7 +278,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
 
     // First update the control point with new pointer info.
     currentFeature.data.coordinates = [newFeaturePosition.x, newFeaturePosition.y];
-    
+
 
   }else if (featureId === this.semiMinor.feature.featureId){
 
@@ -330,7 +330,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
       tempAzimuth = azimuth;
     }
 
-    // retrieve the new semiMinor vertex. 
+    // retrieve the new semiMinor vertex.
     newFeaturePosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
@@ -427,7 +427,7 @@ emp.editors.Ellipse.prototype.startMoveControlPoint = function(featureId, pointe
     this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
 
 
-    // Get the properties for width, height and azimuth.  
+    // Get the properties for width, height and azimuth.
     semiMajor = this.featureCopy.properties.semiMajor;
     semiMinor = this.featureCopy.properties.semiMinor;
     azimuth = this.featureCopy.properties.azimuth;
@@ -524,4 +524,200 @@ emp.editors.Ellipse.prototype.endMoveControlPoint = function(featureId, pointer)
  */
 emp.editors.Ellipse.prototype.moveFeature = function() {
   // do not do anything here.  We do not want to let users move the feature.
+};
+
+emp.editors.Ellipse.prototype.drawStart = function(pointer) {
+  var bounds,
+    mapHeight,
+    mapWidth,
+    height,
+    width,
+    semiMajorPoint,
+    semiMinorPoint,
+    azimuthPoint,
+    items = [],
+    semiMajorFeature,
+    semiMinorFeature,
+    azimuthFeature,
+    centerFeature,
+    semiMajorVertex,
+    semiMinorVertex,
+    azimuthVertex,
+    centerVertex,
+    updateData;
+
+  // determine the current map size
+  bounds = this.mapInstance.status.getViewBounds();
+
+  mapHeight = emp.geoLibrary.measureDistance(
+    bounds.south,
+    bounds.west,
+    bounds.north,
+    bounds.west, "meters");
+  mapWidth = emp.geoLibrary.measureDistance(
+    bounds.south,
+    bounds.west,
+    bounds.south,
+    bounds.east, "meters");
+  height = mapHeight / 8;
+  width = mapWidth / 8;
+
+  // project out the radius right above the center point of the circle.
+  semiMajorPoint = emp.geoLibrary.geodesic_coordinate({
+    x: pointer.lon,
+    y: pointer.lat
+  }, width, 90);
+
+  // project out the radius right above the center point of the circle.
+  azimuthPoint = emp.geoLibrary.geodesic_coordinate({
+    x: pointer.lon,
+    y: pointer.lat
+  }, width, -90);
+
+  // project out the radius right above the center point of the circle.
+  semiMinorPoint = emp.geoLibrary.geodesic_coordinate({
+    x: pointer.lon,
+    y: pointer.lat
+  }, height, 0);
+
+  // not quite sure why, but we have to instantiate the feature again.
+  // for some reason, the coreParent is not set if we do not.  Haven't
+  // figured out why yet.
+  this.featureCopy = new emp.typeLibrary.Feature({
+    overlayId: this.featureCopy.overlayId,
+    featureId: this.featureCopy.featureId,
+    format: this.featureCopy.format,
+    properties: this.featureCopy.properties
+  });
+
+  this.featureCopy.data.type = "Point";
+  this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+  this.featureCopy.properties.semiMinor = height;
+  this.featureCopy.properties.semiMajor = width;
+  this.featureCopy.properties.azimuth = 0;
+
+
+  // create center of the feature from the point that was clicked.
+  centerFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [pointer.lon, pointer.lat],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.editPoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  // create a feature for each of these coordinates.  This
+  // will be our radius control point that is displayed by the map.
+  semiMinorFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [semiMinorPoint.x, semiMinorPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.distancePoint,
+      title: "addFeature2",
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  // create a feature for each of these coordinates.  This
+  // will be our radius control point that is displayed by the map.
+  semiMajorFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [semiMajorPoint.x, semiMajorPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.distancePoint,
+      title: "addFeature",
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  // create a feature for each of these coordinates.  This
+  // will be our radius control point that is displayed by the map.
+  azimuthFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [azimuthPoint.x, azimuthPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.rotationPoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  centerVertex = new emp.editors.Vertex(centerFeature, "vertex");
+  semiMinorVertex = new emp.editors.Vertex(semiMinorFeature, "add");
+  semiMajorVertex = new emp.editors.Vertex(semiMajorFeature, "add");
+  azimuthVertex = new emp.editors.Vertex(azimuthFeature, "add");
+
+  this.semiMinor = semiMinorVertex;
+  this.semiMajor = semiMajorVertex;
+  this.azimuth = azimuthVertex;
+  this.center = centerVertex;
+
+  this.vertices.push(this.center);
+  this.vertices.push(semiMajorVertex);
+  this.vertices.push(semiMinorVertex);
+  this.vertices.push(azimuthVertex);
+
+  items.push(centerFeature);
+  items.push(semiMajorFeature);
+  items.push(azimuthFeature);
+  items.push(semiMinorFeature);
+  items.push(this.featureCopy);
+
+  var transaction = new emp.typeLibrary.Transaction({
+      intent: emp.intents.control.FEATURE_ADD,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+      items: items
+  });
+
+  transaction.run();
+
+  // return updateData
+  // Create the return object.  This will tell you which index was added,
+  // the locations of the new indices, and the type of change it was.
+
+  updateData = this.getUpdateData();
+
+  return updateData;
 };
