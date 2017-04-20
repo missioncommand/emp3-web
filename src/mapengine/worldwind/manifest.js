@@ -49,16 +49,12 @@ function initializeWorldwind(args) {
         "controllers/eventHandlers/EMPWorldWind.eventHandlers.mouse.js",
         "controllers/eventHandlers/EMPWorldWind.eventHandlers.touch.js",
         "controllers/eventHandlers/EMPWorldWind.eventHandlers.drag.js",
-        "controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js",
-        "renderer/savm-bc.js",
-        "renderer/MPCWorker.js"
+        "controllers/eventHandlers/EMPWorldWind.eventHandlers.pointer.js"
       ];
     } else {
       resourceList = [
         "worldwind.min.js",
-        "emp3-worldwind.min.js",
-        "renderer/savm-bc.min.js",
-        "renderer/MPCWorker.js"
+        "emp3-worldwind.min.js"
       ];
     }
     return resourceList;
