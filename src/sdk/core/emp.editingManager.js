@@ -97,6 +97,13 @@ emp.editingManager = function(args) {
         feature: feature,
         mapInstance: args.mapInstance
       });
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+      (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
+      // This is an circle.  It is a point with a radius.
+      activeEditor = new emp.editors.Rectangle({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
     }
     /*
     else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
