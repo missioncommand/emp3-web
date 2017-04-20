@@ -455,7 +455,6 @@ EMPWorldWind.Map.prototype = function() {
       // Initialize sec worker
       _initializeWebWorkers();
 
-
       this.throttleAddMultiPointRedraws = EMPWorldWind.utils.MultiPointRateLimit(EMPWorldWind.editors.EditorController.redrawMilStdSymbols, 1);
     },
     /**
