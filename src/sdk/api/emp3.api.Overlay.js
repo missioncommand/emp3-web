@@ -305,7 +305,7 @@ emp3.api.Overlay.prototype.addOverlays = function (args) {
  * });
  */
 emp3.api.Overlay.prototype.apply = function (args) {
-  console.log("emp3.api.Overlay.prototype.apply function is deprecated. Use emp3.api.Overlay.prototype.update");
+  console.warn("emp3.api.Overlay.prototype.apply function is deprecated. Apply is reserved word. Use emp3.api.Overlay.prototype.update");
   args = args || {};
 
   var cmd = {

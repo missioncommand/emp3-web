@@ -192,7 +192,7 @@ emp3.api.Feature.prototype = new emp3.api.Container();
  * circle.apply();
  */
 emp3.api.Feature.prototype.apply = function () {
-  console.log("emp3.api.Feature.prototype.apply function is deprecated. Use emp3.api.Feature.prototype.update");
+  console.warn("emp3.api.Feature.prototype.apply function is deprecated. Apply is reserved word. Use emp3.api.Feature.prototype.update");
   // Validate properties
   if (this.positions) {
     var numPositions = this.positions.length;
