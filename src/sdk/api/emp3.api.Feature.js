@@ -192,21 +192,9 @@ emp3.api.Feature.prototype = new emp3.api.Container();
  * circle.apply();
  */
 emp3.api.Feature.prototype.apply = function () {
-  console.warn("emp3.api.Feature.prototype.apply function is deprecated. Apply is reserved word. Use emp3.api.Feature.prototype.update");
-  // Validate properties
-  if (this.positions) {
-    var numPositions = this.positions.length;
-    for (var idx = 0; idx < numPositions; idx++) {
-      if (this.positions[idx].latitude > 90.0 || this.positions[idx].latitude < -90.0) {
-        throw new Error('Invalid latitude: latitude must be between 90.0 and -90.0');
-      }
-      if (this.positions[idx].longitude > 180.0 || this.positions[idx].longitude < -180.0) {
-        throw new Error('Invalid longitude: longitude must be between 180.0 and -180.0');
-      }
-    }
-  }
-
-  emp3.api.MessageHandler.getInstance().apply(this);
+  console.warn("Feature.apply is deprecated. Apply is reserved word in javascript. Use Feature.update.");
+  
+  this.update();
 };
 
 /**

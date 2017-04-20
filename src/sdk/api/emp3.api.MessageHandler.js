@@ -3667,48 +3667,6 @@ emp3.api.MessageHandler = (function() {
       });
     };
 
-    /**
-     * Stores updates and sends them out only if other updates don't come
-     * in within a certain interval.
-     * @param {emp3.api.Feature} feature
-     * @deprecated Use this.update
-     */
-    this.apply = function(feature) {
-      console.log("this.apply function is deprecated. Use this.update");
-      var payload;
-      var that;
-
-      var convertedFeature = emp3.api.convertFeatureToGeoJSON(feature);
-      var properties = emp3.api.getProperties(feature);
-      var timeElapsedSinceLastUpdate = Date.now() - updateTime;
-
-      payload = {
-        overlayId: emp.constant.parentIds.ALL_PARENTS,
-        featureId: feature.geoId,
-        format: feature.featureType,
-        feature: convertedFeature,
-        name: feature.name,
-        readOnly: feature.readOnly,
-        properties: properties
-      };
-
-      updates.push(payload);
-
-
-      if (updateTimer && timeElapsedSinceLastUpdate < 100 && updates.length < 500) {
-        clearTimeout(updateTimer);
-      }
-
-      // If we have 500 updates or we have had an update in 50 ms then
-      // send the updates in one shot.
-      updateTime = Date.now();
-      that = this;
-      updateTimer = setTimeout(function() {
-        that.validate(emp3.api.enums.channel.plotFeature, updates, {});
-        updates = [];
-      }, 50);
-
-    };
 
     /**
      * Stores updates and sends them out only if other updates don't come

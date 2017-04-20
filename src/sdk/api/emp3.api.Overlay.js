@@ -305,21 +305,9 @@ emp3.api.Overlay.prototype.addOverlays = function (args) {
  * });
  */
 emp3.api.Overlay.prototype.apply = function (args) {
-  console.warn("emp3.api.Overlay.prototype.apply function is deprecated. Apply is reserved word. Use emp3.api.Overlay.prototype.update");
-  args = args || {};
+  console.warn("Overlay.apply is deprecated. Apply is reserved word in javascript. Use Overlay.update.");
 
-  var cmd = {
-    cmd: emp3.api.enums.channel.updateOverlay,
-    overlay: this,
-    onSuccess: args.onSuccess,
-    onError: args.onError
-  };
-
-  emp3.api.MessageHandler.getInstance().sendMessage(cmd, {
-    source: this,
-    method: "Overlay.apply",
-    args: args
-  });
+  this.update(args);
 };
 
 /**
