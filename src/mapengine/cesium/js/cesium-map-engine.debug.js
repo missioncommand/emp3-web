@@ -1957,6 +1957,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 
         if (transaction && transaction.items)
         {
+            empCesium.bSmartMapMoving = false;
             enabled = transaction.items[0];
             switch (enabled.lock)
             {
