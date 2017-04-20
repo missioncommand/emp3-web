@@ -396,6 +396,7 @@ emp.intents.control.useNewDrawing = function(args) {
       item.type === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
       item.type === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
       item.type === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE ||
     (symbol &&
       (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT ||
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE ||
