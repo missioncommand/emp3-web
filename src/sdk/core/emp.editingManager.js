@@ -55,6 +55,14 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
+    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+      // This is a polygon.   MIL-STD polygons are handled slightly different
+      // so there is a separate editor for those.
+      activeEditor = new emp.editors.Square({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    }
     else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON) {
       // This is a MIL-STD polygon.  It uses a GEOJSON linestring to represent
       // itself.  It is stored slightly different than the regular polygon.
@@ -87,6 +95,20 @@ emp.editingManager = function(args) {
     } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.MilStdTwoPointLine({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+      (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
+      // This is an circle.  It is a point with a radius.
+      activeEditor = new emp.editors.Circle({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+      (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
+      // This is an circle.  It is a point with a radius.
+      activeEditor = new emp.editors.Rectangle({
         feature: feature,
         mapInstance: args.mapInstance
       });
@@ -280,6 +302,15 @@ emp.editingManager = function(args) {
         // a distance in meters to represent
         // itself.
         activeEditor = new emp.editors.Circle({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
+      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE ) {
+        // This is a ellipse defined by a point and radius.  It uses a GEOJSON point and
+        // a distance in meters to represent
+        // itself.
+        activeEditor = new emp.editors.Ellipse({
           feature: feature,
           mapInstance: args.mapInstance
         });

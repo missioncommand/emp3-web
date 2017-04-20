@@ -393,6 +393,9 @@ emp.intents.control.useNewDrawing = function(args) {
   if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
       item.type === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
       item.type === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE ||
     (symbol &&
       (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT ||
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE ||
@@ -401,7 +404,9 @@ emp.intents.control.useNewDrawing = function(args) {
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE ||
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW ||
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW ||
-        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE
       ))) {
     result = true;
   }
