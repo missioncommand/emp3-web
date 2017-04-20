@@ -477,10 +477,10 @@ function initializeCesium(args) {
         navigationInstructionsInitiallyVisible: false,
         selectionIndicator: false,
         fullscreenButton: false,
-        showRenderLoopErrors: true
+        showRenderLoopErrors: false
       });
       viewer.scene.fxaa = true;
-      viewer.scene.debugShowFramesPerSecond = true;
+      viewer.scene.debugShowFramesPerSecond = false;
       viewer.clock.shouldAnimate = false;
       if (args.extent) {
         if (args.extent.centerLat && args.extent.centerLon && args.extent.range) {
