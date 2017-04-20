@@ -13,13 +13,14 @@ var conusReflectivityWMS = new emp3.api.WMS({
   layers: "1"
 });
 
-
+// Add the first map service to act as a base layer
 var _addEarthAtNight = function() {
   map1.addMapService({
     mapService: earthAtNightWMS
   });
 };
 
+// Add the second layers
 var _addWeatherWMS = function() {
   map1.addMapService({
     mapService: conusReflectivityWMS
