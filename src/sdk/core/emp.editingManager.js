@@ -107,8 +107,14 @@ emp.editingManager = function(args) {
       });
     } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
       (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
-      // This is an circle.  It is a point with a radius.
+      // This is an rectangle.  It is a point with a wioth and height.
       activeEditor = new emp.editors.Rectangle({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE) {
+      // This is an ellipse.  It is a point with a semi minor and semi major..
+      activeEditor = new emp.editors.Ellipse({
         feature: feature,
         mapInstance: args.mapInstance
       });
