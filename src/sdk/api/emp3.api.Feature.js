@@ -178,7 +178,7 @@ emp3.api.Feature.prototype = new emp3.api.Container();
  *
  * Certain properties will not be affected by apply depending on the feature type.
  *
- * @deprecated Use emp3.api.Feature.prototype.update
+ * @deprecated Use Feature.update
  *
  * @example <caption>Change the name and position of a feature</caption>
  * var circle = new emp3.api.Circle({

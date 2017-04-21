@@ -287,7 +287,7 @@ emp3.api.Overlay.prototype.addOverlays = function (args) {
  * The only properties which may be updated in the fashion are the name and description.
  * Changing the properties locally without calling apply will cause updates to be lost.
  *
- * @deprecated Use emp3.api.Overlay.prototype.update
+ * @deprecated Use Overlay.update
  *
  * @param {object} [args]
  * @param {emp3.api.Overlay~applyCallback} [args.onSuccess]
