@@ -3667,12 +3667,13 @@ emp3.api.MessageHandler = (function() {
       });
     };
 
+
     /**
      * Stores updates and sends them out only if other updates don't come
      * in within a certain interval.
      * @param {emp3.api.Feature} feature
      */
-    this.apply = function(feature) {
+    this.update = function(feature) {
 
       var payload;
       var that;
