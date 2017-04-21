@@ -306,10 +306,6 @@ emp.editors.AxisOfAdvance.prototype.addControlPoints = function() {
 
     this.calculateArrowDistance();
   } // end if
-
-  this.calculateEndPoint = function() {
-
-  };
 };
 
 
@@ -745,7 +741,9 @@ emp.editors.AxisOfAdvance.prototype.drawClick = function(pointer) {
     midpoint,
     addPoint,
     arrowWidthFeature,
-    arrowWidthVertex;
+    arrowWidthVertex,
+    bounds,
+    mapWidth;
 
 
   // Verify this point is different than the last point. Otherwise ignore.
@@ -809,6 +807,19 @@ emp.editors.AxisOfAdvance.prototype.drawClick = function(pointer) {
 
 
     if (this.vertices.vertexLength === 2) {
+
+
+      // determine the current map size to determine a default arrow head size.
+      bounds = this.mapInstance.status.getViewBounds();
+
+      mapWidth = emp.geoLibrary.measureDistance(
+        bounds.south,
+        bounds.west,
+        bounds.south,
+        bounds.east, "meters");
+      this.arrowDepth = mapWidth / 24;
+      this.arrowDistance = mapWidth / 32;
+
       // create new vertex.
       arrowWidthFeature = new emp.typeLibrary.Feature({
         overlayId: "vertices",
@@ -831,19 +842,18 @@ emp.editors.AxisOfAdvance.prototype.drawClick = function(pointer) {
       arrowWidthVertex = new emp.editors.Vertex(arrowWidthFeature, "vertex");
       this.vertices.push(arrowWidthVertex);
       items.push(arrowWidthFeature);
-      // update feature copy -- got to populate the points before moving on.
-      // This is necessary so the arrow head can be calculated.
-      this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
+
     }
 
+    // update feature copy -- got to populate the points before moving on.
+    // This is necessary so the arrow head can be calculated.
+    this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
+    // update feature copy
     this.calculateArrowHeadPosition();
+
+    items.push(this.vertices.tail.feature);
     items.push(addPoint);
     items.push(controlPoint);
-
-    // update feature copy
-    this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
-
-    // update line
     items.push(this.featureCopy);
 
     updateTransaction = new emp.typeLibrary.Transaction({
@@ -862,24 +872,10 @@ emp.editors.AxisOfAdvance.prototype.drawClick = function(pointer) {
     // return updateData
     // Create the return object.  This will tell you which index was added,
     // the locations of the new indices, and the type of change it was.
-    newCoordinates = [];
-    for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
-      newCoordinates.push({
-        lat: this.featureCopy.data.coordinates[i][1],
-        lon: this.featureCopy.data.coordinates[i][0]
-      });
-    }
 
-    index = this.vertices.length - 1;
+    updateData = this.getUpdateData();
 
-    coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index],
-      coordinates: newCoordinates
-    };
-
-    updateData.coordinateUpdate = coordinateUpdate;
-    updateData.properties = this.featureCopy.properties;
+    return updateData;
 
   }
 
