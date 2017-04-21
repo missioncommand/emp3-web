@@ -33,7 +33,7 @@ module.exports = {
   worldwindRequired: {
     expand: true,
     cwd: 'src/mapengine/worldwind/',
-    src: ['manifest.js', 'emp3-worldwind.min.js', 'emp3-worldwind.min.js.map', 'worldwind.min.js', 'images/**', "renderer/savm-bc.js"],
+    src: ['manifest.js', 'emp3-worldwind.min.js', 'emp3-worldwind.min.js.map', 'worldwind.min.js', 'images/**', "renderer/MPCWorker.js", "renderer/savm-bc.min.js"],
     dest: 'dist/emp3/emp3-worldwind'
   },
   min: {
