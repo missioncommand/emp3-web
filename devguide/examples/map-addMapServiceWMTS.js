@@ -1,9 +1,8 @@
 // define a new WMTS service
 var wmts = new emp3.api.WMTS({
-  url: 'https://services.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/WMTS',
-  name: 'ESRI World imagery',
-  description: 'World Wide Satellite Imagery provided by ArcGIS Online',
-  layer: 'World_Imagery'
+  url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/WMTS',
+  name: 'USGS Shaded Relierf',
+  layer: 'USGSShadedReliefOnly'
 });
 
 // note: map1 needs to be changed to whatever your instance of emp3.api.Map is
