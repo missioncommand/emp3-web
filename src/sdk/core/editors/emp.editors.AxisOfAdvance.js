@@ -729,14 +729,11 @@ emp.editors.AxisOfAdvance.prototype.drawStart = function(pointer) {
  * Occurs when the map is clicked after the draw has started.
  */
 emp.editors.AxisOfAdvance.prototype.drawClick = function(pointer) {
-  var coordinateUpdate,
-    updateData = {},
+  var updateData = {},
     controlPoint,
     vertex,
     addVertex,
     items = [],
-    newCoordinates,
-    index,
     updateTransaction,
     midpoint,
     addPoint,
