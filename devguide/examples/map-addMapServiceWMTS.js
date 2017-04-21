@@ -1,7 +1,7 @@
 // define a new WMTS service
 var wmts = new emp3.api.WMTS({
   url: 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSShadedReliefOnly/MapServer/WMTS',
-  name: 'USGS Shaded Relierf',
+  name: 'USGS Shaded Relief',
   layer: 'USGSShadedReliefOnly'
 });
 
