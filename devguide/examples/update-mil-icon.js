@@ -56,5 +56,5 @@ setInterval(function() {
     latitude: lat,
     longitude: lon
   };
-  sym.apply();
+  sym.update();
 }, 150);
