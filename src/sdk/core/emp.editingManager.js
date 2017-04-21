@@ -72,7 +72,7 @@ emp.editingManager = function(args) {
       });
     }
     else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
-      drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE)) {
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE)) {
       // This is a circle defined by a point and radius.  It uses a GEOJSON point and
       // a distance in meters to represent
       // itself.
@@ -80,51 +80,38 @@ emp.editingManager = function(args) {
         feature: feature,
         mapInstance: args.mapInstance
       });
-    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW ) {
+    }
+    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.MilStdArrow({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW ) {
+    }
+    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.MilStdTwoPointArrow({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ) {
+    }
+    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.MilStdTwoPointLine({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
-      (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
-      // This is an circle.  It is a point with a radius.
-      activeEditor = new emp.editors.Circle({
-        feature: feature,
-        mapInstance: args.mapInstance
-      });
-    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
-      (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
-      // This is an rectangle.  It is a point with a wioth and height.
-      activeEditor = new emp.editors.Rectangle({
-        feature: feature,
-        mapInstance: args.mapInstance
-      });
-    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE) {
-      // This is an ellipse.  It is a point with a semi minor and semi major..
-      activeEditor = new emp.editors.Ellipse({
+    }
+    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
+      // This is an arrow.  It is a line with the coordinates reversed when drawn.
+      activeEditor = new emp.editors.AxisOfAdvance({
         feature: feature,
         mapInstance: args.mapInstance
       });
     }
-    /*
     else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
       (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
-      // This is a circle defined by a point and radius.  It uses a GEOJSON point and
-      // a distance in meters to represent
-      // itself.
+      // This is an circle.  It is a point with a radius.
       activeEditor = new emp.editors.Circle({
         feature: feature,
         mapInstance: args.mapInstance
@@ -132,28 +119,19 @@ emp.editingManager = function(args) {
     }
     else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
       (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
-      // This is a rectangle defined by a point, width, height and azimuth.
+      // This is an rectangle.  It is a point with a wioth and height.
       activeEditor = new emp.editors.Rectangle({
         feature: feature,
         mapInstance: args.mapInstance
       });
     }
-    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
-      // This is an axis of advance defined by a line.  The last point of the line in relation to the first point
-      // decides the width of the axis of advance.
-      activeEditor = new emp.editors.AxisOfAdvance({
+    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE) {
+      // This is an ellipse.  It is a point with a semi minor and semi major..
+      activeEditor = new emp.editors.Ellipse({
         feature: feature,
         mapInstance: args.mapInstance
       });
     }
-    else {
-      // create the editor for the appropriate item being edited.
-      activeEditor = new emp.editors.EditorBase({
-        feature: feature,
-        mapInstance: args.mapInstance
-      });
-    }
-    */
 
     return activeEditor;
   };
@@ -170,7 +148,7 @@ emp.editingManager = function(args) {
 
     var updates = {};
 
-    switch(originalFeature.data.type) {
+    switch (originalFeature.data.type) {
       case "Point":
         coordinates = [originalFeature.data.coordinates];
         break;
@@ -312,7 +290,7 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       }
-      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE ) {
+      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE) {
         // This is a ellipse defined by a point and radius.  It uses a GEOJSON point and
         // a distance in meters to represent
         // itself.
@@ -405,7 +383,8 @@ emp.editingManager = function(args) {
         feature.coreParent = undefined;
         feature.overlayId = emp.constant.parentIds.ALL_PARENTS;
 
-      } else {
+      }
+      else {
 
         // The feature does not exist.
         // The draw needs to return a feature.  Prepare this feature.
@@ -474,7 +453,8 @@ emp.editingManager = function(args) {
           transaction: editTransaction,
           failures: initFailList
         });
-      } else {
+      }
+      else {
         mapInstance.eventing.EditEnd({
           transaction: editTransaction,
           failures: initFailList
@@ -503,7 +483,8 @@ emp.editingManager = function(args) {
             originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
             items: [originalFeature]
           });
-        } else {
+        }
+        else {
           // If we are drawing a new feature, remove it from the map.
           transaction = new emp.typeLibrary.Transaction({
             intent: emp.intents.control.FEATURE_REMOVE,
@@ -519,7 +500,8 @@ emp.editingManager = function(args) {
         }
 
 
-      } else {
+      }
+      else {
         // restore the feature to its original state.  Create
         // a FEATURE_ADD transaction that updates the feature
         // to its original state.
@@ -581,7 +563,8 @@ emp.editingManager = function(args) {
             originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
             items: [originalFeature]
           });
-        } else {
+        }
+        else {
           // If we are drawing a new feature, remove it from the map.
           transaction = new emp.typeLibrary.Transaction({
             intent: emp.intents.control.FEATURE_REMOVE,
@@ -595,7 +578,8 @@ emp.editingManager = function(args) {
             items: [activeEditor.featureCopy]
           });
         }
-      } else {
+      }
+      else {
         // update the feature to its new state. Create
         // a FEATURE_ADD transaction that updates the feature
         // to its new state.  We pull that state from the editor.
@@ -621,7 +605,8 @@ emp.editingManager = function(args) {
         mapInstance.eventing.DrawEnd({
           transaction: editTransaction
         });
-      } else {
+      }
+      else {
         mapInstance.eventing.EditEnd({
           transaction: editTransaction
         });
@@ -844,7 +829,8 @@ emp.editingManager = function(args) {
       // act like if we are adding a new point.
       if (feature.overlayId === emp.constant.parentIds.ALL_PARENTS) {
         updateData = activeEditor.drawClick(pointer);
-      } else {
+      }
+      else {
         updateData = activeEditor.drawStart(pointer);
       }
 
