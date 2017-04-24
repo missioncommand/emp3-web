@@ -31,6 +31,19 @@ EMPWorldWind.constants.WHITE_CONTRAST = 0;
 EMPWorldWind.constants.BLACK_CONTRAST = 1;
 
 /**
+ * Copied from Cesium
+ * @enum
+ */
+EMPWorldWind.constants.IconSize = {
+  "verySmall": 0.5,
+  "tiny" : 0.5, // Duplicate of verySmall
+  "small": 0.75,
+  "medium": 1.0,
+  "large": 1.5,
+  "extraLarge": 1.75
+};
+
+/**
  * @constant
  * @enum
  */

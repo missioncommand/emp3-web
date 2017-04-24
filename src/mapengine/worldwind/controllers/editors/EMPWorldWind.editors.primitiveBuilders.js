@@ -32,6 +32,8 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
     }
 
+    // Set the image size
+    attributes.imageScale = this.state.iconSize;
 
     // Create the label attributes
     attributes.labelAttributes = EMPWorldWind.editors.primitiveBuilders.createTextAttributes(feature);
