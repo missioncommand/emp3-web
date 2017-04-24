@@ -414,6 +414,9 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       },
       "selectionColor": function(value) {
         empWorldWind.setSelectionColor(value);
+      },
+      "iconSize": function(value) {
+        empWorldWind.setIconSize(value);
       }
     };
 
@@ -432,6 +435,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
 
           // Check if there is a handler for the property
           if (configHandlers.hasOwnProperty(prop)) {
+            // Apply the change
             configHandlers[prop](value);
           } else {
             transaction.fail(new emp.typeLibrary.Error({

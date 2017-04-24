@@ -52,7 +52,7 @@ EMPWorldWind.editors.EditorController = (function() {
         WorldWind.OFFSET_FRACTION, 1 - (imageCenter.y / imageBounds.height)
       );
 
-      attributes.imageScale = 1;
+      attributes.imageScale = this.state.iconSize;
       attributes.imageOffset = imageOffset;
       attributes.imageSource = imageInfo.toDataUrl();
 

@@ -654,7 +654,7 @@ emp.editingManager = function(args) {
         activeEditor.isControlPoint(featureId)) {
 
         mapLock = new emp.typeLibrary.Lock({
-          lock: emp3.api.enums.MapMotionLockEnum.SMART_MOTION
+          lock: emp3.api.enums.MapMotionLockEnum.NO_PAN
         });
 
         // first lock the map in place so the map does not pan.
@@ -717,7 +717,7 @@ emp.editingManager = function(args) {
       }
       else {
         mapLock = new emp.typeLibrary.Lock({
-          lock: emp3.api.enums.MapMotionLockEnum.SMART_MOTION
+          lock: emp3.api.enums.MapMotionLockEnum.NO_PAN
         });
 
         /* first lock the map in place so the map does not pan.*/

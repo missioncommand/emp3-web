@@ -90,6 +90,10 @@ EMPWorldWind.Map = function(wwd) {
       right: false
     },
     /**
+     * Defaults to 1:1 scale
+     */
+    iconSize: EMPWorldWind.constants.IconSize.medium,
+    /**
      * Label styles for the renderer
      */
     labelStyles: {
@@ -1679,6 +1683,25 @@ EMPWorldWind.Map.prototype = function() {
       this.state.selectionStyle.scale = scale;
 
       // Update all features
+      _redrawAllFeatures.call(this);
+    },
+    /**
+     *
+     * @param {string|number} size
+     */
+    setIconSize: function(size) {
+      if (typeof size === "string") {
+        if (size in EMPWorldWind.constants.IconSize) {
+          size = EMPWorldWind.constants.IconSize[size];
+        } else {
+          size = 1.0;
+        }
+      } else if (typeof size !== "number") {
+        size = 1.0;
+      }
+
+      this.state.iconSize = size;
+
       _redrawAllFeatures.call(this);
     }
   };
