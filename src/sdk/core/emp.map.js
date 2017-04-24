@@ -924,20 +924,22 @@ emp.map = function(args) {
             //     Memorize location, if next event comes as a move with button still
             //     down, then this is a drag.
             if ((status === emp.map.states.EDIT || status === emp.map.states.DRAW)) {
+              if (pointer.featureId) {
+                this.mapDragStart = {
+                  featureId: pointer.featureId,
+                  startX: pointer.clientX,
+                  startY: pointer.clientY
+                };
 
-              this.mapDragStart = {
-                featureId: pointer.featureId,
-                startX: pointer.clientX,
-                startY: pointer.clientY
-              };
-
-              editingManager.editMouseDown(pointer.featureId);
+                editingManager.editMouseDown(pointer.featureId);
+              }
             } else {
               this.mapDragStart = {};
             }
 
             //  Check to see if this is a mouse move
           } else if (args.type === emp.typeLibrary.Pointer.EventType.MOVE) {
+
 
             // if mouse button is still down, start drag
             if (this.mapDragStart && this.mapDrag !== true) {
@@ -1467,7 +1469,7 @@ emp.map = function(args) {
           }
         }
         // check to see if we need to display confirmation window
-        // in fo confirmation is needed, the message will be an empty string
+        // if confirmation is needed, the message will be an empty string
         if (confirmationMessage !== "") {
           bConfirmResponse = confirm(confirmationMessage);
           if (bConfirmResponse) {

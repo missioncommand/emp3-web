@@ -37,7 +37,7 @@ function processAdd() {
           });
         }
       });
-    }.bind(this)
+    }
   });
 }
 
@@ -53,5 +53,3 @@ map1.addOverlay({
   onSuccess: processAdd,
   onError: processError
 });
-
-

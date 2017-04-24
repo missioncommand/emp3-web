@@ -329,31 +329,26 @@ emp.intents.control.useNewEditing = function(args) {
     }
 
   if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT)) {
-    result = true;
-  } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
-    result = true;
-  } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
-    result = true;
-  } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
-    result = true;
-  } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
-    result = true;
-}else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.SQUARE)) {
-    result = true;
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE ||
+    (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL && symbol &&
+      (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW
+      ))) {
 
-  } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
-    result = true;
-  } else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
-    drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW ||
-    drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ||
-    drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW ||
-    drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE)) {
     result = true;
   }
 
@@ -396,13 +391,25 @@ emp.intents.control.useNewDrawing = function(args) {
   }
 
   if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT)) {
-    result = true;
-  } else if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
-    result = true;
-  } else if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE ||
+    (symbol &&
+      (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE
+      ))) {
     result = true;
   }
 
@@ -1564,7 +1571,7 @@ emp.intents.control.intentSequenceMapper = (function() {
 
   intentSequenceMapper[emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE] = function() {
     return {
-      forward: [        
+      forward: [
         cmapi.channel.support.genericFeatureRemove
       ],
       exit: [emp.transactionQueue._custom]

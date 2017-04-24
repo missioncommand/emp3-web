@@ -75,11 +75,12 @@ EMPWorldWind.eventHandlers.notifyViewChange = function(viewEventType) {
     this.lastNavigator.lookAtLocation = emp.helpers.copyObject(this.worldWindow.navigator.lookAtLocation);
     EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
   } else if (this.isMapMoving()) {
-    this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
     this.singlePointAltitudeRangeMode = EMPWorldWind.utils.getSinglePointAltitudeRangeMode(this.worldWindow.navigator.range, this.singlePointAltitudeRanges);
-    this.bounds = bounds;
     EMPWorldWind.eventHandlers.triggerRenderUpdate.call(this);
   }
+
+  this.empMapInstance.eventing.ViewChange(view, lookAt, viewEventType);
+  this.bounds = bounds;
 };
 
 /**

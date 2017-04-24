@@ -126,6 +126,9 @@ import FeatureAddEventListenerTest from './components/featureTests/FeatureAddEve
 import GlobalFindOverlayTest from './components/globalTests/GlobalFindOverlayTest';
 import GlobalFindFeatureTest from './components/globalTests/GlobalFindFeatureTest';
 import GlobalFindContainerTest from './components/globalTests/GlobalFindContainerTest';
+
+// Mock Services and Stream
+import MockDataStream from './components/mocks/MockDataStream.js';
 //======================================================================================================================
 // TODO make this immutable
 export const TestManifest = [
@@ -237,8 +240,8 @@ export const TestManifest = [
     {id: 'mapSetIconSizeTest', key: 'setIconSize', panel: MapSetIconSizeTest},
     {id: 'mapSetMidDistanceThresholdTest', key: 'setMidDistanceThreshold', panel: MapSetMidDistanceThresholdTest},
     {id: 'mapSetMilStdLabelsTest', key: 'setMilStdLabels', panel: MapSetMilStdLabelsTest},
-    {id: 'mapSetMotionLockModeTest', key: 'setMotionLockMode', panel:MapSetMotionLockModeTest, tags: ['unlock']},
-    {id: 'mapSetSelectionStyleTest', key: 'setSelectionStyle', panel:MapSetSelectionStyleTest, tags: ['select']},
+    {id: 'mapSetMotionLockModeTest', key: 'setMotionLockMode', panel: MapSetMotionLockModeTest, tags: ['unlock']},
+    {id: 'mapSetSelectionStyleTest', key: 'setSelectionStyle', panel: MapSetSelectionStyleTest, tags: ['select']},
     {id: 'mapSetVisibilityTest', key: 'setVisibility', panel: MapSetVisibilityTest},
     {id: 'mapSwapMapEngineTest', key: 'swapMapEngine', panel: SwapMapEngineTest},
     {id: 'mapZoomToTest', key: 'zoomTo', panel: MapZoomToTest, tags: ['view']},
@@ -280,6 +283,12 @@ export const TestManifest = [
     {id: 'globalFindOverlayTest', key: 'findOverlay', panel: GlobalFindOverlayTest, tags: ['search']},
     {id: 'globalFindFeatureTest', key: 'findFeature', panel: GlobalFindFeatureTest, tags: ['search']},
     {id: 'globalFindContainerTest', key: 'findContainer', panel: GlobalFindContainerTest, tags: ['search']}
+  ]
+  },
+  {
+    id: 'mocks',
+    title: 'Mocks and Services', children: [
+    {id: 'mockdatastream', key: 'Mock Data Stream', panel: MockDataStream, tags: ['data', 'stream', 'service']}
   ]
   }
 ];

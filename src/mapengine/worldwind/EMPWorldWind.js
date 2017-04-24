@@ -455,7 +455,6 @@ EMPWorldWind.Map.prototype = function() {
       // Initialize sec worker
       _initializeWebWorkers();
 
-
       this.throttleAddMultiPointRedraws = EMPWorldWind.utils.MultiPointRateLimit(EMPWorldWind.editors.EditorController.redrawMilStdSymbols, 1);
     },
     /**
@@ -1597,21 +1596,56 @@ EMPWorldWind.Map.prototype = function() {
      */
     isMilStdMultiPointShapeInViewRegion: function(empFeature) {
       var p,
-        inView = false;
+        coordinate,
+        coords = empFeature.coordinates.length;
 
       // Highlight the items picked.
       if (!this.bounds) {
         this.bounds = this.getBounds();
       }
 
-      for (p = 0; p < empFeature.coordinates.length; p++) {
-        var coordinate = empFeature.coordinates[p];
-        if ((coordinate[0] <= this.bounds.east && coordinate[0] >= this.bounds.west) && (coordinate[1] > this.bounds.south && coordinate[1] < this.bounds.north)) {
-          inView = true;
-          break;
+      /**
+       *
+       * @param coordinate
+       * @param bounds
+       * @returns {boolean}
+       * @private
+       */
+      var _boundsContainsPoint = function(coordinate, bounds) {
+        return (coordinate[0] <= bounds.east && coordinate[0] >= bounds.west) &&
+          (coordinate[1] > bounds.south && coordinate[1] < bounds.north);
+      };
+
+
+      // TODO wait for fix for pickShapesInRegion to use this method
+      // var _boundsContainLine = function(feature) {
+      //   var pickList,
+      //     clientRect = this.worldWindow.canvas.getBoundingClientRect(),
+      //     canvasCoords = this.worldWindow.canvasCoordinates(clientRect.left, clientRect.top),
+      //     region = new WorldWind.Rectangle(
+      //       canvasCoords[0],
+      //       canvasCoords[1],
+      //       clientRect.width,
+      //       clientRect.height);
+      //
+      //   pickList = this.worldWindow.pickShapesInRegion(region);
+      //
+      //   //window.console.debug(pickList, feature);
+      //
+      //   return false;
+      // }.bind(this);
+      //
+      // if (_boundsContainLine(empFeature)) {
+      //   return true;
+      // }
+
+      for (p = 0; p < coords; p++) {
+        coordinate = empFeature.coordinates[p];
+        if (_boundsContainsPoint(coordinate, this.bounds)) {
+          return true;
         }
       }
-      return inView;
+      return false;
     },
     /**
      *
