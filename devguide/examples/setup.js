@@ -6,9 +6,7 @@ var map1 = new emp3.api.Map({
   // Here you must specify an EMP engine. Currently EMP support Cesium, Leaflet, and is adding support for NASA World Wind Web.
   // The engineBasePath is relative to the HTML file using the EMP API.  If you place the emp3 folder in the same folder as you html file, the paths in this example will work for you
   engine: {
-    engineBasePath: "emp3/emp3-cesium", // Comment this out to use a different engine
-    //engineBasePath: "emp3/emp3-worldwind", // Un-comment this to use WorldWind
-    // engineBasePath: "emp3/emp3-leaflet", // Un-commend this to use Leaflet
+    engineBasePath: "emp3/emp3-cesium",
     mapEngineId: "cesium"
   },
   onSuccess: function() {
