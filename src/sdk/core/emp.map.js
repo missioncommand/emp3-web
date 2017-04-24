@@ -924,15 +924,26 @@ emp.map = function(args) {
             //     Memorize location, if next event comes as a move with button still
             //     down, then this is a drag.
             if ((status === emp.map.states.EDIT || status === emp.map.states.DRAW)) {
-
-                this.mapDragStart = {
-                  featureId: pointer.featureId,
-                  startX: pointer.clientX,
-                  startY: pointer.clientY
-                };
-
-                editingManager.editMouseDown(pointer.featureId);
-
+              switch (status) {
+                case emp.map.states.EDIT:
+                  if (pointer.featureId) {
+                    this.mapDragStart = {
+                      startX: pointer.clientX,
+                      startY: pointer.clientY,
+                      featureId: pointer.featureId
+                    };
+                    editingManager.editMouseDown(pointer.featureId);
+                  }
+                  break;
+                default:
+                  this.mapDragStart = {
+                    startX: pointer.clientX,
+                    startY: pointer.clientY,
+                    featureId: pointer.featureId
+                  };
+                  editingManager.editMouseDown(pointer.featureId);
+                  break;
+              }
             } else {
               this.mapDragStart = {};
             }
