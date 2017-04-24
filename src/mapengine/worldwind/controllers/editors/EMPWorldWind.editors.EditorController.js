@@ -385,7 +385,7 @@ EMPWorldWind.editors.EditorController = (function() {
           wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolyline(empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructPlacemark(empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructPlacemark.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_POLYGON:
           wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygon(empFeature, this.state.labelStyles));
