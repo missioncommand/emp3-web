@@ -329,7 +329,7 @@ EMPWorldWind.editors.EditorController = (function() {
       layer = this.getLayer(empFeature.parentCoreId);
       // Build the primitives
       // next call is  asynchronized for the case of mil std multipoints so shapes is initially an empty aray. (SEC renderer worker)
-      shapes = buildShapes(empFeature, this.state.selectionStyle);
+      shapes = buildShapes.call(this, empFeature, this.state.selectionStyle);
       wwFeature.addShapes(shapes);
       layer.addFeature(wwFeature);
       // Configure the callback params
