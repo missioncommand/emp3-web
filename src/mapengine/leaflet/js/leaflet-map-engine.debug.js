@@ -416,7 +416,6 @@ emp.engineDefs.leafletMapEngine = function (args) {
                     pointer.type = emp.typeLibrary.Pointer.EventType.DBL_CLICK;
                     break;
                 case 'mousedown':
-                    console.log("Mouse Down Dif: ", Date.now() - this.lastMouseDown);
                     if (Date.now() - this.lastMouseDown < 10) {
                       return;
                     }
