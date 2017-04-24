@@ -911,14 +911,6 @@ emp.engineDefs.leafletMapEngine = function (args) {
       }
 
       function onMouseUpDown(event) {
-        // var view = instanceInterface.getView(),
-        //     lookAt = instanceInterface.viewToLookAt(view);
-        //
-        // if (lockState !== emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
-        //   instanceInterface.scheduleRendering(view);
-        //   instanceInterface.empMapInstance.eventing.ViewChange(view, lookAt);
-        //   instanceInterface.processViewSetTrans();
-        // }
         instanceInterface.generatePointerEvent(event, instanceInterface.getView());
         event.originalEvent.preventDefault();
       }
