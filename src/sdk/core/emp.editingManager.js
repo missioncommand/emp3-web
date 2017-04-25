@@ -102,6 +102,13 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
+    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE) {
+      // This is a circular range fan. 
+      activeEditor = new emp.editors.MilStdCircularRangeFan({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    }
     else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.AxisOfAdvance({

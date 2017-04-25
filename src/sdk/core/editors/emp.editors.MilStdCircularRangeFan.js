@@ -1,20 +1,20 @@
 /*global*/
 emp.editors = emp.editors || {};
 
-emp.editors.RangeFan = function(args) {
+emp.editors.MilStdCircularRangeFan = function(args) {
   this.animation = undefined;
   this.radius = undefined;
   this.center = undefined;
   emp.editors.EditorBase.call(this, args);
 };
 
-emp.editors.Circle.prototype = Object.create(emp.editors.EditorBase.prototype);
-emp.editors.Circle.prototype.constructor = emp.editors.Circle;
+emp.editors.MilStdCircularRangeFan.prototype = Object.create(emp.editors.EditorBase.prototype);
+emp.editors.MilStdCircularRangeFan.prototype.constructor = emp.editors.MilStdCircularRangeFan;
 
 /**
  * Adds the control points to the map for an edit or a draw.
  */
-emp.editors.RangeFan.prototype.addControlPoints = function() {
+emp.editors.MilStdCircularRangeFan.prototype.addControlPoints = function() {
 
   var controlPoint,
     transaction,
@@ -121,7 +121,7 @@ emp.editors.RangeFan.prototype.addControlPoints = function() {
 /**
  * Begins the movement of a control point.
  */
-emp.editors.RangeFan.prototype.startMoveControlPoint = function(featureId, pointer) {
+emp.editors.MilStdCircularRangeFan.prototype.startMoveControlPoint = function(featureId, pointer) {
 
   var currentFeature,
     currentVertex,
@@ -254,7 +254,7 @@ emp.editors.RangeFan.prototype.startMoveControlPoint = function(featureId, point
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
  */
-emp.editors.RangeFan.prototype.moveControlPoint = function(featureId, pointer) {
+emp.editors.MilStdCircularRangeFan.prototype.moveControlPoint = function(featureId, pointer) {
   // startMoveControlPoint does everything we need to do.
   return this.startMoveControlPoint(featureId, pointer);
 };
@@ -263,7 +263,7 @@ emp.editors.RangeFan.prototype.moveControlPoint = function(featureId, pointer) {
  * Moves control point passed in to the new location provided.
  * Also updates the control point and the feature with the change.
  */
-emp.editors.RangeFan.prototype.endMoveControlPoint = function(featureId, pointer) {
+emp.editors.MilStdCircularRangeFan.prototype.endMoveControlPoint = function(featureId, pointer) {
   // startMoveControlPoint does everything we need to do.
   return this.startMoveControlPoint(featureId, pointer);
 };
@@ -271,6 +271,6 @@ emp.editors.RangeFan.prototype.endMoveControlPoint = function(featureId, pointer
 /**
  * Moves the entire feature, offsetting from the starting position.
  */
-emp.editors.RangeFan.prototype.moveFeature = function() {
+emp.editors.MilStdCircularRangeFan.prototype.moveFeature = function() {
   // do not do anything here.  We do not want to let users move the feature.
 };
