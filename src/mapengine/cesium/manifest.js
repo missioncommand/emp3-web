@@ -479,6 +479,9 @@ function initializeCesium(args) {
         fullscreenButton: false,
         showRenderLoopErrors: false
       });
+      // remove default listener that is set by the sdk. The default tracks the feature double clicked.
+      // EmpCesium set its own listener for dounble clicking.
+      viewer.screenSpaceEventHandler.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_DOUBLE_CLICK);
       viewer.scene.fxaa = true;
       viewer.scene.debugShowFramesPerSecond = false;
       viewer.clock.shouldAnimate = false;

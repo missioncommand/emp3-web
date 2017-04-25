@@ -38,11 +38,15 @@ var doctoc = [{
         },
         {
           key: "pages/example.html?example=examples/create-point.js",
-          title: "Draw a Point Icon"
+          title: "Create a Point Icon"
         },
         {
           key: "pages/example.html?example=examples/map-draw.js",
-          title: "Draw and Edit a Line"
+          title: "Draw Line"
+        },
+        {
+          key: "pages/example.html?example=examples/map-editFeature.js",
+          title: "Edit a Feature"
         },
         {
           key: "pages/example.html?example=examples/map-zoomTo.js",
