@@ -193,12 +193,12 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
             }
           }
 
-          oModifiers.SIZE = this.getEngineInstanceInterface().iMilStdIconSize;
+          oMainModifiers.SIZE = this.getEngineInstanceInterface().iMilStdIconSize;
           if (this.isSelected()) {
           }
 
           if (L.Browser.canvas) {
-            image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, oModifiers);
+            image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, oMainModifiers);
             iconUrl = image.toDataUrl();
             oOffset = image.getCenterPoint();
             iconAnchor = new L.Point(oOffset.x, oOffset.y);
@@ -249,8 +249,7 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
                   popupAnchor = new L.Point(4, 5);
                   break;
                 case "midDistanceZone":
-                  // strippedSymbolCode = oItem.data.symbolCode.slice(0, 10).concat("-----");
-                  image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, {SIZE: oModifiers.SIZE});
+                  image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, {SIZE: oMainModifiers.SIZE});
                   iconUrl = image.toDataUrl();
                   oOffset = image.getCenterPoint();
                   iconAnchor = new L.Point(oOffset.x, oOffset.y);
