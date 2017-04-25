@@ -24,13 +24,13 @@ emp.environment.owf = (function () {
     initCallback,
     shutdownCallback,
     subscribedCallbacks = {},
-    owfLoadAttempted = false,
+    //owfLoadAttempted = false,
     // Track if this instance of map was launched by a widget to be used privately
     isPrivateInstance = false,
     // If this is a private map we need to track the ownerId as the senderId provided in the launchData
     // and only listen to and send to this widget
     ownerId;
-
+/*
   function loadScript(args) {
 
     // The above code is simple but does not generate an error
@@ -86,7 +86,7 @@ emp.environment.owf = (function () {
     document.getElementsByTagName("head")[0].appendChild(script);
 
   }
-
+*/
   function checkSender(sender) {
     if (typeof sender === "string") {
       try {
@@ -743,7 +743,7 @@ emp.environment.owf = (function () {
           mapInit();
         }
       });
-    } else if (owfLoadAttempted === false &&
+    /*} else if (owfLoadAttempted === false &&
       emp.configManager.config.owfJsLocation !== undefined &&
       emp.configManager.config.owfJsLocation !== null &&
       emp.configManager.config.owfJsLocation !== "" &&
@@ -760,7 +760,7 @@ emp.environment.owf = (function () {
             level: emp.typeLibrary.Error.level.CATASTROPHIC
           });
         }
-      });
+      });*/
     } else {
       emp.typeLibrary.Error({
         message: "The OWF javascript Library does not appear to be included on the page and the application cannot initialize",

@@ -3,7 +3,7 @@
 emp3.api.environment = emp3.api.environment || {};
 emp3.api.environment.owf = (function() {
   var template = emp3.api.createEnvironmentTemplate(),
-    owfJsLocation = "/owf/js-min/owf-widget-min.js",
+    //owfJsLocation = "/owf/js-min/owf-widget-min.js",
 
     /**
      * Widget State
@@ -44,7 +44,7 @@ emp3.api.environment.owf = (function() {
   if (!window.OWF.hasOwnProperty("ready")) {
     window.OWF.ready = addToOWFQueue;
   }
-
+/*
   function loadScript(args) {
 
     // The above code is simple but does not generate an error
@@ -102,7 +102,7 @@ emp3.api.environment.owf = (function() {
     document.getElementsByTagName("head")[0].appendChild(script);
 
   }
-
+*/
   /**
    * Calls the map configuration service and determines how the map is set up.
    * The configuration is returned to the caller.
@@ -273,7 +273,7 @@ emp3.api.environment.owf = (function() {
 
   function initialize() {
 
-    var scriptLoadAttempt = false;
+    //var scriptLoadAttempt = false;
 
     if (window.OWF !== undefined &&
       OWF.ready &&
@@ -295,7 +295,11 @@ emp3.api.environment.owf = (function() {
           mapInit();
         }
       });
-    } else if (!scriptLoadAttempt) {
+    } else {
+       if (console) {
+            console.log("The OWF javaScript file was not included on the page");
+          }
+    } /*else if (!scriptLoadAttempt) {
       if (console) {
         console.log("CP CE Map API: OWF does not already exist attempting to load OWF JS file");
       }
@@ -324,7 +328,8 @@ emp3.api.environment.owf = (function() {
           initialize();
         }
       });
-    }
+      
+    }*/
   }
 
 

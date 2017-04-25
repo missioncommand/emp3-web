@@ -244,16 +244,17 @@ emp3.api.Map = function(args) {
   }
 
   // Verify engine argument is correct.
+/*
   if (!args.engine) {
-    throw new Error("An 'engine' argument must be populated");
+    console.log("An 'engine' argument was not populated");
   }
   if (!args.engine.engineBasePath) {
-    throw new Error("An 'engineBasePath' argument must be populated");
+    console.log("An 'engineBasePath' was not populated");
   }
   if (!args.engine.mapEngineId) {
-    throw new Error("An 'mapEngineId' argument must be populated");
+    console.log("An 'mapEngineId' argument was not populated");
   }
-
+*/
   // if engine instance properties have not been created, set them.
   if (!args.engine.properties) {
     args.engine.properties = {};
