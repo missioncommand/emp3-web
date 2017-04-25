@@ -1072,7 +1072,7 @@ leafLet.utils.milstd.stringToModifiers = (function() {
     mapping[longModifiers.Y_UNITS] = longModifiers.Y_UNITS;
     mapping[longModifiers.SIZE] = longModifiers.SIZE;
     mapping[longModifiers.LINE_THICKNESS] = longModifiers.LINE_THICKNESS;
-    mapping[longModifiers.HEADING] = s2525Modifiers.DIRECTION_OF_MOVEMENT;
+    // mapping[longModifiers.HEADING] = s2525Modifiers.DIRECTION_OF_MOVEMENT;
     mapping[longModifiers.STANDARD] = s2525Modifiers.STANDARD;
 
     return mapping;
@@ -1116,7 +1116,7 @@ leafLet.utils.milstd.o2525ModifierToLong = (function() {
     mapping[longModifiers.Y_UNITS] = longModifiers.Y_UNITS;
     mapping[longModifiers.SIZE] = longModifiers.SIZE;
     mapping[longModifiers.LINE_THICKNESS] = longModifiers.LINE_THICKNESS;
-    mapping[s2525Modifiers.HEADING] = longModifiers.DIRECTION_OF_MOVEMENT;
+    // mapping[s2525Modifiers.HEADING] = longModifiers.DIRECTION_OF_MOVEMENT;
     mapping[s2525Modifiers.STANDARD] = longModifiers.STANDARD;
 
     return mapping;
