@@ -3,6 +3,7 @@ var _deleteMapInstance = function() {
   map1.purge({
     onSuccess: function() {
       alert("The map instance was successful destroyed");
+      location.reload();
     },
     onError: function() {
       alert("The map instance failed to terminate");
