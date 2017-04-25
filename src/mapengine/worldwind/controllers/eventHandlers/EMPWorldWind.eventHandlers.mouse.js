@@ -17,12 +17,11 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  */
 EMPWorldWind.eventHandlers.mouse = (function() {
   var throttleTime = 50; // 50ms
-  var _throttleWrapper = EMPWorldWind.eventHandlers.throttle;
 
   /**
    * Sends a message to EMP Pointer eventing handler
    */
-  var _notifyEMPPointing = _throttleWrapper(function(event) {
+  var _notifyEMPPointing = EMPWorldWind.eventHandlers.throttle(function(event) {
     var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
     coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
 
@@ -34,9 +33,24 @@ EMPWorldWind.eventHandlers.mouse = (function() {
   /**
    * Sends a message to EMP that the view has changed
    */
-  var _notifyEMPViewChanged = _throttleWrapper(function(state) {
+  var _notifyEMPViewChanged = EMPWorldWind.eventHandlers.throttle(function(state) {
     EMPWorldWind.eventHandlers.notifyViewChange.call(this, state);
   }, throttleTime);
+
+  /**
+   * Returns true if the location and buttons pressed are identical
+   * @returns {boolean} True if the events are the same
+   * @private
+   */
+  var _isDuplicateEvent = function(a, b) {
+    if (!a || !b) {
+      return false;
+    }
+
+    return a.clientX === b.clientX &&
+      a.clientY === b.clientY &&
+      a.buttons === b.buttons;
+  };
 
   return {
     /**
@@ -51,7 +65,7 @@ EMPWorldWind.eventHandlers.mouse = (function() {
       this.empMapInstance.eventing.Pointer(clickEvent);
     },
     /**
-     *
+     * Note: Double-click is not duplicated in PointerEvents
      * @param {MouseEvent} event
      * @this EMPWorldWind.Map
      */
@@ -95,6 +109,13 @@ EMPWorldWind.eventHandlers.mouse = (function() {
      * @this EMPWorldWind.Map
      */
     mousedown: function(event) {
+      // Some browsers pass mouse and pointer events events separately, only handle the first one through
+      if (_isDuplicateEvent(event, this.state.lastInteractionEvent)) {
+        return;
+      } else { // Store the event
+        this.state.lastInteractionEvent = event;
+      }
+
       var mousedownEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
 
       mousedownEvent.type = emp.typeLibrary.Pointer.EventType.MOUSEDOWN;
@@ -107,15 +128,23 @@ EMPWorldWind.eventHandlers.mouse = (function() {
      * @this EMPWorldWind.Map
      */
     mouseup: function(event) {
+      // Some browsers pass mouse and pointer events events separately, only handle the first one through
+      if (_isDuplicateEvent(event, this.state.lastInteractionEvent)) {
+        return;
+      } else { // Store the event
+        this.state.lastInteractionEvent = event;
+      }
+
       var mouseupEvent = EMPWorldWind.utils.getEventCoordinates.call(this, event);
+
       mouseupEvent.type = emp.typeLibrary.Pointer.EventType.MOUSEUP;
+      EMPWorldWind.eventHandlers.extractFeatureFromEvent.call(this, event, mouseupEvent);
 
       if (this.state.dragging) {
         this.state.dragging = false;
         EMPWorldWind.eventHandlers.notifyViewChange.call(this, emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED);
       }
 
-      this.state.autoPanning = EMPWorldWind.constants.NO_PANNING;
       this.empMapInstance.eventing.Pointer(mouseupEvent);
     },
     /**
@@ -123,18 +152,6 @@ EMPWorldWind.eventHandlers.mouse = (function() {
      * @this EMPWorldWind.Map
      */
     mousemove: function(event) {
-
-      /**
-       * Returns true if the location and buttons pressed are identical
-       * @returns boolean
-       * @private
-       */
-      var _filterDuplicateMouseEvents = function(event) {
-        return event.clientX === this.state.lastInteractionEvent.clientX &&
-          event.clientY === this.state.lastInteractionEvent.clientY &&
-          event.buttons === this.state.lastInteractionEvent.buttons;
-      }.bind(this);
-
       /**
        * Detects the location for auto-panning in smartMotion mode
        * @private
@@ -159,10 +176,9 @@ EMPWorldWind.eventHandlers.mouse = (function() {
         pan.down = event.offsetY > elementBounds.height - (elementBounds.height * smartAreaBuffer);
 
         if (pan.up || pan.down || pan.left || pan.right) {
-          this.state.autoPanning = pan;
-          this.spinGlobe();
+          this.spinGlobe(pan);
         } else {
-          this.state.autoPanning = EMPWorldWind.constants.NO_PANNING;
+          this.spinGlobe(false);
         }
       }.bind(this);
 
@@ -184,8 +200,10 @@ EMPWorldWind.eventHandlers.mouse = (function() {
       }.bind(this);
 
       // Some browsers pass mouse and pointer events events separately, only handle the first one through
-      if (this.state.lastInteractionEvent && _filterDuplicateMouseEvents(event)) {
+      if (_isDuplicateEvent(event, this.state.lastInteractionEvent)) {
         return;
+      } else { // Store the event
+        this.state.lastInteractionEvent = event;
       }
 
       // Check if we prevent default
@@ -195,9 +213,6 @@ EMPWorldWind.eventHandlers.mouse = (function() {
       if (this.state.lockState === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
         _handleSmartMotion();
       }
-
-      // Store the event
-      this.state.lastInteractionEvent = event;
 
       // Update EMP (throttled)
       _notifyEMPPointing.call(this, event);

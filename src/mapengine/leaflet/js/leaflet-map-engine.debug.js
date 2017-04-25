@@ -384,6 +384,9 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
             return view;
         },
+        lastMouseDown: false,
+        lastMouseUp: false,
+
         generatePointerEvent: function (oEvent, oData) {
             var button = (oEvent.originalEvent ? oEvent.originalEvent.button : 0),
                 pointer = oData || instanceInterface.getView(),
@@ -414,9 +417,19 @@ emp.engineDefs.leafletMapEngine = function (args) {
                     pointer.type = emp.typeLibrary.Pointer.EventType.DBL_CLICK;
                     break;
                 case 'mousedown':
+                    if (this.lastMouseDown) {
+                      return;
+                    }
+                    this.lastMouseDown = true;
+                    this.lastMouseUp = false;
                     pointer.type = emp.typeLibrary.Pointer.EventType.MOUSEDOWN;
                     break;
                 case 'mouseup':
+                    if (this.lastMouseUp) {
+                      return;
+                    }
+                    this.lastMouseDown = false;
+                    this.lastMouseUp = true;
                     pointer.type = emp.typeLibrary.Pointer.EventType.MOUSEUP;
                     break;
                 case 'mousemove':
@@ -803,61 +816,65 @@ emp.engineDefs.leafletMapEngine = function (args) {
     }
 
     function setupEventListeners() {
+      var timeout;
+
       function onMouseMove(event) {
-        var eventData = {},
-            smartLockBuffer = 0.05,
-            originalEvent = event.originalEvent,
+        var originalEvent = event.originalEvent,
             element = originalEvent.srcElement || originalEvent.currentTarget,
             elementBounds = element.getBoundingClientRect(),
-            offsetX = originalEvent.clientX - elementBounds.left,
-            offsetY = originalEvent.clientY - elementBounds.top,
-            vertical = 0,
-            horizontal = 0,
-            step,
-            geographicMapCenter,
-            panToLat,
-            panToLng;
+            smartLockBuffer = 0.05,
+            offsetX,
+            offsetY,
+            step = parseFloat((instanceInterface.getView().altitude / (L.CRS.Earth.R)).toFixed(25)),
+            smartLockAutoPan = function() {
+              var geographicMapCenter = instanceInterface.leafletInstance.getCenter(),
+                  panToLat = geographicMapCenter.lat,
+                  panToLng = geographicMapCenter.lng,
+                  horizontalOffset = 0,
+                  verticalOffset = 0;
 
-        eventData.lat = event.latlng.lat;
-        eventData.lon = leafLet.utils.normilizeLongitude(event.latlng.lng);
-        eventData.mgrs = emp.geoLibrary.ddToMGRS(eventData.lat, eventData.lon);
-        eventData.type = emp.typeLibrary.Pointer.EventType.MOVE;
-        instanceInterface.empMapInstance.eventing.Pointer(eventData);
+              if (instanceInterface.smartLockPanning.up) {
+                panToLat = geographicMapCenter.lat + step;
+                verticalOffset = panToLat - geographicMapCenter.lat;
+              } else if (instanceInterface.smartLockPanning.down) {
+                panToLat = geographicMapCenter.lat + (-step);
+                verticalOffset = panToLat - geographicMapCenter.lat + (step * .02);
+              }
+              if (instanceInterface.smartLockPanning.left) {
+                panToLng = geographicMapCenter.lng + (-step);
+                horizontalOffset = panToLng - geographicMapCenter.lng;
+              } else if (instanceInterface.smartLockPanning.right) {
+                panToLng = geographicMapCenter.lng + step;
+                horizontalOffset = panToLng - geographicMapCenter.lng - (step * .20);
+              }
+              if (horizontalOffset !== 0 || verticalOffset !== 0) {
+                event.latlng.lng = event.latlng.lng + horizontalOffset;
+                event.latlng.lat = event.latlng.lat + verticalOffset;
+                instanceInterface.leafletInstance.panTo(L.latLng(panToLat, panToLng));
+                instanceInterface.generatePointerEvent(event, instanceInterface.getView());
+                clearTimeout(timeout);
+                timeout = setTimeout(smartLockAutoPan, 225);
+              }
+            };
+
+        event.latlng.lng = leafLet.utils.normilizeLongitude(event.latlng.lng);
+        event.mgrs = emp.geoLibrary.ddToMGRS(event.latlng.lat, event.latlng.lng);
+        instanceInterface.smartLockPanning.left = false;
+        instanceInterface.smartLockPanning.right = false;
+        instanceInterface.smartLockPanning.up = false;
+        instanceInterface.smartLockPanning.down = false;
+        instanceInterface.generatePointerEvent(event, instanceInterface.getView());
         // Smart Motion lock functionality is implemented below. If other future requirements reagrding mouse move
         // in combination with buttons arise
-        switch (originalEvent.buttons) {
-          case 1:
-            switch (instanceInterface.getLockState()) {
-              case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
-                instanceInterface.smartLockPanning.left = offsetX < elementBounds.width * smartLockBuffer;
-                instanceInterface.smartLockPanning.right = offsetX > elementBounds.width - (elementBounds.width * smartLockBuffer);
-                instanceInterface.smartLockPanning.up = offsetY < elementBounds.height * smartLockBuffer;
-                instanceInterface.smartLockPanning.down = offsetY > elementBounds.height - (elementBounds.height * smartLockBuffer);
-                step = instanceInterface.getView().altitude / (L.CRS.Earth.R);
-                if (instanceInterface.smartLockPanning.up) {
-                  vertical = step;
-                } else if (instanceInterface.smartLockPanning.down) {
-                  vertical = -step;
-                }
-                if (instanceInterface.smartLockPanning.left) {
-                  horizontal = -step;
-                } else if (instanceInterface.smartLockPanning.right) {
-                  horizontal = step;
-                }
-                if (vertical !== 0 || horizontal !== 0) {
-                  geographicMapCenter = instanceInterface.leafletInstance.getCenter();
-                  panToLat = geographicMapCenter.lat + vertical;
-                  panToLng = geographicMapCenter.lng + horizontal;
-                  instanceInterface.leafletInstance.panTo(L.latLng(panToLat, panToLng));
-                }
-                instanceInterface.smartLockPanning.left = false;
-                instanceInterface.smartLockPanning.right = false;
-                instanceInterface.smartLockPanning.up = false;
-                instanceInterface.smartLockPanning.down = false;
-                break;
-              default:
-                break;
-            }
+        switch (instanceInterface.getLockState()) {
+          case emp3.api.enums.MapMotionLockEnum.SMART_MOTION:
+            offsetX = originalEvent.clientX - elementBounds.left;
+            offsetY = originalEvent.clientY - elementBounds.top;
+            instanceInterface.smartLockPanning.left = offsetX < elementBounds.width * smartLockBuffer;
+            instanceInterface.smartLockPanning.right = offsetX > elementBounds.width - (elementBounds.width * smartLockBuffer);
+            instanceInterface.smartLockPanning.up = offsetY < elementBounds.height * smartLockBuffer;
+            instanceInterface.smartLockPanning.down = offsetY > elementBounds.height - (elementBounds.height * smartLockBuffer);
+            smartLockAutoPan();
             break;
           default:
             break;
@@ -1992,6 +2009,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
                   instanceInterface.leafletInstance.dragging.disable();
                   instanceInterface.leafletInstance.doubleClickZoom.disable();
                   instanceInterface.leafletInstance.scrollWheelZoom.disable();
+                  instanceInterface.leafletInstance.keyboard.disable();
                   if (instanceInterface.leafletInstance.zoomControl) {
                     instanceInterface.leafletInstance.zoomControl.remove(instanceInterface.leafletInstance);
                   }

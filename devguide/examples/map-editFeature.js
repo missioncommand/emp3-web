@@ -3,58 +3,94 @@ var overlay1 = new emp3.api.Overlay({
   id: "w834mne-sdg5467-sdf-we45"
 });
 
-// This is the handler for the map click event.  We are
-// going to look for double clicks.
-var mapClickHandler = function(eventArgs) {
-  // in the event of a double-click event, complete the draw.  The method
-  // Map.drawFeature should be called prior to calling Map.completeDraw.
-  if (eventArgs.event === emp3.api.enums.UserInteractionEventEnum.DOUBLE_CLICKED) {
-    map1.completeDraw();
+var point = new emp3.api.Point({
+  name: "myPoint",
+  geoId: "myPoint",
+  position: {
+    latitude: 23,
+    longitude: -84.5
+  },
+  iconURI: "https://cdn2.iconfinder.com/data/icons/starwars/icons/48/R2-D2.png"
+});
+
+var path = new emp3.api.Path({
+  name: "myPath",
+  geoId: "myPath",
+  positions: [{
+    latitude: 23,
+    longitude: -85.5
+  },{
+    latitude: 23.2,
+    longitude: -85.3
+  },{
+    latitude: 23.4,
+    longitude: -85.7
+  },{
+    latitude: 23.1,
+    longitude: -85.5
+  }]
+});
+
+var polygon = new emp3.api.Polygon({
+  name: "myPolygon",
+  geoId: "myPolygon",
+  positions: [{
+    latitude: 23,
+    longitude: -86.5
+  },{
+    latitude: 23.2,
+    longitude: -86.3
+  },{
+    latitude: 23.4,
+    longitude: -86.7
+  },{
+    latitude: 23.1,
+    longitude: -86.5
+  },{
+    latitude: 22.8,
+    longitude: -86.6
+  }]
+});
+
+var editing = false;
+
+// event listener for the feature interaction event.  We must filter out the
+// "click" event.
+var myListener = function(args) {
+  if (args.event === emp3.api.enums.UserInteractionEventEnum.CLICKED) {
+    if (!editing) {
+      map1.editFeature({
+        feature: args.target[0]
+      });
+      editing = true;
+    } else {
+      map1.completeEdit();
+      editing = false;
+    }
   }
 };
 
+// Add a map event listener so we know when to enter and exit editing mode.
 map1.addEventListener({
-  eventType: emp3.api.enums.EventType.MAP_INTERACTION,
-  callback: mapClickHandler
+  eventType: emp3.api.enums.EventType.FEATURE_INTERACTION,
+  callback: myListener
 });
 
-// After we know an overlay has been added, we can draw the symbol.
-// You don't need an overlay to draw, but when the draw is complete,
-// we want to add the returned feature to the map.
-var processAdd = function() {
+// After we know an overlay has been added, we add our features.
+var processOverlayAdd = function() {
+  var count = 0;
 
-  alert("Click on the map to begin drawing - double click to end.");
-
-  var path = new emp3.api.Path({
-    name: "myPath1"
-  });
-
-  // This just puts the map in draw mode, so the map begins
-  // animating the draw.  It does not actually add data to the map.
-  map1.drawFeature({
-    feature: path,
-    onDrawUpdate: function() {
-      // This is to show you that the map will notify you when it is updating.
-      // This occurs each time you add a point to the feature.
-      console.log("draw update occurred!");
-    },
-    onDrawComplete: function(args) {
-      // occurs after Map.completeDraw is called.
-      // this is what actually adds the feature to the map.
-      overlay1.addFeature({
-        feature: args.feature,
-        onSuccess: function() {
-          // to complete the edit, call map1.completeEdit.
-          // to cancel edit, call, map1.cancelEdit.
-          map1.editFeature({
-            feature: args.feature
-          });
-        }
-      });
+  overlay1.addFeatures({
+    features: [point, path, polygon],
+    onSuccess: function() {
+      // This is just an example.  Customize drawing and editing however you like!
+      alert("Click on a feature to begin editing.  Click on a feature to exit edit mode.");
+      map1.zoomTo({
+        overlay: overlay1
+      })
     }
   });
 };
-
 
 var processError = function(error) {
   alert(JSON.stringify(error));
@@ -63,6 +99,6 @@ var processError = function(error) {
 // add an overlay to the map.
 map1.addOverlay({
   overlay: overlay1,
-  onSuccess: processAdd,
+  onSuccess: processOverlayAdd,
   onError: processError
 });

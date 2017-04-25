@@ -32,6 +32,8 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
     }
 
+    // Set the image size
+    attributes.imageScale = this.state.iconSize;
 
     // Create the label attributes
     attributes.labelAttributes = EMPWorldWind.editors.primitiveBuilders.createTextAttributes(feature);
@@ -215,10 +217,10 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
         case emp3.api.enums.FeatureTypeEnum.GEO_ACM: // TODO handle GEO_ACM attributes
         case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL: // Do nothing, handled by renderer, no primitives
         case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
-          attributes = _createPlacemarkAttributes(feature, selectionStyle);
+          attributes = _createPlacemarkAttributes.call(this, feature, selectionStyle);
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
-          attributes = _createTextAttributes(feature, selectionStyle);
+          attributes = _createTextAttributes.call(this, feature, selectionStyle);
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
         case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
@@ -409,7 +411,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
         eyeDistanceScaling = false;
 
       // Create the placemark attributes
-      attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes(feature, selectionStyle);
+      attributes = EMPWorldWind.editors.primitiveBuilders.createShapeAttributes.call(this, feature, selectionStyle);
 
       // Set the position
       position = new WorldWind.Position(

@@ -7,45 +7,47 @@ var path = new emp3.api.Path({
   name: "myPath1"
 });
 
+
+// This is the event handler for mouse events.  We are looking for the double-clicking
+// event.  If that occurs, complete the draw.
+var completeDraw = function(args) {
+  if (args.event === emp3.api.enums.UserInteractionEventEnum.DOUBLE_CLICKED) {
+    map1.completeDraw();
+  }
+};
+
+// Set up an event listener for double-clicking using the MAP_INTERACTION event.
+// MAP_INTERACTION events occur for all user interactions with the map.  Inside
+// the event we will filter out double-click events.
+map1.addEventListener({
+  eventType: emp3.api.enums.EventType.MAP_INTERACTION,
+  callback: completeDraw
+});
+
 // After we know an overlay has been added, we can draw the symbol.
 // You don't need an overlay to draw, but when the draw is complete,
 // we want to add the returned feature to the map.
-function processAdd() {
+var processAdd = function() {
   var count = 0;
 
-  alert("Click on the map to begin drawing");
+  alert("Click on the map to begin drawing; double-click to end.");
 
   // This just puts the map in draw mode, so the map begins
   // animating the draw.  It does not actually add data to the map.
   map1.drawFeature({
     feature: path,
-    onDrawUpdate: function() {
-      // once we hit three, end the draw.  (this is not necessarily what you
-      // do--just a way to end the draw)
-      count++;
-      if (count >= 3) {
-        map1.completeDraw();
-      }
-    },
     onDrawComplete: function(args) {
       // this is what actually adds the feature to the map.
       overlay1.addFeature({
-        feature: args.feature,
-        onSuccess: function() {
-          map1.editFeature({
-            feature: args.feature
-          });
-        }
+        feature: args.feature
       });
-    }.bind(this)
+    }
   });
-}
+};
 
-
-function processError(error) {
+var processError = function(error) {
   alert(JSON.stringify(error));
-}
-
+};
 
 // add an overlay to the map.
 map1.addOverlay({
@@ -53,5 +55,3 @@ map1.addOverlay({
   onSuccess: processAdd,
   onError: processError
 });
-
-

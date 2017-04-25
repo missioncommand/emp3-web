@@ -35,8 +35,8 @@ Open a browser to [localhost:3000/src/validation](http://localhost:3000/src/vali
     npm install
     grunt release
     
-Copy the WAR files from `dist/wars` and deploy them to Tomcat or another web server application.
-Open a browser to [localhost:8080/validation/index.html](http://localhost:8080/validation/index.html)
+Copy the WAR file from `dist/wars` and deploy them to Tomcat or another web server application.
+Open a browser to [localhost:8080/emp3-validation/index.html](http://localhost:8080/emp3-validation/index.html)
 
 Adjust the paths according to your specific deployment.
 

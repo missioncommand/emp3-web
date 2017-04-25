@@ -155,7 +155,7 @@ describe('emp3.api.Overlay', function () {
     });
   });
 
-  describe('apply', function () {
+  describe('update', function () {
     it('sends a message to the MessageHandler to apply updates to the overlay', function () {
       var overlay = new emp3.api.Overlay({name: 'test overlay'});
       var args = {
@@ -166,7 +166,7 @@ describe('emp3.api.Overlay', function () {
       var sendMessageStub = sandbox.stub(emp3.api.MessageHandler.getInstance(), 'sendMessage');
 
       overlay.name = 'example overlay';
-      overlay.apply(args);
+      overlay.update(args);
 
       sendMessageStub.should.have.been.calledWith({
         cmd: emp3.api.enums.channel.updateOverlay,
@@ -174,7 +174,7 @@ describe('emp3.api.Overlay', function () {
         onSuccess: args.onSuccess,
         onError: args.onError
       }, {
-        method: 'Overlay.apply',
+        method: 'Overlay.update',
         source: overlay,
         args: args
       });

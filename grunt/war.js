@@ -35,6 +35,9 @@ module.exports = {
       cwd: 'dist/validation',
       src: ['**'],
       dest: ''
+    }, {
+      expand: true,
+      src: ['favicon.ico']
     }]
   }
 };

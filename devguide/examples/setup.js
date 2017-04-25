@@ -36,3 +36,6 @@ var map1 = new emp3.api.Map({
     console.log("Map creation failed.");
   }
 });
+
+// Preserve the map for clearing between tests
+this.map = map1;

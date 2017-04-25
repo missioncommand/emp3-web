@@ -3,7 +3,6 @@ emp.editors = emp.editors || {};
 
 emp.editors.Square = function(args) {
   this.width = undefined; // store the Vertex object for the width point
-  this.height = undefined; // stores the Vertex object for the height point.
   this.azimuth = undefined; // stores the Vertex object for the azimuth rotation point.
   this.center = undefined; // stores the center Vertex.
 
@@ -24,23 +23,19 @@ emp.editors.Square.prototype.addControlPoints = function() {
     items = [],
     vertex,
     width,
-    height,
     azimuth,
     widthPoint,
-    heightPoint,
     azimuthPoint,
     widthVertex,
-    heightVertex,
     azimuthVertex,
     widthFeature,
-    heightFeature,
     azimuthFeature,
     x, y;
 
   // We have an issue in that GEO_SQUARE uses GeoJSON Point
   x = this.featureCopy.data.coordinates[0];
   y = this.featureCopy.data.coordinates[1];
-  
+
 
   // Create a feature on the map for the center of the square.  This is
   // the center vertex.
@@ -54,8 +49,8 @@ emp.editors.Square.prototype.addControlPoints = function() {
     },
     properties: {
       iconUrl: emp.ui.images.editPoint,
-      iconXOffset: 12,
-      iconYOffset: 12,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -72,21 +67,14 @@ emp.editors.Square.prototype.addControlPoints = function() {
 
   // get the width, height, and azimuth for our calculations.
   width = this.featureCopy.properties.width;
-  height = this.featureCopy.properties.height || this.featureCopy.properties.width;
   azimuth = this.featureCopy.properties.azimuth;
-  
 
   // get the position of the point that controls the width of the feature.
   widthPoint = emp.geoLibrary.geodesic_coordinate({
     x: x,
     y: y
-  }, width / 2, 90 + azimuth);
+  }, width / 2, azimuth);
 
-  // get the position of the point that controls the height of the feature.
-  heightPoint = emp.geoLibrary.geodesic_coordinate({
-    x: x,
-    y: y
-  }, height / 2, azimuth);
 
   // place the azimuth point to the left of the width point.   No reason
   // why, it just looks nice there.
@@ -107,27 +95,9 @@ emp.editors.Square.prototype.addControlPoints = function() {
       type: 'Point'
     },
     properties: {
-      iconUrl: emp.ui.images.addPoint,
-      iconXOffset: 8,
-      iconYOffset: 8,
-      xUnits: "pixels",
-      yUnits: "pixels",
-      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
-    }
-  });
-
-  heightFeature = new emp.typeLibrary.Feature({
-    overlayId: "vertices",
-    featureId: emp3.api.createGUID(),
-    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
-    data: {
-      coordinates: [heightPoint.x, heightPoint.y],
-      type: 'Point'
-    },
-    properties: {
-      iconUrl: emp.ui.images.addPoint,
-      iconXOffset: 8,
-      iconYOffset: 8,
+      iconUrl: emp.ui.images.distancePoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -144,29 +114,27 @@ emp.editors.Square.prototype.addControlPoints = function() {
     },
     properties: {
       iconUrl: emp.ui.images.rotationPoint,
-      iconXOffset: 12,
-      iconYOffset: 12,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
     }
   });
 
-  items.push(heightFeature);
+  items.push(widthFeature);
   items.push(azimuthFeature);
 
   // add these new Vertex objects into our Vertices collection.
   // Remember Vertices allows editingManager to tell the difference
   // between control points and special points.
   widthVertex = new emp.editors.Vertex(widthFeature, "add");
-  heightVertex = new emp.editors.Vertex(heightFeature, "add");
   azimuthVertex = new emp.editors.Vertex(azimuthFeature, "add");
 
   this.width = widthVertex;
-  this.height = heightVertex;
   this.azimuth = azimuthVertex;
 
-  this.vertices.push(heightVertex);
+  this.vertices.push(widthVertex);
   this.vertices.push(azimuthVertex);
 
 
@@ -195,25 +163,24 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     currentVertex,
     items = [],
     widthDistance,
-    heightDistance,
     index,
     coordinateUpdate,
     updateData = {},
     type = emp.typeLibrary.CoordinateUpdateType.UPDATE,
     newCoordinates,
     newWidthPosition,
-    newHeightPosition,
     newAzimuthPosition,
     azimuth,
     o,a,h,
     newAzimuth,
     delta,
+    distance,
     x, y;
 
   // Normal GEO_SQUARE will use GeoJSON type "Point",
   x = this.featureCopy.data.coordinates[0];
   y = this.featureCopy.data.coordinates[1];
-  
+
 
   // Find the vertex in our vertices collection and retrieve the feature.
   currentVertex = this.vertices.find(featureId);
@@ -221,46 +188,30 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
 
   // get the old azimuth.
   azimuth = this.featureCopy.properties.azimuth;
-  
 
   // Determine which control point was moved and react appropriately.
   // Because this is a square we only want to display and update the height control point
-  if (featureId === this.height.feature.featureId) {
-    // if the height moves, then we need to update the height control point.
-    // We also will need to change the height property on the feature we are editing.
+  if (featureId === this.width.feature.featureId) {
 
-    // calculate the new height.
+    // calculate the new width.
     currentFeature.data.coordinates = [pointer.lon, pointer.lat];
-    heightDistance = emp.geoLibrary.measureDistance(this.height.feature.data.coordinates[1],
-      this.height.feature.data.coordinates[0],
+    widthDistance = emp.geoLibrary.measureDistance(this.width.feature.data.coordinates[1],
+      this.width.feature.data.coordinates[0],
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
-    // store the new height in the feature. 
-    this.featureCopy.properties.height = heightDistance * 2;
-    
+    // store the new height in the feature.
+    this.featureCopy.properties.width = widthDistance * 2;
+
 
     // Calculate the position of the new height control point.
-    newHeightPosition = emp.geoLibrary.geodesic_coordinate({
-      x: x,
-      y: y
-    }, heightDistance, azimuth);
-
-    // Update the control point position.
-    currentFeature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
-
-    // because this is a square we need the width to be the same as well
-    widthDistance = heightDistance;
-    // since we are measuring the distance between the edget and center we multiply
-    // the width by 2.  L
-    this.featureCopy.properties.width = widthDistance * 2;
-    
-
-    // Get the positions of where the new control points will be.
     newWidthPosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
       y: y
-    }, widthDistance, 90 + azimuth);
+    }, widthDistance, azimuth);
+
+    // Update the control point position.
+    currentFeature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
 
     newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
       x: x,
@@ -268,7 +219,6 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
     }, widthDistance, -90 + azimuth);
 
     // update the control points.
-    this.width.feature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
     this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
 
     items.push(this.azimuth.feature);
@@ -323,20 +273,10 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
       this.center.feature.data.coordinates[1],
       this.center.feature.data.coordinates[0], "meters");
 
-    heightDistance = emp.geoLibrary.measureDistance(this.height.feature.data.coordinates[1],
-      this.height.feature.data.coordinates[0],
-      this.center.feature.data.coordinates[1],
-      this.center.feature.data.coordinates[0], "meters");
-
     newWidthPosition = emp.geoLibrary.geodesic_coordinate({
         x: x,
         y: y
-      }, widthDistance, 90 + newAzimuth);
-
-    newHeightPosition = emp.geoLibrary.geodesic_coordinate({
-        x: x,
-        y: y
-      }, heightDistance, newAzimuth);
+      }, widthDistance, newAzimuth);
 
     newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
         x: x,
@@ -344,13 +284,42 @@ emp.editors.Square.prototype.startMoveControlPoint = function(featureId, pointer
       }, widthDistance, -90 + newAzimuth);
 
     this.width.feature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
-    this.height.feature.data.coordinates = [newHeightPosition.x, newHeightPosition.y];
     this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
 
-    //items.push(this.width.feature);
-    items.push(this.height.feature);
+    items.push(this.width.feature);
     items.push(this.azimuth.feature);
+  } else {
+    // If we are updating the center point, we need to move the center vertex
+    // to a new location and we need to update the vertex of the radius location.
+    if (this.featureCopy.data.type === 'Point') {
+      this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+    } else if (this.featureCopy.data.type === 'LineString') {
+      this.featureCopy.data.coordinates = [[pointer.lon, pointer.lat]];
+    }
 
+    // First update the control point with new pointer info.
+    currentFeature.data.coordinates = [pointer.lon, pointer.lat];
+
+    // retrieve our distance from the existing circle.  We will use this to Calculate
+    // the position of the new radius vertex.
+    distance = this.featureCopy.properties.width;
+
+    // retrieve the new radius vertex.   It will sit directly above our center point.
+    newWidthPosition = emp.geoLibrary.geodesic_coordinate({
+      x: pointer.lon,
+      y: pointer.lat
+    }, distance / 2, azimuth);
+    // retrieve the new radius vertex.   It will sit directly above our center point.
+    newAzimuthPosition = emp.geoLibrary.geodesic_coordinate({
+      x: pointer.lon,
+      y: pointer.lat
+    }, distance / 2, -90 + azimuth);
+
+    this.width.feature.data.coordinates = [newWidthPosition.x, newWidthPosition.y];
+    this.azimuth.feature.data.coordinates = [newAzimuthPosition.x, newAzimuthPosition.y];
+
+    items.push(this.width.feature);
+    items.push(this.azimuth.feature);
   }
 
   items.push(this.featureCopy);
@@ -419,4 +388,154 @@ emp.editors.Square.prototype.endMoveControlPoint = function(featureId, pointer) 
  */
 emp.editors.Square.prototype.moveFeature = function() {
 
+};
+
+/**
+ * Occurs when the map is clicked for the frist time after the draw has started.
+ */
+emp.editors.Square.prototype.drawStart = function(pointer) {
+  var bounds,
+    mapHeight,
+    height,
+    azimuthPoint,
+    widthPoint,
+    items = [],
+    widthFeature,
+    azimuthFeature,
+    centerFeature,
+    widthVertex,
+    azimuthVertex,
+    centerVertex,
+    updateData;
+
+  // determine the current map size
+  bounds = this.mapInstance.status.getViewBounds();
+  mapHeight = emp.geoLibrary.measureDistance(
+    bounds.south,
+    bounds.west,
+    bounds.north,
+    bounds.west, "meters");
+
+  height = mapHeight / 8;
+
+  // project out the radius right above the center point of the circle.
+  widthPoint = emp.geoLibrary.geodesic_coordinate({
+    x: pointer.lon,
+    y: pointer.lat
+  }, height / 2, 0);
+
+  // project out the radius right above the center point of the circle.
+  azimuthPoint = emp.geoLibrary.geodesic_coordinate({
+    x: pointer.lon,
+    y: pointer.lat
+  }, height / 2, -90);
+
+  this.featureCopy = new emp.typeLibrary.Feature({
+    overlayId: this.featureCopy.overlayId,
+    featureId: this.featureCopy.featureId,
+    format: this.featureCopy.format,
+    properties: this.featureCopy.properties
+  });
+
+  this.featureCopy.data.type = "Point";
+  this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+  this.featureCopy.properties.width = height;
+
+  // create center of the feature from the point that was clicked.
+  centerFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [pointer.lon, pointer.lat],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.editPoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  // create a feature for each of these coordinates.  This
+  // will be our radius control point that is displayed by the map.
+  widthFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [widthPoint.x, widthPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.distancePoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  // create a feature for each of these coordinates.  This
+  // will be our radius control point that is displayed by the map.
+  azimuthFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [azimuthPoint.x, azimuthPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.rotationPoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  centerVertex = new emp.editors.Vertex(centerFeature, "vertex");
+  widthVertex = new emp.editors.Vertex(widthFeature, "add");
+  azimuthVertex = new emp.editors.Vertex(azimuthFeature, "add");
+
+  this.width = widthVertex;
+  this.azimuth = azimuthVertex;
+  this.center = centerVertex;
+
+  this.vertices.push(this.center);
+  this.vertices.push(this.width);
+  this.vertices.push(this.azimuth);
+
+  items.push(centerFeature);
+  items.push(azimuthFeature);
+  items.push(widthFeature);
+  items.push(this.featureCopy);
+
+  var transaction = new emp.typeLibrary.Transaction({
+      intent: emp.intents.control.FEATURE_ADD,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+      items: items
+  });
+
+  transaction.run();
+
+  // return updateData
+  // Create the return object.  This will tell you which index was added,
+  // the locations of the new indices, and the type of change it was.
+
+  updateData = this.getUpdateData();
+
+  return updateData;
 };

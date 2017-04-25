@@ -60,6 +60,17 @@ emp3.api.Polygon = function (args) {
         args.positions = [];
       }
     }
+
+    if (!args.fillStyle || !args.fillStyle.fillColor) {
+      args.fillStyle = {
+        fillColor: {
+           red: 0,
+           blue: 0,
+           green: 0,
+           alpha: 0.25
+        }
+      };
+    }
   } else {
     args = {
       positions: []

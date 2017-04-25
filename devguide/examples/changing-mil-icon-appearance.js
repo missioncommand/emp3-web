@@ -78,7 +78,7 @@ var changeAppearance = function() {
 
   }
 
-  sym.apply();
+  sym.update();
 
 };
 

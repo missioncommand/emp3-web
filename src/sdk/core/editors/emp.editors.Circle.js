@@ -49,8 +49,8 @@ emp.editors.Circle.prototype.addControlPoints = function() {
     },
     properties: {
       iconUrl: emp.ui.images.editPoint,
-      iconXOffset: 12,
-      iconYOffset: 12,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -88,9 +88,9 @@ emp.editors.Circle.prototype.addControlPoints = function() {
       type: 'Point'
     },
     properties: {
-      iconUrl: emp.ui.images.addPoint,
-      iconXOffset: 8,
-      iconYOffset: 8,
+      iconUrl: emp.ui.images.radius,
+      iconXOffset: 10,
+      iconYOffset: 10,
       xUnits: "pixels",
       yUnits: "pixels",
       altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -119,7 +119,7 @@ emp.editors.Circle.prototype.addControlPoints = function() {
 };
 
 /**
- * Begins the movement of a control point.  
+ * Begins the movement of a control point.
  */
 emp.editors.Circle.prototype.startMoveControlPoint = function(featureId, pointer) {
 
@@ -273,4 +273,129 @@ emp.editors.Circle.prototype.endMoveControlPoint = function(featureId, pointer) 
  */
 emp.editors.Circle.prototype.moveFeature = function() {
   // do not do anything here.  We do not want to let users move the feature.
+};
+
+/**
+ * Occurs when the map is clicked for the frist time after the draw has started.
+ */
+emp.editors.Circle.prototype.drawStart = function(pointer) {
+  var bounds,
+    mapHeight,
+    height,
+    newPoint,
+    items = [],
+    radiusFeature,
+    centerFeature,
+    radiusVertex,
+    centerVertex,
+    updateData;
+
+  // determine the current map size
+  bounds = this.mapInstance.status.getViewBounds();
+  mapHeight = emp.geoLibrary.measureDistance(
+    bounds.south,
+    bounds.west,
+    bounds.north,
+    bounds.west, "meters");
+  height = mapHeight / 8;
+
+  // project out the radius right above the center point of the circle.
+  newPoint = emp.geoLibrary.geodesic_coordinate({
+    x: pointer.lon,
+    y: pointer.lat
+  }, height, 0);
+
+  var symbolCode = this.featureCopy.data.symbolCode;
+
+  this.featureCopy = new emp.typeLibrary.Feature({
+    overlayId: this.featureCopy.overlayId,
+    featureId: this.featureCopy.featureId,
+    format: this.featureCopy.format,
+    properties: this.featureCopy.properties
+  });
+
+  if (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) {
+    this.featureCopy.data.type = "Point";
+    this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
+    this.featureCopy.properties.radius = height;
+  } else {
+    this.featureCopy.data.type = "LineString";
+    this.featureCopy.data.coordinates = [[pointer.lon, pointer.lat]];
+    this.featureCopy.data.symbolCode = symbolCode;
+    this.featureCopy.properties.modifiers.distance = [height];
+  }
+
+  // create center of the feature from the point that was clicked.
+  centerFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [pointer.lon, pointer.lat],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.editPoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  // create a feature for each of these coordinates.  This
+  // will be our radius control point that is displayed by the map.
+  radiusFeature = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [newPoint.x, newPoint.y],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.radius,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  centerVertex = new emp.editors.Vertex(centerFeature, "vertex");
+  radiusVertex = new emp.editors.Vertex(radiusFeature, "add");
+
+  this.radius = radiusVertex;
+  this.center = centerVertex;
+
+  this.vertices.push(this.center);
+  this.vertices.push(this.radius);
+
+  items.push(radiusFeature);
+  items.push(centerFeature);
+  items.push(this.featureCopy);
+
+  var transaction = new emp.typeLibrary.Transaction({
+      intent: emp.intents.control.FEATURE_ADD,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+      items: items
+  });
+
+  transaction.run();
+
+  // return updateData
+  // Create the return object.  This will tell you which index was added,
+  // the locations of the new indices, and the type of change it was.
+
+  updateData = this.getUpdateData();
+
+  return updateData;
 };
