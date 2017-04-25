@@ -384,8 +384,9 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
             return view;
         },
-        lastMouseDown: 0,
-        lastMouseUp: 0,
+        lastMouseDown: false,
+        lastMouseUp: false,
+
         generatePointerEvent: function (oEvent, oData) {
             var button = (oEvent.originalEvent ? oEvent.originalEvent.button : 0),
                 pointer = oData || instanceInterface.getView(),
@@ -416,17 +417,19 @@ emp.engineDefs.leafletMapEngine = function (args) {
                     pointer.type = emp.typeLibrary.Pointer.EventType.DBL_CLICK;
                     break;
                 case 'mousedown':
-                    if (Date.now() - this.lastMouseDown < 10) {
+                    if (this.lastMouseDown) {
                       return;
                     }
-                    this.lastMouseDown = Date.now();
+                    this.lastMouseDown = true;
+                    this.lastMouseUp = false;
                     pointer.type = emp.typeLibrary.Pointer.EventType.MOUSEDOWN;
                     break;
                 case 'mouseup':
-                    if (Date.now() - this.lastMouseUp < 10) {
+                    if (this.lastMouseUp) {
                       return;
                     }
-                    this.lastMouseUp = Date.now();
+                    this.lastMouseDown = false;
+                    this.lastMouseUp = true;
                     pointer.type = emp.typeLibrary.Pointer.EventType.MOUSEUP;
                     break;
                 case 'mousemove':
