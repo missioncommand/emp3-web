@@ -140,21 +140,22 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
             return ((this.getEngineInstanceInterface().oLabelList.indexOf(sModifier) === -1)? false: true);
         },
         _getSinglePointIcon: function(oItem, oMainModifiers) {
-          var iconUrl,
-              sModifier,
+          var sModifier,
               oModifierArray = [],
               oModifiers = {},
-              sClassName = '',
               strippedSymbolCode = '',
               msa = armyc2.c2sd.renderer.utilities.MilStdAttributes,
               image,
               oMilStdIcon,
               oOffset,
+              iconUrl,
+              iconAnchor,
+              iconSize,
+              popupAnchor,
               oImageBounds,
               renderingOptimization,
               baseURL,
               sModifiers,
-              size,
               svgColor;
 
           if (!oMainModifiers.hasOwnProperty('T') ||
@@ -194,14 +195,16 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
 
           oModifiers.SIZE = this.getEngineInstanceInterface().iMilStdIconSize;
           if (this.isSelected()) {
-            sClassName = 'icon-selected';
           }
 
           if (L.Browser.canvas) {
             image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, oModifiers);
             iconUrl = image.toDataUrl();
             oOffset = image.getCenterPoint();
+            iconAnchor = new L.Point(oOffset.x, oOffset.y);
+            popupAnchor = new L.Point(oOffset.x, oOffset.y);
             oImageBounds = image.getImageBounds();
+            iconSize = new L.Point(oImageBounds.width, oImageBounds.height);
             renderingOptimization = this.getEngineInstanceInterface().renderingOptimization;
             oMilStdIcon;
             if (renderingOptimization.viewInZone) {
@@ -235,28 +238,33 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
                       break;
                   }
                   image = renderingOptimization.farDistanceThreshold.getSVG({
-                    x: oOffset.x,
-                    y: oOffset.y,
-                    radius: 3,
+                    x: 6,
+                    y: 6,
+                    radius: 5,
                     color: svgColor
                   });
                   iconUrl = 'data:image/svg+xml,' + image;
+                  iconAnchor = new L.Point(4, 5);
+                  iconSize = new L.Point(12, 12);
+                  popupAnchor = new L.Point(4, 5);
                   break;
                 case "midDistanceZone":
-                  strippedSymbolCode = oItem.data.symbolCode.slice(0, 10).concat("-----");
-                  image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(strippedSymbolCode, {SIZE: oModifiers.SIZE});
+                  // strippedSymbolCode = oItem.data.symbolCode.slice(0, 10).concat("-----");
+                  image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, {SIZE: oModifiers.SIZE});
                   iconUrl = image.toDataUrl();
                   oOffset = image.getCenterPoint();
+                  iconAnchor = new L.Point(oOffset.x, oOffset.y);
+                  popupAnchor = new L.Point(oOffset.x, oOffset.y);
                   oImageBounds = image.getImageBounds();
+                  iconSize = new L.Point(oImageBounds.width, oImageBounds.height);
                   break;
               }
             }
             oMilStdIcon = new L.Icon({
               iconUrl: iconUrl,
-              iconAnchor: new L.Point(oOffset.x, oOffset.y),
-              iconSize: new L.Point(oImageBounds.width, oImageBounds.height),
-              popupAnchor: new L.Point(oOffset.x, oOffset.y),
-              className: sClassName
+              iconAnchor: iconAnchor,
+              iconSize: iconSize,
+              popupAnchor: popupAnchor
             });
 
             return oMilStdIcon;
