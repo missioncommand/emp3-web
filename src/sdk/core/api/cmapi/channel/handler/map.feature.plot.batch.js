@@ -85,6 +85,15 @@ cmapi.channel.handler[cmapi.channel.names.MAP_FEATURE_PLOT_BATCH] = {
                 }
             }
 
+            // If its a point and it does not have an image URL, assign it a url
+            // immediately.
+            if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT &&
+              !feature.properties.iconUrl) {
+              feature.properties.iconUrl = emp.ui.images.defaultPoint;
+              feature.properties.offsetX = 12;
+              feature.properties.offsetY = 0;
+            }
+
             oItem = new emp.typeLibrary.Feature({
                 overlayId: feature.overlayId,
                 parentId: feature.parentId,
