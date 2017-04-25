@@ -900,7 +900,7 @@ emp.map = function(args) {
           fTransaction,
           mapInstance = emp.instanceManager.getInstance(mapInstanceId),
           dragPointer,
-          status;    
+          status;
 
         // retrieve the editingManager in case we are in edit mode.
         var editingManager = mapInstance.editingManager.get();
