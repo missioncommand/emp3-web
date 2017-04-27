@@ -80,6 +80,7 @@ var manifest = {
     'src/sdk/core/editors/emp.editors.MilStdArrow.js',
     'src/sdk/core/editors/emp.editors.MilStdTwoPointArrow.js',
     'src/sdk/core/editors/emp.editors.MilStdTwoPointLine.js',
+    'src/sdk/core/editors/emp.editors.MilStdSectorRangeFan.js',
     'src/sdk/core/environment/owf/emp.environment.owf.js',
     'src/sdk/core/environment/browser/emp.environment.browser.js',
     'src/sdk/core/environment/browser/emp.environment.browser.mediator.js',
