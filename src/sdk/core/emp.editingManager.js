@@ -330,6 +330,13 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       }
+      else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE) {
+        // This is a circular range fan
+        activeEditor = new emp.editors.MilStdCircularRangeFan({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
       else {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.EditorBase({
