@@ -52,7 +52,7 @@ EMPWorldWind.editors.EditorController = (function() {
         WorldWind.OFFSET_FRACTION, 1 - (imageCenter.y / imageBounds.height)
       );
 
-      attributes.imageScale = 1;
+      attributes.imageScale = this.state.iconSize;
       attributes.imageOffset = imageOffset;
       attributes.imageSource = imageInfo.toDataUrl();
 
@@ -329,7 +329,7 @@ EMPWorldWind.editors.EditorController = (function() {
       layer = this.getLayer(empFeature.parentCoreId);
       // Build the primitives
       // next call is  asynchronized for the case of mil std multipoints so shapes is initially an empty aray. (SEC renderer worker)
-      shapes = buildShapes(empFeature, this.state.selectionStyle);
+      shapes = buildShapes.call(this, empFeature, this.state.selectionStyle);
       wwFeature.addShapes(shapes);
       layer.addFeature(wwFeature);
       // Configure the callback params
@@ -385,7 +385,7 @@ EMPWorldWind.editors.EditorController = (function() {
           wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolyline(empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
-          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructPlacemark(empFeature, this.state.labelStyles));
+          wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructPlacemark.call(this, empFeature, this.state.labelStyles));
           break;
         case emp3.api.enums.FeatureTypeEnum.GEO_POLYGON:
           wwFeature.addShapes(EMPWorldWind.editors.primitiveBuilders.constructSurfacePolygon(empFeature, this.state.labelStyles));

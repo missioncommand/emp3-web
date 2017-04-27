@@ -4,6 +4,9 @@ var titleBase = "<a  onclick=\"loadNodeByKey('" + doctoc[0].key + "');\" style=\
 var cardTop = '<div class="mdl-grid" style=""><div id="container" class="mdl-cell mdl-cell--12-col" style="max-width: 1024px; margin: auto auto;"><div class="mdl-card mdl-shadow--2dp" style="padding: 24px; width: 100%">';
 var cardBottom = " </div> </div>";
 
+// Save scope between loading example contexts
+var scope = scope || {};
+
 function loadComplete() {
   $("#loadingContent").hide();
   $("#generalContent").scrollTop(0);
@@ -14,33 +17,45 @@ function loadStart() {
 }
 
 function renderGeneral(node) {
-  var isHtml = false;
 
-  if (node.key !== "") {
+  var _renderContent = function() {
+    var isHtml = false;
 
-    location.hash = node.key;
-    // check if we are loading an html document.  If not assume it is Markdown
-    if ((node.key.indexOf(".html") !== -1) || (node.key.indexOf(".htm") !== -1)) {
-      isHtml = true;
-    }
+    if (node.key !== "") {
 
-    $("#generalContent").load(node.key, function(response, status) {
-      loadComplete();
-      if (status !== "error") {
-        if (!isHtml) {
-
-          var htmlContent = marked(response);
-          $("#generalContent").html(cardTop + htmlContent + cardBottom);
-        }
-      } else {
-        renderGeneral({
-          key: "pages/under-construction.html",
-          title: "Sorry, this link is not working",
-          data: {}
-        });
+      location.hash = node.key;
+      // check if we are loading an html document.  If not assume it is Markdown
+      if ((node.key.indexOf(".html") !== -1) || (node.key.indexOf(".htm") !== -1)) {
+        isHtml = true;
       }
+
+      $("#generalContent").load(node.key, function(response, status) {
+        loadComplete();
+        if (status !== "error") {
+          if (!isHtml) {
+
+            var htmlContent = marked(response);
+            $("#generalContent").html(cardTop + htmlContent + cardBottom);
+          }
+        } else {
+          renderGeneral({
+            key: "pages/under-construction.html",
+            title: "Sorry, this link is not working",
+            data: {}
+          });
+        }
+      });
+      loadStart();
+    }
+  };
+
+  if (scope.map) {
+    // Wait for the map to finish cleaning up before loading the next example
+    scope.map.purge({
+      onSuccess: _renderContent
     });
-    loadStart();
+  } else {
+    _renderContent();
   }
 }
 

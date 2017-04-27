@@ -3640,7 +3640,7 @@ function EmpCesium() {
       var empPrimitiveItem = emp.helpers.copyObject(item);
       var label = new this.LabelGraphics();
       label.style = this.LabelStyle.FILL_AND_OUTLINE;
-      label.outlineWidth = 3;
+      label.outlineWidth = 1;
       label.text = empPrimitiveItem.name;
 
       if (empPrimitiveItem.properties && empPrimitiveItem.properties.labelStyle) {
@@ -8610,7 +8610,7 @@ function EmpCesium() {
           entity.label.font = '20px sans-serif';
         }
 
-        entity.label.translucencyByDistance = new this.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.0);
+        entity.label.translucencyByDistance = new this.NearFarScalar(5.5e2, 1.0, 4.0e7, 0.0);
         if (!entity.label.fillColor) {
           entity.label.fillColor = EmpCesiumConstants.propertyDefaults.LINE_COLOR;
         }
