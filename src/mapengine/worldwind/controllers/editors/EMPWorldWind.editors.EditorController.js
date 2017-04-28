@@ -116,8 +116,7 @@ EMPWorldWind.editors.EditorController = (function() {
 
       var _handleMilStdUpdate = function() {
 
-        var builder, shapes;
-
+        var builder;
         var _symbolIsSame = function(oldSym, newSym) {
           return (oldSym.symbolCode === newSym.symbolCode &&
           JSON.stringify(oldSym.modifiers) === JSON.stringify(newSym.modifiers));
@@ -128,17 +127,20 @@ EMPWorldWind.editors.EditorController = (function() {
 
           if (_symbolIsSame(empFeature, wwFeature.feature)) {
             // Just move it
-            wwFeature.shapes[0].position = new WorldWind.Position(empFeature.data.coordinates[1], empFeature.data.coordinates[0], empFeature.data.coordinates[2] || 0);
+            wwFeature.shapes[0].position = new WorldWind.Position(
+              empFeature.data.coordinates[1],
+              empFeature.data.coordinates[0],
+              empFeature.data.coordinates[2] || 0);
           } else {
             // Re-render and replace it
-            builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
-            shapes = builder(empFeature);
+            // builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
+            // shapes = builder(empFeature);
           }
         } else if (empFeature.data.type === "LineString") {
           builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
           builder(empFeature); // Pass it off to the web-worker
         } else {
-          // Fail gracefully
+          // TODO Fail gracefully
         }
       };
 
