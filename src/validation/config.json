@@ -3,13 +3,13 @@
   "useProxy": false,
   "editorFeatureDraggingEnable": true,
   "urlProxy": "../../urlproxy.jsp",
+
+
   "recorder": false,
   "debug": true,
-  "wmsServerUrls": [
-  ],
+  "wmsServerUrls": [],
   "startMapEngineId": "cesiumMapEngine",
-  "engines": [
-    {
+  "engines": [{
       "engineBasePath": "../mapengine/worldwind",
       "mapEngineId": "worldWindMapEngine",
       "manifestName": "manifest.js",
@@ -20,15 +20,13 @@
           "compass": false,
           "coordinates": false
         },
-        "defaultLayers": [
-          {
-            "type": "wms",
-            "name": "default wms",
-            "service": "https://worldwind25.arc.nasa.gov/wms",
-            "layerNames": "BlueMarble-200408",
-            "format": "image/png"
-          }
-        ]
+        "defaultLayers": [{
+          "type": "wms",
+          "name": "Local GeoServer",
+          "service": "http://localhost:8080/geoserver/wms",
+          "layerNames": "nasa:world_topo_bathy_lowres,nasa:world_topo_bathy_200405",
+          "format": "image/png"
+        }]
       }
     },
     {
@@ -46,8 +44,7 @@
         "renderingOptimization": {
           "enabled": true
         },
-        "data": [
-          {
+        "data": [{
             "type": "osm",
             "name": "Open Street Map",
             "url": "//a.tile.openstreetmap.org",
@@ -86,6 +83,22 @@
             "disableProxy": "true",
             "disable": "true",
             "options": "cesium-provider"
+          },
+          {
+            "type": "terrain",
+            "name": "MC geo services terrain",
+            "url": "http://localhost:8080/geoserver/wcs",
+            "disableProxy": "true",
+            "disable": "true",
+            "options": "wcs-terrain-provider,gebco:gebco_2014"
+          },
+          {
+            "type": "wmts",
+            "name": "mc geo services  wmts imagery ",
+            "url": " http://localhost:8080/geoserver/gwc/service/wmts",
+            "disableProxy": "true",
+            "disable": "true",
+            "options": "nasa:world_topo_bathy_lowres"
           }
         ]
       }
