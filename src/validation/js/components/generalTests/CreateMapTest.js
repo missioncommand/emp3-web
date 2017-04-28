@@ -165,6 +165,8 @@ class CreateMapTest extends Component {
    * up to the main application
    */
   addMap() {
+    const {addMapContainer} = this.props;
+
     let bounds = {
       north: this.state.bounds.north === '' ? undefined : parseFloat(this.state.bounds.north),
       south: this.state.bounds.south === '' ? undefined : parseFloat(this.state.bounds.south),
@@ -183,9 +185,12 @@ class CreateMapTest extends Component {
         break;
       }
     }
+
     if (blankBounds) {
       bounds = undefined;
     }
+
+    addMapContainer();
 
     this.createMap(bounds,
       this.state.engineId === '' ? undefined : this.state.engineId,
@@ -268,7 +273,8 @@ CreateMapTest.propTypes = {
   addResult: PropTypes.func,
   addError: PropTypes.func,
   addMap: PropTypes.func,
-  maps: PropTypes.array
+  maps: PropTypes.array,
+  addMapContainer: PropTypes.func
 };
 
 export default CreateMapTest;
