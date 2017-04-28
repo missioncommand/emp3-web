@@ -25,9 +25,9 @@
         "defaultLayers": [
           {
             "type": "wms",
-            "name": "default wms",
-            "service": "https://worldwind25.arc.nasa.gov/wms",
-            "layerNames": "BlueMarble-200408",
+            "name": "Local GeoServer",
+            "service": "http://localhost:8080/geoserver/wms",
+            "layerNames": "nasa:world_topo_bathy_lowres,nasa:world_topo_bathy_200405",
             "format": "image/png"
           }
         ]
