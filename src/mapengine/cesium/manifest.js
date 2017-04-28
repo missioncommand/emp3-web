@@ -381,7 +381,7 @@ function initializeCesium(args) {
         } else if (imageryJsonObject.options.toLowerCase() === 'tigr-provider') {
           terrainProvider = new TigrTerrainProvider({
             url: imageryJsonObject.url,
-            proxy: new empCesium.DefaultProxy(proxyUrl)
+            proxy: (imageryJsonObject.disableProxy === false)?new empCesium.DefaultProxy(proxyUrl):undefined
           });
         } else if (imageryJsonObject.options.indexOf('geoserver-terrain-provider') > -1) {
           var options = imageryJsonObject.options.split(",");
@@ -390,7 +390,7 @@ function initializeCesium(args) {
             terrainProvider = new empCesium.GeoserverTerrainProvider({
               url: imageryJsonObject.url,
               layerName: layerName,
-              proxy: new empCesium.DefaultProxy(proxyUrl)
+              proxy: (imageryJsonObject.disableProxy === false)?new empCesium.DefaultProxy(proxyUrl):undefined
             });
           }
         } else if (imageryJsonObject.options.indexOf('wcs-terrain-provider') > -1) {
@@ -401,13 +401,13 @@ function initializeCesium(args) {
               service: "WCS",
               url: imageryJsonObject.url,
               layerName: layerName,
-              proxy: new empCesium.DefaultProxy(proxyUrl)
+              proxy: (imageryJsonObject.disableProxy === false)?new empCesium.DefaultProxy(proxyUrl):undefined
             });
           }
         } else if (imageryJsonObject.options.toLowerCase() === 'arcgis-terrain-provider') {
           terrainProvider = new empCesium.ArcGisImageServerTerrainProvider({
             url: imageryJsonObject.url,
-            proxy: new empCesium.DefaultProxy(proxyUrl)
+            proxy: (imageryJsonObject.disableProxy === false)?new empCesium.DefaultProxy(proxyUrl):undefined
           });
         } else if (imageryJsonObject.options.indexOf('arcgis-bil-terrain-provider') > -1) {
           var options = imageryJsonObject.options.split(",");
@@ -416,7 +416,7 @@ function initializeCesium(args) {
             terrainProvider = new empCesium.ArcgisBilTerrainProvider({
               url: imageryJsonObject.url,
               layerName: layerName,
-              proxy: new empCesium.DefaultProxy(proxyUrl)
+              proxy: (imageryJsonObject.disableProxy === false)?new empCesium.DefaultProxy(proxyUrl):undefined
             });
           }
         }
