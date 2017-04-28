@@ -8346,7 +8346,7 @@ function EmpCesium() {
         //}
 
         batchObject.modifiers = mods.modifiers;
-        batchObject.modifiers.SVGFORMAT = 1; // for % notation  / 1 for base64 encoding.
+        batchObject.modifiers.SVGFORMAT = 1; // 2 for % notation  / 1 for base64 encoding.
         batchObject.format = args[index].multiPointRenderType;
         batchObject.pixelHeight = this.canvas.height;
         batchObject.pixelWidth = this.canvas.width;

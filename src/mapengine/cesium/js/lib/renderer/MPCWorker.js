@@ -20,14 +20,14 @@
  {
  id:e.data.id,//same as what was passed in
  result:strOutput,//resultant kml,json or error message
- format:e.data.format//format number or "ERROR" if there was a problem like missing required parameters    
+ format:e.data.format//format number or "ERROR" if there was a problem like missing required parameters
  }
  */
 /* return object for SVG
  {
  id:e.data.id,//same as what was passed in
  result:{svg:dataURI,geoTL:{x,y}, geoBR:{x,y}, wasClipped:true/false, bounds:{x,y,width,height}}
- format:e.data.format//format number or "ERROR" if there was a problem like missing required parameters    
+ format:e.data.format//format number or "ERROR" if there was a problem like missing required parameters
  }
  */
 
@@ -44,7 +44,7 @@
  e.data.fontInfo = {} required for SVG format only.  Get from RendererSettings.getMPFontInfo();
  //format for individual batch item acts as an override to the e.data.format value
  e.data.batch = [{id:"ID",name:"name",description:"description","format":format,symbolID:"GFTPL-----****X",points:controlPoints,symStd:symStd,modifiers:{ModifiersTG.T_UNIQUE_DESIGNATION_1:"T",MilStdAttributes.LineColor:"#00FF00"}}];
- 
+
  */
 
 /* return objects for batch
@@ -61,7 +61,7 @@
 
 //GeoCanvas doesn't work in a web worker due to its need for the DOM.
 importScripts('savm-bc.min.js');//for strictly KML, GeoJSON and SVG(with hatch line and metoc fills, but no symbol fills)
-//importScripts('svm-bc.js');//for strictly KML, GeoJSON and SVG(with hatch line and metoc fills, and symbol fills)
+//importScripts('savm-bc.js');//for strictly KML, GeoJSON and SVG(with hatch line and metoc fills, and symbol fills)
 
 importScripts('Cesium.js');
 //importScripts('workerImports.js');
@@ -120,36 +120,36 @@ var _converter = null;
  buildFrustum = function(frustum)
  {
  var result = new PerspectiveFrustum();
- 
+
  result.aspectRatio = frustum.aspectRatio;
  result.fov = frustum.fov;
  result.near = frustum.near;
  result.far = frustum.far;
- 
+
  // force update of clone to compute matrices
  result._aspectRatio = undefined;
  result._fov = undefined;
  result._near = undefined;
  result._far = undefined;
- 
+
  result._offCenterFrustum = buildOffCenterFrustum(frustum._offCenterFrustum);
- 
+
  return result;
  }
  }
- 
+
  buildOffCenterFrustum = function(ocFrustum)
  {
- 
+
  var result = new PerspectiveOffCenterFrustum();
- 
+
  result.right = ocFrustum.right;
  result.left = ocFrustum.left;
  result.top = ocFrustum.top;
  result.bottom = ocFrustum.bottom;
  result.near = ocFrustum.near;
  result.far = ocFrustum.far;
- 
+
  // force update of clone to compute matrices
  result._left = undefined;
  result._right = undefined;
@@ -157,7 +157,7 @@ var _converter = null;
  result._bottom = undefined;
  result._near = undefined;
  result._far = undefined;
- 
+
  return result;
  }*/
 
@@ -201,7 +201,7 @@ saveCamera = function (camera)
 //                           save.transform[4], save.transform[5], save.transform[6], save.transform[7],
 //                           save.transform[8], save.transform[9], save.transform[10], save.transform[11],
 //                           save.transform[12], save.transform[13], save.transform[14], save.transform[15]);
-//    
+//
 //    camera.setView({
 //    destination : new Cesium.Cartesian3(save.position.x,save.position.y,save.position.z),
 //    orientation: {
@@ -221,11 +221,11 @@ loadCamera = function (camera, save)
 {
 
     /*camera.position = new Cesium.Cartesian3(save.position.x,save.position.y,save.position.z);
-     
+
      camera.heading = save.heading;
-     
+
      camera.pitch = save.pitch;
-     
+
      camera.roll = save.roll;*/
 
     camera.transform = new Cesium.Matrix4(save.transform[0], save.transform[1], save.transform[2], save.transform[3],
@@ -288,8 +288,8 @@ makeFakeScene = function ()
     scene.camera.frustum.far = 5000000000;
 
     /*    camera.transform = new Cesium.Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-     
-     
+
+
      camera.setView({
      destination : new Cesium.Cartesian3(0,-14261947.901806576,7130973.950903288),
      orientation: {
@@ -302,7 +302,7 @@ makeFakeScene = function ()
 };
 
 /**
- * 
+ *
  * sceneInfo:
  * @param {any} drawingBufferWidth
  * @param {any} drawingBufferHeight
@@ -352,7 +352,7 @@ getConverter = function (scene, camera)
             normalize: false,
             //required interface
             /**
-             * 
+             *
              * @param {type} coord must accept type armyc2.c2sd.graphics2d.Point2D
              * @returns {armyc2.c2sd.graphics2d.Point2D} must return type armyc2.c2sd.graphics2d.Point2D
              */
@@ -367,7 +367,7 @@ getConverter = function (scene, camera)
             },
             //required interface
             /**
-             * 
+             *
              * @param {type} pixel  must accept type armyc2.c2sd.graphics2d.Point2D
              * @returns {undefined} must return type armyc2.c2sd.graphics2d.Point2D
              */
@@ -385,7 +385,7 @@ getConverter = function (scene, camera)
             },
             //required interface takes a boolean
             /**
-             * 
+             *
              * @param {type} accepts a boolean
              * @returns {undefined}
              */
@@ -447,7 +447,7 @@ onmessage = function (e)
         output = [];
         try
         {
-            
+
 
             for (var i = 0; i < len; i++)
             {
@@ -457,7 +457,7 @@ onmessage = function (e)
                 format = item.format;
             else if (e.data.format)
                 format = e.data.format;
-            
+
                 if (e.data.altMode)
                 {
                     if (e.data.converter)
@@ -473,7 +473,7 @@ onmessage = function (e)
 
 
 
-                    //data for symbol on 3d map so call RenderSymbol     
+                    //data for symbol on 3d map so call RenderSymbol
                     result = rendererMP.RenderSymbol(item.id, item.name, item.description, item.symbolID, item.points, e.data.altMode, e.data.scale, e.data.bbox, item.modifiers, format, item.symstd, converter, fontInfo);
                 }
                 else
@@ -516,7 +516,7 @@ onmessage = function (e)
                 var scene = buildFakeScene(e.data.sceneInfo, e.data.cameraInfo);
                 converter = getConverter(scene, scene.camera);
             }
-            //data for symbol on 3d map so call RenderSymbol     
+            //data for symbol on 3d map so call RenderSymbol
             output = rendererMP.RenderSymbol(e.data.id, e.data.name, e.data.description, e.data.symbolID, e.data.points, e.data.altMode, e.data.scale, e.data.bbox, e.data.modifiers, e.data.format, e.data.symstd, converter, fontInfo);
         }
         else
@@ -555,4 +555,3 @@ onmessage = function (e)
     }
 
 };
-

@@ -3,6 +3,8 @@
   "useProxy": false,
   "editorFeatureDraggingEnable": true,
   "urlProxy": "../../urlproxy.jsp",
+
+
   "recorder": false,
   "debug": true,
   "wmsServerUrls": [
