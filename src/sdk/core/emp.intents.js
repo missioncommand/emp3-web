@@ -257,7 +257,8 @@ emp.intents.control = {
   STORAGE_OBJECT_ADDED: "storage.object.added",
   STORAGE_OBJECT_REMOVED: "storage.object.removed",
   STORAGE_OBJECT_UPDATED: "storage.object.updated",
-  STORAGE_OBJECT_CHILD_REMOVED: "storage.object.child.removed"
+  STORAGE_OBJECT_CHILD_REMOVED: "storage.object.child.removed",
+  MAP_CONFIG_SET_GRID_LINES: "map.config.setGridType"
 };
 
 /**
@@ -1645,6 +1646,24 @@ emp.intents.control.intentSequenceMapper = (function() {
        }*/
       ],
       exit: [emp.transactionQueue._custom]
+    };
+  };
+
+  intentSequenceMapper[emp.intents.control.MAP_CONFIG_SET_GRID_LINES] = function() {
+    return {
+      forward: [
+        function(args) {
+          var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
+
+          if (oMapInstance) {
+            oMapInstance.setGridType(args);
+          }
+        }
+      ],
+      exit: [
+        emp.intents.control.transactionComplete
+      ],
+      constructor: []
     };
   };
   return intentSequenceMapper;

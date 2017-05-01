@@ -1096,3 +1096,11 @@ emp3.api.enums.defaultOverlayId = {
   WMS: undefined,
   Layers: undefined
 };
+
+emp3.api.enums.MapGridTypeEnum = {
+    NONE: 0,
+    MGRS: 1,
+    UTM: 2,
+    DMS: 3,
+    DD: 4
+};

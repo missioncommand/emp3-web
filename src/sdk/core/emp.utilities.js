@@ -252,3 +252,21 @@ emp.utilities.icon = (function() {
 
   return publicInterface;
 })();
+
+emp.utilities.FontUtilities = (function() {
+    var DEFAULT_FONT_POINT_SIZE = 10.0;
+    var PIXEL_PER_POINT = 96.0 / 72.0;
+
+    var publicInterface = {
+        /**
+         * This method gives the font size in pixels
+         * @param pointSize
+         * @return
+         */
+        fontPointsToPixels: function(pointSize) {
+            return Math.round((PIXEL_PER_POINT * pointSize));
+        }
+    };
+
+    return publicInterface;
+})();

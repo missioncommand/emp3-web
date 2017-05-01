@@ -325,7 +325,7 @@ emp.typeLibrary.Feature = function (args) {
     "required": ["featureId", "data", "format", "overlayId"]
   };
 
-  if ((this.url !== undefined) & (this.url !== null) && (this.url !== "")) {
+  if ((this.url !== undefined) && (this.url !== null) && (this.url !== "")) {
     this.schema.properties.url = {};
     this.schema.properties.url.type = "string";
     this.schema.required = ["featureId", "url", "format", "overlayId"];

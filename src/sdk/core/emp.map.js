@@ -1,4 +1,4 @@
-/*global confirm */
+/*global confirm, cmapi, cmapi */
 var emp = window.emp || {};
 
 /**
@@ -9,6 +9,7 @@ var emp = window.emp || {};
 emp.map = function(args) {
 
   var activeEngine = null,
+    mostRecentView = null,
     oViewBounds = {
       north: 0.0,
       south: 0.0,
@@ -72,7 +73,8 @@ emp.map = function(args) {
         lineColor: freehandLineColor,
         lineWidth: freehandLineWidth
       }
-    });
+    }),
+    mapGridLineGenerator = null;
 
   // assume it is a javascript file unless it ends with .css
   function checkResourceType(resource) {
@@ -773,6 +775,62 @@ emp.map = function(args) {
       }
     },
 
+    /**
+     * Sets the map grid on the map to the grid type specified in the transaction item.
+     * @param {emp.typeLibrary.Transaction} setGridTrans
+     */
+    setGridType: function(setGridTrans) {
+        var transItem = setGridTrans.items[0];
+        
+        if (mapGridLineGenerator) {
+            mapGridLineGenerator.shutdownGenerator();
+            mapGridLineGenerator = null;
+        }
+        
+        switch (transItem.gridType) {
+            case emp3.api.enums.MapGridTypeEnum.MGRS:
+                break;
+            case emp3.api.enums.MapGridTypeEnum.UTM:
+            case emp3.api.enums.MapGridTypeEnum.DMS:
+            case emp3.api.enums.MapGridTypeEnum.DD:
+            case emp3.api.enums.MapGridTypeEnum.NONE:
+            default:
+                break;
+        }
+
+        if (this.engine) {
+            transItem.gridLineGenerator = mapGridLineGenerator;
+            this.engine.setGridLineGenerator(setGridTrans);
+            
+            if (mapGridLineGenerator !== null) {
+                mapGridLineGenerator.mapViewChange(publicInterface, mostRecentView);
+            }
+            this.engine.scheduleMapRedraw();
+        } else {
+            setGridTrans.fail([{
+                coreId: transItem.coreId,
+                level: emp.typeLibrary.Error.level.MAJOR,
+                message: "No map instance set."
+            }]);
+        }
+    },
+
+    getXYFromLatLon: function(latLon) {
+        var item = new emp.typeLibrary.Convert({
+            lat: latLon._lat,
+            lon: latLon._lon
+        });
+        var trans = new emp.typeLibrary.Transaction({
+            intent: emp.intents.control.GET_XY_FROM_LATLON,
+            items: [item]
+        });
+        if (!publicInterface.engine) {
+            return null;
+        }
+        
+        publicInterface.engine.view.getXYFromLatLon(trans);
+        return (item.invalid? null: item);
+    },
 
     /**
      * @memberOf emp.map
@@ -873,7 +931,14 @@ emp.map = function(args) {
           oViewBounds.south = view.bounds.south;
           oViewBounds.east = view.bounds.east;
           oViewBounds.west = view.bounds.west;
+          
+          mostRecentView = view;
 
+          if ((mapGridLineGenerator !== null) && (mapViewEventEnum === emp3.api.enums.CameraEventEnum.CAMERA_MOTION_STOPPED)) {
+            mapGridLineGenerator.mapViewChange(publicInterface, view);
+            publicInterface.engine.scheduleMapRedraw();
+          }
+          
           // Create the transaction for the view change
           var transaction = new emp.typeLibrary.Transaction({
             mapInstanceId: mapInstanceId,
@@ -1775,6 +1840,16 @@ emp.map = function(args) {
     container: {
       get: function() {
         return container;
+      },
+      getWidth: function() {
+        var containerElement = document.getElementById(container);
+        
+        return containerElement.width;
+      },
+      getHeight: function() {
+        var containerElement = document.getElementById(container);
+        
+        return containerElement.height;
       }
     },
     // backdoor access to the map engines underlying sdk like google earth api, cesium, etc

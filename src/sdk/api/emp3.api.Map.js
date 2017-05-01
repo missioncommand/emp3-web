@@ -426,6 +426,9 @@ emp3.api.Map = function(args) {
     });
     this.status = emp3.api.enums.MapStateEnum.MAP_READY;
   }
+  
+  // Set the default map grid type.
+  this.gridType = emp3.api.enums.MapGridTypeEnum.NONE;
 };
 
 // Extend container
@@ -3826,4 +3829,40 @@ emp3.api.Map.prototype.clearContainer = function(args) {
  */
 emp3.api.Map.prototype.getBackgroundBrightness = function() {
   return this.brightness;
+};
+
+emp3.api.Map.prototype.setGridType = function(args) {
+    args = args || {};
+    
+    // Validate the gridType value.
+    if (!args.gridType) {
+      throw new Error("Parameter gridType was not specified.");
+    }
+
+    if (typeof(args.gridType) !== 'number') {
+        throw new Error("Invalid emp3.api.enums.MapGridTypeEnum value.");
+    }
+
+    if ((args.gridType < emp3.api.enums.MapGridTypeEnum.NONE) || (args.gridType > emp3.api.enums.MapGridTypeEnum.DD)) {
+        throw new Error("Invalid emp3.api.enums.MapGridTypeEnum value.");
+    }
+
+    // Format the request.
+    var cmd = {
+        cmd: emp3.api.enums.channel.config,
+        gridType: args.gridType
+    };
+
+    var callInfo = {
+        mapId: this.geoId,
+        source: this,
+        method: "Map.setGridType",
+        args: {
+            gridType: args.gridType
+        }
+    };
+
+    emp3.api.MessageHandler.getInstance().sendMessage(cmd, callInfo);
+
+    this.gridType = args.gridType;
 };

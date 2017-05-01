@@ -43,6 +43,9 @@
       case "Map.setBackgroundBrightness":
         payload.brightness = message.brightness;
         break;
+      case "Map.setGridType":
+        payload.gridType = message.gridType;
+        break;
     }
 
     payload.messageId = transactionId;

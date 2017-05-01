@@ -42,6 +42,33 @@ cmapi.channel.handler[cmapi.channel.names.CMAPI2_MAP_CONFIG] = {
         message.payload = [message.payload];
       }
 
+      if (message.payload[0].hasOwnProperty('gridType')) {
+        // The config message is for a map grid setting.
+        // Create a MAP_CONFIG_SET_GRID_LINES transaction,  There is no type in the
+        // typeLibrary that corresponds to MAP_GRID_LINE, so we just make up
+        // the object on the fly and send it to the transactionQueue.
+        configTransaction = new emp.typeLibrary.Transaction({
+            intent: emp.intents.control.MAP_CONFIG_SET_GRID_LINES,
+            mapInstanceId: args.mapInstanceId,
+            transactionId: message.messageId,
+            sender: sender.id,
+            originChannel: cmapi.channel.names.CMAPI2_MAP_CONFIG,
+            source: emp.api.cmapi.SOURCE,
+            originalMessage: args.originalMessage,
+            messageOriginator: sender.id,
+            items: [
+                {
+                    coreId: emp.helpers.id.newGUID(),
+                    gridType: message.payload[0].gridType
+                }
+            ],
+            originalMessageType: cmapi.channel.names.CMAPI2_MAP_CONFIG
+        });
+
+        configTransaction.queue();
+        return;
+      }
+      
       // Create a MAP_CONFIG transaction,  There is no type in the
       // typeLibrary that corresponds to MAP_CONFIG, so we just make up
       // the object on the fly and send it to the transactionQueue.

@@ -113,6 +113,14 @@ emp.classLibrary.privateClass = function() {
 
       return new LatLon(oCenter._lat, oCenter._lon);
     },
+    getCenterNorth: function() {
+      var dCenterLon = (this.options.degWest + this.options.degEast) / 2.0;
+      return new LatLon(this.options.degNorth, dCenterLon);
+    },
+    getCenterSouth: function() {
+      var dCenterLon = (this.options.degWest + this.options.degEast) / 2.0;
+      return new LatLon(this.options.degSouth, dCenterLon);
+    },
     getCenterWest: function() {
       var dCenterLat = (this.options.degNorth + this.options.degSouth) / 2.0;
       return new LatLon(dCenterLat, this.options.degWest);

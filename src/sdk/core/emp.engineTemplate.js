@@ -716,6 +716,39 @@ emp.map.createEngineTemplate = function() {
   };
 
   /**
+   * @memberOf engineInterface.map
+   * @abstract
+   * @public
+   * @returns {boolean}
+   * @param {emp.typeLibrary.Transaction} transaction - The transaction object is required to
+   * set the grid line generator
+   * @param {Object[]} transaction.items - An array where element 0 contains an object with 3 properties as follows.
+   *
+   * {
+   *    coreId: <unique id>,
+   *    gridType: <emp3.api.enums.MapGridTypeEnum value>,
+   *    gridLineGenerator: a reference to a emp.mapGridLineGenerator object or null if the grid is being turn off.
+   * }
+   *
+   */
+  engineInterface.map.setGridLineGenerator = function(transaction) {
+    while (transaction.items.length > 0) {
+      transaction.fail([{
+        coreId: transaction.items[0].coreId,
+        level: emp.typeLibrary.Error.level.MAJOR,
+        message: "This function is not supported by the map implementation."
+      }]);
+    }
+  };
+
+  /**
+  * This method causes the map engine instance to schedule a map redraw opertaion
+  * to update the map view.
+  */  
+  engineInterface.map.scheduleMapRedraw = function() {
+  };
+
+  /**
    * @memberOf engineInterface
    * @namespace
    * @desc This namespace encapsulates all the map engines cursor functionality.
