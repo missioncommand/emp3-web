@@ -125,20 +125,31 @@ EMPWorldWind.editors.EditorController = (function() {
         if (empFeature.data.type === "Point") {
 
 
-          if (_symbolIsSame(empFeature, wwFeature.feature)) {
+
+           if (_symbolIsSame(empFeature, wwFeature.feature) && !empFeature.bCallRenderer) {
             // Just move it
             wwFeature.shapes[0].position = new WorldWind.Position(
               empFeature.data.coordinates[1],
               empFeature.data.coordinates[0],
               empFeature.data.coordinates[2] || 0);
-          } else {
+              wwFeature.feature = empFeature;
+          }
+          else  {
             // Re-render and replace it
-            // builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
-            // shapes = builder(empFeature);
+             builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
+             this.rootLayer.removeFeature(wwFeature);
+             wwFeature.clearShapes();
+             wwFeature.addShapes(builder.call(this,empFeature,this.state.selectionStyle));
+             this.rootLayer.addFeature(wwFeature);
+             wwFeature.feature = empFeature;
+             wwFeature.bCallRenderer = false;
+             empFeature.bCallRenderer =  false;
           }
         } else if (empFeature.data.type === "LineString") {
+          // update with latest emp feature
+          wwFeature.feature = empFeature;
           builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
-          builder(empFeature); // Pass it off to the web-worker
+          builder.call(this,empFeature); // Pass it off to the web-worker
         } else {
           // TODO Fail gracefully
         }
@@ -149,7 +160,7 @@ EMPWorldWind.editors.EditorController = (function() {
         // Handle KML
         this.worldWindow.removeLayer(this.layers[empFeature.coreId]);
       } else if (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
-        _handleMilStdUpdate();
+        _handleMilStdUpdate.call(this);
       } else {
         primitiveBuilder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
         if (!primitiveBuilder) {
@@ -268,10 +279,7 @@ EMPWorldWind.editors.EditorController = (function() {
      */
     redrawMilStdSymbols: function(features) {
       window.console.debug('updating', features);
-      // Process the modifiers
-      //modifiers = processModifiers.call(this, feature);
-      // Requires access to the WorldWindow navigator, bind to the current scope
-      //_constructMultiPointMilStdFeature.call(this, features);
+      EMPWorldWind.editors.primitiveBuilders.constructMultiPointMilStdFeatures.call(this, features);
     }
   };
 }());
