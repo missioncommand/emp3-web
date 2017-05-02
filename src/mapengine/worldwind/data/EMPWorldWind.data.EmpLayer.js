@@ -30,10 +30,19 @@ EMPWorldWind.data.EmpLayer = function(overlayName) {
    */
   var _featureIsPresent = function(feature) {
     if (feature) {
-      return feature.id in this.features;
+      return (feature.id || feature.coreId) in this.features;
     }
     return false;
 
+  }.bind(this);
+
+
+  /**
+   * @param {EMPWorldWind.data.EmpFeature} feature
+   * @private
+   */
+  var _getFeature = function(id) {
+      return this.features[id];
   }.bind(this);
 
   /**
@@ -46,7 +55,7 @@ EMPWorldWind.data.EmpLayer = function(overlayName) {
         this.layer.addRenderable(shape);
       }.bind(this));
 
-      this.features[feature.id] = feature;
+      this.features[feature.id || feature.coreId] = feature;
     }
   };
 
@@ -75,11 +84,11 @@ EMPWorldWind.data.EmpLayer = function(overlayName) {
    */
   this.removeFeature = function(feature) {
     if (_featureIsPresent(feature)) {
-      emp.util.each(feature.shapes, function(shape) {
+      var wwFeature = _getFeature(feature.id || feature.coreId);
+      emp.util.each(wwFeature.shapes, function(shape) {
         this.layer.removeRenderable(shape);
       }.bind(this));
-
-      delete this.features[feature.id];
+      delete this.features[wwFeature.id];
     }
   };
 

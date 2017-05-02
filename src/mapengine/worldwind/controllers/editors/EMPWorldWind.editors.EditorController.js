@@ -119,39 +119,59 @@ EMPWorldWind.editors.EditorController = (function() {
         var builder;
         var _symbolIsSame = function(oldSym, newSym) {
           return (oldSym.symbolCode === newSym.symbolCode &&
-          JSON.stringify(oldSym.modifiers) === JSON.stringify(newSym.modifiers));
+            JSON.stringify(oldSym.modifiers) === JSON.stringify(newSym.modifiers));
         };
 
         if (empFeature.data.type === "Point") {
 
 
 
-           if (_symbolIsSame(empFeature, wwFeature.feature) && !empFeature.bCallRenderer) {
+          if (_symbolIsSame(empFeature, wwFeature.feature) && !empFeature.bCallRenderer) {
             // Just move it
             wwFeature.shapes[0].position = new WorldWind.Position(
               empFeature.data.coordinates[1],
               empFeature.data.coordinates[0],
               empFeature.data.coordinates[2] || 0);
-              wwFeature.feature = empFeature;
-          }
-          else  {
+            wwFeature.feature = empFeature;
+          } else {
             // Re-render and replace it
-             builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
-             this.rootLayer.removeFeature(wwFeature);
-             wwFeature.clearShapes();
-             wwFeature.addShapes(builder.call(this,empFeature,this.state.selectionStyle));
-             this.rootLayer.addFeature(wwFeature);
-             wwFeature.feature = empFeature;
-             wwFeature.bCallRenderer = false;
-             empFeature.bCallRenderer =  false;
+            builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
+            this.rootLayer.removeFeature(wwFeature);
+            wwFeature.clearShapes();
+            wwFeature.addShapes(builder.call(this, empFeature, this.state.selectionStyle));
+            this.rootLayer.addFeature(wwFeature);
+            wwFeature.feature = empFeature;
+            wwFeature.bCallRenderer = false;
+            empFeature.bCallRenderer = false;
           }
         } else if (empFeature.data.type === "LineString") {
           // update with latest emp feature
           wwFeature.feature = empFeature;
           builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
-          builder.call(this,empFeature); // Pass it off to the web-worker
+          builder.call(this, empFeature); // Pass it off to the web-worker
         } else {
           // TODO Fail gracefully
+        }
+      };
+
+      var _handlePointUpdate = function() {
+
+        var builder;
+
+        if (empFeature.overlayId === "vertices") {
+          // Just move it. It is a control point
+          wwFeature.shapes[0].position = new WorldWind.Position(
+            empFeature.data.coordinates[1],
+            empFeature.data.coordinates[0],
+            empFeature.data.coordinates[2] || 0);
+          wwFeature.feature = empFeature;
+        } else {
+          builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
+          this.rootLayer.removeFeature(wwFeature);
+          wwFeature.clearShapes();
+          wwFeature.addShapes(builder.call(this, empFeature, this.state.selectionStyle));
+          this.rootLayer.addFeature(wwFeature);
+          wwFeature.feature = empFeature;
         }
       };
 
@@ -161,12 +181,13 @@ EMPWorldWind.editors.EditorController = (function() {
         this.worldWindow.removeLayer(this.layers[empFeature.coreId]);
       } else if (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
         _handleMilStdUpdate.call(this);
+      } else if (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT) {
+        _handlePointUpdate.call(this);
       } else {
         primitiveBuilder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
         if (!primitiveBuilder) {
           rc.success = false;
           rc.message = "Missing feature constructor for format: " + empFeature.format;
-
           return callback(rc);
         }
       }
@@ -271,7 +292,7 @@ EMPWorldWind.editors.EditorController = (function() {
         case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
         case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
         default:
-        // do nothing
+          // do nothing
       }
     },
     /**
