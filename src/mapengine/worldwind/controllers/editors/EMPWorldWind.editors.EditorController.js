@@ -157,9 +157,13 @@ EMPWorldWind.editors.EditorController = (function() {
       var _handlePointUpdate = function() {
 
         var builder;
+        var _pointIsSame = function(oldFeature, feature) {
+          return (JSON.stringify(oldSym.modifiers) === JSON.stringify(newSym.modifiers));
+        };
 
-        if (empFeature.overlayId === "vertices") {
-          // Just move it. It is a control point
+        if (JSON.stringify(wwFeature.feature.properties) === JSON.stringify(empFeature.properties)) {
+          //if ((empFeature.overlayId === "vertices") && (JSON.stringify(wwFeature.feature.properties) === JSON.stringify(empFeature.properties))) {
+          // Just move it. no chnages to its properies
           wwFeature.shapes[0].position = new WorldWind.Position(
             empFeature.data.coordinates[1],
             empFeature.data.coordinates[0],
@@ -175,14 +179,47 @@ EMPWorldWind.editors.EditorController = (function() {
         }
       };
 
+      var _handleDefaultUpdate = function() {
+        var builder;
+
+        // if (empFeature.overlayId === "vertices") {
+        //   // Just move it. It is a control point
+        //   wwFeature.shapes[0].position = new WorldWind.Position(
+        //     empFeature.data.coordinates[1],
+        //     empFeature.data.coordinates[0],
+        //     empFeature.data.coordinates[2] || 0);
+        //   wwFeature.feature = empFeature;
+        // } else {
+        builder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
+        this.rootLayer.removeFeature(wwFeature);
+        wwFeature.clearShapes();
+        wwFeature.addShapes(builder.call(this, empFeature, this.state.selectionStyle));
+        this.rootLayer.addFeature(wwFeature);
+        wwFeature.feature = empFeature;
+        //}
+      };
+
 
       if (empFeature.format === emp3.api.enums.FeatureTypeEnum.KML) {
         // Handle KML
         this.worldWindow.removeLayer(this.layers[empFeature.coreId]);
+        // KML is not supported as native primitives in WorldWind
+        return asyncPlotKMLFeature.call(this, empFeature, callback);
+        // KML is not supported as native primitives in WorldWind
+        return asyncPlotKMLFeature.call(this, empFeature, callback);
       } else if (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
         _handleMilStdUpdate.call(this);
       } else if (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT) {
         _handlePointUpdate.call(this);
+      } else if ((empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH) ||
+        (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_ACM) ||
+        (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE) ||
+        (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE) ||
+        (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON) ||
+        (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE) ||
+        (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) ||
+        (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_TEXT)) {
+        _handleDefaultUpdate.call(this);
       } else {
         primitiveBuilder = EMPWorldWind.editors.primitiveBuilders.getPrimitiveBuilderForFeature(empFeature);
         if (!primitiveBuilder) {
@@ -193,7 +230,6 @@ EMPWorldWind.editors.EditorController = (function() {
       }
 
       empFeature.singlePointAltitudeRangeMode = wwFeature.singlePointAltitudeRangeMode;
-
       return callback(rc);
 
       //
