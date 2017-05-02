@@ -2196,7 +2196,109 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
     };
 
-    engineInterface.view.getLatLonFromXY = function (transaction) {
+  engineInterface.wmts.add = function (transaction) {
+    var oaItems = transaction.items;
+
+    for (var iIndex = 0; iIndex < oaItems.length; iIndex++) {
+      var item = oaItems[iIndex];
+
+      try {
+        var oNewWMTS;
+
+        if (instanceInterface.isV2Core()) {
+          item.useProxy = emp.util.config.getUseProxySetting();
+        }
+
+        if (instanceInterface.mapEngObjectList.hasOwnProperty(item.coreId)) {
+          // Its an update
+          oNewWMTS = instanceInterface.mapEngObjectList[item.coreId];
+
+          oNewWMTS.updateWMTS(item);
+        } else {
+          oNewWMTS = new leafLet.typeLibrary.WMTS({
+            item: item,
+            instanceInterface: instanceInterface
+          });
+
+          if (instanceInterface.mapEngObjectList.hasOwnProperty(oNewWMTS.getParentCoreId())) {
+            // The parent exists.
+            var oParentOverlay = instanceInterface.mapEngObjectList[oNewWMTS.getParentCoreId()];
+
+            oParentOverlay.addChildObject(oNewWMTS);
+          } else {
+            // The parent does not exists.
+            item.createParent();
+            if (instanceInterface.mapEngObjectList.hasOwnProperty(oNewWMTS.getParentCoreId())) {
+              // The parent exists.
+              var oParentOverlay = instanceInterface.mapEngObjectList[oNewWMTS.getParentCoreId()];
+
+              oParentOverlay.addChildObject(oNewWMTS);
+            } else {
+              transaction.fail(new emp.typeLibrary.Error({
+                coreId: item.coreId,
+                level: emp.typeLibrary.Error.level.MAJOR,
+                message: "Parent " + oNewWMTS.getParentCoreId() + " does not exists."
+              }));
+              iIndex--;
+              continue;
+            }
+          }
+
+          instanceInterface.addEmpObject(oNewWMTS);
+        }
+      } catch (Ex) {
+        transaction.fail(new emp.typeLibrary.Error({
+          coreId: item.coreId,
+          level: emp.typeLibrary.Error.level.MAJOR,
+          message: Ex.name + ": " + Ex.message,
+          jsError: Ex
+        }));
+        iIndex--;
+      }
+    }
+  }
+
+  engineInterface.wmts.remove = function (transaction) {
+    var oaItems = transaction.items;
+
+    for (var iIndex = 0; iIndex < oaItems.length; iIndex++) {
+      var item = oaItems[iIndex];
+      try {
+        if (instanceInterface.mapEngObjectList.hasOwnProperty(item.coreId)) {
+          // The feature exists.
+          var oParentOverlay;
+          var oFeature = instanceInterface.mapEngObjectList[item.coreId];
+
+          if (item.parentCoreId === undefined) {
+            // The parent is the root.
+            oParentOverlay = instanceInterface.rootOverlay;
+          } else {
+            oParentOverlay = instanceInterface.mapEngObjectList[item.parentCoreId];
+          }
+
+          oParentOverlay.removeChildObject(oFeature);
+          oFeature.destroy();
+        } else {
+          transaction.fail(new emp.typeLibrary.Error({
+            coreId: item.coreId,
+            level: emp.typeLibrary.Error.level.MAJOR,
+            message: "WMTS " + item.id + " does not exists."
+          }));
+          iIndex--;
+        }
+      } catch (Ex) {
+        transaction.fail(new emp.typeLibrary.Error({
+          coreId: item.coreId,
+          level: emp.typeLibrary.Error.level.MAJOR,
+          message: Ex.name + ": " + Ex.message,
+          jsError: Ex
+        }));
+        iIndex--;
+      }
+    }
+  };
+
+  engineInterface.view.getLatLonFromXY = function (transaction) {
         var item;
         var oLatLng;
         var oPoint;
