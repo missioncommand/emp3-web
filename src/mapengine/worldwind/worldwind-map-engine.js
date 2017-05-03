@@ -232,49 +232,6 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   };
 
   /**
-   * @param {emp.typeLibrary.Transaction} transaction
-   */
-  engineInterface.overlay.add = function(transaction) {
-    var rc,
-      failList = [];
-
-    emp.util.each(transaction.items, function(overlay) {
-      rc = empWorldWind.addLayer(overlay);
-
-      if (!rc.success) {
-        failList.push(new emp.typeLibrary.Error({
-          coreId: overlay.coreId,
-          message: rc.message,
-          level: emp.typeLibrary.Error.level.MINOR
-        }));
-      }
-    });
-
-    transaction.fail(failList);
-  };
-
-  /**
-   *
-   * @param {emp.typeLibrary.Transaction} transaction
-   */
-  engineInterface.overlay.remove = function(transaction) {
-    var rc = {},
-      failList = [];
-
-    emp.util.each(transaction.items, function(overlay) {
-      rc = empWorldWind.removeLayer(overlay.overlayId);
-      if (!rc.success) {
-        failList.push(new emp.typeLibrary.Error({
-          coreId: overlay.coreId,
-          message: rc.message
-        }));
-      }
-    });
-
-    transaction.fail(failList);
-  };
-
-  /**
    *
    * @param {emp.typeLibrary.Transaction} transaction
    */
@@ -498,7 +455,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
      * Resume the transaction once all items have been processed
      * @private
      */
-    function _complete(args) {
+    var _complete = function(args) {
       items--;
 
       if (!args.success) {
@@ -514,7 +471,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       }
 
       transaction.run();
-    }
+    };
 
     // Pause the transaction, KML is async in WorldWind
     transaction.pause();
