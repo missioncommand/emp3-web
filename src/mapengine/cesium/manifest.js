@@ -698,21 +698,25 @@ function initializeCesium(args) {
         empCesium.empMapInstance.eventing.StaticContent(oLayerList);
       }
       var argsProp = args;
-      var addTimeout = 1500;
-      if (argsProp !== undefined && argsProp !== null) {
-        args.mapInstance.engine.initialize.succeed(empCesium);
-      }
-      setTimeout(function() {
-        empCesium.globe.show = true;
-        //send initial extent of map as a ViewChange event
-        empCesium.currentExtent = undefined;
-        empCesium.currentExtent = empCesium.getExtent();
-        empCesium.viewChange(empCesium.currentExtent, true, emp3.api.enums.MapViewEventEnum.VIEW_MOTION_STOPPED);
-        empCesium.prevExtent = empCesium.currentExtent;
-        empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
-        //args.mapInstance.engine.initialize.succeed(empCesium);
-        empCesium.redrawGraphics();
-      }, addTimeout);
+      var addTimeout = 500;
+      // if (argsProp !== undefined && argsProp !== null)
+      // {
+      //   args.mapInstance.engine.initialize.succeed(empCesium);
+      // }
+      // setTimeout(function() {
+      //   empCesium.globe.show = true;
+      //   //send initial extent of map as a ViewChange event
+      //   empCesium.currentExtent = undefined;
+      //   empCesium.currentExtent = empCesium.getExtent();
+      //   empCesium.viewChange(empCesium.currentExtent, true, emp3.api.enums.MapViewEventEnum.VIEW_MOTION_STOPPED);
+      //   empCesium.prevExtent = empCesium.currentExtent;
+      //   empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
+      //   //args.mapInstance.engine.initialize.succeed(empCesium);
+      //   empCesium.redrawGraphics();
+      // }, addTimeout);
+      // if (argsProp !== undefined && argsProp !== null) {
+      //  args.mapInstance.engine.initialize.succeed(empCesium);
+      // }
       //add navigation plugin
       //navigationInitialization(container, viewer);
       empCesium.viewerCesiumNavigationMixinOptions = {};
