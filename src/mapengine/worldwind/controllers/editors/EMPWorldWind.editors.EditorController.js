@@ -157,9 +157,6 @@ EMPWorldWind.editors.EditorController = (function() {
       var _handlePointUpdate = function() {
 
         var builder;
-        var _pointIsSame = function(oldFeature, feature) {
-          return (JSON.stringify(oldSym.modifiers) === JSON.stringify(newSym.modifiers));
-        };
 
         if (JSON.stringify(wwFeature.feature.properties) === JSON.stringify(empFeature.properties)) {
           //if ((empFeature.overlayId === "vertices") && (JSON.stringify(wwFeature.feature.properties) === JSON.stringify(empFeature.properties))) {
@@ -203,8 +200,6 @@ EMPWorldWind.editors.EditorController = (function() {
       if (empFeature.format === emp3.api.enums.FeatureTypeEnum.KML) {
         // Handle KML
         this.worldWindow.removeLayer(this.layers[empFeature.coreId]);
-        // KML is not supported as native primitives in WorldWind
-        return asyncPlotKMLFeature.call(this, empFeature, callback);
         // KML is not supported as native primitives in WorldWind
         return asyncPlotKMLFeature.call(this, empFeature, callback);
       } else if (empFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
