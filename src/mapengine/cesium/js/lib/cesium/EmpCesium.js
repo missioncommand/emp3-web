@@ -8683,6 +8683,48 @@ function EmpCesium() {
       if (entity.polyline !== undefined) {
         isRenderableEntity = true;
         var rgbaLineColor = undefined;
+        var dashPattern = parseInt("110000001111", 2);
+        var dashLength = 12;
+        if (args.data.properties.strokeStyle && args.data.properties.strokeStyle.stipplingPattern &&
+        args.data.properties.strokeStyle.stipplingFactor )
+        {
+          var stipplingFactor = 0;
+          var stipplingPattern = "solid";
+          if (args.data.properties.strokeStyle.stipplingFactor)
+          {
+            stipplingFactor = args.data.properties.strokeStyle.stipplingFactor;
+          }
+          if (args.data.properties.strokeStyle.stipplingPattern)
+          {
+            stipplingPattern = args.data.properties.strokeStyle.stipplingPattern;
+          }
+          switch (stipplingPattern)
+          {
+            case "dash":
+              dashPattern =  undefined, //parseInt("110000001111", 2);
+              dashLength = 12;
+              break;
+            case "long dash":
+              dashPattern =   undefined, //parseInt("110000001111", 2);
+              dashLength = 20;
+              break;
+            case "short dash":
+              dashPattern =  undefined, //parseInt("110000001111", 2);
+              dashLength = 8;
+              break;
+            case "dot":
+              dashPattern =   parseInt("110000001111", stipplingFactor);
+              dashLength = 5;
+              break;
+              default:
+          }
+
+          entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+            color: Cesium.Color.BLACK,
+            dashPattern: dashPattern,
+            dashLength: dashLength
+          });
+        }
         if (!this.defined(entity.polyline.material)) {
           entity.polyline.material = new this.PolylineOutlineMaterialProperty();
         }
