@@ -8713,8 +8713,8 @@ function EmpCesium() {
               dashLength = 8;
               break;
             case "dot":
-              dashPattern =   parseInt("110000001111", stipplingFactor);
-              dashLength = 5;
+              dashPattern =   parseInt("100010001000", stipplingFactor);
+              dashLength = 4;
               break;
               default:
           }
