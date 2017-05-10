@@ -8703,27 +8703,45 @@ function EmpCesium() {
             case "dash":
               dashPattern =  undefined, //parseInt("110000001111", 2);
               dashLength = 12;
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: dashPattern,
+                dashLength: dashLength
+              });
               break;
             case "long dash":
               dashPattern =   undefined, //parseInt("110000001111", 2);
               dashLength = 20;
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: dashPattern,
+                dashLength: dashLength
+              });
               break;
             case "short dash":
               dashPattern =  undefined, //parseInt("110000001111", 2);
               dashLength = 8;
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: dashPattern,
+                dashLength: dashLength
+              });
               break;
             case "dot":
-              dashPattern =   parseInt("100010001000", stipplingFactor);
-              dashLength = 4;
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: parseInt("000001000001", stipplingFactor)
+              });
               break;
               default:
+              //none pattern
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: undefined,
+                dashLength: 0
+              });
           }
 
-          entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
-            color: Cesium.Color.BLACK,
-            dashPattern: dashPattern,
-            dashLength: dashLength
-          });
         }
         if (!this.defined(entity.polyline.material)) {
           entity.polyline.material = new this.PolylineOutlineMaterialProperty();
