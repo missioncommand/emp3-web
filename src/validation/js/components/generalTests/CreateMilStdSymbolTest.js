@@ -96,9 +96,23 @@ class CreateMilStdSymbolTest extends Component {
   }
 
   createRandomPositions(num, lat, lon) {
-    const range = 30, // How far apart we want the values.  maxRange = minRange + range.
-      startLat = 30,
-      startLon = 30; // The starting point.
+    const {maps} = this.props,
+      map = _.first(maps);
+
+    let range = 30,
+      bounds = {
+        west: 30,
+        south: 30
+      };
+
+    if (map) {
+      bounds = map.getBounds();
+      range = bounds.north - bounds.south;
+    }
+
+    let startLat = bounds.south,
+      startLon = bounds.west;
+
     let latAnchor,
       lonAnchor;
 
@@ -692,12 +706,14 @@ CreateMilStdSymbolTest.propTypes = {
   addError: PropTypes.func.isRequired,
   addFeature: PropTypes.func.isRequired,
   addFeatures: PropTypes.func.isRequired,
+  maps: PropTypes.array,
   features: PropTypes.array,
   overlays: PropTypes.array
 };
 
 const mapStateToProps = state => {
   return {
+    maps: state.maps,
     features: state.features,
     overlays: state.overlays
   };

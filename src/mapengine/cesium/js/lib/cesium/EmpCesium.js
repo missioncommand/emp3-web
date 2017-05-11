@@ -155,6 +155,11 @@ function EmpCesium() {
   this.bSmartMapMovingBottomLeftZone = false;
   this.startMousePosition = undefined;
   this.mousePosition = undefined;
+  this.bMapReady = false;
+  // Next flag is a way to detect a feature was clicked. The flag will be used by the
+  // mouse move event handler to decide when to delay the sending of the event to the core. When set to true
+  // the timeout is not used, and that accelerates the dragging of control points.
+  this.bFeaturePickedOnMouseDown = false;
   // this.cesiumConverter;
   this.drawData = {
     transaction: null,
@@ -218,6 +223,11 @@ function EmpCesium() {
       }
     });
     this.scene.skyAtmosphere = new this.SkyAtmosphere();
+    //hide stars and atmosphare until the map is ready. The first time the post renderer is called
+    // the sky and atmosphere are set to visible. The idea is to allow the map enough time to repositiion it self at the
+    // bounds location set by the emp core. An undesired shifting on the stars is noticed if the sky is visible.
+    this.scene.skyBox.show = false;
+    this.scene.skyAtmosphere.show = false;
     //this.scene.sun = new this.Sun();
     if (is2d) {
       this.do2DView();
@@ -1208,7 +1218,7 @@ function EmpCesium() {
     this.oMouseMoveEventData.type = "move";
     var delay = 100;
     //if (this.mapLocked)
-    if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION || this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
+    if (this.bFeaturePickedOnMouseDown) {
       this.empMapInstance.eventing.Pointer(this.oMouseMoveEventData);
       //delay = 50;
     } else {
@@ -1247,6 +1257,17 @@ function EmpCesium() {
     eventData.screenX = (event.domEvent) ? event.domEvent.clientX : event.screenX;
     eventData.screenY = (event.domEvent) ? event.domEvent.clientY : event.screenY;
     if (event.feature !== null && event.feature !== undefined) {
+      // Next flag is a way to detect a feature was clicked. The flag will be used by the
+      // mouse move event handler to decide when to delay the sending of the event to the core. When set to true
+      // the timeout is not used, and that accelerates the dragging of control points.
+         if (event.domEvent.type ==='pointerdown')
+         {
+           this.bFeaturePickedOnMouseDown = true;
+         }
+         else if (event.domEvent.type ==='pointerup')
+         {
+           this.bFeaturePickedOnMouseDown = false;
+         }
       eventData.target = "feature";
       eventData.coreId = event.coreId;
       if (!event.featureId && event.feature.parentFeature && event.feature.parentFeature.featureId) {
@@ -1267,6 +1288,13 @@ function EmpCesium() {
         }
       }
     } else {
+      // Next flag is a way to detect a feature was clicked. The flag will be used by the
+      // mouse move event handler to decide when to delay the sending of the event to the core. When set to true
+      // the timeout is not used, and that accelerates the dragging of control points.
+      if ((event.domEvent.type ==='pointerup') || (event.domEvent.type ==='pointerdown'))
+      {
+        this.bFeaturePickedOnMouseDown = false;
+      }
       eventData.target = "globe";
     }
     eventData.altKey = event.altKey;
@@ -2833,9 +2861,13 @@ function EmpCesium() {
       //var options = {};
       geoJsonDataSource.zoom = args.zoom;
       geoJsonDataSource.featureType = EmpCesiumConstants.featureType.DATA_SOURCE;
-      geoJsonDataSource.load(args.data, options).then(function(geoJsonDataSource)
+      //console.log("geojosndatasource before loading control point");
+      var promise = geoJsonDataSource.load(args.data, options);
+      //geoJsonDataSource.load(args.data, options).then(
+      promise.then(function(geoJsonDataSource)
         //geoJsonDataSource.load(args.data, options).then(function (geoJsonDataSource)
         {
+          //console.log("geojosndatasource loading control point");
           if (EmpCesiumConstants.USE_DATA_SOURCE) {
             geoJsonDataSource.id = args.id;
             geoJsonDataSource.featureId = args.featureId;
@@ -2984,7 +3016,10 @@ function EmpCesium() {
             }
             geoJsonDataSource = undefined;
           }
-        }.bind(this));
+        }.bind(this)).otherwise(function(error){
+        //Display any errrors encountered while loading.
+        window.alert("-------------------------" + error);
+    });;
       //}
     } catch (err) {
       result = {
@@ -3640,7 +3675,7 @@ function EmpCesium() {
       var empPrimitiveItem = emp.helpers.copyObject(item);
       var label = new this.LabelGraphics();
       label.style = this.LabelStyle.FILL_AND_OUTLINE;
-      label.outlineWidth = 3;
+      label.outlineWidth = 1;
       label.text = empPrimitiveItem.name;
 
       if (empPrimitiveItem.properties && empPrimitiveItem.properties.labelStyle) {
@@ -8346,7 +8381,7 @@ function EmpCesium() {
         //}
 
         batchObject.modifiers = mods.modifiers;
-        batchObject.modifiers.SVGFORMAT = 1; // for % notation  / 1 for base64 encoding.
+        batchObject.modifiers.SVGFORMAT = 2; // 2 for % notation  / 1 for base64 encoding.
         batchObject.format = args[index].multiPointRenderType;
         batchObject.pixelHeight = this.canvas.height;
         batchObject.pixelWidth = this.canvas.width;
@@ -8610,7 +8645,7 @@ function EmpCesium() {
           entity.label.font = '20px sans-serif';
         }
 
-        entity.label.translucencyByDistance = new this.NearFarScalar(1.5e2, 1.0, 8.0e6, 0.0);
+        entity.label.translucencyByDistance = new this.NearFarScalar(1.5e2, 1.0, 4.0e7, 0.0);
         if (!entity.label.fillColor) {
           entity.label.fillColor = EmpCesiumConstants.propertyDefaults.LINE_COLOR;
         }
@@ -8648,6 +8683,66 @@ function EmpCesium() {
       if (entity.polyline !== undefined) {
         isRenderableEntity = true;
         var rgbaLineColor = undefined;
+        var dashPattern = parseInt("110000001111", 2);
+        var dashLength = 12;
+        if (args.data.properties.strokeStyle && args.data.properties.strokeStyle.stipplingPattern &&
+        args.data.properties.strokeStyle.stipplingFactor )
+        {
+          var stipplingFactor = 0;
+          var stipplingPattern = "solid";
+          if (args.data.properties.strokeStyle.stipplingFactor)
+          {
+            stipplingFactor = args.data.properties.strokeStyle.stipplingFactor;
+          }
+          if (args.data.properties.strokeStyle.stipplingPattern)
+          {
+            stipplingPattern = args.data.properties.strokeStyle.stipplingPattern;
+          }
+          switch (stipplingPattern)
+          {
+            case "dash":
+              dashPattern =  undefined, //parseInt("110000001111", 2);
+              dashLength = 12;
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: dashPattern,
+                dashLength: dashLength
+              });
+              break;
+            case "long dash":
+              dashPattern =   undefined, //parseInt("110000001111", 2);
+              dashLength = 20;
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: dashPattern,
+                dashLength: dashLength
+              });
+              break;
+            case "short dash":
+              dashPattern =  undefined, //parseInt("110000001111", 2);
+              dashLength = 8;
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: dashPattern,
+                dashLength: dashLength
+              });
+              break;
+            case "dot":
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: parseInt("000001000001", stipplingFactor)
+              });
+              break;
+              default:
+              //none pattern
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: undefined,
+                dashLength: 0
+              });
+          }
+
+        }
         if (!this.defined(entity.polyline.material)) {
           entity.polyline.material = new this.PolylineOutlineMaterialProperty();
         }
@@ -11735,6 +11830,25 @@ var CesiumRenderOptimizer = function(empCesium) {
       var scene = empCesium.scene;
       if (!empCesium.Matrix4.equalsEpsilon(empCesium.lastCameraViewMatrix, scene.camera.viewMatrix, 1e-5)) {
         this.lastCameraMoveTime = now;
+
+        if (!empCesium.bMapReady && empCesium.empMapInstance)
+        {
+          empCesium.bMapReady = true;
+          setTimeout(function() {
+            empCesium.globe.show = true;
+            //send initial extent of map as a ViewChange event
+            empCesium.currentExtent = undefined;
+            empCesium.currentExtent = empCesium.getExtent();
+            empCesium.viewChange(empCesium.currentExtent, true, emp3.api.enums.MapViewEventEnum.VIEW_MOTION_STOPPED);
+            empCesium.prevExtent = empCesium.currentExtent;
+            empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
+            //args.mapInstance.engine.initialize.succeed(empCesium);
+            empCesium.scene.skyBox.show = true;
+            empCesium.scene.skyAtmosphere.show = true;
+            empCesium.redrawGraphics();
+            empCesium.empMapInstance.engine.initialize.succeed(empCesium);
+          }, 20);
+        }
       }
       //var cameraMovedInLastSecond = now - empCesium.lastCameraMoveTime < 1000;
       //var surface = scene.globe._surface;
