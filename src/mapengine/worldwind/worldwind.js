@@ -5598,8 +5598,7 @@ define('geom/Location',[
                     // and are more than 180 degrees longitude apart
                     if (WWMath.signum(pos.longitude) != WWMath.signum(posNext.longitude)) {
                         var delta = Math.abs(pos.longitude - posNext.longitude);
-                        //florin added <= 360, handles (90, 180) -> (0, -180) -> (-90, 180)
-                        if (delta > 180 && delta <= 360)
+                        if (delta > 180 && delta < 360)
                             return true;
                     }
                 }
@@ -19973,8 +19972,7 @@ define('shapes/ScreenImage',[
             program.loadModulateColor(gl, dc.pickingMode);
 
             // Turn off depth testing.
-            // tag, 6/17/15: It's not clear why this call was here. It was carried over from WWJ.
-            //gl.disable(WebGLRenderingContext.DEPTH_TEST);
+            gl.disable(gl.DEPTH_TEST);
         };
 
         // Internal. Intentionally not documented.
@@ -29286,7 +29284,7 @@ define('shapes/SurfaceShape',[
                 }
                 if (drawOutline) {
                     this.draw(this._outlineGeometry, ctx2D, xScale, yScale, dx, dy);
-                    ctx2D.lineWidth = 4 * this.attributes.outlineWidth;
+                    ctx2D.lineWidth = 4 * attributes.outlineWidth;
                     ctx2D.strokeStyle = dc.pickingMode ? pickColor : attributes.outlineColor.toRGBAString();
                     ctx2D.stroke();
                 }
@@ -29298,7 +29296,7 @@ define('shapes/SurfaceShape',[
                     ctx2D.fill();
                 }
                 if (drawOutline) {
-                    ctx2D.lineWidth = 4 * this.attributes.outlineWidth;
+                    ctx2D.lineWidth = 4 * attributes.outlineWidth;
                     ctx2D.strokeStyle = dc.pickingMode ? pickColor : attributes.outlineColor.toRGBAString();
                     ctx2D.stroke();
                 }
@@ -54519,7 +54517,7 @@ JSZip uses the library pako released under the MIT license :
 https://github.com/nodeca/pako/blob/master/LICENSE
 */
 !function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define('util/jszip',[],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.JSZip=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
-
+'use strict';
 // private property
 var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
@@ -54591,7 +54589,7 @@ exports.decode = function(input, utf8) {
 };
 
 },{}],2:[function(_dereq_,module,exports){
-
+'use strict';
 function CompressedObject() {
     this.compressedSize = 0;
     this.uncompressedSize = 0;
@@ -54621,7 +54619,7 @@ CompressedObject.prototype = {
 module.exports = CompressedObject;
 
 },{}],3:[function(_dereq_,module,exports){
-
+'use strict';
 exports.STORE = {
     magic: "\x00\x00",
     compress: function(content, compressionOptions) {
@@ -54636,7 +54634,7 @@ exports.STORE = {
 exports.DEFLATE = _dereq_('./flate');
 
 },{"./flate":8}],4:[function(_dereq_,module,exports){
-
+'use strict';
 
 var utils = _dereq_('./utils');
 
@@ -54740,7 +54738,7 @@ module.exports = function crc32(input, crc) {
 // vim: set shiftwidth=4 softtabstop=4:
 
 },{"./utils":21}],5:[function(_dereq_,module,exports){
-
+'use strict';
 var utils = _dereq_('./utils');
 
 function DataReader(data) {
@@ -54849,7 +54847,7 @@ DataReader.prototype = {
 module.exports = DataReader;
 
 },{"./utils":21}],6:[function(_dereq_,module,exports){
-
+'use strict';
 exports.base64 = false;
 exports.binary = false;
 exports.dir = false;
@@ -54862,7 +54860,7 @@ exports.unixPermissions = null;
 exports.dosPermissions = null;
 
 },{}],7:[function(_dereq_,module,exports){
-
+'use strict';
 var utils = _dereq_('./utils');
 
 /**
@@ -54969,7 +54967,7 @@ exports.isRegExp = function (object) {
 
 
 },{"./utils":21}],8:[function(_dereq_,module,exports){
-
+'use strict';
 var USE_TYPEDARRAY = (typeof Uint8Array !== 'undefined') && (typeof Uint16Array !== 'undefined') && (typeof Uint32Array !== 'undefined');
 
 var pako = _dereq_("pako");
@@ -54987,7 +54985,7 @@ exports.uncompress =  function(input) {
 };
 
 },{"pako":24}],9:[function(_dereq_,module,exports){
-
+'use strict';
 
 var base64 = _dereq_('./base64');
 
@@ -55068,7 +55066,7 @@ JSZip.compressions = _dereq_('./compressions');
 module.exports = JSZip;
 
 },{"./base64":1,"./compressions":3,"./defaults":6,"./deprecatedPublicUtils":7,"./load":10,"./object":13,"./support":17}],10:[function(_dereq_,module,exports){
-
+'use strict';
 var base64 = _dereq_('./base64');
 var ZipEntries = _dereq_('./zipEntries');
 module.exports = function(data, options) {
@@ -55102,7 +55100,7 @@ module.exports = function(data, options) {
 
 },{"./base64":1,"./zipEntries":22}],11:[function(_dereq_,module,exports){
 (function (Buffer){
-
+'use strict';
 module.exports = function(data, encoding){
     return new Buffer(data, encoding);
 };
@@ -55112,7 +55110,7 @@ module.exports.test = function(b){
 
 }).call(this,(typeof Buffer !== "undefined" ? Buffer : undefined))
 },{}],12:[function(_dereq_,module,exports){
-
+'use strict';
 var Uint8ArrayReader = _dereq_('./uint8ArrayReader');
 
 function NodeBufferReader(data) {
@@ -55134,7 +55132,7 @@ NodeBufferReader.prototype.readData = function(size) {
 module.exports = NodeBufferReader;
 
 },{"./uint8ArrayReader":18}],13:[function(_dereq_,module,exports){
-
+'use strict';
 var support = _dereq_('./support');
 var utils = _dereq_('./utils');
 var crc32 = _dereq_('./crc32');
@@ -56019,7 +56017,7 @@ var out = {
 module.exports = out;
 
 },{"./base64":1,"./compressedObject":2,"./compressions":3,"./crc32":4,"./defaults":6,"./nodeBuffer":11,"./signature":14,"./stringWriter":16,"./support":17,"./uint8ArrayWriter":19,"./utf8":20,"./utils":21}],14:[function(_dereq_,module,exports){
-
+'use strict';
 exports.LOCAL_FILE_HEADER = "PK\x03\x04";
 exports.CENTRAL_FILE_HEADER = "PK\x01\x02";
 exports.CENTRAL_DIRECTORY_END = "PK\x05\x06";
@@ -56028,7 +56026,7 @@ exports.ZIP64_CENTRAL_DIRECTORY_END = "PK\x06\x06";
 exports.DATA_DESCRIPTOR = "PK\x07\x08";
 
 },{}],15:[function(_dereq_,module,exports){
-
+'use strict';
 var DataReader = _dereq_('./dataReader');
 var utils = _dereq_('./utils');
 
@@ -56066,7 +56064,7 @@ StringReader.prototype.readData = function(size) {
 module.exports = StringReader;
 
 },{"./dataReader":5,"./utils":21}],16:[function(_dereq_,module,exports){
-
+'use strict';
 
 var utils = _dereq_('./utils');
 
@@ -56099,7 +56097,7 @@ module.exports = StringWriter;
 
 },{"./utils":21}],17:[function(_dereq_,module,exports){
 (function (Buffer){
-
+'use strict';
 exports.base64 = true;
 exports.array = true;
 exports.string = true;
@@ -56136,7 +56134,7 @@ else {
 
 }).call(this,(typeof Buffer !== "undefined" ? Buffer : undefined))
 },{}],18:[function(_dereq_,module,exports){
-
+'use strict';
 var DataReader = _dereq_('./dataReader');
 
 function Uint8ArrayReader(data) {
@@ -56185,7 +56183,7 @@ Uint8ArrayReader.prototype.readData = function(size) {
 module.exports = Uint8ArrayReader;
 
 },{"./dataReader":5}],19:[function(_dereq_,module,exports){
-
+'use strict';
 
 var utils = _dereq_('./utils');
 
@@ -56223,7 +56221,7 @@ Uint8ArrayWriter.prototype = {
 module.exports = Uint8ArrayWriter;
 
 },{"./utils":21}],20:[function(_dereq_,module,exports){
-
+'use strict';
 
 var utils = _dereq_('./utils');
 var support = _dereq_('./support');
@@ -56432,7 +56430,7 @@ exports.utf8decode = function utf8decode(buf) {
 // vim: set shiftwidth=4 softtabstop=4:
 
 },{"./nodeBuffer":11,"./support":17,"./utils":21}],21:[function(_dereq_,module,exports){
-
+'use strict';
 var support = _dereq_('./support');
 var compressions = _dereq_('./compressions');
 var nodeBuffer = _dereq_('./nodeBuffer');
@@ -56760,7 +56758,7 @@ exports.isRegExp = function (object) {
 
 
 },{"./compressions":3,"./nodeBuffer":11,"./support":17}],22:[function(_dereq_,module,exports){
-
+'use strict';
 var StringReader = _dereq_('./stringReader');
 var NodeBufferReader = _dereq_('./nodeBufferReader');
 var Uint8ArrayReader = _dereq_('./uint8ArrayReader');
@@ -56983,7 +56981,7 @@ ZipEntries.prototype = {
 module.exports = ZipEntries;
 
 },{"./nodeBufferReader":12,"./object":13,"./signature":14,"./stringReader":15,"./support":17,"./uint8ArrayReader":18,"./utils":21,"./zipEntry":23}],23:[function(_dereq_,module,exports){
-
+'use strict';
 var StringReader = _dereq_('./stringReader');
 var utils = _dereq_('./utils');
 var CompressedObject = _dereq_('./compressedObject');
@@ -57310,7 +57308,7 @@ assign(pako, deflate, inflate, constants);
 
 module.exports = pako;
 },{"./lib/deflate":25,"./lib/inflate":26,"./lib/utils/common":27,"./lib/zlib/constants":30}],25:[function(_dereq_,module,exports){
-
+'use strict';
 
 
 var zlib_deflate = _dereq_('./zlib/deflate.js');
@@ -57672,7 +57670,7 @@ exports.deflate = deflate;
 exports.deflateRaw = deflateRaw;
 exports.gzip = gzip;
 },{"./utils/common":27,"./utils/strings":28,"./zlib/deflate.js":32,"./zlib/messages":37,"./zlib/zstream":39}],26:[function(_dereq_,module,exports){
-
+'use strict';
 
 
 var zlib_inflate = _dereq_('./zlib/inflate.js');
@@ -58038,7 +58036,7 @@ exports.inflateRaw = inflateRaw;
 exports.ungzip  = inflate;
 
 },{"./utils/common":27,"./utils/strings":28,"./zlib/constants":30,"./zlib/gzheader":33,"./zlib/inflate.js":35,"./zlib/messages":37,"./zlib/zstream":39}],27:[function(_dereq_,module,exports){
-
+'use strict';
 
 
 var TYPED_OK =  (typeof Uint8Array !== 'undefined') &&
@@ -58328,7 +58326,7 @@ exports.utf8border = function(buf, max) {
 };
 
 },{"./common":27}],29:[function(_dereq_,module,exports){
-
+'use strict';
 
 // Note: adler32 takes 12% for level 0 and 2% for level 6.
 // It doesn't worth to make additional optimizationa as in original.
@@ -58409,7 +58407,7 @@ module.exports = {
   //Z_NULL:                 null // Use -1 or null inline, depending on var type
 };
 },{}],31:[function(_dereq_,module,exports){
-
+'use strict';
 
 // Note: we can't get significant speed boost here.
 // So write code to minimize size - no pregenerated tables
@@ -58451,7 +58449,7 @@ function crc32(crc, buf, len, pos) {
 
 module.exports = crc32;
 },{}],32:[function(_dereq_,module,exports){
-
+'use strict';
 
 var utils   = _dereq_('../utils/common');
 var trees   = _dereq_('./trees');
@@ -60217,7 +60215,7 @@ exports.deflatePrime = deflatePrime;
 exports.deflateTune = deflateTune;
 */
 },{"../utils/common":27,"./adler32":29,"./crc32":31,"./messages":37,"./trees":38}],33:[function(_dereq_,module,exports){
-
+'use strict';
 
 
 function GZheader() {
@@ -60258,7 +60256,7 @@ function GZheader() {
 
 module.exports = GZheader;
 },{}],34:[function(_dereq_,module,exports){
-
+'use strict';
 
 // See state defs from inflate.js
 var BAD = 30;       /* got a data error -- remain here until reset */
@@ -60585,7 +60583,7 @@ module.exports = function inflate_fast(strm, start) {
 };
 
 },{}],35:[function(_dereq_,module,exports){
-
+'use strict';
 
 
 var utils = _dereq_('../utils/common');
@@ -62089,7 +62087,7 @@ exports.inflateSyncPoint = inflateSyncPoint;
 exports.inflateUndermine = inflateUndermine;
 */
 },{"../utils/common":27,"./adler32":29,"./crc32":31,"./inffast":34,"./inftrees":36}],36:[function(_dereq_,module,exports){
-
+'use strict';
 
 
 var utils = _dereq_('../utils/common');
@@ -62416,7 +62414,7 @@ module.exports = function inflate_table(type, lens, lens_index, codes, table, ta
 };
 
 },{"../utils/common":27}],37:[function(_dereq_,module,exports){
-
+'use strict';
 
 module.exports = {
   '2':    'need dictionary',     /* Z_NEED_DICT       2  */
@@ -62430,7 +62428,7 @@ module.exports = {
   '-6':   'incompatible version' /* Z_VERSION_ERROR (-6) */
 };
 },{}],38:[function(_dereq_,module,exports){
-
+'use strict';
 
 
 var utils = _dereq_('../utils/common');
@@ -63630,7 +63628,7 @@ exports._tr_flush_block  = _tr_flush_block;
 exports._tr_tally = _tr_tally;
 exports._tr_align = _tr_align;
 },{"../utils/common":27}],39:[function(_dereq_,module,exports){
-
+'use strict';
 
 
 function ZStream() {
