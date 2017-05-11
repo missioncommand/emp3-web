@@ -123,9 +123,6 @@ EMPWorldWind.editors.EditorController = (function() {
         };
 
         if (empFeature.data.type === "Point") {
-
-
-
           if (_symbolIsSame(empFeature, wwFeature.feature) && !empFeature.bCallRenderer) {
             // Just move it
             wwFeature.shapes[0].position = new WorldWind.Position(
