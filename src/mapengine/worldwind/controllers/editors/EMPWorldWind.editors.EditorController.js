@@ -154,9 +154,6 @@ EMPWorldWind.editors.EditorController = (function() {
       var _handlePointUpdate = function() {
 
         var builder;
-        // var _pointIsSame = function(oldFeature, feature) {
-        //   return (JSON.stringify(oldSym.modifiers) === JSON.stringify(newSym.modifiers));
-        // };
 
         if (JSON.stringify(wwFeature.feature.properties) === JSON.stringify(empFeature.properties)) {
           //if ((empFeature.overlayId === "vertices") && (JSON.stringify(wwFeature.feature.properties) === JSON.stringify(empFeature.properties))) {
