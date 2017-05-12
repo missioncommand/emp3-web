@@ -19,6 +19,9 @@ EMPWorldWind.Map = function(wwd) {
    */
   this.worldWindow = wwd;
 
+  /** @type {Object.<string, EMPWorldWind.data.EmpLayer>} */
+  this.layers = {};
+
   /** @type {WorldWind.RenderableLayer} */
   this.rootLayer = undefined;
 
@@ -683,6 +686,27 @@ EMPWorldWind.Map.prototype = function() {
         failed: failed
       };
     },
+
+
+    /**
+    *
+    * @param {string} id
+    * @returns {EMPWorldWind.data.EmpLayer}
+    */
+   getLayer: function(id) {
+     if (this.layers.hasOwnProperty(id)) {
+       return this.layers[id];
+     }
+   },
+
+   /**
+    *
+    * @param layer
+    * @returns {boolean}
+    */
+   layerExists: function(layer) {
+     return this.layers.hasOwnProperty(layer.id);
+   },
     /**
      * Adds a WMS layer to the map
      * @param {emp.typeLibrary.WMS} wms
