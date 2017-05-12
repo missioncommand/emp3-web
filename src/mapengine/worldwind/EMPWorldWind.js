@@ -838,6 +838,9 @@ EMPWorldWind.Map.prototype = function() {
         wmtsCapabilities = new WorldWind.WmtsCapabilities(xmlDom);
         wmtsLayerCapabilities = wmtsCapabilities.getLayer(empWMTS.layer);
         wmtsConfig = WorldWind.WmtsLayer.formLayerConfiguration(wmtsLayerCapabilities);
+        //next is a workaround of using a specific tileMatrixSEt suggested at WW web sdk issue##113
+        // Modify the config object to use a TileMatrixSet currently supported:
+        // do working workaround wmtsConfig = wmtsLayerCapabilities.capabilities.contents.tileMatrixSet[1];
 
         return new WorldWind.WmtsLayer(wmtsConfig);
       };
