@@ -81,6 +81,7 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
         // Optimization
         attributes.imageScale = 1;
         attributes.imageSource = EMPWorldWind.utils.selectHighAltitudeRangeImage(feature.symbolCode);
+        attributes.imageOffset = new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5);// Centers the image on the geographic position.
         highlightAttributes = new WorldWind.PlacemarkAttributes();
         highlightAttributes.imageColor = WorldWind.Color.WHITE;
         highlightAttributes.imageSource = attributes.imageSource;

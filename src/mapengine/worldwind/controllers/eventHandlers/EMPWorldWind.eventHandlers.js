@@ -119,6 +119,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
     feature.isHighAltitudeRangeImage = true;
     //  dot image based on affiliation
     feature.shapes[0].attributes._imageSource = EMPWorldWind.utils.selectHighAltitudeRangeImage(feature.feature.symbolCode);
+    feature.shapes[0].attributes.imageOffset = new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5);// Centers the image on the geographic position.
     feature.shapes[0].highlightAttributes._imageSource = feature.shapes[0].attributes._imageSource;
     feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
     feature.feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
