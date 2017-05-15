@@ -1569,9 +1569,14 @@ EMPWorldWind.Map.prototype = function() {
         size = 1.0;
       }
 
-      this.state.iconSize = size;
+      if (this.state.iconSize !== size)
+      {
+        this.state.iconSize = size;
+        this.state.stateChanged = true;
+        _redrawAllFeatures.call(this);
+        this.state.stateChanged = false;
+      }
 
-      _redrawAllFeatures.call(this);
     }
   };
 }();

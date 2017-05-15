@@ -117,13 +117,14 @@ EMPWorldWind.editors.EditorController = (function() {
       var _handleMilStdUpdate = function() {
 
         var builder;
-        var _symbolIsSame = function(oldSym, newSym) {
-          return (oldSym.symbolCode === newSym.symbolCode &&
-            JSON.stringify(oldSym.modifiers) === JSON.stringify(newSym.modifiers));
+        var _featureIsSame = function(oldfeature, newFeature) {
+          return (oldfeature.symbolCode === newFeature.symbolCode &&
+            JSON.stringify(oldfeature.properties.modifiers) === JSON.stringify(newFeature.properties.modifiers) &&
+          !this.state.stateChanged);
         };
 
         if (empFeature.data.type === "Point") {
-          if (_symbolIsSame(empFeature, wwFeature.feature) && !empFeature.bCallRenderer) {
+          if (_featureIsSame.call(this, empFeature, wwFeature.feature) && !empFeature.bCallRenderer) {
             // Just move it
             wwFeature.shapes[0].position = new WorldWind.Position(
               empFeature.data.coordinates[1],
