@@ -8685,11 +8685,19 @@ function EmpCesium() {
         var rgbaLineColor = undefined;
         var dashPattern = parseInt("110000001111", 2);
         var dashLength = 12;
+        //reset default material used by the geojson parser. The default material is constant
+        // so it doesn't take color changes.
+        // none stippling pattern.
+          entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+            color: Cesium.Color.BLACK,
+            dashPattern: undefined,
+            dashLength: 0
+          });
         if (args.data.properties.strokeStyle && args.data.properties.strokeStyle.stipplingPattern &&
         args.data.properties.strokeStyle.stipplingFactor )
         {
           var stipplingFactor = 0;
-          var stipplingPattern = "solid";
+          var stipplingPattern = "none";
           if (args.data.properties.strokeStyle.stipplingFactor)
           {
             stipplingFactor = args.data.properties.strokeStyle.stipplingFactor;
@@ -8741,10 +8749,6 @@ function EmpCesium() {
                 dashLength: 0
               });
           }
-
-        }
-        if (!this.defined(entity.polyline.material)) {
-          entity.polyline.material = new this.PolylineOutlineMaterialProperty();
         }
         if (this.isFeatureSelected(args.data.id)) {
           var selectionProperties = this.getFeatureSelection(entity.id || args.data.id);
@@ -8754,16 +8758,29 @@ function EmpCesium() {
           entity.polyline.material.outlineColor = this.selectionColor;
           //entity.polyline.material.outlineColor = EmpCesiumConstants.selectionProperties.COLOR;
           entity.polyline.material.outlineWidth = EmpCesiumConstants.selectionProperties.WIDTH;
-        } else if (args.data.properties.lineColor) {
+        }
+        else if (args.data.properties.strokeStyle || args.data.properties.strokeStyle.strokeColor) {
+          rgbaLineColor = args.data.properties.strokeStyle.strokeColor;
+          //rgbaLineColor = cesiumEngine.utils.hexToRGB(args.data.properties.lineColor);
+          entity.polyline.material.color = new this.Color(rgbaLineColor.red, rgbaLineColor.green, rgbaLineColor.blue, rgbaLineColor.alpha);
+          // entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+          //   color: new this.Color(rgbaLineColor.red, rgbaLineColor.green, rgbaLineColor.blue, rgbaLineColor.alpha),
+          //   dashPattern: undefined,
+          //   dashLength: 0
+          // });
+        }
+        else if (args.data.properties.lineColor) {
           rgbaLineColor = cesiumEngine.utils.hexToRGB(args.data.properties.lineColor);
           entity.polyline.material.color = new this.Color(rgbaLineColor.r, rgbaLineColor.g, rgbaLineColor.b, rgbaLineColor.a);
         } else if (!this.defined(entity.polyline.material.color)) {
           entity.polyline.material.color = EmpCesiumConstants.propertyDefaults.LINE_COLOR;
         }
-        if ((args.data.properties.lineWidth && !isNaN(args.data.properties.lineWidth)) || !entity.polyline.width) {
+       if (args.data.properties.strokeStyle || args.data.properties.strokeStyle.strokeWidth) {
+          entity.polyline.width = parseInt(args.data.properties.strokeStyle.strokeWidth);
+        }
+        else if ((args.data.properties.lineWidth && !isNaN(args.data.properties.lineWidth)) || !entity.polyline.width) {
           entity.polyline.width = args.data.properties.lineWidth || EmpCesiumConstants.propertyDefaults.LINE_WIDTH;
-        } else
-        if (entity.polyline.width.getValue() < 3) {
+        } else if (entity.polyline.width.getValue() < 3) {
           entity.polyline.width = EmpCesiumConstants.propertyDefaults.LINE_WIDTH;
         }
       }
@@ -8996,7 +9013,7 @@ function EmpCesium() {
           }
           if (entity.polyline && presentEntity.polyline) {
             // if (this.mapLocked)
-            if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION && presentEntity.overlayId === "vertices") {
+            if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_PAN && presentEntity.id === "freehandX") {
               this.freeHandPositions = entity.polyline.positions.getValue();
               presentEntity.polyline.positions = new this.CallbackProperty(function(time, result) {
                 if (this.freeHandPositions.length > 1) {

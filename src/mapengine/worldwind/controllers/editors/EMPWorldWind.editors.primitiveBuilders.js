@@ -559,13 +559,31 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       // TODO fillPattern is not yet supported by the ShapeAttributes class
 
       // Line width
-      if (feature.properties.strokeWidth || feature.properties.lineWidth) {
+      if (feature.properties.strokeStyle &&  feature.properties.strokeStyle.strokeWidth) {
+        attributes.outlineWidth = feature.properties.strokeStyle.strokeWidth;
+      }
+      else if (feature.properties.strokeWidth || feature.properties.lineWidth) {
         attributes.outlineWidth = feature.properties.strokeWidth || feature.properties.lineWidth;
       }
 
       // Stippling of outline
-      attributes.outlineStippleFactor = feature.properties.stippleFactor || attributes.outlineStippleFactor;
-      attributes.outlineStipplePattern = feature.properties.stipplePattern || attributes.outlineStipplePattern;
+     if (feature.properties.strokeStyle &&  feature.properties.strokeStyle.stippleFactor) {
+        attributes.outlineStippleFactor = feature.properties.strokeStyle.stippleFactor;
+      }
+      else
+      {
+        attributes.outlineStippleFactor = feature.properties.stippleFactor || attributes.outlineStippleFactor;
+      }
+      if (feature.properties.strokeStyle &&  feature.properties.strokeStyle.stipplePattern) {
+         attributes.outlineStippleFactor = feature.properties.strokeStyle.stipplePattern;
+       }
+       else
+       {
+         attributes.outlineStipplePattern = feature.properties.stipplePattern || attributes.outlineStipplePattern;
+       }
+
+
+
 
       // Generate the highlight attributes from the normal attributes
       highlightAttributes = new WorldWind.ShapeAttributes(attributes);
