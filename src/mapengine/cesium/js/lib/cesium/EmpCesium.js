@@ -1217,8 +1217,11 @@ function EmpCesium() {
     this.oMouseMoveEventData = this.populateEvent(event);
     this.oMouseMoveEventData.type = "move";
     var delay = 100;
-    //if (this.mapLocked)
-    if (this.bFeaturePickedOnMouseDown) {
+    // detect free hand drawing
+    if (this.bFeaturePickedOnMouseDown ||
+      (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_PAN && this.rootLayer &&
+        this.rootLayer.isFeaturePresentById("freehandX")))
+        {
       this.empMapInstance.eventing.Pointer(this.oMouseMoveEventData);
       //delay = 50;
     } else {
