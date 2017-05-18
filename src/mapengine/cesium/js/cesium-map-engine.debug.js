@@ -319,6 +319,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                             }
                         }
                         empCesium.rootOverlayId = item.overlayId;
+                        empCesium.rootLayer = overlay;
                         result = {
                             success: true,
                             message: "New layer added to vega/cesium map"

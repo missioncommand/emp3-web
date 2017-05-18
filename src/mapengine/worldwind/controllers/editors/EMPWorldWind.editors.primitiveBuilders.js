@@ -559,13 +559,37 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       // TODO fillPattern is not yet supported by the ShapeAttributes class
 
       // Line width
-      if (feature.properties.strokeWidth || feature.properties.lineWidth) {
-        attributes.outlineWidth = feature.properties.strokeWidth || feature.properties.lineWidth;
+      if (feature.properties.strokeStyle &&  feature.properties.strokeStyle.strokeWidth) {
+        attributes.outlineWidth = (!isNaN(parseInt(feature.properties.strokeStyle.strokeWidth)))?parseInt(feature.properties.strokeStyle.strokeWidth): EMPWorldWind.constants.propertyDefaults.LINE_WIDTH ;
+        // pixel size between ww and Cesium are not matching. WW outline width is
+        //much wider than in Cesium for polylines
+        attributes.outlineWidth *=.3;
+      }
+      else if (feature.properties.strokeWidth || feature.properties.lineWidth) {
+        attributes.outlineWidth = parseInt(feature.properties.strokeWidth) || parseInt(feature.properties.lineWidth);
+        // pixel size between ww and Cesium are not matching. WW outline width is
+        //much wider than in Cesium for polylines
+        attributes.outlineWidth *=.3;
       }
 
       // Stippling of outline
-      attributes.outlineStippleFactor = feature.properties.stippleFactor || attributes.outlineStippleFactor;
-      attributes.outlineStipplePattern = feature.properties.stipplePattern || attributes.outlineStipplePattern;
+     if (feature.properties.strokeStyle &&  feature.properties.strokeStyle.stippleFactor) {
+        attributes.outlineStippleFactor = parseInt(feature.properties.strokeStyle.stippleFactor);
+      }
+      else
+      {
+        attributes.outlineStippleFactor = parseInt(feature.properties.stippleFactor) || parseInt(attributes.outlineStippleFactor);
+      }
+      if (feature.properties.strokeStyle &&  feature.properties.strokeStyle.stipplePattern) {
+         attributes.outlineStipplePattern = feature.properties.strokeStyle.stipplePattern;
+       }
+       else
+       {
+         attributes.outlineStipplePattern = feature.properties.stipplePattern || attributes.outlineStipplePattern;
+       }
+
+
+
 
       // Generate the highlight attributes from the normal attributes
       highlightAttributes = new WorldWind.ShapeAttributes(attributes);

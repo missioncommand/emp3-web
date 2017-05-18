@@ -54,8 +54,8 @@ emp.map = function(args) {
     //    config,
     freehandMode = false,
     freehandModeDrawStart = false,
-    freehandLineColor = 'FFFFFF00',
-    freehandLineWidth = 8,
+    freehandLineColor =   emp.util.convertHexToColor('FFFFFF00'),
+    freehandLineWidth = 3,
     freehandLineColorOverride,
     freehandLineWidthOverride,
     freehandFeature = new emp.typeLibrary.Feature({
@@ -727,7 +727,8 @@ emp.map = function(args) {
       // override the default freehand style if necessary.
       if (args.freehandStrokeStyle) {
         if (args.freehandStrokeStyle.strokeColor) {
-          freehandLineColorOverride = emp.util.convertColorToHexColor(args.freehandStrokeStyle.strokeColor);
+          freehandLineColorOverride = args.freehandStrokeStyle.strokeColor;
+          //freehandLineColorOverride = emp.util.convertColorToHexColor(args.freehandStrokeStyle.strokeColor);
         }
         if (args.freehandStrokeStyle.strokeWidth) {
           freehandLineWidthOverride = args.freehandStrokeStyle.strokeWidth;
@@ -1094,16 +1095,25 @@ emp.map = function(args) {
             freehandFeature.overlayId = mapInstanceId;
             freehandFeature.parentCoreId = mapInstanceId;
 
+            if (!freehandFeature.properties.strokeStyle)
+            {
+              freehandFeature.properties.strokeStyle = {};
+            }
             if (freehandLineColorOverride) {
-              freehandFeature.properties.lineColor = freehandLineColorOverride;
+              freehandFeature.properties.strokeStyle.strokeColor = freehandLineColorOverride;
+              //freehandFeature.properties.lineColor = freehandLineColorOverride;
             } else {
-              freehandFeature.properties.lineColor = freehandLineColor;
+              freehandFeature.properties.strokeStyle.strokeColor = freehandLineColor;
+               //freehandFeature.properties.strokeStyle.strokeColor = emp.util.convertHexToColor(freehandLineColor);
+              // freehandFeature.properties.lineColor = freehandLineColor;
             }
 
             if (freehandLineWidthOverride) {
-              freehandFeature.properties.lineWidth = freehandLineWidthOverride;
+              freehandFeature.properties.strokeStyle.strokeWidth = freehandLineWidthOverride;
+              //freehandFeature.properties.lineWidth = freehandLineWidthOverride;
             } else {
-              freehandFeature.properties.lineWidth = freehandLineWidth;
+               freehandFeature.properties.strokeStyle.strokeWidth = freehandLineWidth;
+              // freehandFeature.properties.lineWidth = freehandLineWidth;
             }
 
             // Send out an event that says we started the line draw.
