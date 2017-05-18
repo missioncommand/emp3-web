@@ -173,11 +173,13 @@ class CreateMilStdSymbolTest extends Component {
   constructSymbolCode(symbol) {
     let newString = String(symbol.symbolCode);
 
-    // update affiliation
-    newString = splice(newString, this.state.affiliation, MILSTD_2525_POSITIONS.IDENTITY);
-
-    // update status
-    newString = splice(newString, this.state.status, MILSTD_2525_POSITIONS.STATUS);
+    // update affiliation and status if symbol do not start with w (METOC)
+    if (!newString.toLowerCase().startsWith("w"))
+    {
+      newString = splice(newString, this.state.affiliation, MILSTD_2525_POSITIONS.IDENTITY);
+      // update status
+      newString = splice(newString, this.state.status, MILSTD_2525_POSITIONS.STATUS);
+    }
 
     let unitEchelon = armyc2.c2sd.renderer.utilities.SymbolUtilities.canUnitHaveModifier(
       newString,
@@ -720,5 +722,3 @@ const mapStateToProps = state => {
 };
 
 export default connect(mapStateToProps)(CreateMilStdSymbolTest);
-
-
