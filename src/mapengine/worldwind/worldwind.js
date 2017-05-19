@@ -3818,7 +3818,7 @@ define('geom/Plane',[
             this.normal[1] = y;
             this.normal[2] = z;
             this.distance = distance;
-            
+
             return this;
         };
 
@@ -9829,7 +9829,7 @@ define('shaders/AtmosphereProgram',[
              * @readonly
              */
             this.scaleOverScaleDepthLocation = this.uniformLocation(gl, "scaleOverScaleDepth");
-            
+
             this.scratchArray9 = new Float32Array(9);
         };
 
@@ -10699,7 +10699,7 @@ define('shaders/SkyProgram',[
 
                     'const float g = -0.95;\n' +
                     'const float g2 = g * g;\n' +
-                        
+
                     'uniform mediump vec3 lightDirection;\n' +
 
                     'varying vec3 primaryColor;\n' +
@@ -11145,15 +11145,15 @@ define('layer/AtmosphereLayer',[
             }
 
             vboId = dc.gpuResourceCache.resourceForKey(skyData.verticesVboCacheKey);
-            
+
             if (!vboId) {
                 skyPoints = this.assembleVertexPoints(dc, this._skyHeight, this._skyWidth, program.getAltitude());
-                
+
                 vboId = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, vboId);
                 gl.bufferData(gl.ARRAY_BUFFER, skyPoints, gl.STATIC_DRAW);
                 gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
-                
+
                 dc.gpuResourceCache.putResource(skyData.verticesVboCacheKey, vboId,
                     skyPoints.length * 4);
                 dc.frameStatistics.incrementVboLoadCount(1);
@@ -11176,14 +11176,14 @@ define('layer/AtmosphereLayer',[
             }
 
             vboId = dc.gpuResourceCache.resourceForKey(skyData.indicesVboCacheKey);
-            
+
             if (!vboId) {
                 skyIndices = this.assembleTriStripIndices(this._skyWidth, this._skyHeight);
-                
+
                 vboId = gl.createBuffer();
                 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vboId);
                 gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, skyIndices, gl.STATIC_DRAW);
-                
+
                 dc.frameStatistics.incrementVboLoadCount(1);
                 dc.gpuResourceCache.putResource(skyData.indicesVboCacheKey, vboId, skyIndices.length * 2);
             }
@@ -11240,13 +11240,13 @@ define('layer/AtmosphereLayer',[
 
             // Use this layer's night image when the light location is different than the eye location.
             if (this.nightImageSource && this.lightLocation) {
-                
+
                 this._activeTexture = dc.gpuResourceCache.resourceForKey(this.nightImageSource);
-                
+
                 if (!this._activeTexture) {
                     this._activeTexture = dc.gpuResourceCache.retrieveTexture(gl, this.nightImageSource);
                 }
-                
+
                 textureBound = this._activeTexture && this._activeTexture.bind(dc);
             }
 
@@ -11254,7 +11254,7 @@ define('layer/AtmosphereLayer',[
 
             for (var idx = 0, len = terrain.surfaceGeometry.length; idx < len; idx++) {
                 var currentTile = terrain.surfaceGeometry[idx];
-                
+
                 // Use the vertex origin for the terrain tile.
                 var terrainOrigin = currentTile.referencePoint;
                 program.loadVertexOrigin(gl, terrainOrigin);
@@ -11326,7 +11326,7 @@ define('layer/AtmosphereLayer',[
             }
 
             this._numIndices = result.length;
-            
+
             return new Uint16Array(result);
         };
 
@@ -29108,6 +29108,11 @@ define('shapes/SurfaceShape',[
                     sector.setToBoundingSector(polygon);
                     if (this._pathType === WorldWind.GREAT_CIRCLE) {
                         var extremes = Location.greatCircleArcExtremeLocations(polygon);
+                        //acevedo
+                        if (extremes[0] === null)
+                        {
+                          break;
+                        }
                         var minLatitude = Math.min(sector.minLatitude, extremes[0].latitude);
                         var maxLatitude = Math.max(sector.maxLatitude, extremes[1].latitude);
                         sector.minLatitude = minLatitude;
@@ -36560,7 +36565,7 @@ var qsfnz = _dereq_('../common/qsfnz');
 var msfnz = _dereq_('../common/msfnz');
 var iqsfnz = _dereq_('../common/iqsfnz');
 /*
-  reference:  
+  reference:
     "Cartographic Projection Procedures for the UNIX Environment-
     A User's Manual" by Gerald I. Evenden,
     USGS Open File Report 90-284and Release 4 Interim Reports (2003)
@@ -36872,10 +36877,10 @@ exports.forward = function(p) {
   else {
 
     // Point is in the opposing hemisphere and is unprojectable
-    // We still need to return a reasonable point, so we project 
-    // to infinity, on a bearing 
+    // We still need to return a reasonable point, so we project
+    // to infinity, on a bearing
     // equivalent to the northern hemisphere equivalent
-    // This is a reasonable approximation for short shapes and lines that 
+    // This is a reasonable approximation for short shapes and lines that
     // straddle the horizon.
 
     x = this.x0 + this.infinity_dist * cosphi * Math.sin(dlon);
@@ -52296,7 +52301,7 @@ define('formats/kml/util/Attribute',[], function () {
     };
 
     /**
-     * Value which should be set to the attribute. 
+     * Value which should be set to the attribute.
      * @param value {String}
      */
     Attribute.prototype.save = function(value) {
@@ -52441,7 +52446,7 @@ define('formats/kml/util/NodeTransformers',[
             return new Attribute(node, name).value();
         };
     };
-    
+
     return NodeTransformers;
 });
 /*
@@ -52515,7 +52520,7 @@ define('formats/kml/util/KmlElementsFactory',[
      */
     KmlElementsFactory.prototype.all = function (element) {
         var parentNode = element.node;
-        
+
         var results = [];
         var self = this;
         [].forEach.call(parentNode.childNodes, function (node) {
@@ -53809,10 +53814,10 @@ define('formats/kml/KmlObject',[
         }
         this._node = options.objectNode;
         this._cache = {};
-        
+
         this._controls = options.controls || [];
         this._factory = new KmlElementsFactoryCached({controls: this._controls});
-        
+
         this.hook(this._controls, options);
     };
 
@@ -60234,7 +60239,7 @@ function GZheader() {
                        // but leave for few code modifications
 
   //
-  // Setup limits is not necessary because in js we should not preallocate memory 
+  // Setup limits is not necessary because in js we should not preallocate memory
   // for inflate use constant limit in 65536 bytes
   //
 
@@ -64457,7 +64462,7 @@ define('formats/kml/styles/KmlListStyle',[
     '../util/NodeTransformers'
 ], function (ItemIcon,
              KmlElements,
-             KmlSubStyle, 
+             KmlSubStyle,
              NodeTransformers) {
     "use strict";
     /**
@@ -65508,7 +65513,7 @@ define('formats/kml/KmlFile',[
         this._styleResolver = new StyleResolver(this._fileCache);
         this._listener = new RefreshListener();
         this._headers = null;
-        
+
         var filePromise;
         // Load the document
         filePromise = new Promise(function (resolve) {
@@ -65663,7 +65668,7 @@ define('formats/kml/KmlLatLonAltBox',[
     './KmlObject',
     './util/NodeTransformers'
 ], function (KmlElements,
-             KmlObject, 
+             KmlObject,
              NodeTransformers) {
     "use strict";
 
@@ -65780,7 +65785,7 @@ define('formats/kml/KmlLod',[
     './KmlObject',
     './util/NodeTransformers'
 ], function (KmlElements,
-             KmlObject, 
+             KmlObject,
              NodeTransformers) {
     "use strict";
 
@@ -66956,7 +66961,7 @@ define('formats/kml/features/KmlGroundOverlay',[
                 dc.redrawRequested = true;
             }
         }
-        
+
         if(this._renderable) {
             this._renderable.render(dc);
         }
@@ -67871,7 +67876,7 @@ define('formats/kml/KmlLocation',[
     './util/NodeTransformers'
 ], function (
     KmlElements,
-    KmlObject, 
+    KmlObject,
     NodeTransformers
 ) {
     "use strict";
@@ -68558,7 +68563,7 @@ define('formats/kml/geom/KmlPoint',[
             }
         }
     });
-    
+
     /**
      * @inheritDoc
      */
@@ -68898,7 +68903,7 @@ define('formats/kml/features/KmlPlacemark',[
                 dc.redrawRequested = true;
             }
         }
-        
+
         if(this._renderable) {
             if (this.kmlGeometry) {
                 this.kmlGeometry.render(dc, kmlOptions);
@@ -79874,7 +79879,7 @@ define('ogc/wms/WmsCapabilities',[
 
         WmsCapabilities.prototype.accumulateNamedLayers = function (startLayers, namedLayersArray) {
             var namedLayers = namedLayersArray || [];
-            
+
             if (!startLayers) {
                 return namedLayers;
             }
@@ -79893,7 +79898,7 @@ define('ogc/wms/WmsCapabilities',[
         };
 
         /**
-         * Searches for a named layer matching the provided name and returns the WmsLayerCapabilities object representing 
+         * Searches for a named layer matching the provided name and returns the WmsLayerCapabilities object representing
          * the named layer.
          * @param {String} name the layer name to find
          * @returns {WmsLayerCapabilities} if a matching named layer is found or null

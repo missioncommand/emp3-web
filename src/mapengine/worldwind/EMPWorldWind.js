@@ -355,6 +355,11 @@ EMPWorldWind.Map.prototype = function() {
               wwFeature = this.features[rendererItem.id],
               shapes = [],
               data = rendererItem.geojson;
+              var testFornan = JSON.stringify(data);
+              if (testFornan.indexOf("NaN")>-1)
+              {
+                window.console.error(testFornan);
+              }
 
             emp.util.each(data.features, function(componentFeature) {
               var lineCount;
@@ -459,7 +464,7 @@ EMPWorldWind.Map.prototype = function() {
       // Initialize sec worker
       _initializeWebWorkers();
 
-      this.throttleAddMultiPointRedraws = EMPWorldWind.utils.MultiPointRateLimit(EMPWorldWind.editors.EditorController.redrawMilStdSymbols, 1);
+      this.throttleAddMultiPointRedraws = EMPWorldWind.utils.MultiPointRateLimit(EMPWorldWind.editors.EditorController.redrawMilStdSymbols, 200);
     },
     /**
      *
