@@ -328,7 +328,7 @@ EMPWorldWind.editors.EditorController = (function() {
      * @param {emp.typeLibrary.Feature[]} features
      */
     redrawMilStdSymbols: function(features) {
-      window.console.debug('updating', features);
+      //window.console.debug('updating', features);
       EMPWorldWind.editors.primitiveBuilders.constructMultiPointMilStdFeatures.call(this, features);
     }
   };
