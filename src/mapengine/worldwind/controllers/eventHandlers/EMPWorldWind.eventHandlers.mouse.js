@@ -199,6 +199,9 @@ EMPWorldWind.eventHandlers.mouse = (function() {
         }
       }.bind(this);
 
+      // Check if we prevent default
+      _checkForPreventDefault();
+
       // Some browsers pass mouse and pointer events events separately, only handle the first one through
       if (_isDuplicateEvent(event, this.state.lastInteractionEvent)) {
         return;
@@ -206,8 +209,6 @@ EMPWorldWind.eventHandlers.mouse = (function() {
         this.state.lastInteractionEvent = event;
       }
 
-      // Check if we prevent default
-      _checkForPreventDefault();
 
       // If we are in a smartMotion state handle it
       if (this.state.lockState === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
