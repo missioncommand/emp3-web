@@ -109,6 +109,8 @@ class CreateEllipseTest extends Component {
     const overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
     try {
       const ellipse = this.createEllipse(true);
+      if (ellipse)
+      {
       overlay.addFeatures({
         features: [ellipse],
         onSuccess: () => {
@@ -120,6 +122,7 @@ class CreateEllipseTest extends Component {
           toastr.error('Ellipse Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createEllipseAddToOverlay:Critical');
       toastr.error(err.message, 'Ellipse Add To Overlay: Critical');

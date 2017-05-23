@@ -99,6 +99,8 @@ class CreatePointTest extends Component {
 
     try {
       const point = this.createPoint(true);
+      if (point)
+      {
       overlay.addFeature({
         feature: point,
         onSuccess: () => {
@@ -110,6 +112,7 @@ class CreatePointTest extends Component {
           toastr.error('Failed to add Point to overlay');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createPointAddToOverlay:Critical');
       toastr.error(err.message, 'Create Point Add To Overlay: Critical');

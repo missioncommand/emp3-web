@@ -116,6 +116,8 @@ class CreateGeoJSONTest extends Component {
 
     try {
       const GeoJSONFeature = this.createGeoJSON(true);
+      if (GeoJSONFeature)
+      {
       overlay.addFeatures({
         features: [GeoJSONFeature],
         onSuccess: () => {
@@ -127,6 +129,7 @@ class CreateGeoJSONTest extends Component {
           toastr.error('GeoJSON Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createGeoJSONAddToOverlay:Critical');
       toastr.error(err.message, 'createGeoJSONAddToOverlay: Critical');

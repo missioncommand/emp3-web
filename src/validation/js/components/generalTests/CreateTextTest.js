@@ -105,6 +105,8 @@ class CreateTextTest extends Component {
 
     try {
       const text = this.createText(true);
+      if (text)
+      {
       overlay.addFeatures({
         features: [text],
         onSuccess: () => {
@@ -116,6 +118,7 @@ class CreateTextTest extends Component {
           toastr.error('Text Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createTextAddToOverlay: Critical');
       toastr.error(err.message, 'Create Text Add To Overlay: Critical');

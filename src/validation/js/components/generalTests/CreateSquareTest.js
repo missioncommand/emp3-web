@@ -106,6 +106,8 @@ class CreateSquareTest extends Component {
     const overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
     try {
       const square = this.createSquareFeature(true);
+      if (rectangle)
+      {
       overlay.addFeatures({
         features: [square],
         onSuccess: () => {
@@ -117,6 +119,7 @@ class CreateSquareTest extends Component {
           toastr.error('Square Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createSquareAddToOverlay:Critical');
       toastr.error(err.message, 'Square Add To Overlay: Critical');

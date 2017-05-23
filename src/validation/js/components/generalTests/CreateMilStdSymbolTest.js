@@ -518,6 +518,8 @@ class CreateMilStdSymbolTest extends Component {
 
     try {
       const symbol = this.createMilStdSymbol(true);
+      if (symbol)
+      {
       overlay.addFeatures({
         features: [symbol],
         onSuccess: (args) => {
@@ -529,6 +531,7 @@ class CreateMilStdSymbolTest extends Component {
           toastr.error(JSON.stringify(err), 'Create MilStd Symbol Add To Overlay');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createPolygonAddToOverlay:Critical');
       toastr.error(err.message, 'Create MilStd Symbol Add To Overlay:Critical');

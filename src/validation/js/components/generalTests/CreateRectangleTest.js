@@ -109,6 +109,8 @@ class CreateRectangleTest extends Component {
     const overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
     try {
       const rectangle = this.createRectangleFeature();
+      if (rectangle)
+      {
       overlay.addFeatures({
         features: [rectangle],
         onSuccess: () => {
@@ -120,6 +122,7 @@ class CreateRectangleTest extends Component {
           toastr.error('Rectangle Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createRectangleAddToOverlay:Critical');
       toastr.error(err.message, 'Create Rectangle Add To Overlay: Critical');

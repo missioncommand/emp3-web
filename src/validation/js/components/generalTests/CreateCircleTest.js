@@ -125,6 +125,8 @@ class CreateCircleTest extends Component {
     const overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
     try {
       const circle = this.createCircle(true);
+      if (circle)
+      {
       overlay.addFeatures({
         features: [circle],
         onSuccess: () => {
@@ -136,6 +138,7 @@ class CreateCircleTest extends Component {
           toastr.error('Circle Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createCircleAddToOverlay:Critical');
       toastr.error(err.message, 'Circle Add To Overlay: Critical');

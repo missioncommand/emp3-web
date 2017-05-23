@@ -114,6 +114,8 @@ class CreateKMLTest extends Component {
 
     try {
       const KMLFeature = this.createKML(true);
+      if (KMLFeature)
+      {
       overlay.addFeatures({
         features: [KMLFeature],
         onSuccess: () => {
@@ -125,6 +127,7 @@ class CreateKMLTest extends Component {
           toastr.error('KML Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createKMLAddToOverlay:Critical');
       toastr.error(err.message, 'createKMLAddToOverlay: Critical');

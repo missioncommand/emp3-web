@@ -92,6 +92,8 @@ class CreatePathTest extends Component {
 
     try {
       const path = this.createPath(true);
+      if (path)
+      {
       overlay.addFeatures({
         features: [path],
         onSuccess: () => {
@@ -103,6 +105,7 @@ class CreatePathTest extends Component {
           toastr.error(err.errorMessage, 'Failed to add Path to Overlay');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createPathAddToOverlay:Critical');
       toastr.error(err.message, 'Create Path Add To Overlay:Critical');
