@@ -488,7 +488,7 @@ class CreateMilStdSymbolTest extends Component {
 
     let symbol;
     try {
-      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      if ( !_.find(this.props.features, {geoId: args.geoId}))
       { // create only when feature not found in core
       symbol = new emp3.api.MilStdSymbol(args);
       if (!silent) {

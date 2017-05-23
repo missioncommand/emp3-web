@@ -215,8 +215,24 @@ EMPWorldWind.eventHandlers.mouse = (function() {
         _handleSmartMotion();
       }
 
-      // Update EMP (throttled)
-      _notifyEMPPointing.call(this, event);
+      if (this.state.lockState === emp3.api.enums.MapMotionLockEnum.NO_PAN) {
+        // assuming in freehand mode. No throttling for smooth lines.
+        // A better way to detect freehand mode is by checking for the presence of a
+        // freehandX feature identifier like it was done in Cesium, but there is no access to the features array from this handler.
+        // TODO - allow access to the festaures array in this handler.
+        var coords = EMPWorldWind.utils.getEventCoordinates.call(this, event);
+        coords.type = emp.typeLibrary.Pointer.EventType.MOVE;
+
+        if (coords.lat !== undefined) {
+          this.empMapInstance.eventing.Pointer(coords);
+        }
+      }
+      else
+      {
+        // Update EMP (throttled)
+        _notifyEMPPointing.call(this, event);
+      }
+
 
       // If right or left mouse or both notify the view must have changed
       if (event.buttons !== 0 && event.buttons < 3) {

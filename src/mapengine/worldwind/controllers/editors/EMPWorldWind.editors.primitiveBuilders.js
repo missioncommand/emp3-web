@@ -699,19 +699,30 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       positions = positions.trim();
       modifiers[armyc2.c2sd.renderer.utilities.MilStdAttributes.GeoJSONFormat] = 1; // 0 for string geojson, 1 for object geojson
 
-      batchObject.id = feature.coreId;
-      batchObject.name = feature.name;
-      batchObject.description = unescape(feature.description);
-      batchObject.symbolID = feature.symbolCode;
-      batchObject.scale = scale; //scale;
-      batchObject.bbox = data.bbox;
-      batchObject.modifiers = modifiers;
-      batchObject.format = EMPWorldWind.constants.MultiPointRenderType.GEOJSON;
-      batchObject.symstd = 1; //TODO remove this hard coding of symstd    1;//1=2525C, 0=2525Bch2
-      batchObject.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
-      batchObject.altMode = WorldWind.CLAMP_TO_GROUND;
-      batchObject.points = positions;
-      data.batch.push(batchObject);
+
+      var basicSymbolId = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(feature.symbolCode);
+      var symbolDefTable = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(basicSymbolId, 1);
+
+      // minimum points has to be met for this symbol. Don't bother calling the worker for this feature.
+      // while we can skip invalid features, the feature is already render on the map with zero shapes.
+      // zero shapes means nothing is visible on the map. The API tester or cor  shoukd do the vaidation before
+      // sending invalid data to the engines.
+      if (featureCoords.length/2 >= symbolDefTable.minPoints )
+      {
+        batchObject.id = feature.coreId;
+        batchObject.name = feature.name;
+        batchObject.description = unescape(feature.description);
+        batchObject.symbolID = feature.symbolCode;
+        batchObject.scale = scale; //scale;
+        batchObject.bbox = data.bbox;
+        batchObject.modifiers = modifiers;
+        batchObject.format = EMPWorldWind.constants.MultiPointRenderType.GEOJSON;
+        batchObject.symstd = 1; //TODO remove this hard coding of symstd    1;//1=2525C, 0=2525Bch2
+        batchObject.fontInfo = EMPWorldWind.utils.getFontInfo("arial", 10, "bold");
+        batchObject.altMode = WorldWind.CLAMP_TO_GROUND;
+        batchObject.points = positions;
+        data.batch.push(batchObject);
+      }
 
     }.bind(this));
 
