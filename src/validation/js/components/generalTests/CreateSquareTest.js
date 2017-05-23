@@ -106,7 +106,7 @@ class CreateSquareTest extends Component {
     const overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
     try {
       const square = this.createSquareFeature(true);
-      if (rectangle)
+      if (square)
       {
       overlay.addFeatures({
         features: [square],
