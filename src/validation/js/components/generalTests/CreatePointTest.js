@@ -64,12 +64,15 @@ class CreatePointTest extends Component {
 
     // Try creating the point, log it if we have success or failure
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       point = new emp3.api.Point(args);
       addFeature(point);
       addResult(args, 'createPoint');
       if (!silent) {
         toastr.success('Point Created Successfully');
       }
+    }
     } catch (err) {
       addError(err, 'createPoint');
       if (!silent) {

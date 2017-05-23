@@ -488,12 +488,15 @@ class CreateMilStdSymbolTest extends Component {
 
     let symbol;
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       symbol = new emp3.api.MilStdSymbol(args);
       if (!silent) {
         toastr.success('Symbol Created Successfully');
       }
       addResult(args, 'createMilStdSymbol');
       addFeature(symbol);
+    }
     } catch (err) {
       addError(err.message, 'createMilStdSymbol');
       if (!silent) {

@@ -84,12 +84,15 @@ class CreateKMLTest extends Component {
     args.properties = {...this.state.featureProps};
 
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       KMLFeature = new emp3.api.KML(args);
       addResult(args, 'createKML');
       addFeature(KMLFeature);
       if (!silent) {
         toastr.success('KMLFeature created successfully', 'createKML');
       }
+    }
     } catch (err) {
       addError(err.message, 'createKML');
       if (!silent) {

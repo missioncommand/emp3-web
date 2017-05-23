@@ -81,12 +81,15 @@ class CreateRectangleTest extends Component {
 
     let rectangle;
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       rectangle = new emp3.api.Rectangle(args);
       addResult(args, 'createRectangle');
       addFeature(rectangle);
       if (!silent) {
         toastr.success('Create Rectangle Success');
       }
+    }
     } catch (err) {
       addError(err, 'createRectangle');
       if (!silent) {

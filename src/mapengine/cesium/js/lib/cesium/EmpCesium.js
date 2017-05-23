@@ -8762,7 +8762,7 @@ function EmpCesium() {
           //entity.polyline.material.outlineColor = EmpCesiumConstants.selectionProperties.COLOR;
           entity.polyline.material.outlineWidth = EmpCesiumConstants.selectionProperties.WIDTH;
         }
-        else if (args.data.properties.strokeStyle || args.data.properties.strokeStyle.strokeColor) {
+        else if (args.data.properties.strokeStyle && args.data.properties.strokeStyle.strokeColor) {
           rgbaLineColor = args.data.properties.strokeStyle.strokeColor;
           //rgbaLineColor = cesiumEngine.utils.hexToRGB(args.data.properties.lineColor);
           entity.polyline.material.color = new this.Color(rgbaLineColor.red, rgbaLineColor.green, rgbaLineColor.blue, rgbaLineColor.alpha);
@@ -8778,7 +8778,7 @@ function EmpCesium() {
         } else if (!this.defined(entity.polyline.material.color)) {
           entity.polyline.material.color = EmpCesiumConstants.propertyDefaults.LINE_COLOR;
         }
-       if (args.data.properties.strokeStyle || args.data.properties.strokeStyle.strokeWidth) {
+       if (args.data.properties.strokeStyle && args.data.properties.strokeStyle.strokeWidth) {
           entity.polyline.width = parseInt(args.data.properties.strokeStyle.strokeWidth);
         }
         else if ((args.data.properties.lineWidth && !isNaN(args.data.properties.lineWidth)) || !entity.polyline.width) {

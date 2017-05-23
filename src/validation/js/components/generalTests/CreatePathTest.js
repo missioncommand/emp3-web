@@ -62,12 +62,15 @@ class CreatePathTest extends Component {
     args.positions = convertPositionStringToGeoPositions(this.state.feature.positions);
 
     try {
+    if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+    { // create only when feature not found in core
       path = new emp3.api.Path(args);
       addFeature(path);
       addResult(args, 'createPath');
       if (!silent) {
         toastr.success('Path Created Successfully');
       }
+    }
     } catch (err) {
       addError(err.message, 'createPath');
       if (!silent) {

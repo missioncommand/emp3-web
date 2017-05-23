@@ -86,12 +86,15 @@ class CreateGeoJSONTest extends Component {
     args.properties = {...this.state.featureProps};
 
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       GeoJSONFeature = new emp3.api.GeoJSON(args);
       addResult(args, 'createGeoJSON');
       addFeature(GeoJSONFeature);
       if (!silent) {
         toastr.success('GeoJSONFeature created successfully', 'createGeoJSON');
       }
+    }
     } catch (err) {
       addError(err.message, 'createGeoJSON');
       if (!silent) {
