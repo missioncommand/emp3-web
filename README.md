@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/missioncommand/emp3-web.png?label=ready&title=Ready)](https://waffle.io/missioncommand/emp3-web?utm_source=badge)
 Extensible Map Platform 3 (EMP3) - Web SDK
 ===========
 | Branch | Build Status |
