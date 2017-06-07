@@ -1062,15 +1062,18 @@ define('util/Color',[
 
         Color.colorFromHex = function(color) {
             var red = parseInt(color.substring(0, 2), 16);
-            var green = parseInt(color.substring(2,4), 16);
-            var blue = parseInt(color.substring(4,6), 16);
-            var alpha = parseInt(color.substring(6,8), 16);
+            var green = parseInt(color.substring(2, 4), 16);
+            var blue = parseInt(color.substring(4, 6), 16);
+            var alpha = parseInt(color.substring(6, 8), 16);
             return Color.colorFromBytes(red, green, blue, alpha);
         };
 
         Color.colorFromKmlHex = function(color) {
-            color = color.split("").reverse().join("");
-            return Color.colorFromHex(color);
+            var alpha = parseInt(color.substring(0, 2), 16);
+            var blue = parseInt(color.substring(2, 4), 16);
+            var green = parseInt(color.substring(4, 6), 16);
+            var red = parseInt(color.substring(6, 8), 16);
+            return Color.colorFromBytes(red, green, blue, alpha);
         };
 
         /**
@@ -1186,6 +1189,7 @@ define('util/Color',[
 
         return Color;
     });
+
 /*
  * Copyright (C) 2014 United States Government as represented by the Administrator of the
  * National Aeronautics and Space Administration. All Rights Reserved.
@@ -4912,6 +4916,20 @@ define('util/WWMath',[
             powerOfTwoFloor: function (value) {
                 var power = Math.floor(Math.log(value) / Math.log(2));
                 return Math.pow(2, power);
+            },
+
+            /**
+             * Restricts an angle to the range [0, 360] degrees, wrapping angles outside the range.
+             * Wrapping takes place as though traversing the edge of a unit circle;
+             * angles less than 0 wrap back to 360, while angles greater than 360 wrap back to 0.
+             *
+             * @param {Number} degrees the angle to wrap in degrees
+             *
+             * @return {Number} the specified angle wrapped to [0, 360] degrees
+             */
+            normalizeAngle360: function(degrees) {
+                var angle = degrees % 360;
+                return angle >= 0 ? angle : (angle < 0 ? 360 + angle : 360 - angle);
             }
         };
 
@@ -11006,6 +11024,34 @@ define('util/WWUtil',[
              */
             date: function(item) {
                 return new Date(item);
+            },
+
+            /**
+             * Determines whether subjectString begins with the characters of searchString.
+             * @param {String} subjectString The string to analyse.
+             * @param {String} searchString The characters to be searched for at the start of subjectString.
+             * @param {Number} position The position in subjectString at which to begin searching for searchString; defaults to 0.
+             * @return {Boolean} true if the given characters are found at the beginning of the string; otherwise, false.
+             */
+            startsWith: function(subjectString, searchString, position) {
+                position = position || 0;
+                return subjectString.substr(position, searchString.length) === searchString;
+            },
+
+            /**
+             * Determines whether subjectString ends with the characters of searchString.
+             * @param {String} subjectString The string to analyse.
+             * @param {String} searchString The characters to be searched for at the end of subjectString.
+             * @param {Number} length Optional. If provided overwrites the considered length of the string to search in. If omitted, the default value is the length of the string.
+             * @return {Boolean} true if the given characters are found at the end of the string; otherwise, false.
+             */
+            endsWith: function(subjectString, searchString, length) {
+                if (typeof length !== 'number' || !isFinite(length) || Math.floor(length) !== length || length > subjectString.length) {
+                    length = subjectString.length;
+                }
+                length -= searchString.length;
+                var lastIndex = subjectString.lastIndexOf(searchString, length);
+                return lastIndex !== -1 && lastIndex === length;
             }
         };
 
@@ -14852,7 +14898,7 @@ define('util/BingImageryUrlBuilder',[
             if (!this.metadataRetrievalInProcess) {
                 this.metadataRetrievalInProcess = true;
 
-                var url = "https://dev.virtualearth.net/REST/V1/Imagery/Metadata/" + this.imagerySet + "/0,0?zl=1&key="
+                var url = "https://dev.virtualearth.net/REST/V1/Imagery/Metadata/" + this.imagerySet + "/0,0?zl=1&uriScheme=https&key="
                     + this.bingMapsKey;
 
                 // Use JSONP to request the metadata. Can't use XmlHTTPRequest because the virtual earth server doesn't
@@ -15281,6 +15327,458 @@ define('layer/BingWMSLayer',[
         BingWMSLayer.prototype = Object.create(TiledImageLayer.prototype);
 
         return BingWMSLayer;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports BMNGLandsatLayer
+ * @version $Id: BMNGLandsatLayer.js 3403 2015-08-15 02:00:01Z tgaskins $
+ */
+define('layer/BMNGLandsatLayer',[
+        '../geom/Location',
+        '../geom/Sector',
+        '../layer/TiledImageLayer',
+        '../util/WmsUrlBuilder'
+    ],
+    function (Location,
+              Sector,
+              TiledImageLayer,
+              WmsUrlBuilder) {
+        "use strict";
+
+        /**
+         * Constructs a combined Blue Marble and Landsat image layer.
+         * @alias BMNGLandsatLayer
+         * @constructor
+         * @augments TiledImageLayer
+         * @classdesc Displays a combined Blue Marble and Landsat image layer that spans the entire globe.
+         */
+        var BMNGLandsatLayer = function () {
+            TiledImageLayer.call(this,
+                Sector.FULL_SPHERE, new Location(45, 45), 10, "image/jpeg", "BMNGLandsat256", 256, 256);
+
+            this.displayName = "Blue Marble & Landsat";
+            this.pickEnabled = false;
+
+            this.urlBuilder = new WmsUrlBuilder("https://worldwind25.arc.nasa.gov/wms",
+                "BlueMarble-200405,esat", "", "1.3.0");
+        };
+
+        BMNGLandsatLayer.prototype = Object.create(TiledImageLayer.prototype);
+
+        return BMNGLandsatLayer;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports BMNGLayer
+ * @version $Id: BMNGLayer.js 3403 2015-08-15 02:00:01Z tgaskins $
+ */
+define('layer/BMNGLayer',[
+        '../geom/Location',
+        '../geom/Sector',
+        '../layer/TiledImageLayer',
+        '../util/WmsUrlBuilder'
+    ],
+    function (Location,
+              Sector,
+              TiledImageLayer,
+              WmsUrlBuilder) {
+        "use strict";
+
+        /**
+         * Constructs a Blue Marble image layer.
+         * @alias BMNGLayer
+         * @constructor
+         * @augments TiledImageLayer
+         * @classdesc Displays a Blue Marble image layer that spans the entire globe.
+         * @param {String} layerName The name of the layer to display, in the form "BlueMarble-200401"
+         * "BlueMarble-200402", ... "BlueMarble-200412". "BlueMarble-200405" is used if the argument is null
+         * or undefined.
+         */
+        var BMNGLayer = function (layerName) {
+            TiledImageLayer.call(this,
+                Sector.FULL_SPHERE, new Location(45, 45), 5, "image/jpeg", layerName || "BMNG256", 256, 256);
+
+            this.displayName = "Blue Marble";
+            this.pickEnabled = false;
+
+            this.urlBuilder = new WmsUrlBuilder("https://worldwind25.arc.nasa.gov/wms",
+                layerName || "BlueMarble-200405", "", "1.3.0");
+        };
+
+        BMNGLayer.prototype = Object.create(TiledImageLayer.prototype);
+
+        return BMNGLayer;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports RenderableLayer
+ * @version $Id: RenderableLayer.js 3334 2015-07-22 19:15:43Z tgaskins $
+ */
+define('layer/RenderableLayer',[
+        '../error/ArgumentError',
+        '../layer/Layer',
+        '../util/Logger'
+    ],
+    function (ArgumentError,
+              Layer,
+              Logger) {
+        "use strict";
+
+        /**
+         * Constructs a layer that contains shapes and other renderables.
+         * @alias RenderableLayer
+         * @constructor
+         * @augments Layer
+         * @classdesc Provides a layer that contains shapes and other renderables.
+         * @param {String} displayName This layer's display name.
+         */
+        var RenderableLayer = function (displayName) {
+            Layer.call(this, displayName);
+
+            /**
+             * The array of renderables;
+             * @type {Array}
+             * @readonly
+             */
+            this.renderables = [];
+        };
+
+        RenderableLayer.prototype = Object.create(Layer.prototype);
+
+        /**
+         * Adds a renderable to this layer.
+         * @param {Renderable} renderable The renderable to add.
+         * @throws {ArgumentError} If the specified renderable is null or undefined.
+         */
+        RenderableLayer.prototype.addRenderable = function (renderable) {
+            if (!renderable) {
+                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "RenderableLayer", "addRenderable",
+                    "missingRenderable"));
+            }
+
+            this.renderables.push(renderable);
+        };
+
+        /**
+         * Adds an array of renderables to this layer.
+         * @param {Renderable[]} renderables The renderables to add.
+         * @throws {ArgumentError} If the specified renderables array is null or undefined.
+         */
+        RenderableLayer.prototype.addRenderables = function (renderables) {
+            if (!renderables) {
+                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "RenderableLayer", "addRenderables",
+                    "The renderables array is null or undefined."));
+            }
+
+            for (var i = 0, len = renderables.length; i < len; i++) {
+                this.addRenderable(renderables[i]);
+            }
+        };
+
+        /**
+         * Removes a renderable from this layer.
+         * @param {Renderable} renderable The renderable to remove.
+         */
+        RenderableLayer.prototype.removeRenderable = function (renderable) {
+            var index = this.renderables.indexOf(renderable);
+            if (index >= 0) {
+                this.renderables.splice(index, 1);
+            }
+        };
+
+        /**
+         * Removes all renderables from this layer. Does not call dispose on those renderables.
+         */
+        RenderableLayer.prototype.removeAllRenderables = function () {
+            this.renderables = [];
+        };
+
+        // Documented in superclass.
+        RenderableLayer.prototype.doRender = function (dc) {
+            var numOrderedRenderablesAtStart = dc.orderedRenderables.length;
+
+            for (var i = 0, len = this.renderables.length; i < len; i++) {
+                try {
+                    this.renderables[i].render(dc);
+                } catch (e) {
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "RenderableLayer", "doRender",
+                        "Error while rendering shape " + this.renderables[i].displayName + ".\n" + e.toString());
+                    // Keep going. Render the rest of the shapes.
+                }
+            }
+
+            if (dc.orderedRenderables.length > numOrderedRenderablesAtStart) {
+                this.inCurrentFrame = true;
+            }
+        };
+
+        return RenderableLayer;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports SurfaceTile
+ * @version $Id: SurfaceTile.js 2941 2015-03-30 21:11:43Z tgaskins $
+ */
+define('render/SurfaceTile',[
+        '../error/ArgumentError',
+        '../util/Logger',
+        '../geom/Matrix',
+        '../geom/Sector',
+        '../error/UnsupportedOperationError'
+    ],
+    function (ArgumentError,
+              Logger,
+              Matrix,
+              Sector,
+              UnsupportedOperationError) {
+        "use strict";
+
+        /**
+         * Constructs a surface tile for a specified sector.
+         * @alias SurfaceTile
+         * @constructor
+         * @classdesc Defines an abstract base class for imagery to be rendered on terrain. Applications typically
+         * do not interact with this class.
+         * @param {Sector} sector The sector of this surface tile.
+         * @throws {ArgumentError} If the specified sector is null or undefined.
+         */
+        var SurfaceTile = function (sector) {
+            if (!sector) {
+                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceTile", "constructor",
+                    "missingSector"));
+            }
+
+            /**
+             * The sector spanned by this surface tile.
+             * @type {Sector}
+             */
+            this.sector = sector;
+        };
+
+        /**
+         * Causes this surface tile to be active, typically by binding the tile's texture in WebGL.
+         * Subclasses must override this function.
+         * @param {DrawContext} dc The current draw context.
+         * @returns {Boolean} true if the resource was successfully bound, otherwise false.
+         */
+        SurfaceTile.prototype.bind = function (dc) {
+            throw new UnsupportedOperationError(
+                Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceTile", "bind", "abstractInvocation"));
+        };
+
+        /**
+         * Applies this surface tile's internal transform, typically a texture transform to align the associated
+         * resource with the terrain.
+         * Subclasses must override this function.
+         * @param {DrawContext} dc The current draw context.
+         * @param {Matrix} matrix The transform to apply.
+         */
+        SurfaceTile.prototype.applyInternalTransform = function (dc, matrix) {
+            throw new UnsupportedOperationError(
+                Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceTile", "applyInternalTransform", "abstractInvocation"));
+        };
+
+        return SurfaceTile;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports SurfaceImage
+ * @version $Id: SurfaceImage.js 3023 2015-04-15 20:24:17Z tgaskins $
+ */
+define('shapes/SurfaceImage',[
+        '../error/ArgumentError',
+        '../util/Logger',
+        '../pick/PickedObject',
+        '../render/SurfaceTile'
+    ],
+    function (ArgumentError,
+              Logger,
+              PickedObject,
+              SurfaceTile) {
+        "use strict";
+
+        /**
+         * Constructs a surface image shape for a specified sector and image path.
+         * @alias SurfaceImage
+         * @constructor
+         * @augments SurfaceTile
+         * @classdesc Represents an image drawn on the terrain.
+         * @param {Sector} sector The sector spanned by this surface image.
+         * @param {String|ImageSource} imageSource The image source of the image to draw on the terrain.
+         * May be either a string identifying the URL of the image, or an {@link ImageSource} object identifying a
+         * dynamically created image.
+         * @throws {ArgumentError} If either the specified sector or image source is null or undefined.
+         */
+        var SurfaceImage = function (sector, imageSource) {
+            if (!sector) {
+                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceImage", "constructor",
+                    "missingSector"));
+            }
+
+            if (!imageSource) {
+                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceImage", "constructor",
+                    "missingImage"));
+            }
+
+            SurfaceTile.call(this, sector);
+
+            /**
+             * Indicates whether this surface image is drawn.
+             * @type {boolean}
+             * @default true
+             */
+            this.enabled = true;
+
+            /**
+             * The path to the image.
+             * @type {String}
+             */
+            this._imageSource = imageSource;
+
+            /**
+             * This surface image's opacity. When this surface image is drawn, the actual opacity is the product of
+             * this opacity and the opacity of the layer containing this surface image.
+             * @type {number}
+             */
+            this.opacity = 1;
+
+            /**
+             * This surface image's display name;
+             * @type {string}
+             */
+            this.displayName = "Surface Image";
+
+            // Internal. Indicates whether the image needs to be updated in the GPU resource cache.
+            this.imageSourceWasUpdated = true;
+        };
+
+        SurfaceImage.prototype = Object.create(SurfaceTile.prototype);
+
+        Object.defineProperties(SurfaceImage.prototype, {
+            /**
+             * The source of the image to display.
+             * May be either a string identifying the URL of the image, or an {@link ImageSource} object identifying a
+             * dynamically created image.
+             * @type {String|ImageSource}
+             * @default null
+             * @memberof SurfaceImage.prototype
+             */
+            imageSource: {
+                get: function () {
+                    return this._imageSource;
+                },
+                set: function (imageSource) {
+                    if (!imageSource) {
+                        throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceImage", "imageSource",
+                            "missingImage"));
+                    }
+
+                    this._imageSource = imageSource;
+                    this.imageSourceWasUpdated = true;
+                }
+            }
+        });
+
+        SurfaceImage.prototype.bind = function (dc) {
+            var texture = dc.gpuResourceCache.resourceForKey(this._imageSource);
+            if (texture && !this.imageSourceWasUpdated) {
+                return texture.bind(dc);
+            } else {
+                texture = dc.gpuResourceCache.retrieveTexture(dc.currentGlContext, this._imageSource);
+                this.imageSourceWasUpdated = false;
+                if (texture) {
+                    return texture.bind(dc);
+                }
+            }
+        };
+
+        SurfaceImage.prototype.applyInternalTransform = function (dc, matrix) {
+            // No need to apply the transform.
+        };
+
+        /**
+         * Displays this surface image. Called by the layer containing this surface image.
+         * @param {DrawContext} dc The current draw context.
+         */
+        SurfaceImage.prototype.render = function (dc) {
+            if (!this.enabled || !this.sector.overlaps(dc.terrain.sector)) {
+                return;
+            }
+
+            if (dc.pickingMode) {
+                this.pickColor = dc.uniquePickColor();
+            }
+
+            dc.surfaceTileRenderer.renderTiles(dc, [this], this.opacity * dc.currentLayer.opacity);
+
+            if (dc.pickingMode) {
+                var po = new PickedObject(this.pickColor.clone(), this.pickDelegate ? this.pickDelegate : this,
+                    null, this.layer, false);
+                dc.resolvePick(po);
+            }
+
+            dc.currentLayer.inCurrentFrame = true;
+        };
+
+        return SurfaceImage;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports BMNGOneImageLayer
+ * @version $Id: BMNGOneImageLayer.js 2942 2015-03-30 21:16:36Z tgaskins $
+ */
+define('layer/BMNGOneImageLayer',[
+        '../layer/RenderableLayer',
+        '../geom/Sector',
+        '../shapes/SurfaceImage',
+        '../util/WWUtil'
+    ],
+    function (RenderableLayer,
+              Sector,
+              SurfaceImage,
+              WWUtil) {
+        "use strict";
+
+        /**
+         * Constructs a Blue Marble image layer that spans the entire globe.
+         * @alias BMNGOneImageLayer
+         * @constructor
+         * @augments RenderableLayer
+         * @classdesc Displays a Blue Marble image layer that spans the entire globe with a single image.
+         */
+        var BMNGOneImageLayer = function () {
+            RenderableLayer.call(this, "Blue Marble Image");
+
+            var surfaceImage = new SurfaceImage(Sector.FULL_SPHERE,
+                WorldWind.configuration.baseUrl + "images/BMNG_world.topo.bathy.200405.3.2048x1024.jpg");
+
+            this.addRenderable(surfaceImage);
+
+            this.pickEnabled = false;
+            this.minActiveAltitude = 3e6;
+        };
+
+        BMNGOneImageLayer.prototype = Object.create(RenderableLayer.prototype);
+
+        return BMNGOneImageLayer;
     });
 /*
  * Copyright (C) 2014 United States Government as represented by the Administrator of the
@@ -15758,9 +16256,9 @@ define('layer/RestTiledImageLayer',[
  * National Aeronautics and Space Administration. All Rights Reserved.
  */
 /**
- * @exports BlueMarbleLayer
+ * @exports BMNGRestLayer
  */
-define('layer/BlueMarbleLayer',[
+define('layer/BMNGRestLayer',[
         '../error/ArgumentError',
         '../layer/Layer',
         '../util/Logger',
@@ -15776,22 +16274,25 @@ define('layer/BlueMarbleLayer',[
 
         /**
          * Constructs a Blue Marble layer.
-         * @alias BlueMarbleLayer
+         * @alias BMNGRestLayer
          * @constructor
          * @augments Layer
          * @classdesc Represents the 12 month collection of Blue Marble Next Generation imagery for the year 2004.
          * By default the month of January is displayed, but this can be changed by setting this class' time
          * property to indicate the month to display.
+         * @param {String} serverAddress The server address of the tile service. May be null, in which case the
+         * current origin is used (see window.location).
+         * @param {String} pathToData The path to the data directory relative to the specified server address.
+         * May be null, in which case the server address is assumed to be the full path to the data directory.
          * @param {String} displayName The display name to assign this layer. Defaults to "Blue Marble" if null or
          * undefined.
          * @param {Date} initialTime A date value indicating the month to display. The nearest month to the specified
          * time is displayed. January is displayed if this argument is null or undefined, i.e., new Date("2004-01");
-         * @param {{}} configuration An optional object with properties defining the layer configuration.
          * See {@link RestTiledImageLayer} for a description of its contents. May be null, in which case default
          * values are used.
          */
-        var BlueMarbleLayer = function (displayName, initialTime, configuration) {
-            Layer.call(this, displayName || "Blue Marble");
+        var BMNGRestLayer = function (serverAddress, pathToData, displayName, initialTime) {
+            Layer.call(this, displayName || "Blue Marble time series");
 
             /**
              * A value indicating the month to display. The nearest month to the specified time is displayed.
@@ -15800,8 +16301,6 @@ define('layer/BlueMarbleLayer',[
              */
             this.time = initialTime || new Date("2004-01");
 
-            this.configuration = configuration;
-
             this.pickEnabled = false;
 
             // Intentionally not documented.
@@ -15809,33 +16308,44 @@ define('layer/BlueMarbleLayer',[
 
             // Intentionally not documented.
             this.layerNames = [
-                {month: "BlueMarble-200401", time: BlueMarbleLayer.availableTimes[0]},
-                {month: "BlueMarble-200402", time: BlueMarbleLayer.availableTimes[1]},
-                {month: "BlueMarble-200403", time: BlueMarbleLayer.availableTimes[2]},
-                {month: "BlueMarble-200404", time: BlueMarbleLayer.availableTimes[3]},
-                {month: "BlueMarble-200405", time: BlueMarbleLayer.availableTimes[4]},
-                {month: "BlueMarble-200406", time: BlueMarbleLayer.availableTimes[5]},
-                {month: "BlueMarble-200407", time: BlueMarbleLayer.availableTimes[6]},
-                {month: "BlueMarble-200408", time: BlueMarbleLayer.availableTimes[7]},
-                {month: "BlueMarble-200409", time: BlueMarbleLayer.availableTimes[8]},
-                {month: "BlueMarble-200410", time: BlueMarbleLayer.availableTimes[9]},
-                {month: "BlueMarble-200411", time: BlueMarbleLayer.availableTimes[10]},
-                {month: "BlueMarble-200412", time: BlueMarbleLayer.availableTimes[11]}
+                {month: "BlueMarble-200401", time: BMNGRestLayer.availableTimes[0]},
+                {month: "BlueMarble-200402", time: BMNGRestLayer.availableTimes[1]},
+                {month: "BlueMarble-200403", time: BMNGRestLayer.availableTimes[2]},
+                {month: "BlueMarble-200404", time: BMNGRestLayer.availableTimes[3]},
+                {month: "BlueMarble-200405", time: BMNGRestLayer.availableTimes[4]},
+                {month: "BlueMarble-200406", time: BMNGRestLayer.availableTimes[5]},
+                {month: "BlueMarble-200407", time: BMNGRestLayer.availableTimes[6]},
+                {month: "BlueMarble-200408", time: BMNGRestLayer.availableTimes[7]},
+                {month: "BlueMarble-200409", time: BMNGRestLayer.availableTimes[8]},
+                {month: "BlueMarble-200410", time: BMNGRestLayer.availableTimes[9]},
+                {month: "BlueMarble-200411", time: BMNGRestLayer.availableTimes[10]},
+                {month: "BlueMarble-200412", time: BMNGRestLayer.availableTimes[11]}
             ];
             this.timeSequence = new PeriodicTimeSequence("2004-01-01/2004-12-01/P1M");
 
-            this.serverAddress = null;
-            this.pathToData = "../standalonedata/Earth/BlueMarble256/";
+            // By default if no server address and path are sent as parameters in the constructor,
+            // the layer's data is retrieved from http://worldwindserver.net
+            this.serverAddress = serverAddress || "http://worldwindserver.net/webworldwind/";
+            this.pathToData = pathToData || "/standalonedata/Earth/BlueMarble256/";
+
+            // Alternatively, the data can be retrieved from a local folder as follows.
+            // - Download the file located in:
+            //   http://worldwindserver.net/webworldwind/WebWorldWindStandaloneData.zip
+            // - Unzip it into the Web World Wind top-level directory so that the "standalonedata" directory is a peer
+            //   of examples, src, apps and worldwind.js.
+            // - Uncomment the following lines or call BMNGRestLayer from the application with these parameters:
+            //this.serverAddress = serverAddress || null;
+            //this.pathToData = pathToData || "../standalonedata/Earth/BlueMarble256/";
         };
 
-        BlueMarbleLayer.prototype = Object.create(Layer.prototype);
+        BMNGRestLayer.prototype = Object.create(Layer.prototype);
 
         /**
          * Indicates the available times for this layer.
          * @type {Date[]}
          * @readonly
          */
-        BlueMarbleLayer.availableTimes = [
+        BMNGRestLayer.availableTimes = [
             new Date("2004-01"),
             new Date("2004-02"),
             new Date("2004-03"),
@@ -15860,10 +16370,10 @@ define('layer/BlueMarbleLayer',[
          * @param {WorldWindow} wwd The world window for which to pre-populate this layer.
          * @throws {ArgumentError} If the specified world window is null or undefined.
          */
-        BlueMarbleLayer.prototype.prePopulate = function (wwd) {
+        BMNGRestLayer.prototype.prePopulate = function (wwd) {
             if (!wwd) {
                 throw new ArgumentError(
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "BlueMarbleLayer", "prePopulate", "missingWorldWindow"));
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "BMNGRestLayer", "prePopulate", "missingWorldWindow"));
             }
 
             for (var i = 0; i < this.layerNames.length; i++) {
@@ -15885,7 +16395,7 @@ define('layer/BlueMarbleLayer',[
          * @returns {Boolean} true if all level 0 images have been retrieved, otherwise false.
          * @throws {ArgumentError} If the specified world window is null or undefined.
          */
-        BlueMarbleLayer.prototype.isPrePopulated = function (wwd) {
+        BMNGRestLayer.prototype.isPrePopulated = function (wwd) {
             for (var i = 0; i < this.layerNames.length; i++) {
                 var layer = this.layers[this.layerNames[i].month];
                 if (!layer || !layer.isPrePopulated(wwd)) {
@@ -15896,7 +16406,7 @@ define('layer/BlueMarbleLayer',[
             return true;
         };
 
-        BlueMarbleLayer.prototype.doRender = function (dc) {
+        BMNGRestLayer.prototype.doRender = function (dc) {
             var layer = this.nearestLayer(this.time);
             layer.opacity = this.opacity;
             if (this.detailControl) {
@@ -15909,7 +16419,7 @@ define('layer/BlueMarbleLayer',[
         };
 
         // Intentionally not documented.
-        BlueMarbleLayer.prototype.nearestLayer = function (time) {
+        BMNGRestLayer.prototype.nearestLayer = function (time) {
             var nearestName = this.nearestLayerName(time);
 
             if (!this.layers[nearestName]) {
@@ -15919,14 +16429,13 @@ define('layer/BlueMarbleLayer',[
             return this.layers[nearestName];
         };
 
-        BlueMarbleLayer.prototype.createSubLayer = function (layerName) {
+        BMNGRestLayer.prototype.createSubLayer = function (layerName) {
             var dataPath = this.pathToData + layerName;
-            this.layers[layerName] = new RestTiledImageLayer(this.serverAddress, dataPath, this.displayName,
-                this.configuration);
+            this.layers[layerName] = new RestTiledImageLayer(this.serverAddress, dataPath, this.displayName);
         };
 
         // Intentionally not documented.
-        BlueMarbleLayer.prototype.nearestLayerName = function (time) {
+        BMNGRestLayer.prototype.nearestLayerName = function (time) {
             var milliseconds = time.getTime();
 
             if (milliseconds <= this.layerNames[0].time.getTime()) {
@@ -15950,459 +16459,7 @@ define('layer/BlueMarbleLayer',[
             }
         };
 
-        return BlueMarbleLayer;
-    });
-/*
- * Copyright (C) 2014 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. All Rights Reserved.
- */
-/**
- * @exports BMNGLandsatLayer
- * @version $Id: BMNGLandsatLayer.js 3403 2015-08-15 02:00:01Z tgaskins $
- */
-define('layer/BMNGLandsatLayer',[
-        '../geom/Location',
-        '../geom/Sector',
-        '../layer/TiledImageLayer',
-        '../util/WmsUrlBuilder'
-    ],
-    function (Location,
-              Sector,
-              TiledImageLayer,
-              WmsUrlBuilder) {
-        "use strict";
-
-        /**
-         * Constructs a combined Blue Marble and Landsat image layer.
-         * @alias BMNGLandsatLayer
-         * @constructor
-         * @augments TiledImageLayer
-         * @classdesc Displays a combined Blue Marble and Landsat image layer that spans the entire globe.
-         */
-        var BMNGLandsatLayer = function () {
-            TiledImageLayer.call(this,
-                Sector.FULL_SPHERE, new Location(45, 45), 10, "image/jpeg", "BMNGLandsat256", 256, 256);
-
-            this.displayName = "Blue Marble & Landsat";
-            this.pickEnabled = false;
-
-            this.urlBuilder = new WmsUrlBuilder("https://worldwind25.arc.nasa.gov/wms",
-                "BlueMarble-200405,esat", "", "1.3.0");
-        };
-
-        BMNGLandsatLayer.prototype = Object.create(TiledImageLayer.prototype);
-
-        return BMNGLandsatLayer;
-    });
-/*
- * Copyright (C) 2014 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. All Rights Reserved.
- */
-/**
- * @exports BMNGLayer
- * @version $Id: BMNGLayer.js 3403 2015-08-15 02:00:01Z tgaskins $
- */
-define('layer/BMNGLayer',[
-        '../geom/Location',
-        '../geom/Sector',
-        '../layer/TiledImageLayer',
-        '../util/WmsUrlBuilder'
-    ],
-    function (Location,
-              Sector,
-              TiledImageLayer,
-              WmsUrlBuilder) {
-        "use strict";
-
-        /**
-         * Constructs a Blue Marble image layer.
-         * @alias BMNGLayer
-         * @constructor
-         * @augments TiledImageLayer
-         * @classdesc Displays a Blue Marble image layer that spans the entire globe.
-         * @param {String} layerName The name of the layer to display, in the form "BlueMarble-200401"
-         * "BlueMarble-200402", ... "BlueMarble-200412". "BlueMarble-200405" is used if the argument is null
-         * or undefined.
-         */
-        var BMNGLayer = function (layerName) {
-            TiledImageLayer.call(this,
-                Sector.FULL_SPHERE, new Location(45, 45), 5, "image/jpeg", layerName || "BMNG256", 256, 256);
-
-            this.displayName = "Blue Marble";
-            this.pickEnabled = false;
-
-            this.urlBuilder = new WmsUrlBuilder("https://worldwind25.arc.nasa.gov/wms",
-                layerName || "BlueMarble-200405", "", "1.3.0");
-        };
-
-        BMNGLayer.prototype = Object.create(TiledImageLayer.prototype);
-
-        return BMNGLayer;
-    });
-/*
- * Copyright (C) 2014 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. All Rights Reserved.
- */
-/**
- * @exports RenderableLayer
- * @version $Id: RenderableLayer.js 3334 2015-07-22 19:15:43Z tgaskins $
- */
-define('layer/RenderableLayer',[
-        '../error/ArgumentError',
-        '../layer/Layer',
-        '../util/Logger'
-    ],
-    function (ArgumentError,
-              Layer,
-              Logger) {
-        "use strict";
-
-        /**
-         * Constructs a layer that contains shapes and other renderables.
-         * @alias RenderableLayer
-         * @constructor
-         * @augments Layer
-         * @classdesc Provides a layer that contains shapes and other renderables.
-         * @param {String} displayName This layer's display name.
-         */
-        var RenderableLayer = function (displayName) {
-            Layer.call(this, displayName);
-
-            /**
-             * The array of renderables;
-             * @type {Array}
-             * @readonly
-             */
-            this.renderables = [];
-        };
-
-        RenderableLayer.prototype = Object.create(Layer.prototype);
-
-        /**
-         * Adds a renderable to this layer.
-         * @param {Renderable} renderable The renderable to add.
-         * @throws {ArgumentError} If the specified renderable is null or undefined.
-         */
-        RenderableLayer.prototype.addRenderable = function (renderable) {
-            if (!renderable) {
-                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "RenderableLayer", "addRenderable",
-                    "missingRenderable"));
-            }
-
-            this.renderables.push(renderable);
-        };
-
-        /**
-         * Adds an array of renderables to this layer.
-         * @param {Renderable[]} renderables The renderables to add.
-         * @throws {ArgumentError} If the specified renderables array is null or undefined.
-         */
-        RenderableLayer.prototype.addRenderables = function (renderables) {
-            if (!renderables) {
-                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "RenderableLayer", "addRenderables",
-                    "The renderables array is null or undefined."));
-            }
-
-            for (var i = 0, len = renderables.length; i < len; i++) {
-                this.addRenderable(renderables[i]);
-            }
-        };
-
-        /**
-         * Removes a renderable from this layer.
-         * @param {Renderable} renderable The renderable to remove.
-         */
-        RenderableLayer.prototype.removeRenderable = function (renderable) {
-            var index = this.renderables.indexOf(renderable);
-            if (index >= 0) {
-                this.renderables.splice(index, 1);
-            }
-        };
-
-        /**
-         * Removes all renderables from this layer. Does not call dispose on those renderables.
-         */
-        RenderableLayer.prototype.removeAllRenderables = function () {
-            this.renderables = [];
-        };
-
-        // Documented in superclass.
-        RenderableLayer.prototype.doRender = function (dc) {
-            var numOrderedRenderablesAtStart = dc.orderedRenderables.length;
-
-            for (var i = 0, len = this.renderables.length; i < len; i++) {
-                try {
-                    this.renderables[i].render(dc);
-                } catch (e) {
-                    Logger.logMessage(Logger.LEVEL_SEVERE, "RenderableLayer", "doRender",
-                        "Error while rendering shape " + this.renderables[i].displayName + ".\n" + e.toString());
-                    // Keep going. Render the rest of the shapes.
-                }
-            }
-
-            if (dc.orderedRenderables.length > numOrderedRenderablesAtStart) {
-                this.inCurrentFrame = true;
-            }
-        };
-
-        return RenderableLayer;
-    });
-/*
- * Copyright (C) 2014 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. All Rights Reserved.
- */
-/**
- * @exports SurfaceTile
- * @version $Id: SurfaceTile.js 2941 2015-03-30 21:11:43Z tgaskins $
- */
-define('render/SurfaceTile',[
-        '../error/ArgumentError',
-        '../util/Logger',
-        '../geom/Matrix',
-        '../geom/Sector',
-        '../error/UnsupportedOperationError'
-    ],
-    function (ArgumentError,
-              Logger,
-              Matrix,
-              Sector,
-              UnsupportedOperationError) {
-        "use strict";
-
-        /**
-         * Constructs a surface tile for a specified sector.
-         * @alias SurfaceTile
-         * @constructor
-         * @classdesc Defines an abstract base class for imagery to be rendered on terrain. Applications typically
-         * do not interact with this class.
-         * @param {Sector} sector The sector of this surface tile.
-         * @throws {ArgumentError} If the specified sector is null or undefined.
-         */
-        var SurfaceTile = function (sector) {
-            if (!sector) {
-                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceTile", "constructor",
-                    "missingSector"));
-            }
-
-            /**
-             * The sector spanned by this surface tile.
-             * @type {Sector}
-             */
-            this.sector = sector;
-        };
-
-        /**
-         * Causes this surface tile to be active, typically by binding the tile's texture in WebGL.
-         * Subclasses must override this function.
-         * @param {DrawContext} dc The current draw context.
-         * @returns {Boolean} true if the resource was successfully bound, otherwise false.
-         */
-        SurfaceTile.prototype.bind = function (dc) {
-            throw new UnsupportedOperationError(
-                Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceTile", "bind", "abstractInvocation"));
-        };
-
-        /**
-         * Applies this surface tile's internal transform, typically a texture transform to align the associated
-         * resource with the terrain.
-         * Subclasses must override this function.
-         * @param {DrawContext} dc The current draw context.
-         * @param {Matrix} matrix The transform to apply.
-         */
-        SurfaceTile.prototype.applyInternalTransform = function (dc, matrix) {
-            throw new UnsupportedOperationError(
-                Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceTile", "applyInternalTransform", "abstractInvocation"));
-        };
-
-        return SurfaceTile;
-    });
-/*
- * Copyright (C) 2014 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. All Rights Reserved.
- */
-/**
- * @exports SurfaceImage
- * @version $Id: SurfaceImage.js 3023 2015-04-15 20:24:17Z tgaskins $
- */
-define('shapes/SurfaceImage',[
-        '../error/ArgumentError',
-        '../util/Logger',
-        '../pick/PickedObject',
-        '../render/SurfaceTile'
-    ],
-    function (ArgumentError,
-              Logger,
-              PickedObject,
-              SurfaceTile) {
-        "use strict";
-
-        /**
-         * Constructs a surface image shape for a specified sector and image path.
-         * @alias SurfaceImage
-         * @constructor
-         * @augments SurfaceTile
-         * @classdesc Represents an image drawn on the terrain.
-         * @param {Sector} sector The sector spanned by this surface image.
-         * @param {String|ImageSource} imageSource The image source of the image to draw on the terrain.
-         * May be either a string identifying the URL of the image, or an {@link ImageSource} object identifying a
-         * dynamically created image.
-         * @throws {ArgumentError} If either the specified sector or image source is null or undefined.
-         */
-        var SurfaceImage = function (sector, imageSource) {
-            if (!sector) {
-                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceImage", "constructor",
-                    "missingSector"));
-            }
-
-            if (!imageSource) {
-                throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceImage", "constructor",
-                    "missingImage"));
-            }
-
-            SurfaceTile.call(this, sector);
-
-            /**
-             * Indicates whether this surface image is drawn.
-             * @type {boolean}
-             * @default true
-             */
-            this.enabled = true;
-
-            /**
-             * The path to the image.
-             * @type {String}
-             */
-            this._imageSource = imageSource;
-
-            /**
-             * This surface image's opacity. When this surface image is drawn, the actual opacity is the product of
-             * this opacity and the opacity of the layer containing this surface image.
-             * @type {number}
-             */
-            this.opacity = 1;
-
-            /**
-             * This surface image's display name;
-             * @type {string}
-             */
-            this.displayName = "Surface Image";
-
-            // Internal. Indicates whether the image needs to be updated in the GPU resource cache.
-            this.imageSourceWasUpdated = true;
-        };
-
-        SurfaceImage.prototype = Object.create(SurfaceTile.prototype);
-
-        Object.defineProperties(SurfaceImage.prototype, {
-            /**
-             * The source of the image to display.
-             * May be either a string identifying the URL of the image, or an {@link ImageSource} object identifying a
-             * dynamically created image.
-             * @type {String|ImageSource}
-             * @default null
-             * @memberof SurfaceImage.prototype
-             */
-            imageSource: {
-                get: function () {
-                    return this._imageSource;
-                },
-                set: function (imageSource) {
-                    if (!imageSource) {
-                        throw new ArgumentError(Logger.logMessage(Logger.LEVEL_SEVERE, "SurfaceImage", "imageSource",
-                            "missingImage"));
-                    }
-
-                    this._imageSource = imageSource;
-                    this.imageSourceWasUpdated = true;
-                }
-            }
-        });
-
-        SurfaceImage.prototype.bind = function (dc) {
-            var texture = dc.gpuResourceCache.resourceForKey(this._imageSource);
-            if (texture && !this.imageSourceWasUpdated) {
-                return texture.bind(dc);
-            } else {
-                texture = dc.gpuResourceCache.retrieveTexture(dc.currentGlContext, this._imageSource);
-                this.imageSourceWasUpdated = false;
-                if (texture) {
-                    return texture.bind(dc);
-                }
-            }
-        };
-
-        SurfaceImage.prototype.applyInternalTransform = function (dc, matrix) {
-            // No need to apply the transform.
-        };
-
-        /**
-         * Displays this surface image. Called by the layer containing this surface image.
-         * @param {DrawContext} dc The current draw context.
-         */
-        SurfaceImage.prototype.render = function (dc) {
-            if (!this.enabled || !this.sector.overlaps(dc.terrain.sector)) {
-                return;
-            }
-
-            if (dc.pickingMode) {
-                this.pickColor = dc.uniquePickColor();
-            }
-
-            dc.surfaceTileRenderer.renderTiles(dc, [this], this.opacity * dc.currentLayer.opacity);
-
-            if (dc.pickingMode) {
-                var po = new PickedObject(this.pickColor.clone(), this.pickDelegate ? this.pickDelegate : this,
-                    null, this.layer, false);
-                dc.resolvePick(po);
-            }
-
-            dc.currentLayer.inCurrentFrame = true;
-        };
-
-        return SurfaceImage;
-    });
-/*
- * Copyright (C) 2014 United States Government as represented by the Administrator of the
- * National Aeronautics and Space Administration. All Rights Reserved.
- */
-/**
- * @exports BMNGOneImageLayer
- * @version $Id: BMNGOneImageLayer.js 2942 2015-03-30 21:16:36Z tgaskins $
- */
-define('layer/BMNGOneImageLayer',[
-        '../layer/RenderableLayer',
-        '../geom/Sector',
-        '../shapes/SurfaceImage',
-        '../util/WWUtil'
-    ],
-    function (RenderableLayer,
-              Sector,
-              SurfaceImage,
-              WWUtil) {
-        "use strict";
-
-        /**
-         * Constructs a Blue Marble image layer that spans the entire globe.
-         * @alias BMNGOneImageLayer
-         * @constructor
-         * @augments RenderableLayer
-         * @classdesc Displays a Blue Marble image layer that spans the entire globe with a single image.
-         */
-        var BMNGOneImageLayer = function () {
-            RenderableLayer.call(this, "Blue Marble Image");
-
-            var surfaceImage = new SurfaceImage(Sector.FULL_SPHERE,
-                WorldWind.configuration.baseUrl + "images/BMNG_world.topo.bathy.200405.3.2048x1024.jpg");
-
-            this.addRenderable(surfaceImage);
-
-            this.pickEnabled = false;
-            this.minActiveAltitude = 3e6;
-        };
-
-        BMNGOneImageLayer.prototype = Object.create(RenderableLayer.prototype);
-
-        return BMNGOneImageLayer;
+        return BMNGRestLayer;
     });
 /*
  * Copyright (C) 2015 United States Government as represented by the Administrator of the
@@ -29289,7 +29346,7 @@ define('shapes/SurfaceShape',[
                 }
                 if (drawOutline) {
                     this.draw(this._outlineGeometry, ctx2D, xScale, yScale, dx, dy);
-                    ctx2D.lineWidth = 4 * attributes.outlineWidth;
+                    ctx2D.lineWidth = attributes.outlineWidth;
                     ctx2D.strokeStyle = dc.pickingMode ? pickColor : attributes.outlineColor.toRGBAString();
                     ctx2D.stroke();
                 }
@@ -52547,17 +52604,10 @@ define('formats/kml/util/KmlElementsFactory',[
  * Copyright (C) 2014 United States Government as represented by the Administrator of the
  * National Aeronautics and Space Administration. All Rights Reserved.
  */
-define('formats/kml/util/TreeKeyValueCache',[], function () {
+define('formats/kml/util/TreeKeyValueCache',[
+    '../../../util/WWUtil'
+], function (WWUtil) {
     "use strict";
-
-    var startsWith = function(str, searchString){
-        if(String.prototype.startsWith) {
-            return str.startsWith(searchString);
-        }
-
-        var position = 0;
-        return str.substr(position, searchString.length) === searchString;
-    };
 
     /**
      * Cache working on a basic principle of storing the data as a pair of key, value. Currently the values are
@@ -52600,7 +52650,7 @@ define('formats/kml/util/TreeKeyValueCache',[], function () {
                     continue;
                 }
 
-                if(startsWith(keyFromLevel, key)){
+                if(WWUtil.startsWith(keyFromLevel, key)){
                     return currentLevel[keyFromLevel];
                 }
             }
@@ -65469,7 +65519,8 @@ define('formats/kml/KmlFile',[
     './util/RefreshListener',
     './util/RemoteFile',
     './util/StyleResolver',
-    '../../util/XmlDocument'
+    '../../util/XmlDocument',
+    '../../util/WWUtil'
 ], function (ArgumentError,
              JsZip,
              KmlElements,
@@ -65484,7 +65535,8 @@ define('formats/kml/KmlFile',[
              RefreshListener,
              RemoteFile,
              StyleResolver,
-             XmlDocument) {
+             XmlDocument,
+             WWUtil) {
     "use strict";
 
     // TODO: Make sure that the KmlFile is also rendered as a part of this hierarchy and not added to the layer.
@@ -65591,11 +65643,7 @@ define('formats/kml/KmlFile',[
      * @returns {boolean} true if the extension matches otherwise false
      */
     KmlFile.prototype.hasExtension = function (extension, url) {
-        if (url.endsWith) {
-            return url.endsWith("." + extension);
-        } else {
-            return url.lastIndexOf("." + extension) == (url.length - extension.length - 1);
-        }
+        return WWUtil.endsWith(url, "." + extension);
     };
 
     /**
@@ -67625,6 +67673,7 @@ define('formats/kml/geom/KmlLineString',[
     '../../../shapes/Path',
     '../../../geom/Position',
     '../../../shapes/ShapeAttributes',
+    '../../../shapes/SurfacePolyline',
     '../../../util/WWUtil'
 ], function (Color,
              KmlElements,
@@ -67635,6 +67684,7 @@ define('formats/kml/geom/KmlLineString',[
              Path,
              Position,
              ShapeAttributes,
+             SurfacePolyline,
              WWUtil) {
     "use strict";
 
@@ -67741,7 +67791,11 @@ define('formats/kml/geom/KmlLineString',[
      * @param styles.highlight {KmlStyle} Style applied when item is highlighted
      */
     KmlLineString.prototype.createPath = function (styles) {
-        this._renderable = new Path(this.prepareLocations(), this.prepareAttributes(styles.normal));
+        if(this.kmlAltitudeMode == WorldWind.CLAMP_TO_GROUND) {
+            this._renderable = new SurfacePolyline(this.prepareLocations(), this.prepareAttributes(styles.normal));
+        } else {
+            this._renderable = new Path(this.prepareLocations(), this.prepareAttributes(styles.normal));
+        }
         if(styles.highlight) {
             this._renderable.highlightAttributes = this.prepareAttributes(styles.highlight);
         }
@@ -68177,11 +68231,11 @@ define('formats/kml/geom/KmlMultiGeometry',[
 	/**
      * @inheritDoc
      */
-    KmlMultiGeometry.prototype.render = function(dc) {
-        KmlGeometry.prototype.render.call(this, dc);
+    KmlMultiGeometry.prototype.render = function(dc, kmlOptions) {
+        KmlGeometry.prototype.render.call(this, dc, kmlOptions);
 
         this.kmlShapes.forEach(function(shape) {
-            shape.render(dc);
+            shape.render(dc, kmlOptions);
         });
     };
 
@@ -68973,7 +69027,8 @@ define('formats/kml/geom/KmlPolygon',[
     '../../../geom/Location',
     '../util/NodeTransformers',
     '../../../shapes/Polygon',
-    '../../../shapes/ShapeAttributes'
+    '../../../shapes/ShapeAttributes',
+    '../../../shapes/SurfacePolygon'
 ], function (Color,
              KmlElements,
              KmlGeometry,
@@ -68982,7 +69037,8 @@ define('formats/kml/geom/KmlPolygon',[
              Location,
              NodeTransformers,
              Polygon,
-             ShapeAttributes) {
+             ShapeAttributes,
+             SurfacePolygon) {
     "use strict";
     /**
      * Constructs an KmlPolygon. Application usually don't call this constructor. It is called by {@link KmlFile} as
@@ -69088,7 +69144,11 @@ define('formats/kml/geom/KmlPolygon',[
      * @param styles.highlight {KmlStyle} Style to apply when item is highlighted. Currently ignored.
      */
     KmlPolygon.prototype.createPolygon = function(styles) {
-        this._renderable = new Polygon(this.prepareLocations(), this.prepareAttributes(styles.normal));
+        if(this.kmlAltitudeMode == WorldWind.CLAMP_TO_GROUND) {
+            this._renderable = new SurfacePolygon(this.prepareLocations(), this.prepareAttributes(styles.normal));
+        } else {
+            this._renderable = new Polygon(this.prepareLocations(), this.prepareAttributes(styles.normal));
+        }
         if(styles.highlight) {
             this._renderable.highlightAttributes = this.prepareAttributes(styles.highlight);
         }
@@ -75591,6 +75651,818 @@ define('layer/ShowTessellationLayer',[
         };
 
         return ShowTessellationLayer;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports StarFieldProgram
+ */
+define('shaders/StarFieldProgram',[
+        '../error/ArgumentError',
+        '../shaders/GpuProgram',
+        '../util/Logger'
+    ],
+    function (ArgumentError,
+              GpuProgram,
+              Logger) {
+        "use strict";
+
+        /**
+         * Constructs a new program.
+         * Initializes, compiles and links this GLSL program with the source code for its vertex and fragment shaders.
+         * <p>
+         * This method creates WebGL shaders for the program's shader sources and attaches them to a new GLSL program.
+         * This method then compiles the shaders and then links the program if compilation is successful.
+         * Use the bind method to make the program current during rendering.
+         *
+         * @alias StarFieldProgram
+         * @constructor
+         * @augments GpuProgram
+         * @classdesc StarFieldProgram is a GLSL program that draws points representing stars.
+         * @param {WebGLRenderingContext} gl The current WebGL context.
+         * @throws {ArgumentError} If the shaders cannot be compiled, or linking of the compiled shaders into a program
+         * fails.
+         */
+        var StarFieldProgram = function (gl) {
+            var vertexShaderSource =
+                    //.x = declination
+                    //.y = right ascension
+                    //.z = point size
+                    //.w = magnitude
+                    'attribute vec4 vertexPoint;\n' +
+
+                    'uniform mat4 mvpMatrix;\n' +
+                    //number of days (positive or negative) since Greenwich noon, Terrestrial Time,
+                    // on 1 January 2000 (J2000.0)
+                    'uniform float numDays;\n' +
+                    'uniform vec2 magnitudeRange;\n' +
+
+                    'varying float magnitudeWeight;\n' +
+
+                    //normalizes an angle between 0.0 and 359.0
+                    'float normalizeAngle(float angle) {\n' +
+                    '   float angleDivisions = angle / 360.0;\n' +
+                    '   return 360.0 * (angleDivisions - floor(angleDivisions));\n' +
+                    '}\n' +
+
+                    //transforms declination and right ascension in cartesian coordinates
+                    'vec3 computePosition(float dec, float ra) {\n' +
+                    '   float GMST = normalizeAngle(280.46061837 + 360.98564736629 * numDays);\n' +
+                    '   float GHA = normalizeAngle(GMST - ra);\n' +
+                    '   float lon = -GHA + 360.0 * step(180.0, GHA);\n' +
+                    '   float latRad = radians(dec);\n' +
+                    '   float lonRad = radians(lon);\n' +
+                    '   float radCosLat = cos(latRad);\n' +
+                    '   return vec3(radCosLat * sin(lonRad), sin(latRad), radCosLat * cos(lonRad));\n' +
+                    '}\n' +
+
+                    //normalizes a value between 0.0 and 1.0
+                    'float normalizeScalar(float value, float minValue, float maxValue){\n' +
+                    '   return (value - minValue) / (maxValue - minValue);\n' +
+                    '}\n' +
+
+                    'void main() {\n' +
+                    '   vec3 vertexPosition = computePosition(vertexPoint.x, vertexPoint.y);\n' +
+                    '   gl_Position = mvpMatrix * vec4(vertexPosition.xyz, 1.0);\n' +
+                    '   gl_Position.z = gl_Position.w - 0.00001;\n' +
+                    '   gl_PointSize = vertexPoint.z;\n' +
+                    '   magnitudeWeight = normalizeScalar(vertexPoint.w, magnitudeRange.x, magnitudeRange.y);\n' +
+                    '}',
+                fragmentShaderSource =
+                    'precision mediump float;\n' +
+
+                    'uniform sampler2D textureSampler;\n' +
+                    'uniform int textureEnabled;\n' +
+
+                    'varying float magnitudeWeight;\n' +
+
+                    'const vec4 white = vec4(1.0, 1.0, 1.0, 1.0);\n' +
+                    'const vec4 grey = vec4(0.5, 0.5, 0.5, 1.0);\n' +
+
+                    'void main() {\n' +
+                    '   if (textureEnabled == 1) {\n' +
+                    '       gl_FragColor = texture2D(textureSampler, gl_PointCoord);\n' +
+                    '   }\n' +
+                    '   else {\n' +
+                    //paint the starts in shades of grey, where the brightest star is white and the dimmest star is grey
+                    '       gl_FragColor = mix(white, grey, magnitudeWeight);\n' +
+                    '   }\n' +
+                    '}';
+
+            // Call to the superclass, which performs shader program compiling and linking.
+            GpuProgram.call(this, gl, vertexShaderSource, fragmentShaderSource, ["vertexPoint"]);
+
+            /**
+             * The WebGL location for this program's 'vertexPoint' attribute.
+             * @type {Number}
+             * @readonly
+             */
+            this.vertexPointLocation = this.attributeLocation(gl, "vertexPoint");
+
+            /**
+             * The WebGL location for this program's 'mvpMatrix' uniform.
+             * @type {WebGLUniformLocation}
+             * @readonly
+             */
+            this.mvpMatrixLocation = this.uniformLocation(gl, "mvpMatrix");
+
+            /**
+             * The WebGL location for this program's 'numDays' uniform.
+             * @type {WebGLUniformLocation}
+             * @readonly
+             */
+            this.numDaysLocation = this.uniformLocation(gl, "numDays");
+
+            /**
+             * The WebGL location for this program's 'magnitudeRangeLocation' uniform.
+             * @type {WebGLUniformLocation}
+             * @readonly
+             */
+            this.magnitudeRangeLocation = this.uniformLocation(gl, "magnitudeRange");
+
+            /**
+             * The WebGL location for this program's 'textureSampler' uniform.
+             * @type {WebGLUniformLocation}
+             * @readonly
+             */
+            this.textureUnitLocation = this.uniformLocation(gl, "textureSampler");
+
+            /**
+             * The WebGL location for this program's 'textureEnabled' uniform.
+             * @type {WebGLUniformLocation}
+             * @readonly
+             */
+            this.textureEnabledLocation = this.uniformLocation(gl, "textureEnabled");
+        };
+
+        /**
+         * A string that uniquely identifies this program.
+         * @type {string}
+         * @readonly
+         */
+        StarFieldProgram.key = "WorldWindGpuStarFieldProgram";
+
+        // Inherit from GpuProgram.
+        StarFieldProgram.prototype = Object.create(GpuProgram.prototype);
+
+        /**
+         * Loads the specified matrix as the value of this program's 'mvpMatrix' uniform variable.
+         *
+         * @param {WebGLRenderingContext} gl The current WebGL context.
+         * @param {Matrix} matrix The matrix to load.
+         * @throws {ArgumentError} If the specified matrix is null or undefined.
+         */
+        StarFieldProgram.prototype.loadModelviewProjection = function (gl, matrix) {
+            if (!matrix) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "StarFieldProgram", "loadModelviewProjection", "missingMatrix"));
+            }
+
+            this.loadUniformMatrix(gl, matrix, this.mvpMatrixLocation);
+        };
+
+        /**
+         * Loads the specified number as the value of this program's 'numDays' uniform variable.
+         *
+         * @param {WebGLRenderingContext} gl The current WebGL context.
+         * @param {Number} numDays The number of days (positive or negative) since Greenwich noon, Terrestrial Time,
+         * on 1 January 2000 (J2000.0)
+         * @throws {ArgumentError} If the specified number is null or undefined.
+         */
+        StarFieldProgram.prototype.loadNumDays = function (gl, numDays) {
+            if (numDays == null) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "StarFieldProgram", "loadNumDays", "missingNumDays"));
+            }
+            gl.uniform1f(this.numDaysLocation, numDays);
+        };
+
+        /**
+         * Loads the specified numbers as the value of this program's 'magnitudeRange' uniform variable.
+         *
+         * @param {WebGLRenderingContext} gl The current WebGL context.
+         * @param {Number} minMag
+         * @param {Number} maxMag
+         * @throws {ArgumentError} If the specified numbers are null or undefined.
+         */
+        StarFieldProgram.prototype.loadMagnitudeRange = function (gl, minMag, maxMag) {
+            if (minMag == null) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "StarFieldProgram", "loadMagRange", "missingMinMag"));
+            }
+            if (maxMag == null) {
+                throw new ArgumentError(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, "StarFieldProgram", "loadMagRange", "missingMaxMag"));
+            }
+            gl.uniform2f(this.magnitudeRangeLocation, minMag, maxMag);
+        };
+
+        /**
+         * Loads the specified number as the value of this program's 'textureSampler' uniform variable.
+         * @param {WebGLRenderingContext} gl The current WebGL context.
+         * @param {Number} unit The texture unit.
+         */
+        StarFieldProgram.prototype.loadTextureUnit = function (gl, unit) {
+            gl.uniform1i(this.textureUnitLocation, unit - gl.TEXTURE0);
+        };
+
+        /**
+         * Loads the specified boolean as the value of this program's 'textureEnabledLocation' uniform variable.
+         * @param {WebGLRenderingContext} gl The current WebGL context.
+         * @param {Boolean} value
+         */
+        StarFieldProgram.prototype.loadTextureEnabled = function (gl, value) {
+            gl.uniform1i(this.textureEnabledLocation, value ? 1 : 0);
+        };
+
+        return StarFieldProgram;
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+
+define('util/SunPosition',[
+        '../geom/Angle',
+        '../error/ArgumentError',
+        './Logger',
+        './WWMath'
+    ],
+    function (Angle,
+              ArgumentError,
+              Logger,
+              WWMath) {
+        'use strict';
+
+        /**
+         * Provides utilities for determining the Sun geographic and celestial location.
+         * @exports SunPosition
+         */
+        var SunPosition = {
+
+            /**
+             * Computes the geographic location of the sun for a given date
+             * @param {Date} date
+             * @throws {ArgumentError} if the date is missing
+             * @return {{latitude: Number, longitude: Number}} the geographic location
+             */
+            getAsGeographicLocation: function (date) {
+                if (date instanceof Date === false) {
+                    throw new ArgumentError(
+                        Logger.logMessage(Logger.LEVEL_SEVERE, "SunPosition", "getAsGeographicLocation",
+                            "missingDate"));
+                }
+
+                var celestialLocation = this.getAsCelestialLocation(date);
+                return this.celestialToGeographic(celestialLocation, date);
+            },
+
+            /**
+             * Computes the celestial location of the sun for a given julianDate
+             * @param {Date} date
+             * @throws {ArgumentError} if the date is missing
+             * @return {{declination: Number, rightAscension: Number}} the celestial location
+             */
+            getAsCelestialLocation: function (date) {
+                if (date instanceof Date === false) {
+                    throw new ArgumentError(
+                        Logger.logMessage(Logger.LEVEL_SEVERE, "SunPosition", "getAsCelestialLocation",
+                            "missingDate"));
+                }
+
+                var julianDate = this.computeJulianDate(date);
+
+                //number of days (positive or negative) since Greenwich noon, Terrestrial Time, on 1 January 2000 (J2000.0)
+                var numDays = julianDate - 2451545;
+
+                var meanLongitude = WWMath.normalizeAngle360(280.460 + 0.9856474 * numDays);
+
+                var meanAnomaly = WWMath.normalizeAngle360(357.528 + 0.9856003 * numDays) * Angle.DEGREES_TO_RADIANS;
+
+                var eclipticLongitude = meanLongitude + 1.915 * Math.sin(meanAnomaly) + 0.02 * Math.sin(2 * meanAnomaly);
+                var eclipticLongitudeRad = eclipticLongitude * Angle.DEGREES_TO_RADIANS;
+
+                var obliquityOfTheEcliptic = (23.439 - 0.0000004 * numDays) * Angle.DEGREES_TO_RADIANS;
+
+                var declination = Math.asin(Math.sin(obliquityOfTheEcliptic) * Math.sin(eclipticLongitudeRad)) *
+                    Angle.RADIANS_TO_DEGREES;
+
+                var rightAscension = Math.atan(Math.cos(obliquityOfTheEcliptic) * Math.tan(eclipticLongitudeRad)) *
+                    Angle.RADIANS_TO_DEGREES;
+
+                //compensate for atan result
+                if (eclipticLongitude >= 90 && eclipticLongitude < 270) {
+                    rightAscension += 180;
+                }
+                rightAscension = WWMath.normalizeAngle360(rightAscension);
+
+                return {
+                    declination: declination,
+                    rightAscension: rightAscension
+                };
+            },
+
+            /**
+             * Converts from celestial coordinates (declination and right ascension) to geographic coordinates
+             * (latitude, longitude) for a given julian date
+             * @param {{declination: Number, rightAscension: Number}} celestialLocation
+             * @param {Date} date
+             * @throws {ArgumentError} if celestialLocation or julianDate are missing
+             * @return {{latitude: Number, longitude: Number}} the geographic location
+             */
+            celestialToGeographic: function (celestialLocation, date) {
+                if (!celestialLocation) {
+                    throw new ArgumentError(
+                        Logger.logMessage(Logger.LEVEL_SEVERE, "SunPosition", "celestialToGeographic",
+                            "missingCelestialLocation"));
+                }
+                if (date instanceof Date === false) {
+                    throw new ArgumentError(
+                        Logger.logMessage(Logger.LEVEL_SEVERE, "SunPosition", "celestialToGeographic", "missingDate"));
+                }
+
+                var julianDate = this.computeJulianDate(date);
+
+                //number of days (positive or negative) since Greenwich noon, Terrestrial Time, on 1 January 2000 (J2000.0)
+                var numDays = julianDate - 2451545;
+
+                //Greenwich Mean Sidereal Time
+                var GMST = WWMath.normalizeAngle360(280.46061837 + 360.98564736629 * numDays);
+
+                //Greenwich Hour Angle
+                var GHA = WWMath.normalizeAngle360(GMST - celestialLocation.rightAscension);
+
+                var longitude = Angle.normalizedDegreesLongitude(-GHA);
+
+                return {
+                    latitude: celestialLocation.declination,
+                    longitude: longitude
+                };
+            },
+
+            /**
+             * Computes the julian date from a javascript date object
+             * @param {Date} date
+             * @throws {ArgumentError} if the date is missing
+             * @return {Number} the julian date
+             */
+            computeJulianDate: function (date) {
+                if (date instanceof Date === false) {
+                    throw new ArgumentError(
+                        Logger.logMessage(Logger.LEVEL_SEVERE, "SunPosition", "computeJulianDate", "missingDate"));
+                }
+
+                var year = date.getUTCFullYear();
+                var month = date.getUTCMonth() + 1;
+                var day = date.getUTCDate();
+                var hour = date.getUTCHours();
+                var minute = date.getUTCMinutes();
+                var second = date.getUTCSeconds();
+
+                var dayFraction = (hour + minute / 60 + second / 3600) / 24;
+
+                if (month <= 2) {
+                    year -= 1;
+                    month += 12;
+                }
+
+                var A = Math.floor(year / 100);
+                var B = 2 - A + Math.floor(A / 4);
+                var JD0h = Math.floor(365.25 * (year + 4716)) + Math.floor(30.6001 * (month + 1)) + day + B - 1524.5;
+
+                return JD0h + dayFraction;
+            }
+
+        };
+
+        return SunPosition;
+
+    });
+/*
+ * Copyright (C) 2014 United States Government as represented by the Administrator of the
+ * National Aeronautics and Space Administration. All Rights Reserved.
+ */
+/**
+ * @exports StarFieldLayer
+ */
+define('layer/StarFieldLayer',[
+        './Layer',
+        '../util/Logger',
+        '../geom/Matrix',
+        '../shaders/StarFieldProgram',
+        '../util/SunPosition'
+    ],
+    function (Layer,
+              Logger,
+              Matrix,
+              StarFieldProgram,
+              SunPosition) {
+        'use strict';
+
+        /**
+         * Constructs a layer showing stars and the Sun around the Earth.
+         * If used together with the AtmosphereLayer, the StarFieldLayer must be inserted before the AtmosphereLayer.
+         *
+         * If you want to use your own star data, the file provided must be .json
+         * and the fields 'ra', 'dec' and 'vmag' must be present in the metadata.
+         * ra and dec must be expressed in degrees.
+         *
+         * This layer uses J2000.0 as the ref epoch.
+         *
+         * If the star data .json file is too big, consider enabling gzip compression on your web server.
+         * For more info about enabling gzip compression consult the configuration for your web server.
+         *
+         * @alias StarFieldLayer
+         * @constructor
+         * @classdesc Provides a layer showing stars, and the Sun around the Earth
+         * @param {URL} starDataSource optional url for the stars data
+         * @augments Layer
+         */
+        var StarFieldLayer = function (starDataSource) {
+            Layer.call(this, 'StarField');
+
+            // The StarField Layer is not pickable.
+            this.pickEnabled = false;
+
+            /**
+             * The size of the Sun in pixels.
+             * This can not exceed the maximum allowed pointSize of the GPU.
+             * A warning will be given if the size is too big and the allowed max size will be used.
+             * @type {Number}
+             * @default 128
+             */
+            this.sunSize = 128;
+
+            /**
+             * Indicates weather to show or hide the Sun
+             * @type {Boolean}
+             * @default true
+             */
+            this.showSun = true;
+
+            //Documented in defineProperties below.
+            this._starDataSource = starDataSource || WorldWind.configuration.baseUrl + 'images/stars.json';
+            this._sunImageSource = WorldWind.configuration.baseUrl + 'images/sunTexture.png';
+
+            //Internal use only.
+            //The MVP matrix of this layer.
+            this._matrix = Matrix.fromIdentity();
+
+            //Internal use only.
+            //gpu cache key for the stars vbo.
+            this._starsPositionsVboCacheKey = null;
+
+            //Internal use only.
+            this._numStars = 0;
+
+            //Internal use only.
+            this._starData = null;
+
+            //Internal use only.
+            this._minMagnitude = Number.MAX_VALUE;
+            this._maxMagnitude = Number.MIN_VALUE;
+
+            //Internal use only.
+            //A flag to indicate the star data is currently being retrieved.
+            this._loadStarted = false;
+
+            //Internal use only.
+            this._minScale = 10e6;
+
+            //Internal use only.
+            this._sunPositionsCacheKey = '';
+            this._sunBufferView = new Float32Array(4);
+
+            //Internal use only.
+            this._MAX_GL_POINT_SIZE = 0;
+        };
+
+        StarFieldLayer.prototype = Object.create(Layer.prototype);
+
+        Object.defineProperties(StarFieldLayer.prototype, {
+            /**
+             * Url for the stars data.
+             * @memberof StarFieldLayer.prototype
+             * @type {URL}
+             */
+            starDataSource: {
+                get: function () {
+                    return this._starDataSource;
+                },
+                set: function (value) {
+                    this._starDataSource = value;
+                    this.invalidateStarData();
+                }
+            },
+
+            /**
+             * Url for the sun texture image.
+             * @memberof StarFieldLayer.prototype
+             * @type {URL}
+             */
+            sunImageSource: {
+                get: function () {
+                    return this._sunImageSource;
+                },
+                set: function (value) {
+                    this._sunImageSource = value;
+                }
+            }
+        });
+
+        // Documented in superclass.
+        StarFieldLayer.prototype.doRender = function (dc) {
+            if (dc.globe.is2D()) {
+                return;
+            }
+
+            if (!this.haveResources(dc)) {
+                this.loadResources(dc);
+                return;
+            }
+
+            this.beginRendering(dc);
+            try {
+                this.doDraw(dc);
+            }
+            finally {
+                this.endRendering(dc);
+            }
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.haveResources = function (dc) {
+            var sunTexture = dc.gpuResourceCache.resourceForKey(this._sunImageSource);
+            return (
+                this._starData != null &&
+                sunTexture != null
+            );
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.loadResources = function (dc) {
+            var gl = dc.currentGlContext;
+            var gpuResourceCache = dc.gpuResourceCache;
+
+            if (!this._starData) {
+                this.fetchStarData();
+            }
+
+            var sunTexture = gpuResourceCache.resourceForKey(this._sunImageSource);
+            if (!sunTexture) {
+                gpuResourceCache.retrieveTexture(gl, this._sunImageSource);
+            }
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.beginRendering = function (dc) {
+            var gl = dc.currentGlContext;
+            dc.findAndBindProgram(StarFieldProgram);
+            gl.enableVertexAttribArray(0);
+            gl.depthMask(false);
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.doDraw = function (dc) {
+            this.loadCommonUniforms(dc);
+            this.renderStars(dc);
+            if (this.showSun) {
+                this.renderSun(dc);
+            }
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.loadCommonUniforms = function (dc) {
+            var gl = dc.currentGlContext;
+            var program = dc.currentProgram;
+
+            var eyePoint = dc.navigatorState.eyePoint;
+            var eyePosition = dc.globe.computePositionFromPoint(eyePoint[0], eyePoint[1], eyePoint[2], {});
+            var scale = Math.max(eyePosition.altitude * 1.5, this._minScale);
+            this._matrix.copy(dc.navigatorState.modelviewProjection);
+            this._matrix.multiplyByScale(scale, scale, scale);
+            program.loadModelviewProjection(gl, this._matrix);
+
+            //this subtraction does not work properly on the GPU, it must be done on the CPU
+            //possibly due to precision loss
+            //number of days (positive or negative) since Greenwich noon, Terrestrial Time, on 1 January 2000 (J2000.0)
+            var julianDate = SunPosition.computeJulianDate(this.time || new Date());
+            program.loadNumDays(gl, julianDate - 2451545.0);
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.renderStars = function (dc) {
+            var gl = dc.currentGlContext;
+            var gpuResourceCache = dc.gpuResourceCache;
+            var program = dc.currentProgram;
+
+            if (!this._starsPositionsVboCacheKey) {
+                this._starsPositionsVboCacheKey = gpuResourceCache.generateCacheKey();
+            }
+            var vboId = gpuResourceCache.resourceForKey(this._starsPositionsVboCacheKey);
+            if (!vboId) {
+                vboId = gl.createBuffer();
+                var positions = this.createStarsGeometry();
+                gpuResourceCache.putResource(this._starsPositionsVboCacheKey, vboId, positions.length * 4);
+                gl.bindBuffer(gl.ARRAY_BUFFER, vboId);
+                gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(positions), gl.STATIC_DRAW);
+            }
+            else {
+                gl.bindBuffer(gl.ARRAY_BUFFER, vboId);
+            }
+            dc.frameStatistics.incrementVboLoadCount(1);
+
+            gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+
+            program.loadMagnitudeRange(gl, this._minMagnitude, this._maxMagnitude);
+            program.loadTextureEnabled(gl, false);
+
+            gl.drawArrays(gl.POINTS, 0, this._numStars);
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.renderSun = function (dc) {
+            var gl = dc.currentGlContext;
+            var program = dc.currentProgram;
+            var gpuResourceCache = dc.gpuResourceCache;
+
+            if (!this._MAX_GL_POINT_SIZE) {
+                this._MAX_GL_POINT_SIZE = gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1];
+            }
+            if (this.sunSize > this._MAX_GL_POINT_SIZE) {
+                Logger.log(Logger.LEVEL_WARNING, 'StarFieldLayer - sunSize is to big, max size allowed is: ' +
+                    this._MAX_GL_POINT_SIZE);
+            }
+
+            var sunCelestialLocation = SunPosition.getAsCelestialLocation(this.time || new Date());
+
+            //.x = declination
+            //.y = right ascension
+            //.z = point size
+            //.w = magnitude
+            this._sunBufferView[0] = sunCelestialLocation.declination;
+            this._sunBufferView[1] = sunCelestialLocation.rightAscension;
+            this._sunBufferView[2] = Math.min(this.sunSize, this._MAX_GL_POINT_SIZE);
+            this._sunBufferView[3] = 1;
+
+            if (!this._sunPositionsCacheKey) {
+                this._sunPositionsCacheKey = gpuResourceCache.generateCacheKey();
+            }
+            var vboId = gpuResourceCache.resourceForKey(this._sunPositionsCacheKey);
+            if (!vboId) {
+                vboId = gl.createBuffer();
+                gpuResourceCache.putResource(this._sunPositionsCacheKey, vboId, this._sunBufferView.length * 4);
+                gl.bindBuffer(gl.ARRAY_BUFFER, vboId);
+                gl.bufferData(gl.ARRAY_BUFFER, this._sunBufferView, gl.DYNAMIC_DRAW);
+            }
+            else {
+                gl.bindBuffer(gl.ARRAY_BUFFER, vboId);
+                gl.bufferSubData(gl.ARRAY_BUFFER, 0, this._sunBufferView);
+            }
+            dc.frameStatistics.incrementVboLoadCount(1);
+            gl.vertexAttribPointer(0, 4, gl.FLOAT, false, 0, 0);
+
+            program.loadTextureEnabled(gl, true);
+
+            var sunTexture = dc.gpuResourceCache.resourceForKey(this._sunImageSource);
+            sunTexture.bind(dc);
+
+            gl.drawArrays(gl.POINTS, 0, 1);
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.endRendering = function (dc) {
+            var gl = dc.currentGlContext;
+            gl.depthMask(true);
+            gl.disableVertexAttribArray(0);
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.fetchStarData = function () {
+            if (this._loadStarted) {
+                return;
+            }
+
+            this._loadStarted = true;
+            var self = this;
+            var xhr = new XMLHttpRequest();
+
+            xhr.onload = function () {
+                if (this.status >= 200 && this.status < 300) {
+                    try {
+                        self._starData = JSON.parse(this.response);
+                        self.sendRedrawRequest();
+                    }
+                    catch (e) {
+                        Logger.log(Logger.LEVEL_SEVERE, 'StarFieldLayer unable to parse JSON for star data ' +
+                            e.toString());
+                    }
+                }
+                else {
+                    Logger.log(Logger.LEVEL_SEVERE, 'StarFieldLayer unable to fetch star data. Status: ' +
+                        this.status + ' ' + this.statusText);
+                }
+                self._loadStarted = false;
+            };
+
+            xhr.onerror = function () {
+                Logger.log(Logger.LEVEL_SEVERE, 'StarFieldLayer unable to fetch star data');
+                self._loadStarted = false;
+            };
+
+            xhr.ontimeout = function () {
+                Logger.log(Logger.LEVEL_SEVERE, 'StarFieldLayer fetch star data has timeout');
+                self._loadStarted = false;
+            };
+
+            xhr.open('GET', this._starDataSource, true);
+            xhr.send();
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.createStarsGeometry = function () {
+            var indexes = this.parseStarsMetadata(this._starData.metadata);
+
+            if (indexes.raIndex === -1) {
+                throw new Error(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, 'StarFieldLayer', 'createStarsGeometry',
+                        'Missing ra field in star data.'));
+            }
+            if (indexes.decIndex === -1) {
+                throw new Error(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, 'StarFieldLayer', 'createStarsGeometry',
+                        'Missing dec field in star data.'));
+            }
+            if (indexes.magIndex === -1) {
+                throw new Error(
+                    Logger.logMessage(Logger.LEVEL_SEVERE, 'StarFieldLayer', 'createStarsGeometry',
+                        'Missing vmag field in star data.'));
+            }
+
+            var data = this._starData.data;
+            var positions = [];
+
+            this._minMagnitude = Number.MAX_VALUE;
+            this._maxMagnitude = Number.MIN_VALUE;
+
+            for (var i = 0, len = data.length; i < len; i++) {
+                var starInfo = data[i];
+                var declination = starInfo[indexes.decIndex]; //for latitude
+                var rightAscension = starInfo[indexes.raIndex]; //for longitude
+                var magnitude = starInfo[indexes.magIndex];
+                var pointSize = magnitude < 2 ? 2 : 1;
+
+                positions.push(declination, rightAscension, pointSize, magnitude);
+
+                this._minMagnitude = Math.min(this._minMagnitude, magnitude);
+                this._maxMagnitude = Math.max(this._maxMagnitude, magnitude);
+            }
+            this._numStars = Math.floor(positions.length / 4);
+
+            return positions;
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.parseStarsMetadata = function (metadata) {
+            var raIndex = -1,
+                decIndex = -1,
+                magIndex = -1;
+            for (var i = 0, len = metadata.length; i < len; i++) {
+                var starMetaInfo = metadata[i];
+                if (starMetaInfo.name === 'ra') {
+                    raIndex = i;
+                }
+                if (starMetaInfo.name === 'dec') {
+                    decIndex = i;
+                }
+                if (starMetaInfo.name === 'vmag') {
+                    magIndex = i;
+                }
+            }
+            return {
+                raIndex: raIndex,
+                decIndex: decIndex,
+                magIndex: magIndex
+            };
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.invalidateStarData = function () {
+            this._starData = null;
+            this._starsPositionsVboCacheKey = null;
+        };
+
+        // Internal. Intentionally not documented.
+        StarFieldLayer.prototype.sendRedrawRequest = function () {
+            var e = document.createEvent('Event');
+            e.initEvent(WorldWind.REDRAW_EVENT_TYPE, true, true);
+            window.dispatchEvent(e);
+        };
+
+        return StarFieldLayer;
+
     });
 /*
  * Copyright (C) 2014 United States Government as represented by the Administrator of the
@@ -83569,10 +84441,10 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         './layer/BingAerialWithLabelsLayer',
         './layer/BingRoadsLayer',
         './layer/BingWMSLayer',
-        './layer/BlueMarbleLayer',
         './layer/BMNGLandsatLayer',
         './layer/BMNGLayer',
         './layer/BMNGOneImageLayer',
+        './layer/BMNGRestLayer',
         './geom/BoundingBox',
         './gesture/ClickRecognizer',
         './formats/collada/ColladaLoader',
@@ -83723,6 +84595,9 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         './formats/shapefile/Shapefile',
         './layer/ShowTessellationLayer',
         './shaders/SkyProgram',
+        './layer/StarFieldLayer',
+        './shaders/StarFieldProgram',
+        './util/SunPosition',
         './shapes/SurfaceImage',
         './shapes/SurfaceCircle',
         './shapes/SurfaceEllipse',
@@ -83790,10 +84665,10 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
               BingAerialWithLabelsLayer,
               BingRoadsLayer,
               BingWMSLayer,
-              BlueMarbleLayer,
               BMNGLandsatLayer,
               BMNGLayer,
               BMNGOneImageLayer,
+              BMNGRestLayer,
               BoundingBox,
               ClickRecognizer,
               ColladaLoader,
@@ -83944,6 +84819,9 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
               Shapefile,
               ShowTessellationLayer,
               SkyProgram,
+              StarFieldLayer,
+              StarFieldProgram,
+              SunPosition,
               SurfaceImage,
               SurfaceCircle,
               SurfaceEllipse,
@@ -84220,10 +85098,10 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         WorldWind['BingAerialWithLabelsLayer'] = BingAerialWithLabelsLayer;
         WorldWind['BingRoadsLayer'] = BingRoadsLayer;
         WorldWind['BingWMSLayer'] = BingWMSLayer;
-        WorldWind['BlueMarbleLayer'] = BlueMarbleLayer;
         WorldWind['BMNGLandsatLayer'] = BMNGLandsatLayer;
         WorldWind['BMNGLayer'] = BMNGLayer;
         WorldWind['BMNGOneImageLayer'] = BMNGOneImageLayer;
+        WorldWind['BMNGRestLayer'] = BMNGRestLayer;
         WorldWind['BoundingBox'] = BoundingBox;
         WorldWind['ClickRecognizer'] = ClickRecognizer;
         WorldWind['ColladaLoader'] = ColladaLoader;
@@ -84323,6 +85201,9 @@ define('WorldWind',[ // PLEASE KEEP ALL THIS IN ALPHABETICAL ORDER BY MODULE NAM
         WorldWind['Shapefile'] = Shapefile;
         WorldWind['ShowTessellationLayer'] = ShowTessellationLayer;
         WorldWind['SkyProgram'] = SkyProgram;
+        WorldWind['StarFieldLayer'] = StarFieldLayer;
+        WorldWind['StarFieldProgram'] = StarFieldProgram;
+        WorldWind['SunPosition'] = SunPosition;
         WorldWind['SurfaceImage'] = SurfaceImage;
         WorldWind['SurfaceCircle'] = SurfaceCircle;
         WorldWind['SurfaceEllipse'] = SurfaceEllipse;

@@ -563,13 +563,13 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
         attributes.outlineWidth = (!isNaN(parseInt(feature.properties.strokeStyle.strokeWidth)))?parseInt(feature.properties.strokeStyle.strokeWidth): EMPWorldWind.constants.propertyDefaults.LINE_WIDTH ;
         // pixel size between ww and Cesium are not matching. WW outline width is
         //much wider than in Cesium for polylines
-        attributes.outlineWidth *=.3;
+        attributes.outlineWidth *=0.3;
       }
       else if (feature.properties.strokeWidth || feature.properties.lineWidth) {
         attributes.outlineWidth = parseInt(feature.properties.strokeWidth) || parseInt(feature.properties.lineWidth);
         // pixel size between ww and Cesium are not matching. WW outline width is
         //much wider than in Cesium for polylines
-        attributes.outlineWidth *=.3;
+        attributes.outlineWidth *= 0.3;
       }
 
       // Stippling of outline
@@ -631,6 +631,8 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       case emp3.api.enums.FeatureTypeEnum.GEO_POLYGON:
       case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
       case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
+        attributes = _createSurfaceShapeAttributes(feature, selectionStyle);
+        break;
       default:
         attributes = _createSurfaceShapeAttributes(feature, selectionStyle);
     }
