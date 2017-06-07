@@ -16,7 +16,7 @@ EMPWorldWind.eventHandlers = EMPWorldWind.eventHandlers || {};
  * Mouse event handlers
  */
 EMPWorldWind.eventHandlers.mouse = (function() {
-  var throttleTime = 50; // 50ms
+  var throttleTime = 200; // 50ms
 
   /**
    * Sends a message to EMP Pointer eventing handler
