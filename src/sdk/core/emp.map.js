@@ -1046,6 +1046,11 @@ emp.map = function(args) {
             this.mapDragStart = null;
             this.mapDrag = false;
           }
+          else if (args.type === emp.typeLibrary.Pointer.EventType.DBL_CLICK && pointer.target.toLowerCase() === "feature")
+          {
+            // let the editing manager decide if the feature should be removed.
+            editingManager.drawDoubleClick(pointer);
+          }
 
           // For transactions we need to separate pointer move events from click events
           // Use the transaction intent for this

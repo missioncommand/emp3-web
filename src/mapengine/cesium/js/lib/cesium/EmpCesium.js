@@ -1783,7 +1783,7 @@ function EmpCesium() {
               },
               domEvent: event.domEvent
             };
-            this.prePopulateEvent(callbackData, false);
+            this.prePopulateEvent(callbackData, true);// truue to be able to remove conyrol points in edit or draw modes.
             this.handleDblClick(callbackData);
             this.cesiumRenderOptimizer.boundNotifyRepaintRequired();
           }
@@ -9016,19 +9016,23 @@ function EmpCesium() {
           }
           if (entity.polyline && presentEntity.polyline) {
             // if (this.mapLocked)
-            if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_PAN && presentEntity.id === "freehandX") {
-              this.freeHandPositions = entity.polyline.positions.getValue();
-              presentEntity.polyline.positions = new this.CallbackProperty(function(time, result) {
-                if (this.freeHandPositions.length > 1) {
-                  return this.freeHandPositions;
+            if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_PAN || presentEntity.id === "freehandX") {
+              var positions = entity.polyline.positions.getValue();
+              var getPositions = function(pos) {
+                if (pos.length > 1) {
+                  return pos;
                 }
-              }.bind(this), false);
-              this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
+              }
+              presentEntity.polyline.positions = new this.CallbackProperty(getPositions.bind(undefined, positions), false);
+              presentEntity.polyline.material = entity.polyline.material;
+              presentEntity.polyline.width = entity.polyline.width;
+              // this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
             } else {
-              presentEntity.polyline.positions = entity.polyline.positions;
+              presentEntity.polyline.positions = entity.polyline.positions.getValue();
               presentEntity.polyline.material = entity.polyline.material;
               presentEntity.polyline.width = entity.polyline.width;
             }
+            this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
           } else if (entity.polyline && !presentEntity.polyline) {
             presentEntity.polyline = entity.polyline;
           } else if (!entity.polyline && presentEntity.polyline) {

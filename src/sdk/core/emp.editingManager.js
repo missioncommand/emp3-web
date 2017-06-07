@@ -879,8 +879,38 @@ emp.editingManager = function(args) {
           });
         }
       }
+  //  }
+  },
+
+
+  /**
+   * Occurs each time the user double clicks on a  map after the
+   * drawing has started.
+   */
+  drawDoubleClick: function(pointer) {
+    var updates;
+    updates = activeEditor.drawDoubleClick(pointer);
+
+    // sometimes a draw click does not do anything.
+    // check to make sure something happened before overwriting
+    // updateData.
+    if (updates) {
+      updateData = updates;
+
+      if (updateData) {
+
+        editTransaction.items[0].update({
+          name: feature.name,
+          updates: updateData.coordinateUpdate,
+          properties: updateData.properties,
+          updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
+          mapInstanceId: mapInstance.mapInstanceId
+        });
+      }
     }
-  };
+  }
+};
+
 
 
   return publicInterface;

@@ -1030,7 +1030,7 @@ define('Core/Math',[
      * var latitude = Cesium.Math.clampToLatitudeRange(Cesium.Math.toRadians(108.0));
      */
     CesiumMath.clampToLatitudeRange = function(angle) {
-
+        
         return CesiumMath.clamp(angle, -1*CesiumMath.PI_OVER_TWO, CesiumMath.PI_OVER_TWO);
     };
 
@@ -1111,7 +1111,7 @@ define('Core/Math',[
      * @see {@link http://en.wikipedia.org/wiki/Factorial|Factorial on Wikipedia}
      */
     CesiumMath.factorial = function(n) {
-
+        
         var length = factorials.length;
         if (n >= length) {
             var sum = factorials[length - 1];
@@ -1139,7 +1139,7 @@ define('Core/Math',[
     CesiumMath.incrementWrap = function(n, maximumValue, minimumValue) {
         minimumValue = defaultValue(minimumValue, 0.0);
 
-
+        
         ++n;
         if (n > maximumValue) {
             n = minimumValue;
@@ -1160,7 +1160,7 @@ define('Core/Math',[
      * var f = Cesium.Math.isPowerOfTwo(20); // false
      */
     CesiumMath.isPowerOfTwo = function(n) {
-
+        
         return (n !== 0) && ((n & (n - 1)) === 0);
     };
 
@@ -1177,7 +1177,7 @@ define('Core/Math',[
      * var m = Cesium.Math.nextPowerOfTwo(32); // 32
      */
     CesiumMath.nextPowerOfTwo = function(n) {
-
+        
         // From http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
         --n;
         n |= n >> 1;
@@ -1211,7 +1211,7 @@ define('Core/Math',[
      * @param {Number} seed An integer used as the seed.
      */
     CesiumMath.setRandomNumberSeed = function(seed) {
-
+        
         randomNumberGenerator = new MersenneTwister(seed);
     };
 
@@ -1346,7 +1346,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      */
     Cartesian3.fromSpherical = function(spherical, result) {
-
+        
         if (!defined(result)) {
             result = new Cartesian3();
         }
@@ -1429,7 +1429,7 @@ define('Core/Cartesian3',[
      * @returns {Number[]} The array that was packed into
      */
     Cartesian3.pack = function(value, array, startingIndex) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         array[startingIndex++] = value.x;
@@ -1448,7 +1448,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if one was not provided.
      */
     Cartesian3.unpack = function(array, startingIndex, result) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         if (!defined(result)) {
@@ -1468,7 +1468,7 @@ define('Core/Cartesian3',[
      * @returns {Number[]} The packed array.
      */
     Cartesian3.packArray = function(array, result) {
-
+        
         var length = array.length;
         if (!defined(result)) {
             result = new Array(length * 3);
@@ -1490,7 +1490,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3[]} The unpacked array.
      */
     Cartesian3.unpackArray = function(array, result) {
-
+        
         var length = array.length;
         if (!defined(result)) {
             result = new Array(length / 3);
@@ -1532,7 +1532,7 @@ define('Core/Cartesian3',[
      * @returns {Number} The value of the maximum component.
      */
     Cartesian3.maximumComponent = function(cartesian) {
-
+        
         return Math.max(cartesian.x, cartesian.y, cartesian.z);
     };
 
@@ -1543,7 +1543,7 @@ define('Core/Cartesian3',[
      * @returns {Number} The value of the minimum component.
      */
     Cartesian3.minimumComponent = function(cartesian) {
-
+        
         return Math.min(cartesian.x, cartesian.y, cartesian.z);
     };
 
@@ -1556,7 +1556,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} A cartesian with the minimum components.
      */
     Cartesian3.minimumByComponent = function(first, second, result) {
-
+        
         result.x = Math.min(first.x, second.x);
         result.y = Math.min(first.y, second.y);
         result.z = Math.min(first.z, second.z);
@@ -1573,7 +1573,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} A cartesian with the maximum components.
      */
     Cartesian3.maximumByComponent = function(first, second, result) {
-
+        
         result.x = Math.max(first.x, second.x);
         result.y = Math.max(first.y, second.y);
         result.z = Math.max(first.z, second.z);
@@ -1587,7 +1587,7 @@ define('Core/Cartesian3',[
      * @returns {Number} The squared magnitude.
      */
     Cartesian3.magnitudeSquared = function(cartesian) {
-
+        
         return cartesian.x * cartesian.x + cartesian.y * cartesian.y + cartesian.z * cartesian.z;
     };
 
@@ -1615,7 +1615,7 @@ define('Core/Cartesian3',[
      * var d = Cesium.Cartesian3.distance(new Cesium.Cartesian3(1.0, 0.0, 0.0), new Cesium.Cartesian3(2.0, 0.0, 0.0));
      */
     Cartesian3.distance = function(left, right) {
-
+        
         Cartesian3.subtract(left, right, distanceScratch);
         return Cartesian3.magnitude(distanceScratch);
     };
@@ -1633,7 +1633,7 @@ define('Core/Cartesian3',[
      * var d = Cesium.Cartesian3.distanceSquared(new Cesium.Cartesian3(1.0, 0.0, 0.0), new Cesium.Cartesian3(3.0, 0.0, 0.0));
      */
     Cartesian3.distanceSquared = function(left, right) {
-
+        
         Cartesian3.subtract(left, right, distanceScratch);
         return Cartesian3.magnitudeSquared(distanceScratch);
     };
@@ -1646,14 +1646,14 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Cartesian3.normalize = function(cartesian, result) {
-
+        
         var magnitude = Cartesian3.magnitude(cartesian);
 
         result.x = cartesian.x / magnitude;
         result.y = cartesian.y / magnitude;
         result.z = cartesian.z / magnitude;
 
-
+        
         return result;
     };
 
@@ -1665,7 +1665,7 @@ define('Core/Cartesian3',[
      * @returns {Number} The dot product.
      */
     Cartesian3.dot = function(left, right) {
-
+        
         return left.x * right.x + left.y * right.y + left.z * right.z;
     };
 
@@ -1678,7 +1678,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Cartesian3.multiplyComponents = function(left, right, result) {
-
+        
         result.x = left.x * right.x;
         result.y = left.y * right.y;
         result.z = left.z * right.z;
@@ -1694,7 +1694,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Cartesian3.divideComponents = function(left, right, result) {
-
+        
         result.x = left.x / right.x;
         result.y = left.y / right.y;
         result.z = left.z / right.z;
@@ -1710,7 +1710,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Cartesian3.add = function(left, right, result) {
-
+        
         result.x = left.x + right.x;
         result.y = left.y + right.y;
         result.z = left.z + right.z;
@@ -1726,7 +1726,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Cartesian3.subtract = function(left, right, result) {
-
+        
         result.x = left.x - right.x;
         result.y = left.y - right.y;
         result.z = left.z - right.z;
@@ -1742,7 +1742,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Cartesian3.multiplyByScalar = function(cartesian, scalar, result) {
-
+        
         result.x = cartesian.x * scalar;
         result.y = cartesian.y * scalar;
         result.z = cartesian.z * scalar;
@@ -1758,7 +1758,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Cartesian3.divideByScalar = function(cartesian, scalar, result) {
-
+        
         result.x = cartesian.x / scalar;
         result.y = cartesian.y / scalar;
         result.z = cartesian.z / scalar;
@@ -1773,7 +1773,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Cartesian3.negate = function(cartesian, result) {
-
+        
         result.x = -cartesian.x;
         result.y = -cartesian.y;
         result.z = -cartesian.z;
@@ -1788,7 +1788,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Cartesian3.abs = function(cartesian, result) {
-
+        
         result.x = Math.abs(cartesian.x);
         result.y = Math.abs(cartesian.y);
         result.z = Math.abs(cartesian.z);
@@ -1806,7 +1806,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Cartesian3.lerp = function(start, end, t, result) {
-
+        
         Cartesian3.multiplyByScalar(end, t, lerpScratch);
         result = Cartesian3.multiplyByScalar(start, 1.0 - t, result);
         return Cartesian3.add(lerpScratch, result, result);
@@ -1822,7 +1822,7 @@ define('Core/Cartesian3',[
      * @returns {Number} The angle between the Cartesians.
      */
     Cartesian3.angleBetween = function(left, right) {
-
+        
         Cartesian3.normalize(left, angleBetweenScratch);
         Cartesian3.normalize(right, angleBetweenScratch2);
         var cosine = Cartesian3.dot(angleBetweenScratch, angleBetweenScratch2);
@@ -1839,7 +1839,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The most orthogonal axis.
      */
     Cartesian3.mostOrthogonalAxis = function(cartesian, result) {
-
+        
         var f = Cartesian3.normalize(cartesian, mostOrthogonalAxisScratch);
         Cartesian3.abs(f, f);
 
@@ -1915,7 +1915,7 @@ define('Core/Cartesian3',[
      * @returns {Cartesian3} The cross product.
      */
     Cartesian3.cross = function(left, right, result) {
-
+        
         var leftX = left.x;
         var leftY = left.y;
         var leftZ = left.z;
@@ -1947,7 +1947,7 @@ define('Core/Cartesian3',[
      * var position = Cesium.Cartesian3.fromDegrees(-115.0, 37.0);
      */
     Cartesian3.fromDegrees = function(longitude, latitude, height, ellipsoid, result) {
-
+        
         longitude = CesiumMath.toRadians(longitude);
         latitude = CesiumMath.toRadians(latitude);
         return Cartesian3.fromRadians(longitude, latitude, height, ellipsoid, result);
@@ -1971,7 +1971,7 @@ define('Core/Cartesian3',[
      * var position = Cesium.Cartesian3.fromRadians(-2.007, 0.645);
      */
     Cartesian3.fromRadians = function(longitude, latitude, height, ellipsoid, result) {
-
+        
         height = defaultValue(height, 0.0);
         var radiiSquared = defined(ellipsoid) ? ellipsoid.radiiSquared : wgs84RadiiSquared;
 
@@ -2004,7 +2004,7 @@ define('Core/Cartesian3',[
      * var positions = Cesium.Cartesian3.fromDegreesArray([-115.0, 37.0, -107.0, 33.0]);
      */
     Cartesian3.fromDegreesArray = function(coordinates, ellipsoid, result) {
-
+        
         var length = coordinates.length;
         if (!defined(result)) {
             result = new Array(length / 2);
@@ -2034,7 +2034,7 @@ define('Core/Cartesian3',[
      * var positions = Cesium.Cartesian3.fromRadiansArray([-2.007, 0.645, -1.867, .575]);
      */
     Cartesian3.fromRadiansArray = function(coordinates, ellipsoid, result) {
-
+        
         var length = coordinates.length;
         if (!defined(result)) {
             result = new Array(length / 2);
@@ -2064,7 +2064,7 @@ define('Core/Cartesian3',[
      * var positions = Cesium.Cartesian3.fromDegreesArrayHeights([-115.0, 37.0, 100000.0, -107.0, 33.0, 150000.0]);
      */
     Cartesian3.fromDegreesArrayHeights = function(coordinates, ellipsoid, result) {
-
+        
         var length = coordinates.length;
         if (!defined(result)) {
             result = new Array(length / 3);
@@ -2095,7 +2095,7 @@ define('Core/Cartesian3',[
      * var positions = Cesium.Cartesian3.fromRadiansArrayHeights([-2.007, 0.645, 100000.0, -1.867, .575, 150000.0]);
      */
     Cartesian3.fromRadiansArrayHeights = function(coordinates, ellipsoid, result) {
-
+        
         var length = coordinates.length;
         if (!defined(result)) {
             result = new Array(length / 3);
@@ -2226,7 +2226,7 @@ define('Core/scaleToGeodeticSurface',[
      * @private
      */
     function scaleToGeodeticSurface(cartesian, oneOverRadii, oneOverRadiiSquared, centerToleranceSquared, result) {
-
+        
         var positionX = cartesian.x;
         var positionY = cartesian.y;
         var positionZ = cartesian.z;
@@ -2319,17 +2319,17 @@ define('Core/scaleToGeodeticSurface',[
 /*global define*/
 define('Core/Cartographic',[
         './Cartesian3',
+        './Check',
         './defaultValue',
         './defined',
-        './DeveloperError',
         './freezeObject',
         './Math',
         './scaleToGeodeticSurface'
     ], function(
         Cartesian3,
+        Check,
         defaultValue,
         defined,
-        DeveloperError,
         freezeObject,
         CesiumMath,
         scaleToGeodeticSurface) {
@@ -2380,7 +2380,7 @@ define('Core/Cartographic',[
      * @returns {Cartographic} The modified result parameter or a new Cartographic instance if one was not provided.
      */
     Cartographic.fromRadians = function(longitude, latitude, height, result) {
-
+        
         height = defaultValue(height, 0.0);
 
         if (!defined(result)) {
@@ -2505,7 +2505,7 @@ define('Core/Cartographic',[
      * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
      */
     Cartographic.equalsEpsilon = function(left, right, epsilon) {
-
+        
         return (left === right) ||
                ((defined(left)) &&
                 (defined(right)) &&
@@ -2631,7 +2631,7 @@ define('Core/Ellipsoid',[
         y = defaultValue(y, 0.0);
         z = defaultValue(z, 0.0);
 
-
+        
         ellipsoid._radii = new Cartesian3(x, y, z);
 
         ellipsoid._radiiSquared = new Cartesian3(x * x,
@@ -2882,7 +2882,7 @@ define('Core/Ellipsoid',[
      * @returns {Number[]} The array that was packed into
      */
     Ellipsoid.pack = function(value, array, startingIndex) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         Cartesian3.pack(value._radii, array, startingIndex);
@@ -2899,7 +2899,7 @@ define('Core/Ellipsoid',[
      * @returns {Ellipsoid} The modified result parameter or a new Ellipsoid instance if one was not provided.
      */
     Ellipsoid.unpack = function(array, startingIndex, result) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         var radii = Cartesian3.unpack(array, startingIndex);
@@ -2924,7 +2924,7 @@ define('Core/Ellipsoid',[
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if none was provided.
      */
     Ellipsoid.prototype.geodeticSurfaceNormalCartographic = function(cartographic, result) {
-
+        
         var longitude = cartographic.longitude;
         var latitude = cartographic.latitude;
         var cosLatitude = Math.cos(latitude);
@@ -3003,7 +3003,7 @@ define('Core/Ellipsoid',[
      * var cartesianPositions = Cesium.Ellipsoid.WGS84.cartographicArrayToCartesianArray(positions);
      */
     Ellipsoid.prototype.cartographicArrayToCartesianArray = function(cartographics, result) {
-
+        
         var length = cartographics.length;
         if (!defined(result)) {
             result = new Array(length);
@@ -3072,7 +3072,7 @@ define('Core/Ellipsoid',[
      * var cartographicPositions = Cesium.Ellipsoid.WGS84.cartesianArrayToCartographicArray(positions);
      */
     Ellipsoid.prototype.cartesianArrayToCartographicArray = function(cartesians, result) {
-
+        
         var length = cartesians.length;
         if (!defined(result)) {
             result = new Array(length);
@@ -3107,7 +3107,7 @@ define('Core/Ellipsoid',[
      * @returns {Cartesian3} The modified result parameter or a new Cartesian3 instance if none was provided.
      */
     Ellipsoid.prototype.scaleToGeocentricSurface = function(cartesian, result) {
-
+        
         if (!defined(result)) {
             result = new Cartesian3();
         }
@@ -3199,7 +3199,7 @@ define('Core/Ellipsoid',[
      * @exception {DeveloperError} Ellipsoid.radii.z must be greater than 0.
      */
     Ellipsoid.prototype.getSurfaceNormalIntersectionWithZAxis = function(position, buffer, result) {
-
+        
         buffer = defaultValue(buffer, 0.0);
 
         var sqauredXOverSquaredZ = this._sqauredXOverSquaredZ;
@@ -3318,7 +3318,7 @@ define('Core/GeographicProjection',[
      *          created and returned.
      */
     GeographicProjection.prototype.unproject = function(cartesian, result) {
-
+        
         var oneOverEarthSemimajorAxis = this._oneOverSemimajorAxis;
         var longitude = cartesian.x * oneOverEarthSemimajorAxis;
         var latitude = cartesian.y * oneOverEarthSemimajorAxis;
@@ -3489,7 +3489,7 @@ define('Core/Matrix3',[
      * @returns {Number[]} The array that was packed into
      */
     Matrix3.pack = function(value, array, startingIndex) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         array[startingIndex++] = value[0];
@@ -3514,7 +3514,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The modified result parameter or a new Matrix3 instance if one was not provided.
      */
     Matrix3.unpack = function(array, startingIndex, result) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         if (!defined(result)) {
@@ -3583,7 +3583,7 @@ define('Core/Matrix3',[
      * var m2 = Cesium.Matrix3.fromArray(v2, 2);
      */
     Matrix3.fromArray = function(array, startingIndex, result) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         if (!defined(result)) {
@@ -3610,7 +3610,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The modified result parameter, or a new Matrix3 instance if one was not provided.
      */
     Matrix3.fromColumnMajorArray = function(values, result) {
-
+        
         return Matrix3.clone(values, result);
     };
 
@@ -3623,7 +3623,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The modified result parameter, or a new Matrix3 instance if one was not provided.
      */
     Matrix3.fromRowMajorArray = function(values, result) {
-
+        
         if (!defined(result)) {
             return new Matrix3(values[0], values[1], values[2],
                                values[3], values[4], values[5],
@@ -3649,7 +3649,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The 3x3 rotation matrix from this quaternion.
      */
     Matrix3.fromQuaternion = function(quaternion, result) {
-
+        
         var x2 = quaternion.x * quaternion.x;
         var xy = quaternion.x * quaternion.y;
         var xz = quaternion.x * quaternion.z;
@@ -3698,7 +3698,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The 3x3 rotation matrix from this headingPitchRoll.
      */
     Matrix3.fromHeadingPitchRoll = function(headingPitchRoll, result) {
-
+        
         var cosTheta = Math.cos(-headingPitchRoll.pitch);
         var cosPsi = Math.cos(-headingPitchRoll.heading);
         var cosPhi = Math.cos(headingPitchRoll.roll);
@@ -3750,7 +3750,7 @@ define('Core/Matrix3',[
      * var m = Cesium.Matrix3.fromScale(new Cesium.Cartesian3(7.0, 8.0, 9.0));
      */
     Matrix3.fromScale = function(scale, result) {
-
+        
         if (!defined(result)) {
             return new Matrix3(
                 scale.x, 0.0,     0.0,
@@ -3785,7 +3785,7 @@ define('Core/Matrix3',[
      * var m = Cesium.Matrix3.fromUniformScale(2.0);
      */
     Matrix3.fromUniformScale = function(scale, result) {
-
+        
         if (!defined(result)) {
             return new Matrix3(
                 scale, 0.0,   0.0,
@@ -3820,7 +3820,7 @@ define('Core/Matrix3',[
      * var m = Cesium.Matrix3.fromCrossProduct(new Cesium.Cartesian3(7.0, 8.0, 9.0));
      */
     Matrix3.fromCrossProduct = function(vector, result) {
-
+        
         if (!defined(result)) {
             return new Matrix3(
                       0.0, -vector.z,  vector.y,
@@ -3854,7 +3854,7 @@ define('Core/Matrix3',[
      * var rotated = Cesium.Matrix3.multiplyByVector(m, p, new Cesium.Cartesian3());
      */
     Matrix3.fromRotationX = function(angle, result) {
-
+        
         var cosAngle = Math.cos(angle);
         var sinAngle = Math.sin(angle);
 
@@ -3892,7 +3892,7 @@ define('Core/Matrix3',[
      * var rotated = Cesium.Matrix3.multiplyByVector(m, p, new Cesium.Cartesian3());
      */
     Matrix3.fromRotationY = function(angle, result) {
-
+        
         var cosAngle = Math.cos(angle);
         var sinAngle = Math.sin(angle);
 
@@ -3930,7 +3930,7 @@ define('Core/Matrix3',[
      * var rotated = Cesium.Matrix3.multiplyByVector(m, p, new Cesium.Cartesian3());
      */
     Matrix3.fromRotationZ = function(angle, result) {
-
+        
         var cosAngle = Math.cos(angle);
         var sinAngle = Math.sin(angle);
 
@@ -3963,7 +3963,7 @@ define('Core/Matrix3',[
      * @returns {Number[]} The modified Array parameter or a new Array instance if one was not provided.
      */
     Matrix3.toArray = function(matrix, result) {
-
+        
         if (!defined(result)) {
             return [matrix[0], matrix[1], matrix[2], matrix[3], matrix[4], matrix[5], matrix[6], matrix[7], matrix[8]];
         }
@@ -3996,7 +3996,7 @@ define('Core/Matrix3',[
      * myMatrix[column1Row0Index] = 10.0;
      */
     Matrix3.getElementIndex = function(column, row) {
-
+        
         return column * 3 + row;
     };
 
@@ -4011,7 +4011,7 @@ define('Core/Matrix3',[
      * @exception {DeveloperError} index must be 0, 1, or 2.
      */
     Matrix3.getColumn = function(matrix, index, result) {
-
+        
         var startIndex = index * 3;
         var x = matrix[startIndex];
         var y = matrix[startIndex + 1];
@@ -4035,7 +4035,7 @@ define('Core/Matrix3',[
      * @exception {DeveloperError} index must be 0, 1, or 2.
      */
     Matrix3.setColumn = function(matrix, index, cartesian, result) {
-
+        
         result = Matrix3.clone(matrix, result);
         var startIndex = index * 3;
         result[startIndex] = cartesian.x;
@@ -4055,7 +4055,7 @@ define('Core/Matrix3',[
      * @exception {DeveloperError} index must be 0, 1, or 2.
      */
     Matrix3.getRow = function(matrix, index, result) {
-
+        
         var x = matrix[index];
         var y = matrix[index + 3];
         var z = matrix[index + 6];
@@ -4078,7 +4078,7 @@ define('Core/Matrix3',[
      * @exception {DeveloperError} index must be 0, 1, or 2.
      */
     Matrix3.setRow = function(matrix, index, cartesian, result) {
-
+        
         result = Matrix3.clone(matrix, result);
         result[index] = cartesian.x;
         result[index + 3] = cartesian.y;
@@ -4096,7 +4096,7 @@ define('Core/Matrix3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Matrix3.getScale = function(matrix, result) {
-
+        
         result.x = Cartesian3.magnitude(Cartesian3.fromElements(matrix[0], matrix[1], matrix[2], scratchColumn));
         result.y = Cartesian3.magnitude(Cartesian3.fromElements(matrix[3], matrix[4], matrix[5], scratchColumn));
         result.z = Cartesian3.magnitude(Cartesian3.fromElements(matrix[6], matrix[7], matrix[8], scratchColumn));
@@ -4126,7 +4126,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The modified result parameter.
      */
     Matrix3.multiply = function(left, right, result) {
-
+        
         var column0Row0 = left[0] * right[0] + left[3] * right[1] + left[6] * right[2];
         var column0Row1 = left[1] * right[0] + left[4] * right[1] + left[7] * right[2];
         var column0Row2 = left[2] * right[0] + left[5] * right[1] + left[8] * right[2];
@@ -4160,7 +4160,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The modified result parameter.
      */
     Matrix3.add = function(left, right, result) {
-
+        
         result[0] = left[0] + right[0];
         result[1] = left[1] + right[1];
         result[2] = left[2] + right[2];
@@ -4182,7 +4182,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The modified result parameter.
      */
     Matrix3.subtract = function(left, right, result) {
-
+        
         result[0] = left[0] - right[0];
         result[1] = left[1] - right[1];
         result[2] = left[2] - right[2];
@@ -4204,7 +4204,7 @@ define('Core/Matrix3',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Matrix3.multiplyByVector = function(matrix, cartesian, result) {
-
+        
         var vX = cartesian.x;
         var vY = cartesian.y;
         var vZ = cartesian.z;
@@ -4228,7 +4228,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The modified result parameter.
      */
     Matrix3.multiplyByScalar = function(matrix, scalar, result) {
-
+        
         result[0] = matrix[0] * scalar;
         result[1] = matrix[1] * scalar;
         result[2] = matrix[2] * scalar;
@@ -4258,7 +4258,7 @@ define('Core/Matrix3',[
      * @see Matrix3.multiplyByUniformScale
      */
     Matrix3.multiplyByScale = function(matrix, scale, result) {
-
+        
         result[0] = matrix[0] * scale.x;
         result[1] = matrix[1] * scale.x;
         result[2] = matrix[2] * scale.x;
@@ -4279,7 +4279,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The modified result parameter.
      */
     Matrix3.negate = function(matrix, result) {
-
+        
         result[0] = -matrix[0];
         result[1] = -matrix[1];
         result[2] = -matrix[2];
@@ -4300,7 +4300,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The modified result parameter.
      */
     Matrix3.transpose = function(matrix, result) {
-
+        
         var column0Row0 = matrix[0];
         var column0Row1 = matrix[3];
         var column0Row2 = matrix[6];
@@ -4439,7 +4439,7 @@ define('Core/Matrix3',[
      * var c = Cesium.Cartesian3.multiplyByScalar(v, lambda, new Cesium.Cartesian3());        // equal to Cesium.Matrix3.multiplyByVector(a, v)
      */
     Matrix3.computeEigenDecomposition = function(matrix, result) {
-
+        
         // This routine was created based upon Matrix Computations, 3rd ed., by Golub and Van Loan,
         // section 8.4.3 The Classical Jacobi Algorithm
 
@@ -4482,7 +4482,7 @@ define('Core/Matrix3',[
      * @returns {Matrix3} The modified result parameter.
      */
     Matrix3.abs = function(matrix, result) {
-
+        
         result[0] = Math.abs(matrix[0]);
         result[1] = Math.abs(matrix[1]);
         result[2] = Math.abs(matrix[2]);
@@ -4503,7 +4503,7 @@ define('Core/Matrix3',[
      * @returns {Number} The value of the determinant of the matrix.
      */
     Matrix3.determinant = function(matrix) {
-
+        
         var m11 = matrix[0];
         var m21 = matrix[3];
         var m31 = matrix[6];
@@ -4527,7 +4527,7 @@ define('Core/Matrix3',[
      * @exception {DeveloperError} matrix is not invertible.
      */
     Matrix3.inverse = function(matrix, result) {
-
+        
         var m11 = matrix[0];
         var m21 = matrix[1];
         var m31 = matrix[2];
@@ -4540,7 +4540,7 @@ define('Core/Matrix3',[
 
         var determinant = Matrix3.determinant(matrix);
 
-
+        
         result[0] = m22 * m33 - m23 * m32;
         result[1] = m23 * m31 - m21 * m33;
         result[2] = m21 * m32 - m22 * m31;
@@ -4589,7 +4589,7 @@ define('Core/Matrix3',[
      * @returns {Boolean} <code>true</code> if left and right are within the provided epsilon, <code>false</code> otherwise.
      */
     Matrix3.equalsEpsilon = function(left, right, epsilon) {
-
+        
         return (left === right) ||
                 (defined(left) &&
                 defined(right) &&
@@ -4917,7 +4917,7 @@ define('Core/Cartesian4',[
      * @returns {Number[]} The array that was packed into
      */
     Cartesian4.pack = function(value, array, startingIndex) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         array[startingIndex++] = value.x;
@@ -4937,7 +4937,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4}  The modified result parameter or a new Cartesian4 instance if one was not provided.
      */
     Cartesian4.unpack = function(array, startingIndex, result) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         if (!defined(result)) {
@@ -4958,7 +4958,7 @@ define('Core/Cartesian4',[
      * @returns {Number[]} The packed array.
      */
     Cartesian4.packArray = function(array, result) {
-
+        
         var length = array.length;
         if (!defined(result)) {
             result = new Array(length * 4);
@@ -4980,7 +4980,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4[]} The unpacked array.
      */
     Cartesian4.unpackArray = function(array, result) {
-
+        
         var length = array.length;
         if (!defined(result)) {
             result = new Array(length / 4);
@@ -5022,7 +5022,7 @@ define('Core/Cartesian4',[
      * @returns {Number} The value of the maximum component.
      */
     Cartesian4.maximumComponent = function(cartesian) {
-
+        
         return Math.max(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
     };
 
@@ -5033,7 +5033,7 @@ define('Core/Cartesian4',[
      * @returns {Number} The value of the minimum component.
      */
     Cartesian4.minimumComponent = function(cartesian) {
-
+        
         return Math.min(cartesian.x, cartesian.y, cartesian.z, cartesian.w);
     };
 
@@ -5046,7 +5046,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} A cartesian with the minimum components.
      */
     Cartesian4.minimumByComponent = function(first, second, result) {
-
+        
         result.x = Math.min(first.x, second.x);
         result.y = Math.min(first.y, second.y);
         result.z = Math.min(first.z, second.z);
@@ -5064,7 +5064,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} A cartesian with the maximum components.
      */
     Cartesian4.maximumByComponent = function(first, second, result) {
-
+        
         result.x = Math.max(first.x, second.x);
         result.y = Math.max(first.y, second.y);
         result.z = Math.max(first.z, second.z);
@@ -5080,7 +5080,7 @@ define('Core/Cartesian4',[
      * @returns {Number} The squared magnitude.
      */
     Cartesian4.magnitudeSquared = function(cartesian) {
-
+        
         return cartesian.x * cartesian.x + cartesian.y * cartesian.y + cartesian.z * cartesian.z + cartesian.w * cartesian.w;
     };
 
@@ -5110,7 +5110,7 @@ define('Core/Cartesian4',[
      *   new Cesium.Cartesian4(2.0, 0.0, 0.0, 0.0));
      */
     Cartesian4.distance = function(left, right) {
-
+        
         Cartesian4.subtract(left, right, distanceScratch);
         return Cartesian4.magnitude(distanceScratch);
     };
@@ -5130,7 +5130,7 @@ define('Core/Cartesian4',[
      *   new Cesium.Cartesian4(3.0, 0.0, 0.0, 0.0));
      */
     Cartesian4.distanceSquared = function(left, right) {
-
+        
         Cartesian4.subtract(left, right, distanceScratch);
         return Cartesian4.magnitudeSquared(distanceScratch);
     };
@@ -5143,7 +5143,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Cartesian4.normalize = function(cartesian, result) {
-
+        
         var magnitude = Cartesian4.magnitude(cartesian);
 
         result.x = cartesian.x / magnitude;
@@ -5151,7 +5151,7 @@ define('Core/Cartesian4',[
         result.z = cartesian.z / magnitude;
         result.w = cartesian.w / magnitude;
 
-
+        
         return result;
     };
 
@@ -5163,7 +5163,7 @@ define('Core/Cartesian4',[
      * @returns {Number} The dot product.
      */
     Cartesian4.dot = function(left, right) {
-
+        
         return left.x * right.x + left.y * right.y + left.z * right.z + left.w * right.w;
     };
 
@@ -5176,7 +5176,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Cartesian4.multiplyComponents = function(left, right, result) {
-
+        
         result.x = left.x * right.x;
         result.y = left.y * right.y;
         result.z = left.z * right.z;
@@ -5193,7 +5193,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Cartesian4.divideComponents = function(left, right, result) {
-
+        
         result.x = left.x / right.x;
         result.y = left.y / right.y;
         result.z = left.z / right.z;
@@ -5210,7 +5210,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Cartesian4.add = function(left, right, result) {
-
+        
         result.x = left.x + right.x;
         result.y = left.y + right.y;
         result.z = left.z + right.z;
@@ -5227,7 +5227,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Cartesian4.subtract = function(left, right, result) {
-
+        
         result.x = left.x - right.x;
         result.y = left.y - right.y;
         result.z = left.z - right.z;
@@ -5244,7 +5244,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Cartesian4.multiplyByScalar = function(cartesian, scalar, result) {
-
+        
         result.x = cartesian.x * scalar;
         result.y = cartesian.y * scalar;
         result.z = cartesian.z * scalar;
@@ -5261,7 +5261,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Cartesian4.divideByScalar = function(cartesian, scalar, result) {
-
+        
         result.x = cartesian.x / scalar;
         result.y = cartesian.y / scalar;
         result.z = cartesian.z / scalar;
@@ -5277,7 +5277,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Cartesian4.negate = function(cartesian, result) {
-
+        
         result.x = -cartesian.x;
         result.y = -cartesian.y;
         result.z = -cartesian.z;
@@ -5293,7 +5293,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Cartesian4.abs = function(cartesian, result) {
-
+        
         result.x = Math.abs(cartesian.x);
         result.y = Math.abs(cartesian.y);
         result.z = Math.abs(cartesian.z);
@@ -5312,7 +5312,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Cartesian4.lerp = function(start, end, t, result) {
-
+        
         Cartesian4.multiplyByScalar(end, t, lerpScratch);
         result = Cartesian4.multiplyByScalar(start, 1.0 - t, result);
         return Cartesian4.add(lerpScratch, result, result);
@@ -5327,7 +5327,7 @@ define('Core/Cartesian4',[
      * @returns {Cartesian4} The most orthogonal axis.
      */
     Cartesian4.mostOrthogonalAxis = function(cartesian, result) {
-
+        
         var f = Cartesian4.normalize(cartesian, mostOrthogonalAxisScratch);
         Cartesian4.abs(f, f);
 
@@ -5672,7 +5672,7 @@ define('Core/Matrix4',[
      * @returns {Number[]} The array that was packed into
      */
     Matrix4.pack = function(value, array, startingIndex) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         array[startingIndex++] = value[0];
@@ -5704,7 +5704,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter or a new Matrix4 instance if one was not provided.
      */
     Matrix4.unpack = function(array, startingIndex, result) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         if (!defined(result)) {
@@ -5799,7 +5799,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter, or a new Matrix4 instance if one was not provided.
      */
     Matrix4.fromColumnMajorArray = function(values, result) {
-
+        
         return Matrix4.clone(values, result);
     };
 
@@ -5812,7 +5812,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter, or a new Matrix4 instance if one was not provided.
      */
     Matrix4.fromRowMajorArray = function(values, result) {
-
+        
         if (!defined(result)) {
             return new Matrix4(values[0], values[1], values[2], values[3],
                                values[4], values[5], values[6], values[7],
@@ -5848,7 +5848,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter, or a new Matrix4 instance if one was not provided.
      */
     Matrix4.fromRotationTranslation = function(rotation, translation, result) {
-
+        
         translation = defaultValue(translation, Cartesian3.ZERO);
 
         if (!defined(result)) {
@@ -5895,7 +5895,7 @@ define('Core/Matrix4',[
      *   result);
      */
     Matrix4.fromTranslationQuaternionRotationScale = function(translation, rotation, scale, result) {
-
+        
         if (!defined(result)) {
             result = new Matrix4();
         }
@@ -5955,7 +5955,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter, or a new Matrix4 instance if one was not provided.
      */
     Matrix4.fromTranslationRotationScale = function(translationRotationScale, result) {
-
+        
         return Matrix4.fromTranslationQuaternionRotationScale(translationRotationScale.translation, translationRotationScale.rotation, translationRotationScale.scale, result);
     };
 
@@ -5969,7 +5969,7 @@ define('Core/Matrix4',[
      * @see Matrix4.multiplyByTranslation
      */
     Matrix4.fromTranslation = function(translation, result) {
-
+        
         return Matrix4.fromRotationTranslation(Matrix3.IDENTITY, translation, result);
     };
 
@@ -5989,7 +5989,7 @@ define('Core/Matrix4',[
      * var m = Cesium.Matrix4.fromScale(new Cesium.Cartesian3(7.0, 8.0, 9.0));
      */
     Matrix4.fromScale = function(scale, result) {
-
+        
         if (!defined(result)) {
             return new Matrix4(
                 scale.x, 0.0,     0.0,     0.0,
@@ -6033,7 +6033,7 @@ define('Core/Matrix4',[
      * var m = Cesium.Matrix4.fromUniformScale(2.0);
      */
     Matrix4.fromUniformScale = function(scale, result) {
-
+        
         if (!defined(result)) {
             return new Matrix4(scale, 0.0,   0.0,   0.0,
                                0.0,   scale, 0.0,   0.0,
@@ -6072,12 +6072,12 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter, or a new Matrix4 instance if one was not provided.
      */
     Matrix4.fromCamera = function(camera, result) {
-
+        
         var position = camera.position;
         var direction = camera.direction;
         var up = camera.up;
 
-
+        
         Cartesian3.normalize(direction, fromCameraF);
         Cartesian3.normalize(Cartesian3.cross(fromCameraF, up, fromCameraR), fromCameraR);
         Cartesian3.normalize(Cartesian3.cross(fromCameraR, fromCameraF, fromCameraU), fromCameraU);
@@ -6155,7 +6155,7 @@ define('Core/Matrix4',[
       * @exception {DeveloperError} far must be greater than zero.
       */
     Matrix4.computePerspectiveFieldOfView = function(fovY, aspectRatio, near, far, result) {
-
+        
         var bottom = Math.tan(fovY * 0.5);
 
         var column1Row1 = 1.0 / bottom;
@@ -6195,7 +6195,7 @@ define('Core/Matrix4',[
     * @returns {Matrix4} The modified result parameter.
     */
     Matrix4.computeOrthographicOffCenter = function(left, right, bottom, top, near, far, result) {
-
+        
         var a = 1.0 / (right - left);
         var b = 1.0 / (top - bottom);
         var c = 1.0 / (far - near);
@@ -6239,7 +6239,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter.
      */
     Matrix4.computePerspectiveOffCenter = function(left, right, bottom, top, near, far, result) {
-
+        
         var column0Row0 = 2.0 * near / (right - left);
         var column1Row1 = 2.0 * near / (top - bottom);
         var column2Row0 = (right + left) / (right - left);
@@ -6279,7 +6279,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter.
      */
     Matrix4.computeInfinitePerspectiveOffCenter = function(left, right, bottom, top, near, result) {
-
+        
         var column0Row0 = 2.0 * near / (right - left);
         var column1Row1 = 2.0 * near / (top - bottom);
         var column2Row0 = (right + left) / (right - left);
@@ -6326,7 +6326,7 @@ define('Core/Matrix4',[
      * }, 0.0, 1.0, new Cesium.Matrix4());
      */
     Matrix4.computeViewportTransformation = function(viewport, nearDepthRange, farDepthRange, result) {
-
+        
         viewport = defaultValue(viewport, defaultValue.EMPTY_OBJECT);
         var x = defaultValue(viewport.x, 0.0);
         var y = defaultValue(viewport.y, 0.0);
@@ -6377,7 +6377,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter.
      */
     Matrix4.computeView = function(position, direction, up, right, result) {
-
+        
         result[0] = right.x;
         result[1] = up.x;
         result[2] = -direction.x;
@@ -6417,7 +6417,7 @@ define('Core/Matrix4',[
      * //creates a = [10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0, 19.0, 20.0, 21.0, 22.0, 23.0, 24.0, 25.0]
      */
     Matrix4.toArray = function(matrix, result) {
-
+        
         if (!defined(result)) {
             return [matrix[0], matrix[1], matrix[2], matrix[3],
                     matrix[4], matrix[5], matrix[6], matrix[7],
@@ -6460,7 +6460,7 @@ define('Core/Matrix4',[
      * myMatrix[column1Row0Index] = 10.0;
      */
     Matrix4.getElementIndex = function(column, row) {
-
+        
         return column * 4 + row;
     };
 
@@ -6492,7 +6492,7 @@ define('Core/Matrix4',[
      * // a.x = 12.0; a.y = 16.0; a.z = 20.0; a.w = 24.0;
      */
     Matrix4.getColumn = function(matrix, index, result) {
-
+        
         var startIndex = index * 4;
         var x = matrix[startIndex];
         var y = matrix[startIndex + 1];
@@ -6533,7 +6533,7 @@ define('Core/Matrix4',[
      * //     [22.0, 23.0, 96.0, 25.0]
      */
     Matrix4.setColumn = function(matrix, index, cartesian, result) {
-
+        
         result = Matrix4.clone(matrix, result);
         var startIndex = index * 4;
         result[startIndex] = cartesian.x;
@@ -6553,7 +6553,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter.
      */
     Matrix4.setTranslation = function(matrix, translation, result) {
-
+        
         result[0] = matrix[0];
         result[1] = matrix[1];
         result[2] = matrix[2];
@@ -6605,7 +6605,7 @@ define('Core/Matrix4',[
      * // a.x = 18.0; a.y = 19.0; a.z = 20.0; a.w = 21.0;
      */
     Matrix4.getRow = function(matrix, index, result) {
-
+        
         var x = matrix[index];
         var y = matrix[index + 4];
         var z = matrix[index + 8];
@@ -6645,7 +6645,7 @@ define('Core/Matrix4',[
      * //     [22.0, 23.0, 24.0, 25.0]
      */
     Matrix4.setRow = function(matrix, index, cartesian, result) {
-
+        
         result = Matrix4.clone(matrix, result);
         result[index] = cartesian.x;
         result[index + 4] = cartesian.y;
@@ -6664,7 +6664,7 @@ define('Core/Matrix4',[
      * @returns {Cartesian3} The modified result parameter
      */
     Matrix4.getScale = function(matrix, result) {
-
+        
         result.x = Cartesian3.magnitude(Cartesian3.fromElements(matrix[0], matrix[1], matrix[2], scratchColumn));
         result.y = Cartesian3.magnitude(Cartesian3.fromElements(matrix[4], matrix[5], matrix[6], scratchColumn));
         result.z = Cartesian3.magnitude(Cartesian3.fromElements(matrix[8], matrix[9], matrix[10], scratchColumn));
@@ -6695,7 +6695,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter.
      */
     Matrix4.multiply = function(left, right, result) {
-
+        
         var left0 = left[0];
         var left1 = left[1];
         var left2 = left[2];
@@ -6778,7 +6778,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter.
      */
     Matrix4.add = function(left, right, result) {
-
+        
         result[0] = left[0] + right[0];
         result[1] = left[1] + right[1];
         result[2] = left[2] + right[2];
@@ -6807,7 +6807,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter.
      */
     Matrix4.subtract = function(left, right, result) {
-
+        
         result[0] = left[0] - right[0];
         result[1] = left[1] - right[1];
         result[2] = left[2] - right[2];
@@ -6847,7 +6847,7 @@ define('Core/Matrix4',[
      * var m3 = Cesium.Matrix4.multiplyTransformation(m1, m2, new Cesium.Matrix4());
      */
     Matrix4.multiplyTransformation = function(left, right, result) {
-
+        
         var left0 = left[0];
         var left1 = left[1];
         var left2 = left[2];
@@ -6924,7 +6924,7 @@ define('Core/Matrix4',[
      * Cesium.Matrix4.multiplyByMatrix3(m, rotation, m);
      */
     Matrix4.multiplyByMatrix3 = function(matrix, rotation, result) {
-
+        
         var left0 = matrix[0];
         var left1 = matrix[1];
         var left2 = matrix[2];
@@ -6991,7 +6991,7 @@ define('Core/Matrix4',[
      * Cesium.Matrix4.multiplyByTranslation(m, position, m);
      */
     Matrix4.multiplyByTranslation = function(matrix, translation, result) {
-
+        
         var x = translation.x;
         var y = translation.y;
         var z = translation.z;
@@ -7042,7 +7042,7 @@ define('Core/Matrix4',[
      * @see Matrix4.multiplyByScale
      */
     Matrix4.multiplyByUniformScale = function(matrix, scale, result) {
-
+        
         uniformScaleScratch.x = scale;
         uniformScaleScratch.y = scale;
         uniformScaleScratch.z = scale;
@@ -7070,7 +7070,7 @@ define('Core/Matrix4',[
      * @see Matrix4.multiplyByUniformScale
      */
     Matrix4.multiplyByScale = function(matrix, scale, result) {
-
+        
         var scaleX = scale.x;
         var scaleY = scale.y;
         var scaleZ = scale.z;
@@ -7108,7 +7108,7 @@ define('Core/Matrix4',[
      * @returns {Cartesian4} The modified result parameter.
      */
     Matrix4.multiplyByVector = function(matrix, cartesian, result) {
-
+        
         var vX = cartesian.x;
         var vY = cartesian.y;
         var vZ = cartesian.z;
@@ -7143,7 +7143,7 @@ define('Core/Matrix4',[
      * //   Cesium.Matrix4.multiplyByVector(matrix, new Cesium.Cartesian4(p.x, p.y, p.z, 0.0), result);
      */
     Matrix4.multiplyByPointAsVector = function(matrix, cartesian, result) {
-
+        
         var vX = cartesian.x;
         var vY = cartesian.y;
         var vZ = cartesian.z;
@@ -7172,7 +7172,7 @@ define('Core/Matrix4',[
      * var result = Cesium.Matrix4.multiplyByPoint(matrix, p, new Cesium.Cartesian3());
      */
     Matrix4.multiplyByPoint = function(matrix, cartesian, result) {
-
+        
         var vX = cartesian.x;
         var vY = cartesian.y;
         var vZ = cartesian.z;
@@ -7211,7 +7211,7 @@ define('Core/Matrix4',[
      * //     [-44.0, -46.0, -48.0, -50.0]
      */
     Matrix4.multiplyByScalar = function(matrix, scalar, result) {
-
+        
         result[0] = matrix[0] * scalar;
         result[1] = matrix[1] * scalar;
         result[2] = matrix[2] * scalar;
@@ -7254,7 +7254,7 @@ define('Core/Matrix4',[
      * //     [-22.0, -23.0, -24.0, -25.0]
      */
     Matrix4.negate = function(matrix, result) {
-
+        
         result[0] = -matrix[0];
         result[1] = -matrix[1];
         result[2] = -matrix[2];
@@ -7297,7 +7297,7 @@ define('Core/Matrix4',[
      * //     [13.0, 17.0, 21.0, 25.0]
      */
     Matrix4.transpose = function(matrix, result) {
-
+        
         var matrix1 = matrix[1];
         var matrix2 = matrix[2];
         var matrix3 = matrix[3];
@@ -7332,7 +7332,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter.
      */
     Matrix4.abs = function(matrix, result) {
-
+        
         result[0] = Math.abs(matrix[0]);
         result[1] = Math.abs(matrix[1]);
         result[2] = Math.abs(matrix[2]);
@@ -7445,7 +7445,7 @@ define('Core/Matrix4',[
      * //Prints "Difference between both the matrices is not less than 0.1" on the console
      */
     Matrix4.equalsEpsilon = function(left, right, epsilon) {
-
+        
         return (left === right) ||
                 (defined(left) &&
                 defined(right) &&
@@ -7475,7 +7475,7 @@ define('Core/Matrix4',[
      * @returns {Cartesian3} The modified result parameter.
      */
     Matrix4.getTranslation = function(matrix, result) {
-
+        
         result.x = matrix[12];
         result.y = matrix[13];
         result.z = matrix[14];
@@ -7505,7 +7505,7 @@ define('Core/Matrix4',[
      * //     [12.0, 16.0, 20.0]
      */
     Matrix4.getRotation = function(matrix, result) {
-
+        
         result[0] = matrix[0];
         result[1] = matrix[1];
         result[2] = matrix[2];
@@ -7536,7 +7536,7 @@ define('Core/Matrix4',[
       * @exception {RuntimeError} matrix is not invertible because its determinate is zero.
       */
     Matrix4.inverse = function(matrix, result) {
-
+        
         // Special case for a zero scale matrix that can occur, for example,
         // when a model's node has a [0, 0, 0] scale.
         if (Matrix3.equalsEpsilon(Matrix4.getRotation(matrix, scratchInverseRotation), scratchMatrix3Zero, CesiumMath.EPSILON7) &&
@@ -7673,7 +7673,7 @@ define('Core/Matrix4',[
      * @returns {Matrix4} The modified result parameter.
      */
     Matrix4.inverseTransformation = function(matrix, result) {
-
+        
         //This function is an optimized version of the below 4 lines.
         //var rT = Matrix3.transpose(Matrix4.getRotation(matrix));
         //var rTN = Matrix3.negate(rT);
@@ -8061,7 +8061,7 @@ define('Core/Rectangle',[
      * @returns {Number[]} The array that was packed into
      */
     Rectangle.pack = function(value, array, startingIndex) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         array[startingIndex++] = value.west;
@@ -8081,7 +8081,7 @@ define('Core/Rectangle',[
      * @returns {Rectangle} The modified result parameter or a new Rectangle instance if one was not provided.
      */
     Rectangle.unpack = function(array, startingIndex, result) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         if (!defined(result)) {
@@ -8119,7 +8119,7 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Creates an rectangle given the boundary longitude and latitude in degrees.
+     * Creates a rectangle given the boundary longitude and latitude in degrees.
      *
      * @param {Number} [west=0.0] The westernmost longitude in degrees in the range [-180.0, 180.0].
      * @param {Number} [south=0.0] The southernmost latitude in degrees in the range [-90.0, 90.0].
@@ -8150,7 +8150,7 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Creates an rectangle given the boundary longitude and latitude in radians.
+     * Creates a rectangle given the boundary longitude and latitude in radians.
      *
      * @param {Number} [west=0.0] The westernmost longitude in radians in the range [-Math.PI, Math.PI].
      * @param {Number} [south=0.0] The southernmost latitude in radians in the range [-Math.PI/2, Math.PI/2].
@@ -8183,7 +8183,7 @@ define('Core/Rectangle',[
      * @returns {Rectangle} The modified result parameter or a new Rectangle instance if none was provided.
      */
     Rectangle.fromCartographicArray = function(cartographics, result) {
-
+        
         var west = Number.MAX_VALUE;
         var east = -Number.MAX_VALUE;
         var westOverIDL = Number.MAX_VALUE;
@@ -8235,7 +8235,7 @@ define('Core/Rectangle',[
      * @returns {Rectangle} The modified result parameter or a new Rectangle instance if none was provided.
      */
     Rectangle.fromCartesianArray = function(cartesians, ellipsoid, result) {
-
+        
         var west = Number.MAX_VALUE;
         var east = -Number.MAX_VALUE;
         var westOverIDL = Number.MAX_VALUE;
@@ -8350,7 +8350,7 @@ define('Core/Rectangle',[
      * @returns {Boolean} <code>true</code> if the Rectangles are within the provided epsilon, <code>false</code> otherwise.
      */
     Rectangle.prototype.equalsEpsilon = function(other, epsilon) {
-
+        
         return defined(other) &&
                (Math.abs(this.west - other.west) <= epsilon) &&
                (Math.abs(this.south - other.south) <= epsilon) &&
@@ -8372,14 +8372,14 @@ define('Core/Rectangle',[
             };
 
     /**
-     * Computes the southwest corner of an rectangle.
+     * Computes the southwest corner of a rectangle.
      *
      * @param {Rectangle} rectangle The rectangle for which to find the corner
      * @param {Cartographic} [result] The object onto which to store the result.
      * @returns {Cartographic} The modified result parameter or a new Cartographic instance if none was provided.
      */
     Rectangle.southwest = function(rectangle, result) {
-
+        
         if (!defined(result)) {
             return new Cartographic(rectangle.west, rectangle.south);
         }
@@ -8390,14 +8390,14 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Computes the northwest corner of an rectangle.
+     * Computes the northwest corner of a rectangle.
      *
      * @param {Rectangle} rectangle The rectangle for which to find the corner
      * @param {Cartographic} [result] The object onto which to store the result.
      * @returns {Cartographic} The modified result parameter or a new Cartographic instance if none was provided.
      */
     Rectangle.northwest = function(rectangle, result) {
-
+        
         if (!defined(result)) {
             return new Cartographic(rectangle.west, rectangle.north);
         }
@@ -8408,14 +8408,14 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Computes the northeast corner of an rectangle.
+     * Computes the northeast corner of a rectangle.
      *
      * @param {Rectangle} rectangle The rectangle for which to find the corner
      * @param {Cartographic} [result] The object onto which to store the result.
      * @returns {Cartographic} The modified result parameter or a new Cartographic instance if none was provided.
      */
     Rectangle.northeast = function(rectangle, result) {
-
+        
         if (!defined(result)) {
             return new Cartographic(rectangle.east, rectangle.north);
         }
@@ -8426,14 +8426,14 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Computes the southeast corner of an rectangle.
+     * Computes the southeast corner of a rectangle.
      *
      * @param {Rectangle} rectangle The rectangle for which to find the corner
      * @param {Cartographic} [result] The object onto which to store the result.
      * @returns {Cartographic} The modified result parameter or a new Cartographic instance if none was provided.
      */
     Rectangle.southeast = function(rectangle, result) {
-
+        
         if (!defined(result)) {
             return new Cartographic(rectangle.east, rectangle.south);
         }
@@ -8444,14 +8444,14 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Computes the center of an rectangle.
+     * Computes the center of a rectangle.
      *
      * @param {Rectangle} rectangle The rectangle for which to find the center
      * @param {Cartographic} [result] The object onto which to store the result.
      * @returns {Cartographic} The modified result parameter or a new Cartographic instance if none was provided.
      */
     Rectangle.center = function(rectangle, result) {
-
+        
         var east = rectangle.east;
         var west = rectangle.west;
 
@@ -8485,7 +8485,7 @@ define('Core/Rectangle',[
      * @returns {Rectangle|undefined} The modified result parameter, a new Rectangle instance if none was provided or undefined if there is no intersection.
      */
     Rectangle.intersection = function(rectangle, otherRectangle, result) {
-
+        
         var rectangleEast = rectangle.east;
         var rectangleWest = rectangle.west;
 
@@ -8540,7 +8540,7 @@ define('Core/Rectangle',[
      * @returns {Rectangle|undefined} The modified result parameter, a new Rectangle instance if none was provided or undefined if there is no intersection.
      */
     Rectangle.simpleIntersection = function(rectangle, otherRectangle, result) {
-
+        
         var west = Math.max(rectangle.west, otherRectangle.west);
         var south = Math.max(rectangle.south, otherRectangle.south);
         var east = Math.min(rectangle.east, otherRectangle.east);
@@ -8570,7 +8570,7 @@ define('Core/Rectangle',[
      * @returns {Rectangle} The modified result parameter or a new Rectangle instance if none was provided.
      */
     Rectangle.union = function(rectangle, otherRectangle, result) {
-
+        
         if (!defined(result)) {
             result = new Rectangle();
         }
@@ -8613,7 +8613,7 @@ define('Core/Rectangle',[
      * @returns {Rectangle} The modified result parameter or a new Rectangle instance if one was not provided.
      */
     Rectangle.expand = function(rectangle, cartographic, result) {
-
+        
         if (!defined(result)) {
             result = new Rectangle();
         }
@@ -8634,7 +8634,7 @@ define('Core/Rectangle',[
      * @returns {Boolean} true if the provided cartographic is inside the rectangle, false otherwise.
      */
     Rectangle.contains = function(rectangle, cartographic) {
-
+        
         var longitude = cartographic.longitude;
         var latitude = cartographic.latitude;
 
@@ -8655,7 +8655,7 @@ define('Core/Rectangle',[
 
     var subsampleLlaScratch = new Cartographic();
     /**
-     * Samples an rectangle so that it includes a list of Cartesian points suitable for passing to
+     * Samples a rectangle so that it includes a list of Cartesian points suitable for passing to
      * {@link BoundingSphere#fromPoints}.  Sampling is necessary to account
      * for rectangles that cover the poles or cross the equator.
      *
@@ -8666,7 +8666,7 @@ define('Core/Rectangle',[
      * @returns {Cartesian3[]} The modified result parameter or a new Array of Cartesians instances if none was provided.
      */
     Rectangle.subsample = function(rectangle, ellipsoid, surfaceHeight, result) {
-
+        
         ellipsoid = defaultValue(ellipsoid, Ellipsoid.WGS84);
         surfaceHeight = defaultValue(surfaceHeight, 0.0);
 
@@ -8962,7 +8962,7 @@ define('Core/BoundingSphere',[
     var fromRectangle2DNortheast = new Cartographic();
 
     /**
-     * Computes a bounding sphere from an rectangle projected in 2D.
+     * Computes a bounding sphere from a rectangle projected in 2D.
      *
      * @param {Rectangle} rectangle The rectangle around which to create a bounding sphere.
      * @param {Object} [projection=GeographicProjection] The projection used to project the rectangle into 2D.
@@ -8974,7 +8974,7 @@ define('Core/BoundingSphere',[
     };
 
     /**
-     * Computes a bounding sphere from an rectangle projected in 2D.  The bounding sphere accounts for the
+     * Computes a bounding sphere from a rectangle projected in 2D.  The bounding sphere accounts for the
      * object's minimum and maximum heights over the rectangle.
      *
      * @param {Rectangle} rectangle The rectangle around which to create a bounding sphere.
@@ -9020,7 +9020,7 @@ define('Core/BoundingSphere',[
     var fromRectangle3DScratch = [];
 
     /**
-     * Computes a bounding sphere from an rectangle in 3D. The bounding sphere is created using a subsample of points
+     * Computes a bounding sphere from a rectangle in 3D. The bounding sphere is created using a subsample of points
      * on the ellipsoid and contained in the rectangle. It may not be accurate for all rectangles on all types of ellipsoids.
      *
      * @param {Rectangle} rectangle The valid rectangle used to create a bounding sphere.
@@ -9088,7 +9088,7 @@ define('Core/BoundingSphere',[
 
         stride = defaultValue(stride, 3);
 
-
+        
         var currentPos = fromPointsCurrentPos;
         currentPos.x = positions[0] + center.x;
         currentPos.y = positions[1] + center.y;
@@ -9391,7 +9391,7 @@ define('Core/BoundingSphere',[
      * var sphere = Cesium.BoundingSphere.fromCornerPoints(new Cesium.Cartesian3(-0.5, -0.5, -0.5), new Cesium.Cartesian3(0.5, 0.5, 0.5));
      */
     BoundingSphere.fromCornerPoints = function(corner, oppositeCorner, result) {
-
+        
         if (!defined(result)) {
             result = new BoundingSphere();
         }
@@ -9414,7 +9414,7 @@ define('Core/BoundingSphere',[
      * var boundingSphere = Cesium.BoundingSphere.fromEllipsoid(ellipsoid);
      */
     BoundingSphere.fromEllipsoid = function(ellipsoid, result) {
-
+        
         if (!defined(result)) {
             result = new BoundingSphere();
         }
@@ -9483,6 +9483,7 @@ define('Core/BoundingSphere',[
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
      */
     BoundingSphere.fromOrientedBoundingBox = function(orientedBoundingBox, result) {
+        
         if (!defined(result)) {
             result = new BoundingSphere();
         }
@@ -9492,12 +9493,11 @@ define('Core/BoundingSphere',[
         var v = Matrix3.getColumn(halfAxes, 1, fromOrientedBoundingBoxScratchV);
         var w = Matrix3.getColumn(halfAxes, 2, fromOrientedBoundingBoxScratchW);
 
-        var uHalf = Cartesian3.magnitude(u);
-        var vHalf = Cartesian3.magnitude(v);
-        var wHalf = Cartesian3.magnitude(w);
+        Cartesian3.add(u, v, u);
+        Cartesian3.add(u, w, u);
 
         result.center = Cartesian3.clone(orientedBoundingBox.center, result.center);
-        result.radius = Math.max(uHalf, vHalf, wHalf);
+        result.radius = Cartesian3.magnitude(u);
 
         return result;
     };
@@ -9539,7 +9539,7 @@ define('Core/BoundingSphere',[
      * @returns {Number[]} The array that was packed into
      */
     BoundingSphere.pack = function(value, array, startingIndex) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         var center = value.center;
@@ -9560,7 +9560,7 @@ define('Core/BoundingSphere',[
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if one was not provided.
      */
     BoundingSphere.unpack = function(array, startingIndex, result) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         if (!defined(result)) {
@@ -9586,7 +9586,7 @@ define('Core/BoundingSphere',[
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
      */
     BoundingSphere.union = function(left, right, result) {
-
+        
         if (!defined(result)) {
             result = new BoundingSphere();
         }
@@ -9634,7 +9634,7 @@ define('Core/BoundingSphere',[
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
      */
     BoundingSphere.expand = function(sphere, point, result) {
-
+        
         result = BoundingSphere.clone(sphere, result);
 
         var radius = Cartesian3.magnitude(Cartesian3.subtract(point, result.center, expandScratch));
@@ -9656,7 +9656,7 @@ define('Core/BoundingSphere',[
      *                      intersects the plane.
      */
     BoundingSphere.intersectPlane = function(sphere, plane) {
-
+        
         var center = sphere.center;
         var radius = sphere.radius;
         var normal = plane.normal;
@@ -9681,7 +9681,7 @@ define('Core/BoundingSphere',[
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
      */
     BoundingSphere.transform = function(sphere, transform, result) {
-
+        
         if (!defined(result)) {
             result = new BoundingSphere();
         }
@@ -9708,7 +9708,7 @@ define('Core/BoundingSphere',[
      * });
      */
     BoundingSphere.distanceSquaredTo = function(sphere, cartesian) {
-
+        
         var diff = Cartesian3.subtract(sphere.center, cartesian, distanceSquaredToScratch);
         return Cartesian3.magnitudeSquared(diff) - sphere.radius * sphere.radius;
     };
@@ -9729,7 +9729,7 @@ define('Core/BoundingSphere',[
      * var newBoundingSphere = Cesium.BoundingSphere.transformWithoutScale(boundingSphere, modelMatrix);
      */
     BoundingSphere.transformWithoutScale = function(sphere, transform, result) {
-
+        
         if (!defined(result)) {
             result = new BoundingSphere();
         }
@@ -9755,7 +9755,7 @@ define('Core/BoundingSphere',[
      * @returns {Interval} The nearest and farthest distances on the bounding sphere from position in direction.
      */
     BoundingSphere.computePlaneDistances = function(sphere, position, direction, result) {
-
+        
         if (!defined(result)) {
             result = new Interval();
         }
@@ -9789,7 +9789,7 @@ define('Core/BoundingSphere',[
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
      */
     BoundingSphere.projectTo2D = function(sphere, projection, result) {
-
+        
         projection = defaultValue(projection, projectTo2DProjection);
 
         var ellipsoid = projection.ellipsoid;
@@ -11239,7 +11239,7 @@ define('Core/ComponentDatatype',[
      * var size = Cesium.ComponentDatatype.getSizeInBytes(Cesium.ComponentDatatype.BYTE);
      */
     ComponentDatatype.getSizeInBytes = function(componentDatatype){
-
+        
         switch (componentDatatype) {
         case ComponentDatatype.BYTE:
             return Int8Array.BYTES_PER_ELEMENT;
@@ -11330,7 +11330,7 @@ define('Core/ComponentDatatype',[
      * var typedArray = Cesium.ComponentDatatype.createTypedArray(Cesium.ComponentDatatype.FLOAT, 100);
      */
     ComponentDatatype.createTypedArray = function(componentDatatype, valuesOrLength) {
-
+        
         switch (componentDatatype) {
         case ComponentDatatype.BYTE:
             return new Int8Array(valuesOrLength);
@@ -11363,7 +11363,7 @@ define('Core/ComponentDatatype',[
      * @exception {DeveloperError} componentDatatype is not a valid value.
      */
     ComponentDatatype.createArrayBufferView = function(componentDatatype, buffer, byteOffset, length) {
-
+        
         byteOffset = defaultValue(byteOffset, 0);
         length = defaultValue(length, (buffer.byteLength - byteOffset) / ComponentDatatype.getSizeInBytes(componentDatatype));
 
@@ -11599,7 +11599,7 @@ define('Core/Geometry',[
     function Geometry(options) {
         options = defaultValue(options, defaultValue.EMPTY_OBJECT);
 
-
+        
         /**
          * Attributes, which make up the geometry's vertices.  Each property in this object corresponds to a
          * {@link GeometryAttribute} containing the attribute's data.
@@ -11700,7 +11700,7 @@ define('Core/Geometry',[
      * var numVertices = Cesium.Geometry.computeNumberOfVertices(geometry);
      */
     Geometry.computeNumberOfVertices = function(geometry) {
-
+        
         var numberOfVertices = -1;
         for ( var property in geometry.attributes) {
             if (geometry.attributes.hasOwnProperty(property) &&
@@ -11762,13 +11762,13 @@ define('Core/GeometryAttribute',[
      *   },
      *   primitiveType : Cesium.PrimitiveType.LINE_LOOP
      * });
-     *
+     * 
      * @see Geometry
      */
     function GeometryAttribute(options) {
         options = defaultValue(options, defaultValue.EMPTY_OBJECT);
 
-
+        
         /**
          * The datatype of each component in the attribute, e.g., individual elements in
          * {@link GeometryAttribute#values}.
@@ -12065,7 +12065,7 @@ define('Core/Cartesian2',[
      * @returns {Number[]} The array that was packed into
      */
     Cartesian2.pack = function(value, array, startingIndex) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         array[startingIndex++] = value.x;
@@ -12083,7 +12083,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter or a new Cartesian2 instance if one was not provided.
      */
     Cartesian2.unpack = function(array, startingIndex, result) {
-
+        
         startingIndex = defaultValue(startingIndex, 0);
 
         if (!defined(result)) {
@@ -12102,7 +12102,7 @@ define('Core/Cartesian2',[
      * @returns {Number[]} The packed array.
      */
     Cartesian2.packArray = function(array, result) {
-
+        
         var length = array.length;
         if (!defined(result)) {
             result = new Array(length * 2);
@@ -12124,7 +12124,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2[]} The unpacked array.
      */
     Cartesian2.unpackArray = function(array, result) {
-
+        
         var length = array.length;
         if (!defined(result)) {
             result = new Array(length / 2);
@@ -12166,7 +12166,7 @@ define('Core/Cartesian2',[
      * @returns {Number} The value of the maximum component.
      */
     Cartesian2.maximumComponent = function(cartesian) {
-
+        
         return Math.max(cartesian.x, cartesian.y);
     };
 
@@ -12177,7 +12177,7 @@ define('Core/Cartesian2',[
      * @returns {Number} The value of the minimum component.
      */
     Cartesian2.minimumComponent = function(cartesian) {
-
+        
         return Math.min(cartesian.x, cartesian.y);
     };
 
@@ -12190,7 +12190,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} A cartesian with the minimum components.
      */
     Cartesian2.minimumByComponent = function(first, second, result) {
-
+        
 
         result.x = Math.min(first.x, second.x);
         result.y = Math.min(first.y, second.y);
@@ -12207,7 +12207,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} A cartesian with the maximum components.
      */
     Cartesian2.maximumByComponent = function(first, second, result) {
-
+        
         result.x = Math.max(first.x, second.x);
         result.y = Math.max(first.y, second.y);
         return result;
@@ -12220,7 +12220,7 @@ define('Core/Cartesian2',[
      * @returns {Number} The squared magnitude.
      */
     Cartesian2.magnitudeSquared = function(cartesian) {
-
+        
         return cartesian.x * cartesian.x + cartesian.y * cartesian.y;
     };
 
@@ -12248,7 +12248,7 @@ define('Core/Cartesian2',[
      * var d = Cesium.Cartesian2.distance(new Cesium.Cartesian2(1.0, 0.0), new Cesium.Cartesian2(2.0, 0.0));
      */
     Cartesian2.distance = function(left, right) {
-
+        
         Cartesian2.subtract(left, right, distanceScratch);
         return Cartesian2.magnitude(distanceScratch);
     };
@@ -12266,7 +12266,7 @@ define('Core/Cartesian2',[
      * var d = Cesium.Cartesian2.distance(new Cesium.Cartesian2(1.0, 0.0), new Cesium.Cartesian2(3.0, 0.0));
      */
     Cartesian2.distanceSquared = function(left, right) {
-
+        
         Cartesian2.subtract(left, right, distanceScratch);
         return Cartesian2.magnitudeSquared(distanceScratch);
     };
@@ -12279,13 +12279,13 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter.
      */
     Cartesian2.normalize = function(cartesian, result) {
-
+        
         var magnitude = Cartesian2.magnitude(cartesian);
 
         result.x = cartesian.x / magnitude;
         result.y = cartesian.y / magnitude;
 
-
+        
         return result;
     };
 
@@ -12297,7 +12297,7 @@ define('Core/Cartesian2',[
      * @returns {Number} The dot product.
      */
     Cartesian2.dot = function(left, right) {
-
+        
         return left.x * right.x + left.y * right.y;
     };
 
@@ -12310,7 +12310,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter.
      */
     Cartesian2.multiplyComponents = function(left, right, result) {
-
+        
         result.x = left.x * right.x;
         result.y = left.y * right.y;
         return result;
@@ -12325,7 +12325,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter.
      */
     Cartesian2.divideComponents = function(left, right, result) {
-
+        
         result.x = left.x / right.x;
         result.y = left.y / right.y;
         return result;
@@ -12340,7 +12340,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter.
      */
     Cartesian2.add = function(left, right, result) {
-
+        
         result.x = left.x + right.x;
         result.y = left.y + right.y;
         return result;
@@ -12355,7 +12355,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter.
      */
     Cartesian2.subtract = function(left, right, result) {
-
+        
         result.x = left.x - right.x;
         result.y = left.y - right.y;
         return result;
@@ -12370,7 +12370,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter.
      */
     Cartesian2.multiplyByScalar = function(cartesian, scalar, result) {
-
+        
         result.x = cartesian.x * scalar;
         result.y = cartesian.y * scalar;
         return result;
@@ -12385,7 +12385,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter.
      */
     Cartesian2.divideByScalar = function(cartesian, scalar, result) {
-
+        
         result.x = cartesian.x / scalar;
         result.y = cartesian.y / scalar;
         return result;
@@ -12399,7 +12399,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter.
      */
     Cartesian2.negate = function(cartesian, result) {
-
+        
         result.x = -cartesian.x;
         result.y = -cartesian.y;
         return result;
@@ -12413,7 +12413,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter.
      */
     Cartesian2.abs = function(cartesian, result) {
-
+        
         result.x = Math.abs(cartesian.x);
         result.y = Math.abs(cartesian.y);
         return result;
@@ -12430,7 +12430,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The modified result parameter.
      */
     Cartesian2.lerp = function(start, end, t, result) {
-
+        
         Cartesian2.multiplyByScalar(end, t, lerpScratch);
         result = Cartesian2.multiplyByScalar(start, 1.0 - t, result);
         return Cartesian2.add(lerpScratch, result, result);
@@ -12446,7 +12446,7 @@ define('Core/Cartesian2',[
      * @returns {Number} The angle between the Cartesians.
      */
     Cartesian2.angleBetween = function(left, right) {
-
+        
         Cartesian2.normalize(left, angleBetweenScratch);
         Cartesian2.normalize(right, angleBetweenScratch2);
         return CesiumMath.acosClamped(Cartesian2.dot(angleBetweenScratch, angleBetweenScratch2));
@@ -12461,7 +12461,7 @@ define('Core/Cartesian2',[
      * @returns {Cartesian2} The most orthogonal axis.
      */
     Cartesian2.mostOrthogonalAxis = function(cartesian, result) {
-
+        
         var f = Cartesian2.normalize(cartesian, mostOrthogonalAxisScratch);
         Cartesian2.abs(f, f);
 
@@ -12592,12 +12592,14 @@ define('Core/Cartesian2',[
 define('Core/AttributeCompression',[
         './Cartesian2',
         './Cartesian3',
+        './Check',
         './defined',
         './DeveloperError',
         './Math'
     ], function(
         Cartesian2,
         Cartesian3,
+        Check,
         defined,
         DeveloperError,
         CesiumMath) {
@@ -12629,7 +12631,7 @@ define('Core/AttributeCompression',[
      * @see AttributeCompression.octDecodeInRange
      */
     AttributeCompression.octEncodeInRange = function(vector, rangeMax, result) {
-
+        
         result.x = vector.x / (Math.abs(vector.x) + Math.abs(vector.y) + Math.abs(vector.z));
         result.y = vector.y / (Math.abs(vector.x) + Math.abs(vector.y) + Math.abs(vector.z));
         if (vector.z < 0) {
@@ -12675,7 +12677,7 @@ define('Core/AttributeCompression',[
      * @see AttributeCompression.octEncodeInRange
      */
     AttributeCompression.octDecodeInRange = function(x, y, rangeMax, result) {
-
+        
         result.x = CesiumMath.fromSNorm(x, rangeMax);
         result.y = CesiumMath.fromSNorm(y, rangeMax);
         result.z = 1.0 - (Math.abs(result.x) + Math.abs(result.y));
@@ -12742,7 +12744,7 @@ define('Core/AttributeCompression',[
      *
      */
     AttributeCompression.octDecodeFloat = function(value, result) {
-
+        
         var temp = value / 256.0;
         var x = Math.floor(temp);
         var y = (temp - x) * 256.0;
@@ -12762,7 +12764,7 @@ define('Core/AttributeCompression',[
      *
      */
     AttributeCompression.octPack = function(v1, v2, v3, result) {
-
+        
         var encoded1 = AttributeCompression.octEncodeFloat(v1);
         var encoded2 = AttributeCompression.octEncodeFloat(v2);
 
@@ -12781,7 +12783,7 @@ define('Core/AttributeCompression',[
      * @param {Cartesian3} v3 One decoded and normalized vector.
      */
     AttributeCompression.octUnpack = function(packed, v1, v2, v3) {
-
+        
         var temp = packed.x / 65536.0;
         var x = Math.floor(temp);
         var encodedFloat1 = (temp - x) * 65536.0;
@@ -12803,7 +12805,7 @@ define('Core/AttributeCompression',[
      *
      */
     AttributeCompression.compressTextureCoordinates = function(textureCoordinates) {
-
+        
         // Move x and y to the range 0-4095;
         var x = (textureCoordinates.x * 4095.0) | 0;
         var y = (textureCoordinates.y * 4095.0) | 0;
@@ -12819,7 +12821,7 @@ define('Core/AttributeCompression',[
      *
      */
     AttributeCompression.decompressTextureCoordinates = function(compressed, result) {
-
+        
         var temp = compressed / 4096.0;
         var xZeroTo4095 = Math.floor(temp);
         result.x = xZeroTo4095 / 4095.0;
@@ -12834,13 +12836,13 @@ define('Core/AttributeCompression',[
 define('Core/barycentricCoordinates',[
         './Cartesian2',
         './Cartesian3',
-        './defined',
-        './DeveloperError'
+        './Check',
+        './defined'
     ], function(
         Cartesian2,
         Cartesian3,
-        defined,
-        DeveloperError) {
+        Check,
+        defined ) {
     'use strict';
 
     var scratchCartesian1 = new Cartesian3();
@@ -12868,7 +12870,7 @@ define('Core/barycentricCoordinates',[
      *   new Cesium.Cartesian3( 0.0, 1.0, 1.0));
      */
     function barycentricCoordinates(point, p0, p1, p2, result) {
-
+        
 
         if (!defined(result)) {
             result = new Cartesian3();
@@ -12969,7 +12971,7 @@ define('Core/EncodedCartesian3',[
      * var splitValue = Cesium.EncodedCartesian3.encode(value);
      */
     EncodedCartesian3.encode = function(value, result) {
-
+        
         if (!defined(result)) {
             result = {
                 high : 0.0,
@@ -13012,7 +13014,7 @@ define('Core/EncodedCartesian3',[
      * var encoded = Cesium.EncodedCartesian3.fromCartesian(cart);
      */
     EncodedCartesian3.fromCartesian = function(cartesian, result) {
-
+        
         if (!defined(result)) {
             result = new EncodedCartesian3();
         }
@@ -13063,7 +13065,7 @@ define('Core/EncodedCartesian3',[
      * }
      */
     EncodedCartesian3.writeElements = function(cartesian, cartesianArray, index) {
-
+        
         EncodedCartesian3.fromCartesian(cartesian, encodedP);
         var high = encodedP.high;
         var low = encodedP.low;
@@ -13174,14 +13176,14 @@ define('Core/IndexDatatype',[
      * or <code>Uint32Array</code> depending on the number of vertices.
      *
      * @param {Number} numberOfVertices Number of vertices that the indices will reference.
-     * @param {Any} indicesLengthOrArray Passed through to the typed array constructor.
+     * @param {*} indicesLengthOrArray Passed through to the typed array constructor.
      * @returns {Uint16Array|Uint32Array} A <code>Uint16Array</code> or <code>Uint32Array</code> constructed with <code>indicesLengthOrArray</code>.
      *
      * @example
      * this.indices = Cesium.IndexDatatype.createTypedArray(positions.length / 3, numberOfIndices);
      */
     IndexDatatype.createTypedArray = function(numberOfVertices, indicesLengthOrArray) {
-
+        
         if (numberOfVertices >= CesiumMath.SIXTY_FOUR_KILOBYTES) {
             return new Uint32Array(indicesLengthOrArray);
         }
@@ -13201,7 +13203,7 @@ define('Core/IndexDatatype',[
      *
      */
     IndexDatatype.createTypedArrayFromArrayBuffer = function(numberOfVertices, sourceArray, byteOffset, length) {
-
+        
         if (numberOfVertices >= CesiumMath.SIXTY_FOUR_KILOBYTES) {
             return new Uint32Array(sourceArray, byteOffset, length);
         }
@@ -13237,7 +13239,7 @@ define('Core/QuadraticRealPolynomial',[
      * @returns {Number} The value of the discriminant.
      */
     QuadraticRealPolynomial.computeDiscriminant = function(a, b, c) {
-
+        
         var discriminant = b * b - 4.0 * a * c;
         return discriminant;
     };
@@ -13261,7 +13263,7 @@ define('Core/QuadraticRealPolynomial',[
      * @returns {Number[]} The real valued roots.
      */
     QuadraticRealPolynomial.computeRealRoots = function(a, b, c) {
-
+        
         var ratio;
         if (a === 0.0) {
             if (b === 0.0) {
@@ -13356,7 +13358,7 @@ define('Core/CubicRealPolynomial',[
      * @returns {Number} The value of the discriminant.
      */
     CubicRealPolynomial.computeDiscriminant = function(a, b, c, d) {
-
+        
         var a2 = a * a;
         var b2 = b * b;
         var c2 = c * c;
@@ -13481,7 +13483,7 @@ define('Core/CubicRealPolynomial',[
      * @returns {Number[]} The real valued roots.
      */
     CubicRealPolynomial.computeRealRoots = function(a, b, c, d) {
-
+        
         var roots;
         var ratio;
         if (a === 0.0) {
@@ -13574,7 +13576,7 @@ define('Core/QuarticRealPolynomial',[
      * @returns {Number} The value of the discriminant.
      */
     QuarticRealPolynomial.computeDiscriminant = function(a, b, c, d, e) {
-
+        
         var a2 = a * a;
         var a3 = a2 * a;
         var b2 = b * b;
@@ -13783,7 +13785,7 @@ define('Core/QuarticRealPolynomial',[
      * @returns {Number[]} The real valued roots.
      */
     QuarticRealPolynomial.computeRealRoots = function(a, b, c, d, e) {
-
+        
         if (Math.abs(a) < CesiumMath.EPSILON15) {
             return CubicRealPolynomial.computeRealRoots(b, c, d, e);
         }
@@ -13894,7 +13896,7 @@ define('Core/Ray',[
      * var point = Cesium.Ray.getPoint(ray, intersection.start);
      */
     Ray.getPoint = function(ray, t, result) {
-
+        
         if (!defined(result)) {
             result = new Cartesian3();
         }
@@ -13949,7 +13951,7 @@ define('Core/IntersectionTests',[
      * @returns {Cartesian3} The intersection point or undefined if there is no intersections.
      */
     IntersectionTests.rayPlane = function(ray, plane, result) {
-
+        
         if (!defined(result)) {
             result = new Cartesian3();
         }
@@ -13997,7 +13999,7 @@ define('Core/IntersectionTests',[
      * @returns {Number} The intersection as a parametric distance along the ray, or undefined if there is no intersection.
      */
     IntersectionTests.rayTriangleParametric  = function(ray, p0, p1, p2, cullBackFaces) {
-
+        
         cullBackFaces = defaultValue(cullBackFaces, false);
 
         var origin = ray.origin;
@@ -14108,7 +14110,7 @@ define('Core/IntersectionTests',[
      * @returns {Cartesian3} The intersection point or undefined if there is no intersections.
      */
     IntersectionTests.lineSegmentTriangle = function(v0, v1, p0, p1, p2, cullBackFaces, result) {
-
+        
         var ray = scratchLineSegmentTriangleRay;
         Cartesian3.clone(v0, ray.origin);
         Cartesian3.subtract(v1, v0, ray.direction);
@@ -14199,7 +14201,7 @@ define('Core/IntersectionTests',[
      * @returns {Interval} The interval containing scalar points along the ray or undefined if there are no intersections.
      */
     IntersectionTests.raySphere = function(ray, sphere, result) {
-
+        
         result = raySphere(ray, sphere, result);
         if (!defined(result) || result.stop < 0.0) {
             return undefined;
@@ -14222,7 +14224,7 @@ define('Core/IntersectionTests',[
      * @returns {Interval} The interval containing scalar points along the ray or undefined if there are no intersections.
      */
     IntersectionTests.lineSegmentSphere = function(p0, p1, sphere, result) {
-
+        
         var ray = scratchLineSegmentRay;
         Cartesian3.clone(p0, ray.origin);
         var direction = Cartesian3.subtract(p1, p0, ray.direction);
@@ -14251,7 +14253,7 @@ define('Core/IntersectionTests',[
      * @returns {Interval} The interval containing scalar points along the ray or undefined if there are no intersections.
      */
     IntersectionTests.rayEllipsoid = function(ray, ellipsoid) {
-
+        
         var inverseRadii = ellipsoid.oneOverRadii;
         var q = Cartesian3.multiplyComponents(inverseRadii, ray.origin, scratchQ);
         var w = Cartesian3.multiplyComponents(inverseRadii, ray.direction, scratchW);
@@ -14442,7 +14444,7 @@ define('Core/IntersectionTests',[
      * @returns {Cartesian3} The nearest planetodetic point on the ray.
      */
     IntersectionTests.grazingAltitudeLocation = function(ray, ellipsoid) {
-
+        
         var position = ray.origin;
         var direction = ray.direction;
 
@@ -14550,7 +14552,7 @@ define('Core/IntersectionTests',[
      * var intersection = Cesium.IntersectionTests.lineSegmentPlane(p0, p1, plane);
      */
     IntersectionTests.lineSegmentPlane = function(endPoint0, endPoint1, plane, result) {
-
+        
         if (!defined(result)) {
             result = new Cartesian3();
         }
@@ -14600,7 +14602,7 @@ define('Core/IntersectionTests',[
      * var triangles = Cesium.IntersectionTests.trianglePlaneIntersection(p0, p1, p2, plane);
      */
     IntersectionTests.trianglePlaneIntersection = function(p0, p1, p2, plane) {
-
+        
         var planeNormal = plane.normal;
         var planeD = plane.distance;
         var p0Behind = (Cartesian3.dot(planeNormal, p0) + planeD) < 0.0;
@@ -14729,11 +14731,13 @@ define('Core/Plane',[
         './Cartesian3',
         './defined',
         './DeveloperError',
+        './Math',
         './freezeObject'
     ], function(
         Cartesian3,
         defined,
         DeveloperError,
+        CesiumMath,
         freezeObject) {
     'use strict';
 
@@ -14759,9 +14763,11 @@ define('Core/Plane',[
      * @example
      * // The plane x=0
      * var plane = new Cesium.Plane(Cesium.Cartesian3.UNIT_X, 0.0);
+     *
+     * @exception {DeveloperError} Normal must be normalized
      */
     function Plane(normal, distance) {
-
+        
         /**
          * The plane's normal.
          *
@@ -14793,9 +14799,11 @@ define('Core/Plane',[
      * var point = Cesium.Cartesian3.fromDegrees(-72.0, 40.0);
      * var normal = ellipsoid.geodeticSurfaceNormal(point);
      * var tangentPlane = Cesium.Plane.fromPointNormal(point, normal);
+     *
+     * @exception {DeveloperError} Normal must be normalized
      */
     Plane.fromPointNormal = function(point, normal, result) {
-
+        
         var distance = -Cartesian3.dot(normal, point);
 
         if (!defined(result)) {
@@ -14814,12 +14822,15 @@ define('Core/Plane',[
      * @param {Cartesian4} coefficients The plane's normal (normalized).
      * @param {Plane} [result] The object onto which to store the result.
      * @returns {Plane} A new plane instance or the modified result parameter.
+     *
+     * @exception {DeveloperError} Normal must be normalized
      */
     Plane.fromCartesian4 = function(coefficients, result) {
-
+        
         var normal = Cartesian3.fromCartesian4(coefficients, scratchNormal);
         var distance = coefficients.w;
 
+        
         if (!defined(result)) {
             return new Plane(normal, distance);
         } else {
@@ -14841,7 +14852,7 @@ define('Core/Plane',[
      * @returns {Number} The signed shortest distance of the point to the plane.
      */
     Plane.getPointDistance = function(plane, point) {
-
+        
         return Cartesian3.dot(plane.normal, point) + plane.distance;
     };
 
@@ -14925,10 +14936,10 @@ define('Core/Tipsify',[
         var maximumIndex = options.maximumIndex;
         var cacheSize = defaultValue(options.cacheSize, 24);
 
-
+        
         var numIndices = indices.length;
 
-
+        
         // Compute the maximumIndex if not given
         if (!defined(maximumIndex)) {
             maximumIndex = 0;
@@ -15034,10 +15045,10 @@ define('Core/Tipsify',[
             return n;
         }
 
-
+        
         var numIndices = indices.length;
 
-
+        
         // Determine maximum index
         var maximumIndexPlusOne = 0;
         var currentIndex = 0;
@@ -15283,7 +15294,7 @@ define('Core/GeometryPipeline',[
      * geometry = Cesium.GeometryPipeline.toWireframe(geometry);
      */
     GeometryPipeline.toWireframe = function(geometry) {
-
+        
         var indices = geometry.indices;
         if (defined(indices)) {
             switch (geometry.primitiveType) {
@@ -15322,7 +15333,7 @@ define('Core/GeometryPipeline',[
     GeometryPipeline.createLineSegmentsForVectors = function(geometry, attributeName, length) {
         attributeName = defaultValue(attributeName, 'normal');
 
-
+        
         length = defaultValue(length, 10000.0);
 
         var positions = geometry.attributes.position.values;
@@ -15377,7 +15388,7 @@ define('Core/GeometryPipeline',[
      * // }
      */
     GeometryPipeline.createAttributeLocations = function(geometry) {
-
+        
         // There can be a WebGL performance hit when attribute 0 is disabled, so
         // assign attribute locations to well-known attributes.
         var semantics = [
@@ -15447,7 +15458,7 @@ define('Core/GeometryPipeline',[
      * @see GeometryPipeline.reorderForPostVertexCache
      */
     GeometryPipeline.reorderForPreVertexCache = function(geometry) {
-
+        
         var numVertices = Geometry.computeNumberOfVertices(geometry);
 
         var indices = geometry.indices;
@@ -15531,7 +15542,7 @@ define('Core/GeometryPipeline',[
      * by Sander, Nehab, and Barczak
      */
     GeometryPipeline.reorderForPostVertexCache = function(geometry, cacheCapacity) {
-
+        
         var indices = geometry.indices;
         if ((geometry.primitiveType === PrimitiveType.TRIANGLES) && (defined(indices))) {
             var numIndices = indices.length;
@@ -15605,7 +15616,7 @@ define('Core/GeometryPipeline',[
      * var geometries = Cesium.GeometryPipeline.fitToUnsignedShortIndices(geometry);
      */
     GeometryPipeline.fitToUnsignedShortIndices = function(geometry) {
-
+        
         var geometries = [];
 
         // If there's an index list and more than 64K attributes, it is possible that
@@ -15701,7 +15712,7 @@ define('Core/GeometryPipeline',[
      * geometry = Cesium.GeometryPipeline.projectTo2D(geometry, 'position', 'position3D', 'position2D');
      */
     GeometryPipeline.projectTo2D = function(geometry, attributeName, attributeName3D, attributeName2D, projection) {
-
+        
         var attribute = geometry.attributes[attributeName];
         projection = (defined(projection)) ? projection : new GeographicProjection();
         var ellipsoid = projection.ellipsoid;
@@ -15715,7 +15726,7 @@ define('Core/GeometryPipeline',[
             var value = Cartesian3.fromArray(values3D, i, scratchProjectTo2DCartesian3);
 
             var lonLat = ellipsoid.cartesianToCartographic(value, scratchProjectTo2DCartographic);
-
+            
             var projectedLonLat = projection.project(lonLat, scratchProjectTo2DCartesian3);
 
             projectedValues[index++] = projectedLonLat.x;
@@ -15762,7 +15773,7 @@ define('Core/GeometryPipeline',[
      * geometry = Cesium.GeometryPipeline.encodeAttribute(geometry, 'position3D', 'position3DHigh', 'position3DLow');
      */
     GeometryPipeline.encodeAttribute = function(geometry, attributeName, attributeHighName, attributeLowName) {
-
+        
         var attribute = geometry.attributes[attributeName];
         var values = attribute.values;
         var length = values.length;
@@ -15835,7 +15846,7 @@ define('Core/GeometryPipeline',[
      * Cesium.GeometryPipeline.transformToWorldCoordinates(instance);
      */
     GeometryPipeline.transformToWorldCoordinates = function(instance) {
-
+        
         var modelMatrix = instance.modelMatrix;
 
         if (Matrix4.equals(modelMatrix, Matrix4.IDENTITY)) {
@@ -15935,7 +15946,7 @@ define('Core/GeometryPipeline',[
         var haveIndices = (defined(instances[0][propertyName].indices));
         var primitiveType = instances[0][propertyName].primitiveType;
 
-
+        
         // Find subset of attributes in all geometries
         var attributes = findAttributesInAllGeometries(instances, propertyName);
         var values;
@@ -16059,7 +16070,7 @@ define('Core/GeometryPipeline',[
      * @see GeometryPipeline.transformToWorldCoordinates
      */
     GeometryPipeline.combineInstances = function(instances) {
-
+        
         var instanceGeometry = [];
         var instanceSplitGeometry = [];
         var length = instances.length;
@@ -16105,7 +16116,7 @@ define('Core/GeometryPipeline',[
      * Cesium.GeometryPipeline.computeNormal(geometry);
      */
     GeometryPipeline.computeNormal = function(geometry) {
-
+        
         var indices = geometry.indices;
         var attributes = geometry.attributes;
         var vertices = attributes.position.values;
@@ -16239,11 +16250,11 @@ define('Core/GeometryPipeline',[
      * Cesium.GeometryPipeline.computeTangentAndBiTangent(geometry);
      */
     GeometryPipeline.computeTangentAndBitangent = function(geometry) {
-
+        
         var attributes = geometry.attributes;
         var indices = geometry.indices;
 
-
+        
         var vertices = geometry.attributes.position.values;
         var normals = geometry.attributes.normal.values;
         var st = geometry.attributes.st.values;
@@ -16352,7 +16363,7 @@ define('Core/GeometryPipeline',[
      * geometry = Cesium.GeometryPipeline.compressVertices(geometry);
      */
     GeometryPipeline.compressVertices = function(geometry) {
-
+        
         var extrudeAttribute = geometry.attributes.extrudeDirection;
         var i;
         var numVertices;
@@ -16489,7 +16500,7 @@ define('Core/GeometryPipeline',[
         }
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
 
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, numberOfVertices);
         for (var i = 0; i < numberOfVertices; ++i) {
             indices[i] = i;
@@ -16502,7 +16513,7 @@ define('Core/GeometryPipeline',[
     function indexTriangleFan(geometry) {
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
 
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, (numberOfVertices - 2) * 3);
         indices[0] = 1;
         indices[1] = 0;
@@ -16523,7 +16534,7 @@ define('Core/GeometryPipeline',[
     function indexTriangleStrip(geometry) {
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
 
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, (numberOfVertices - 2) * 3);
         indices[0] = 0;
         indices[1] = 1;
@@ -16559,7 +16570,7 @@ define('Core/GeometryPipeline',[
         }
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
 
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, numberOfVertices);
         for (var i = 0; i < numberOfVertices; ++i) {
             indices[i] = i;
@@ -16572,7 +16583,7 @@ define('Core/GeometryPipeline',[
     function indexLineStrip(geometry) {
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
 
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, (numberOfVertices - 1) * 2);
         indices[0] = 0;
         indices[1] = 1;
@@ -16590,7 +16601,7 @@ define('Core/GeometryPipeline',[
     function indexLineLoop(geometry) {
         var numberOfVertices = Geometry.computeNumberOfVertices(geometry);
 
-
+        
         var indices = IndexDatatype.createTypedArray(numberOfVertices, numberOfVertices * 2);
 
         indices[0] = 0;
@@ -17466,7 +17477,7 @@ define('Core/GeometryPipeline',[
      * instance = Cesium.GeometryPipeline.splitLongitude(instance);
      */
     GeometryPipeline.splitLongitude = function(instance) {
-
+        
         var geometry = instance.geometry;
         var boundingSphere = geometry.boundingSphere;
         if (defined(boundingSphere)) {
@@ -17640,7 +17651,7 @@ define('Core/WebMercatorProjection',[
      * @returns {Cartographic} The equivalent cartographic coordinates.
      */
     WebMercatorProjection.prototype.unproject = function(cartesian, result) {
-
+        
         var oneOverEarthSemimajorAxis = this._oneOverSemimajorAxis;
         var longitude = cartesian.x * oneOverEarthSemimajorAxis;
         var latitude = WebMercatorProjection.mercatorAngleToGeodeticLatitude(cartesian.y * oneOverEarthSemimajorAxis);
@@ -17778,7 +17789,7 @@ define('Scene/PrimitivePipeline',[
             }
         }
 
-
+        
         // Unify to world coordinates before combining.
         transformToWorldCoordinates(instances, modelMatrix, scene3DOnly);
 
@@ -18267,13 +18278,14 @@ define('Scene/PrimitivePipeline',[
             for (var geometryIndex = 0; geometryIndex < geometriesLength; geometryIndex++) {
                 var geometry = geometries[geometryIndex];
                 var instance = instances[instanceIndex];
+                instance.geometry = geometry;
                 //acevedo check for undefined instance
-                if (instance)
-                {
-                  instance.geometry = geometry;
-                }
-                ++instanceIndex;
-            }
+				if (instance)
+				{
+				  instance.geometry = geometry;
+				}
+				++instanceIndex;
+			}
         }
 
         var ellipsoid = Ellipsoid.clone(packedParameters.ellipsoid);
@@ -18438,7 +18450,7 @@ define('Workers/createTaskProcessorWorker',[
      *
      * return Cesium.createTaskProcessorWorker(doCalculation);
      * // the resulting function is compatible with TaskProcessor
-     *
+     * 
      * @see TaskProcessor
      * @see {@link http://www.w3.org/TR/workers/|Web Workers}
      * @see {@link http://www.w3.org/TR/html5/common-dom-interfaces.html#transferable-objects|Transferable objects}
