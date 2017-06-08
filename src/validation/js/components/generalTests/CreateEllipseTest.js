@@ -81,11 +81,14 @@ class CreateEllipseTest extends Component {
 
     let ellipse;
     try {
-      ellipse = new emp3.api.Ellipse(args);
-      addResult(args, 'createEllipse');
-      addFeature(ellipse);
-      if (!silent) {
-        toastr.success('Ellipse Created Successfully');
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
+        ellipse = new emp3.api.Ellipse(args);
+        addResult(args, 'createEllipse');
+        addFeature(ellipse);
+        if (!silent) {
+          toastr.success('Ellipse Created Successfully');
+        }
       }
     } catch (err) {
       addError(err.message, 'createEllipse');
@@ -106,6 +109,8 @@ class CreateEllipseTest extends Component {
     const overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
     try {
       const ellipse = this.createEllipse(true);
+      if (ellipse)
+      {
       overlay.addFeatures({
         features: [ellipse],
         onSuccess: () => {
@@ -117,6 +122,7 @@ class CreateEllipseTest extends Component {
           toastr.error('Ellipse Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createEllipseAddToOverlay:Critical');
       toastr.error(err.message, 'Ellipse Add To Overlay: Critical');

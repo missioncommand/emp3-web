@@ -964,7 +964,7 @@ var EMPWorldWind = EMPWorldWind || {};
     function processQueue() {
       var index = 0;
       var items = [];
-      while (index < 200) {
+      while (index < 50) {
         var item = queue.shift();
         if (item && item.context.isFeaturePresent(item.arguments.id || item.arguments.coreId)) {
           // condition checks the case when the multi point was deleted while this request was in this queue.

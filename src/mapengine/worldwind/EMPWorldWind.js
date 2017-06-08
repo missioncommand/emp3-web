@@ -22,6 +22,9 @@ EMPWorldWind.Map = function(wwd) {
   /** @type {Object.<string, EMPWorldWind.data.EmpLayer>} */
   this.layers = {};
 
+  /** @type {WorldWind.RenderableLayer} */
+  this.rootLayer = undefined;
+
   /** @type {Object.<string, EMPWorldWind.data.EmpFeature>} */
   this.features = {};
 
@@ -348,11 +351,15 @@ EMPWorldWind.Map.prototype = function() {
               return;
             }
 
-            var layer,
-              i,
+            var i,
               wwFeature = this.features[rendererItem.id],
               shapes = [],
               data = rendererItem.geojson;
+              // var testFornan = JSON.stringify(data);
+              // if (testFornan.indexOf("NaN")>-1)
+              // {
+              //   window.console.error(testFornan);
+              // }
 
             emp.util.each(data.features, function(componentFeature) {
               var lineCount;
@@ -389,21 +396,15 @@ EMPWorldWind.Map.prototype = function() {
             }.bind(this));
 
             if (wwFeature) {
-              // Remove the feature from the root layer
-              layer = this.getLayer(this.rootOverlayId);
-              layer.removeFeature(wwFeature);
 
-              // Clear the primitives from the feature
+              this.rootLayer.removeFeature(wwFeature);
               wwFeature.clearShapes();
-
-              // Update the empFeature stored in the wwFeature
               wwFeature.addShapes(shapes);
+              this.rootLayer.addFeature(wwFeature);
+
               wwFeature.feature.range = this.worldWindow.navigator.range;
               wwFeature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
               wwFeature.selected = this.isFeatureSelected(wwFeature.id);
-
-              // Update the layer
-              layer.addFeature(wwFeature);
             }
           }.bind(this));
 
@@ -422,6 +423,10 @@ EMPWorldWind.Map.prototype = function() {
 
       // Create the contrast Layers
       _createContrastLayers();
+
+      // Create the root layer for all shapes
+      this.rootLayer = new EMPWorldWind.data.EmpLayer("RootLayer for " + args.mapInstance.mapInstanceId);
+      this.worldWindow.addLayer(this.rootLayer.layer);
 
       // Create the goTo manipulator
       /** @member {WorldWind.GoToAnimator} */
@@ -459,77 +464,7 @@ EMPWorldWind.Map.prototype = function() {
       // Initialize sec worker
       _initializeWebWorkers();
 
-      this.throttleAddMultiPointRedraws = EMPWorldWind.utils.MultiPointRateLimit(EMPWorldWind.editors.EditorController.redrawMilStdSymbols, 1);
-    },
-    /**
-     *
-     * @param {emp.typeLibrary.Overlay} empOverlay
-     * @returns {{success: boolean, message: string}}
-     */
-    addLayer: function(empOverlay) {
-      var layer,
-        rc = {
-          success: false,
-          message: ''
-        };
-
-      if (empOverlay.overlayId in this.layers) {
-        rc = {
-          success: false,
-          message: "An overlay with this id (" + empOverlay.overlayId + ") already exists"
-        };
-        return rc;
-      }
-
-      // Create the layer
-      layer = new EMPWorldWind.data.EmpLayer(empOverlay);
-      this.rootOverlayId = empOverlay.overlayId;
-      this.worldWindow.addLayer(layer.layer);
-
-      // Register the layer
-      this.layers[layer.id] = layer;
-
-      // Update the display
-      this.worldWindow.redraw();
-
-      rc.success = true;
-
-      return rc;
-    },
-    /**
-     *
-     * @param {emp.typeLibrary.Overlay | EMPWorldWind.data.EmpLayer} layer
-     * @returns {{success: boolean, message: string}}
-     */
-    removeLayer: function(layer) {
-      var featureKey, id,
-        result = {
-          success: false,
-          message: ""
-        };
-
-      id = layer.id || layer.coreId;
-      layer = this.getLayer(id);
-      if (layer) {
-        for (featureKey in layer.featureKeys) {
-          if (layer.featureKeys.hasOwnProperty(featureKey)) {
-            this.removeFeatureSelection(featureKey);
-          }
-        }
-
-        // Update the display
-        this.worldWindow.removeLayer(layer.layer);
-        this.worldWindow.redraw();
-
-        // Remove the record of the layer
-        delete this.layers[layer.id];
-
-        result.success = true;
-      } else {
-        result.message = "No layer found with the id " + id;
-      }
-
-      return result;
+      this.throttleAddMultiPointRedraws = EMPWorldWind.utils.MultiPointRateLimit(EMPWorldWind.editors.EditorController.redrawMilStdSymbols, 200);
     },
     /**
      *
@@ -637,14 +572,18 @@ EMPWorldWind.Map.prototype = function() {
        * @private
        */
       var _callback = function(cbArgs) {
-        // Trigger an update for the display
-        this.worldWindow.redraw();
-
         if (cbArgs.success) {
+
+          // Add the feature to the root layer
+          this.rootLayer.addFeature(cbArgs.feature);
+
           // Add the new feature to the global list of features
           if (!(cbArgs.feature.id in this.features)) {
             this.features[cbArgs.feature.id] = cbArgs.feature;
           }
+
+          // Trigger an update for the display
+          this.worldWindow.redraw();
         }
 
         if (typeof callback === "function") {
@@ -657,25 +596,23 @@ EMPWorldWind.Map.prototype = function() {
         feature = feature.feature;
       }
 
-      if (feature.featureId in this.features) {
-        // Update an existing feature
-        EMPWorldWind.editors.EditorController.updateFeature.call(this, this.features[feature.featureId], feature, _callback);
-      } else {
+      if (!(feature.featureId in this.features)) {
         // Plot a new feature
         EMPWorldWind.editors.EditorController.plotFeature.call(this, feature, _callback);
+      } else {
+        // Update an existing feature
+        EMPWorldWind.editors.EditorController.updateFeature.call(this, this.features[feature.featureId], feature, _callback);
       }
     },
-
     /**
      *
      * @param {emp.typeLibrary.Feature} feature
      */
     unplotFeature: function(feature) {
-      var layer,
-        rc = {
-          success: false,
-          message: ""
-        };
+      var rc = {
+        success: false,
+        message: ""
+      };
 
       /**
        * KML features are actually layers in WorldWind
@@ -703,25 +640,21 @@ EMPWorldWind.Map.prototype = function() {
        * @private
        */
       var _handleDefaultFeature = function() {
-        layer = this.getLayer(feature.parentCoreId);
-        if (layer) {
-          // Remove it from the layer
-          layer.removeFeatureById(feature.coreId);
 
-          // Clear it from the selection hash
-          this.removeFeatureSelection(feature.coreId);
+        // Remove it from the layer
+        this.rootLayer.removeFeature(feature);
 
-          // Remove it from the list of features
-          if (this.features.hasOwnProperty(feature.coreId)) {
-            delete this.features[feature.coreId];
-          }
+        // Clear it from the selection hash
+        this.removeFeatureSelection(feature.coreId);
 
-          // Update the map
-          this.worldWindow.redraw();
-          rc.success = true;
-        } else {
-          rc.messge = 'Could not find the parent overlay';
-        }
+        // Remove it from the global list of features
+        delete this.features[feature.coreId];
+
+        rc.success = true;
+
+        // Update the map
+        this.worldWindow.redraw();
+
         return rc;
       }.bind(this);
 
@@ -758,83 +691,27 @@ EMPWorldWind.Map.prototype = function() {
         failed: failed
       };
     },
+
+
     /**
-     *
-     * @param {string} id
-     * @returns {EMPWorldWind.data.EmpLayer}
-     */
-    getLayer: function(id) {
-      if (this.layers.hasOwnProperty(id)) {
-        return this.layers[id];
-      }
-    },
-    /**
-     *
-     * @param layer
-     * @param enable
-     */
-    enableLayer: function(layer, enable) {
-      var id, subLayer;
+    *
+    * @param {string} id
+    * @returns {EMPWorldWind.data.EmpLayer}
+    */
+   getLayer: function(id) {
+     if (this.layers.hasOwnProperty(id)) {
+       return this.layers[id];
+     }
+   },
 
-      /**
-       * Recursively invoke for sub layers
-       * @param layer
-       * @private
-       */
-      function _handleSubLayers(layer) {
-        for (id in layer.subLayers) {
-          if (layer.subLayers.hasOwnProperty(id)) {
-            subLayer = layer.getSubLayer(id);
-            if (subLayer) {
-              this.enableLayer(subLayer, enable);
-            }
-          }
-        }
-      }
-
-      /**
-       * Remove the layer if it is one of the appropriate types
-       * @param layer
-       * @private
-       */
-      function _removeLayer(layer) {
-        var layerTypes = [
-          EMPWorldWind.constants.layerType.ARCGIS_93_REST_LAYER,
-          EMPWorldWind.constants.layerType.BING_LAYER,
-          EMPWorldWind.constants.layerType.IMAGE_LAYER,
-          EMPWorldWind.constants.layerType.OSM_LAYER,
-          EMPWorldWind.constants.layerType.TMS_LAYER,
-          EMPWorldWind.constants.layerType.WMS_LAYER,
-          EMPWorldWind.constants.layerType.WMTS_LAYER
-        ];
-
-        if (layerTypes.indexOf(layer.globalType) !== -1) {
-          this.worldWindow.removeLayer(layer);
-        }
-      }
-
-      // Check if it exists
-      if (this.layerExists(layer)) {
-        // Update whether it's enabled or not
-        layer.enabled = enable;
-
-        // Handle any children
-        _handleSubLayers(layer);
-
-        // Remove if necessary
-        if (!enable) {
-          _removeLayer.call(this, layer);
-        }
-      }
-    },
-    /**
-     *
-     * @param layer
-     * @returns {boolean}
-     */
-    layerExists: function(layer) {
-      return this.layers.hasOwnProperty(layer.id);
-    },
+   /**
+    *
+    * @param layer
+    * @returns {boolean}
+    */
+   layerExists: function(layer) {
+     return this.layers.hasOwnProperty(layer.id);
+   },
     /**
      * Adds a WMS layer to the map
      * @param {emp.typeLibrary.WMS} wms
@@ -966,7 +843,9 @@ EMPWorldWind.Map.prototype = function() {
         wmtsCapabilities = new WorldWind.WmtsCapabilities(xmlDom);
         wmtsLayerCapabilities = wmtsCapabilities.getLayer(empWMTS.layer);
         wmtsConfig = WorldWind.WmtsLayer.formLayerConfiguration(wmtsLayerCapabilities);
-
+        //next is a workaround of using a specific tileMatrixSEt suggested at WW web sdk issue##113
+        // Modify the config object to use a TileMatrixSet currently supported:
+        wmtsConfig.tileMatrixSet  = wmtsLayerCapabilities.capabilities.contents.tileMatrixSet[1];
         return new WorldWind.WmtsLayer(wmtsConfig);
       };
 
@@ -1023,7 +902,6 @@ EMPWorldWind.Map.prototype = function() {
 
       return rc;
     },
-
     /**
      * @param {emp.typeLibrary.WMTS} empWMTS
      */
@@ -1044,7 +922,6 @@ EMPWorldWind.Map.prototype = function() {
 
       return rc;
     },
-
     /**
      *
      * @param id
@@ -1072,8 +949,6 @@ EMPWorldWind.Map.prototype = function() {
     getSelections: function() {
       return this.empSelections;
     },
-
-
     /**
      *
      * @param id
@@ -1082,8 +957,6 @@ EMPWorldWind.Map.prototype = function() {
     isFeaturePresent: function(id) {
       return Boolean(this.features.hasOwnProperty(id));
     },
-
-
     /**
      *
      * @param id
@@ -1700,9 +1573,14 @@ EMPWorldWind.Map.prototype = function() {
         size = 1.0;
       }
 
-      this.state.iconSize = size;
+      if (this.state.iconSize !== size)
+      {
+        this.state.iconSize = size;
+        this.state.stateChanged = true;
+        _redrawAllFeatures.call(this);
+        this.state.stateChanged = false;
+      }
 
-      _redrawAllFeatures.call(this);
     }
   };
 }();

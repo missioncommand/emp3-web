@@ -307,6 +307,7 @@ class ValidationApp extends Component {
         <div id='contentPane'>
           <div id='sidebar' style={{width: this.state.width + 'px'}} className='mdl-layout__content'>
             <ControlPanel id='controlPanel'
+                          addMapContainer={this.addMapContainer}
                           {...this.props}/>
           </div>
 

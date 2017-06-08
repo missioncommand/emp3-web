@@ -84,12 +84,15 @@ class CreateKMLTest extends Component {
     args.properties = {...this.state.featureProps};
 
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       KMLFeature = new emp3.api.KML(args);
       addResult(args, 'createKML');
       addFeature(KMLFeature);
       if (!silent) {
         toastr.success('KMLFeature created successfully', 'createKML');
       }
+    }
     } catch (err) {
       addError(err.message, 'createKML');
       if (!silent) {
@@ -111,6 +114,8 @@ class CreateKMLTest extends Component {
 
     try {
       const KMLFeature = this.createKML(true);
+      if (KMLFeature)
+      {
       overlay.addFeatures({
         features: [KMLFeature],
         onSuccess: () => {
@@ -122,6 +127,7 @@ class CreateKMLTest extends Component {
           toastr.error('KML Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createKMLAddToOverlay:Critical');
       toastr.error(err.message, 'createKMLAddToOverlay: Critical');
