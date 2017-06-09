@@ -148,8 +148,7 @@ emp.editors.Vertices.prototype.find = function(featureId) {
 
 
 /**
- * remove the vertex of the specified id. Function only removes vertex of type vertex and
- * any corresponding types adds.
+ * remove the vertex of the specified id. Function  removes all types of vertex.
  */
 emp.editors.Vertices.prototype.remove = function(featureId) {
 
@@ -356,12 +355,22 @@ emp.editors.Vertices.prototype.clear = function() {
  * of an "add" point.
  */
 emp.editors.Vertices.prototype.getIndex = function(featureId) {
-  var index = 0,
+  var index = -1,
     currentVertex = this.head;
 
 
   // loop through the coordinates starting at the beginning.
   // only get the coordinates that are a vertex.
+  //
+     if (currentVertex === null)
+    {
+      return index;
+    }
+    else if (currentVertex.type === "vertex"  )
+    {
+      index++;
+    }
+
 
   while (currentVertex.feature.featureId !== featureId && currentVertex !== null) {
     currentVertex = currentVertex.next;
@@ -376,4 +385,37 @@ emp.editors.Vertices.prototype.getIndex = function(featureId) {
   }
 
   return index;
+};
+
+/**
+ * Returns the index of a vertex.  This does not find the index
+ * of an "add" point.
+ */
+emp.editors.Vertices.prototype.getVertexByIndex = function(vertexIndex) {
+  var index = -1,
+    currentVertex = this.head;
+    if (currentVertex === null)
+    {
+      return undefined;
+    }
+    else if (currentVertex.type === "vertex"  )
+    {
+      index++;
+    }
+
+  // loop through the coordinates starting at the beginning.
+  // only get the coordinates that are a vertex.
+
+  while (vertexIndex !== index ) {
+    currentVertex = currentVertex.next;
+    if (currentVertex.type === "vertex") {
+      index++;
+    }
+  }
+
+  if (vertexIndex !== index ) {
+    return undefined;
+  }
+
+  return currentVertex;
 };
