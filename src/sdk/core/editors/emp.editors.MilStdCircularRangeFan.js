@@ -60,6 +60,8 @@ emp.editors.MilStdCircularRangeFan.prototype.addControlPoints = function() {
 
   // Create a vertex.  This is so the editingManager knows that
   // the center point is a control point and not the radius.
+  // The vertices use type vertex to keep the ordering of radius control points.
+  // the center and add radius control points are of type add.
   vertex = new emp.editors.Vertex(controlPoint, "add");
   this.vertices.push(vertex);
   this.center = vertex;
@@ -181,6 +183,7 @@ emp.editors.MilStdCircularRangeFan.prototype.startMoveControlPoint = function(fe
     updateData = {},
     type = emp.typeLibrary.CoordinateUpdateType.UPDATE,
     newCoordinates,
+    newPoint, addPoint,
     newRadiusPosition,
     maxRadiusDistance,
   //  isRadius = false,
@@ -205,12 +208,6 @@ emp.editors.MilStdCircularRangeFan.prototype.startMoveControlPoint = function(fe
   // If the control point being moved is a radius control point,
   // calculate the new radius.  Calculate the new position of where
   // we want the control point to be.
-  // for (index = 0; index < this.radius.length; index++) {
-  //   if (featureId === this.radius[index].feature.featureId) {
-  //     isRadius = true;
-  //     break;
-  //   }
-  // }
 
   if (featureId !== this.center.feature.featureId) {
 
@@ -230,13 +227,14 @@ emp.editors.MilStdCircularRangeFan.prototype.startMoveControlPoint = function(fe
     currentFeature.data.coordinates = [newRadiusPosition.x, newRadiusPosition.y];
     if (this.addRadius && this.addRadius.feature.featureId === featureId)
     {
+      // moving the addRadius control point
       this.featureCopy.properties.modifiers.distance.push(distance);
       this.vertices.promoteVertex(currentVertex.feature.featureId);
       // Change the icon to be that of a vertex.
       currentFeature.properties.iconUrl = emp.ui.images.radius;
       //this.radius.push(currentVertex);
       this.addRadius =  undefined;
-      // add add vertex again
+      // insert add vertex again if less than 3 concentric circles.
       if (this.featureCopy.properties.modifiers.distance && this.featureCopy.properties.modifiers.distance.length < 3)
       {
         this.featureCopy.properties.modifiers.distance.max = function() { return  Math.max.apply(Math, this); }; //attach max funct
@@ -246,11 +244,11 @@ emp.editors.MilStdCircularRangeFan.prototype.startMoveControlPoint = function(fe
           // no circles present. use a default distance
           maxRadiusDistance = 5000;
         }
-        var newPoint = emp.geoLibrary.geodesic_coordinate({
+          newPoint = emp.geoLibrary.geodesic_coordinate({
           x: x,
           y: y
         }, maxRadiusDistance + maxRadiusDistance*0.2, 0);
-        var addPoint = new emp.typeLibrary.Feature({
+          addPoint = new emp.typeLibrary.Feature({
           overlayId: "vertices",
           featureId: emp3.api.createGUID(),
           format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
@@ -277,10 +275,12 @@ emp.editors.MilStdCircularRangeFan.prototype.startMoveControlPoint = function(fe
     }
     else
     {
+      //moving update control point
       index = this.vertices.getIndex(featureId);
       this.featureCopy.properties.modifiers.distance[index] = distance;
       if (this.addRadius)
       {
+        // update location of add radius control point.
         this.featureCopy.properties.modifiers.distance.max = function() { return  Math.max.apply(Math, this); }; //attach max funct
         maxRadiusDistance =  this.featureCopy.properties.modifiers.distance.max();
         if (!maxRadiusDistance)
@@ -301,7 +301,7 @@ emp.editors.MilStdCircularRangeFan.prototype.startMoveControlPoint = function(fe
 
   } else {
     // If we are updating the center point, we need to move the center vertex
-    // to a new location and we need to update the vertex of the radius location.
+    // to a new location and we need to update the vertex of the radius locations.
       this.featureCopy.data.type = "LineString";
       this.featureCopy.data.coordinates = [
         [pointer.lon, pointer.lat]
@@ -327,6 +327,7 @@ emp.editors.MilStdCircularRangeFan.prototype.startMoveControlPoint = function(fe
 
     if (this.addRadius)
     {
+      // update location of radius.
       this.featureCopy.properties.modifiers.distance.max = function() { return  Math.max.apply(Math, this); }; //attach max funct
       maxRadiusDistance =  this.featureCopy.properties.modifiers.distance.max();
       if (!maxRadiusDistance)
@@ -390,7 +391,7 @@ emp.editors.MilStdCircularRangeFan.prototype.startMoveControlPoint = function(fe
 
 
 /**
- * Occurs when the map is clicked after the draw has started.
+ * Occurs when a feature on the map is double clicked after the draw has started.
  */
 emp.editors.MilStdCircularRangeFan.prototype.drawDoubleClick = function(pointer) {
   var coordinateUpdate,
@@ -423,14 +424,14 @@ emp.editors.MilStdCircularRangeFan.prototype.drawDoubleClick = function(pointer)
         items: items
       });
 
-      //remove selected vertex and 2 add verteces from engine.
       removeTransaction.run();
 
       items = [];
 
-      // insert  add vertex again
+
       if (!this.addRadius && this.featureCopy.properties.modifiers.distance && this.featureCopy.properties.modifiers.distance.length < 3)
       {
+        // insert  add vertex again
         this.featureCopy.properties.modifiers.distance.max = function() { return  Math.max.apply(Math, this); }; //attach max funct
         maxRadiusDistance =  this.featureCopy.properties.modifiers.distance.max();
         if (!maxRadiusDistance)
@@ -468,7 +469,7 @@ emp.editors.MilStdCircularRangeFan.prototype.drawDoubleClick = function(pointer)
       }
       else if (this.addRadius)
       {
-        //reposition ad control point
+        //reposition add control point
         this.featureCopy.properties.modifiers.distance.max = function() { return  Math.max.apply(Math, this); }; //attach max funct
         maxRadiusDistance =  this.featureCopy.properties.modifiers.distance.max();
         if (!maxRadiusDistance)
@@ -486,7 +487,7 @@ emp.editors.MilStdCircularRangeFan.prototype.drawDoubleClick = function(pointer)
       }
 
       // update feature copy
-    //  this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
+      //  this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
       // update line
       items.push(this.featureCopy);
 
