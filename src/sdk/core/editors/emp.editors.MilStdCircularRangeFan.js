@@ -399,8 +399,9 @@ emp.editors.MilStdCircularRangeFan.prototype.drawDoubleClick = function(pointer)
     items = [],
     updateTransaction,
     index,
-    newCoordinates,
-    i, currentVertex, previousVertex, NextVertex;
+    newCoordinates, maxRadiusDistance,radiusVertex,
+    newRadiusPosition,
+    i, currentVertex;
 
   if (pointer.target.toLowerCase() === "feature" && this.vertices.vertexLength > 1) {
     // check if control point was clicked
