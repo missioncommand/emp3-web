@@ -148,8 +148,7 @@ emp.editors.Vertices.prototype.find = function(featureId) {
 
 
 /**
- * remove the vertex of the specified id. Function only removes vertex of type vertex and
- * any corresponding types adds.
+ * remove the vertex of the specified id. Function  removes all types of vertex.
  */
 emp.editors.Vertices.prototype.remove = function(featureId) {
 
@@ -404,7 +403,6 @@ emp.editors.Vertices.prototype.getVertexByIndex = function(vertexIndex) {
       index++;
     }
 
-  //  index = this.getIndex(currentVertex.feature.featureId);
   // loop through the coordinates starting at the beginning.
   // only get the coordinates that are a vertex.
 
