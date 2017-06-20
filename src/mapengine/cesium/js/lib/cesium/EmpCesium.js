@@ -6420,29 +6420,24 @@ function EmpCesium() {
   this.addWmtsToMap = function(item) {
     try {
       var layer = this.getLayer(item.coreId),
-        useProxy = false;
+      sLayers = "", options = {},
+      webMapTileServiceImageryProvider,
+      tileMatrixSetID = 'default028mm',
+      useProxy = false;
+
       if (layer) {
         this.removeLayer(layer);
       }
-      var options = {};
+
+      tileMatrixSetID = (this.defined(item.tileMatrixSetID) )?item.tileMatrixSetID:tileMatrixSetID;
       layer = new EmpLayer(item.name, item.coreId, EmpCesiumConstants.layerType.WMTS_LAYER, this); //empCesium);
       layer.providers = [];
       layer.url = item.url;
       layer.globalType = EmpCesiumConstants.layerType.WMTS_LAYER;
-      var sLayers = "";
-      if (this.isV2Core && item.activeLayers) {
-        sLayers = item.activeLayers.join();
-      } else if (!this.isV2Core && item.layers) {
-        sLayers = item.layers.join();
-      }
+      sLayers = item.layer;
+      useProxy = (this.defined(item.useProxy) )?item.useProxy:useProxy;
 
-      if (this.isV2Core) {
-        useProxy = emp.util.config.getUseProxySetting();
-      } else if (item && item.useProxy) {
-        useProxy = item.useProxy;
-      }
-
-      var webMapTileServiceImageryProvider = new this.WebMapTileServiceImageryProvider({
+        webMapTileServiceImageryProvider = new this.WebMapTileServiceImageryProvider({
         url: layer.url,
         style: 'default',
         format: 'image/jpeg',
@@ -6459,15 +6454,9 @@ function EmpCesium() {
         imageryLayer: undefined,
         enable: false
       });
-      //}
-      //imageryEmpLayers[imageryEmpLayersIndex] = layer;
-      //imageryEmpLayersOptions[imageryEmpLayersIndex] = {isCors: ("true" === imageryJsonObject.disableProxy.toLowerCase()), isBase: true};
-      // layer.options = imageryEmpLayersOptions[imageryEmpLayersIndex];
-      //imageryEmpLayersOptions[imageryEmpLayersIndex].singleTile = false;
-      //dropDown.options.add(new Option(imageryJsonObject.name));
+
       this.addLayer(layer);
       this.imageryEmpLayers.push(layer);
-      //this.imageryEmpLayersOptions.push(options);
       this.enableLayer(layer, true);
     } catch (err) {
       console.error("Adding WMTS to Cesium failed! ", err);

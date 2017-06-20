@@ -43,7 +43,8 @@
           format: message.mapService.tileFormat,
           version: message.mapService.version,
           style: message.mapService.style,
-          sampleDimensions: message.mapService.sampleDimensions
+          sampleDimensions: message.mapService.sampleDimensions,
+          tileMatrixSet: message.mapService.tileMatrixSet
         };
         break;
       case 'kmlLayer':

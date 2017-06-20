@@ -24,6 +24,7 @@ class CreateWMTSTest extends Component {
       tileFormat: 'image/png',
       style: '',
       sampleDimension: '',
+      tileMatrixSet: '',
       useProxy: false,
       version: 'WMTS' // this translates to undefined.  I had to hack this
       // a little because VSelect does not allow me to specify
@@ -126,6 +127,7 @@ class CreateWMTSTest extends Component {
       version = (this.state.version !== '') ? this.state.version : undefined,
       style = (this.state.style !== '') ? this.state.style : undefined,
       sampleDimensions,
+      tileMatrixSet = (this.state.tileMatrixSet !== '') ? this.state.tileMatrixSet : undefined,
       wmts;
 
     /**
@@ -168,6 +170,7 @@ class CreateWMTSTest extends Component {
       style: style,
       description: description,
       sampleDimensions: sampleDimensions,
+      tileMatrixSet: tileMatrixSet,
       useProxy: this.state.useProxy
     });
 
@@ -291,6 +294,11 @@ class CreateWMTSTest extends Component {
                value={this.state.sampleDimensions}
                label='Sample Dimensions'
                callback={this.updateWMTS}/>
+
+       <VText id='createWMTS-tileMatrixSet'
+              value={this.state.tileMatrixSet}
+              label='tileMatrixSet'
+              callback={this.updateWMTS}/>
 
         <VCheckBox id='createWMTS-useProxy'
                    checked={this.state.useProxy} label='Use Proxy'

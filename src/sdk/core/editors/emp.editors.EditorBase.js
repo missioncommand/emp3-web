@@ -21,6 +21,9 @@ emp.editors.EditorBase = function(args) {
   // Retrieve the mapInstance used for this feature.
   this.mapInstance = args.mapInstance;
 
+  // determine dra category
+  this.drawCategory = emp.util.getDrawCategory(args.feature);
+
   this.getUpdateData = function() {
     var newCoordinates = [],
       i,
@@ -83,7 +86,7 @@ emp.editors.EditorBase.prototype.addControlPoints = function() {
     vertex;
 
   // Normalize the coordinates so we can handle them the same.
-  if (this.featureCopy.data.type === 'Point') {
+  if (this.featureCopy.data.type === 'Point' || this.featureCopy.data.type === 'Text') {
     length = 1;
     coordinates = [this.featureCopy.data.coordinates];
   } else if (this.featureCopy.data.type === 'LineString') {
@@ -108,7 +111,7 @@ emp.editors.EditorBase.prototype.addControlPoints = function() {
         type: 'Point'
       },
       properties: {
-        iconUrl: emp.ui.images.editPoint,
+        iconUrl: (this.drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE && i ===2 )?emp.ui.images.distancePoint:emp.ui.images.editPoint,
         iconXOffset: 10,
         iconYOffset: 10,
         xUnits: "pixels",
@@ -247,7 +250,7 @@ emp.editors.EditorBase.prototype.startMoveControlPoint = function(featureId, poi
 
   // update the actual feature that is being edited.
   // Normalize the coordinates so we can handle them the same.
-  if (this.featureCopy.data.type === 'Point') {
+  if (this.featureCopy.data.type === 'Point' || this.featureCopy.data.type === 'Text') {
     this.featureCopy.data.coordinates = [pointer.lon, pointer.lat];
   } else if (this.featureCopy.data.type === 'LineString') {
     this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
@@ -278,7 +281,7 @@ emp.editors.EditorBase.prototype.startMoveControlPoint = function(featureId, poi
   newCoordinates = [];
 
   // Normalize the coordinates so we can handle them the same.
-  if (this.featureCopy.data.type === 'Point') {
+  if (this.featureCopy.data.type === 'Point' || this.featureCopy.data.type === 'Text') {
     coordinates = [this.featureCopy.data.coordinates];
   } else if (this.featureCopy.data.type === 'LineString') {
     length = this.featureCopy.data.coordinates.length;
@@ -290,8 +293,8 @@ emp.editors.EditorBase.prototype.startMoveControlPoint = function(featureId, poi
 
   for (var i = 0; i < coordinates.length; i++) {
     newCoordinates.push({
-      lat: this.featureCopy.data.coordinates[i][1],
-      lon: this.featureCopy.data.coordinates[i][0]
+      lat: coordinates[i][1],
+      lon: coordinates[i][0]
     });
   }
 

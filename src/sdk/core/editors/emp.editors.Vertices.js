@@ -388,7 +388,7 @@ emp.editors.Vertices.prototype.getIndex = function(featureId) {
 };
 
 /**
- * Returns the index of a vertex.  This does not find the index
+ * Returns the  a vertex by index.  This does not find the index
  * of an "add" point.
  */
 emp.editors.Vertices.prototype.getVertexByIndex = function(vertexIndex) {

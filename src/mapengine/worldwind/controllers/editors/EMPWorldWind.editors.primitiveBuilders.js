@@ -234,7 +234,8 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
     pathPrimitive.displayName = feature.name;
     pathPrimitive.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
     pathPrimitive.highlightAttributes = attributes.highlightAttributes;
-
+    //set pathType to rhumb like in the SEC rendeer
+    pathPrimitive.pathType = WorldWind.RHUMB_LINE;
     return pathPrimitive;
   }
 
@@ -301,7 +302,8 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
     polygonPrimitive.displayName = feature.name;
     polygonPrimitive.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
     polygonPrimitive.highlightAttributes = attributes.highlightAttributes;
-
+    //set pathType to rhumb like in the SEC rendeer
+    polygonPrimitive.pathType = WorldWind.RHUMB_LINE;
     return polygonPrimitive;
   }
 
@@ -339,7 +341,8 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
     rectPrimitive.displayName = feature.name;
     rectPrimitive.altitudeMode = feature.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
     rectPrimitive.highlightAttributes = attributes.highlightAttributes;
-
+    //set pathType to rhumb like in the SEC rendeer
+    rectPrimitive.pathType = WorldWind.RHUMB_LINE;
     return rectPrimitive;
   }
 
@@ -819,7 +822,8 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       polylinePrimitive = new WorldWind.SurfacePolyline(locations, attributes);
       polylinePrimitive.altitudeMode = geoJSON.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
       polylinePrimitive.highlightAttributes = new WorldWind.ShapeAttributes(highlightAttributes);
-
+      //set pathType to rhumb like in the SEC rendeer
+      polylinePrimitive.pathType = WorldWind.RHUMB_LINE;
       return polylinePrimitive;
     },
     /**
@@ -882,7 +886,8 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       polygonPrimitive.altitudeMode = geoJSON.properties.altitudeMode || WorldWind.CLAMP_TO_GROUND;
       polygonPrimitive.displayName = geoJSON.properties.name;
       polygonPrimitive.highlightAttributes = new WorldWind.ShapeAttributes(highlightAttributes);
-
+      //set pathType to rhumb like in the SEC rendeer
+      polygonPrimitive.pathType = WorldWind.RHUMB_LINE;
       return polygonPrimitive;
     },
     /**

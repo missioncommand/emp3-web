@@ -42,6 +42,7 @@ if (!window.emp3.api) {
  * of parameters that can be set for the service.  These parameters map be unique to a WMTS service
  * and are defined in the GetCapabilities response.  Sample properties are
  * 'elevation' and 'time'.
+ * @param {Object} [args.tileMatrixSet] A string  that describes the tileMatrix set. Similar to  tiling scheme.
  * @param {boolean} [args.useProxy = false] Specifies if the the map uses its
  * configured web proxy.  This will be needed if the service is on a different
  * domain than the map.
@@ -169,6 +170,21 @@ emp3.api.WMTS = function(args) {
     },
     set: function (value) {
       _sampleDimensions = value;
+    }
+  });
+
+  var _tileMatrixSet = args.tileMatrixSet;
+  /**
+   * @name emp3.api.WMTS#version
+   * @type {object}
+   */
+  Object.defineProperty(this, "tileMatrixSet", {
+    enumerable: true,
+    get: function () {
+      return _tileMatrixSet;
+    },
+    set: function (value) {
+      _tileMatrixSet = value;
     }
   });
 };

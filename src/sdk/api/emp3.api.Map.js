@@ -159,7 +159,7 @@ emp3.api.Map = function(args) {
   var callInfo,
     mhInstance,
     urlEnv;
-    
+
   /* eslint-disable no-console*/
   console.log("EMP3 web %s", emp3.api.global.version);
   /*eslint-enable no-console*/
@@ -281,7 +281,7 @@ emp3.api.Map = function(args) {
   if (args.backgroundBrightness !== undefined) {
     this.brightness = args.backgroundBrightness;
   } else {
-    this.brightness = args.backgroundBrightness;
+    this.brightness = 50;
   }
   args.engine.properties.brightness = this.brightness;
 
