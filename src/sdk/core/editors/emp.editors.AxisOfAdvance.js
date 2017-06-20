@@ -346,6 +346,9 @@ emp.editors.AxisOfAdvance.prototype.startMoveControlPoint = function(featureId, 
       // the vector created
       // by the first and second point.  We need to maintain and store this distance.
       this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
+      // make sure to calculate the  arrowDistance and arrowDepth before proceding to
+      // calculate arrow head position.
+      this.calculateArrowDistance();
       this.calculateArrowHeadPosition();
       // Make sure the last vertex is updated as it will have moved after the
       // arrowhead was calculated.
