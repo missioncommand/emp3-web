@@ -825,7 +825,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             smartLockBuffer = 0.05,
             offsetX,
             offsetY,
-            step = parseFloat((instanceInterface.getView().altitude / (L.CRS.Earth.R)).toFixed(25)),
+            step = parseFloat((instanceInterface.getView().altitude / (L.CRS.Earth.R)).toFixed(5)),
             smartLockAutoPan = function() {
               var geographicMapCenter = instanceInterface.leafletInstance.getCenter(),
                   panToLat = geographicMapCenter.lat,
