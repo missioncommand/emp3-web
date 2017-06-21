@@ -62,12 +62,15 @@ class CreatePathTest extends Component {
     args.positions = convertPositionStringToGeoPositions(this.state.feature.positions);
 
     try {
+    if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+    { // create only when feature not found in core
       path = new emp3.api.Path(args);
       addFeature(path);
       addResult(args, 'createPath');
       if (!silent) {
         toastr.success('Path Created Successfully');
       }
+    }
     } catch (err) {
       addError(err.message, 'createPath');
       if (!silent) {
@@ -89,6 +92,8 @@ class CreatePathTest extends Component {
 
     try {
       const path = this.createPath(true);
+      if (path)
+      {
       overlay.addFeatures({
         features: [path],
         onSuccess: () => {
@@ -100,6 +105,7 @@ class CreatePathTest extends Component {
           toastr.error(err.errorMessage, 'Failed to add Path to Overlay');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createPathAddToOverlay:Critical');
       toastr.error(err.message, 'Create Path Add To Overlay:Critical');

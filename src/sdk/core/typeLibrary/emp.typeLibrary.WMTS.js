@@ -133,6 +133,9 @@ emp.typeLibrary.WMTS = function(args) {
 
   this.sampleDimensions = this.params.sampleDimensions || args.sampleDimensions;
 
+  this.tileMatrixSet = this.params.tileMatrixSet || args.tileMatrixSet;
+
+
   /**
    * @field
    * @type {boolean}

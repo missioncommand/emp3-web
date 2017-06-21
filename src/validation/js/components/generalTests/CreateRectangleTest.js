@@ -81,12 +81,15 @@ class CreateRectangleTest extends Component {
 
     let rectangle;
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       rectangle = new emp3.api.Rectangle(args);
       addResult(args, 'createRectangle');
       addFeature(rectangle);
       if (!silent) {
         toastr.success('Create Rectangle Success');
       }
+    }
     } catch (err) {
       addError(err, 'createRectangle');
       if (!silent) {
@@ -106,6 +109,8 @@ class CreateRectangleTest extends Component {
     const overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
     try {
       const rectangle = this.createRectangleFeature();
+      if (rectangle)
+      {
       overlay.addFeatures({
         features: [rectangle],
         onSuccess: () => {
@@ -117,6 +122,7 @@ class CreateRectangleTest extends Component {
           toastr.error('Rectangle Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createRectangleAddToOverlay:Critical');
       toastr.error(err.message, 'Create Rectangle Add To Overlay: Critical');

@@ -77,12 +77,15 @@ class CreatePolygonTest extends Component {
     args.positions = convertPositionStringToGeoPositions(this.state.feature.positions);
 
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       polygon = new emp3.api.Polygon(args);
       addResult(args, 'Create Polygon');
       addFeature(polygon);
       if (!silent) {
         toastr.success('Polygon created successfully', 'Create Polygon');
       }
+    }
     } catch (err) {
       addError(err.message, 'createPolygon');
       if (!silent) {
@@ -104,6 +107,8 @@ class CreatePolygonTest extends Component {
 
     try {
       const polygon = this.createPolygon(true);
+      if (polygon)
+      {
       overlay.addFeatures({
         features: [polygon],
         onSuccess: () => {
@@ -115,6 +120,7 @@ class CreatePolygonTest extends Component {
           toastr.error('Polygon Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createPolygonAddToOverlay:Critical');
       toastr.error(err.message, 'Create Polygon Add To Overlay: Critical');

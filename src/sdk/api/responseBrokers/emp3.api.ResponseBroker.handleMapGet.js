@@ -155,7 +155,8 @@
                   layer: successes.feature[i].params.layer,
                   tileFormat: successes.feature[i].params.format,
                   style: successes.feature[i].params.style,
-                  sampleDimensions: successes.feature[i].params.sampleDimensions
+                  sampleDimensions: successes.feature[i].params.sampleDimensions,
+                  tileMatrixSet: successes.feature[i].params.tileMatrixSet
                 });
                 break;
               case "kml":

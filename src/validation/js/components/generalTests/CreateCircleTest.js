@@ -96,12 +96,15 @@ class CreateCircleTest extends Component {
     featureArgs.radius = isNaN(this.state.feature.radius) ? undefined : parseFloat(this.state.feature.radius);
 
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       circle = new emp3.api.Circle(featureArgs);
       addResult(featureArgs, 'createCircle');
       addFeature(circle);
       if (!silent) {
         toastr.success('Circle Created Successfully');
       }
+    }
 
     } catch (err) {
       addError(err.message, 'createCircle');
@@ -122,6 +125,8 @@ class CreateCircleTest extends Component {
     const overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
     try {
       const circle = this.createCircle(true);
+      if (circle)
+      {
       overlay.addFeatures({
         features: [circle],
         onSuccess: () => {
@@ -133,6 +138,7 @@ class CreateCircleTest extends Component {
           toastr.error('Circle Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createCircleAddToOverlay:Critical');
       toastr.error(err.message, 'Circle Add To Overlay: Critical');

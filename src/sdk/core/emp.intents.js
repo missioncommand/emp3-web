@@ -329,6 +329,7 @@ emp.intents.control.useNewEditing = function(args) {
     }
 
   if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_TEXT  ||
     originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
     originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
     originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
@@ -346,7 +347,9 @@ emp.intents.control.useNewEditing = function(args) {
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE ||
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW ||
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ||
-        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE  ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE
       ))) {
 
     result = true;
@@ -391,6 +394,7 @@ emp.intents.control.useNewDrawing = function(args) {
   }
 
   if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_TEXT  ||
       item.type === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
       item.type === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
       item.type === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
@@ -408,7 +412,9 @@ emp.intents.control.useNewDrawing = function(args) {
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ||
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE ||
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE ||
-        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE  ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE
       ))) {
     result = true;
   }

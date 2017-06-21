@@ -17,7 +17,8 @@ emp.classLibrary.privateClass = function() {
         version: args.version || "1.0.0",
         layer: args.layer,
         style: args.style || "default",
-        sampleDimensions: args.sampleDimensions
+        sampleDimensions: args.sampleDimensions,
+        tileMatrixSet: args.tileMatrixSet
       };
 
       args.coreObjectType = emp.typeLibrary.types.WMTS;
@@ -45,7 +46,8 @@ emp.classLibrary.privateClass = function() {
         version: this.options.params.version,
         layer: this.options.params.layer,
         style: this.options.params.style,
-        visible: this.isVisibleOnMap(mapInstanceId)
+        visible: this.isVisibleOnMap(mapInstanceId),
+        tileMatrixSet: this.options.params.tileMatrixSet
       };
 
       if (this.options.sampleDimensions) {

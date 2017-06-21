@@ -232,49 +232,6 @@ emp.engineDefs.worldWindMapEngine = function(args) {
   };
 
   /**
-   * @param {emp.typeLibrary.Transaction} transaction
-   */
-  engineInterface.overlay.add = function(transaction) {
-    var rc,
-      failList = [];
-
-    emp.util.each(transaction.items, function(overlay) {
-      rc = empWorldWind.addLayer(overlay);
-
-      if (!rc.success) {
-        failList.push(new emp.typeLibrary.Error({
-          coreId: overlay.coreId,
-          message: rc.message,
-          level: emp.typeLibrary.Error.level.MINOR
-        }));
-      }
-    });
-
-    transaction.fail(failList);
-  };
-
-  /**
-   *
-   * @param {emp.typeLibrary.Transaction} transaction
-   */
-  engineInterface.overlay.remove = function(transaction) {
-    var rc = {},
-      failList = [];
-
-    emp.util.each(transaction.items, function(overlay) {
-      rc = empWorldWind.removeLayer(overlay.overlayId);
-      if (!rc.success) {
-        failList.push(new emp.typeLibrary.Error({
-          coreId: overlay.coreId,
-          message: rc.message
-        }));
-      }
-    });
-
-    transaction.fail(failList);
-  };
-
-  /**
    *
    * @param {emp.typeLibrary.Transaction} transaction
    */
@@ -356,10 +313,52 @@ emp.engineDefs.worldWindMapEngine = function(args) {
    * @param {emp.typeLibrary.Transaction} transaction
    */
   engineInterface.view.getLatLonFromXY = function(transaction) {
-    var pickPoint = new WorldWind.Vec2(transaction.items[0].x, transaction.items[0].y);
-    var terrainObject = empWorldWind.worldWindow.pickTerrain(pickPoint).terrainObject();
-    transaction.items[0].lat = terrainObject ? terrainObject.position.latitude : undefined;
-    transaction.items[0].lon = terrainObject ? terrainObject.position.longitude : undefined;
+    for (var i = 0; i < transaction.items.length; i += 1)
+    {
+        var item = transaction.items[i];
+        var pickPoint = new WorldWind.Vec2(item.x, item.y);
+        var terrainObject = empWorldWind.worldWindow.pickTerrain(pickPoint).terrainObject();
+        item.lat = terrainObject ? terrainObject.position.latitude : undefined;
+        item.lon = terrainObject ? terrainObject.position.longitude : undefined;
+    }
+  };
+
+
+  engineInterface.view.getXYFromLatLon = function (transaction)
+  {
+      //try to traverse the items
+      //
+      var bResult = false;
+      for (var i = 0; i < transaction.items.length; i += 1)
+      {
+          var item = transaction.items[i];
+          // first convert geographic lat lon to cartesian
+          var pointVec3 = new WorldWind.Vec3(0,0,0);
+          empWorldWind.worldWindow.globe.computePointFromPosition (item.lat, item.lon, 0, pointVec3);
+          // from cartesian to screen point in WebGL screen coordinates, with the origin in
+          // the bottom-left corner and axes that extend up and to the right from the origin.
+          if (!pointVec3)
+          {
+            continue;
+          }
+          var screenVec3 = new WorldWind.Vec3(0,0,0);
+          bResult = empWorldWind.worldWindow.drawContext.navigatorState.project (pointVec3, screenVec3);
+          if (bResult)
+          {
+            item.x = screenVec3[0];
+            item.y = screenVec3[1];
+            item.z = screenVec3[2];
+          }
+          else
+          {
+            item.x = undefined;
+            item.y = undefined;
+            item.z = undefined;
+          }
+
+      }
+      //transaction.fail(failList);
+      return transaction;
   };
 
   /**
@@ -498,7 +497,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
      * Resume the transaction once all items have been processed
      * @private
      */
-    function _complete(args) {
+    var _complete = function(args) {
       items--;
 
       if (!args.success) {
@@ -514,7 +513,7 @@ emp.engineDefs.worldWindMapEngine = function(args) {
       }
 
       transaction.run();
-    }
+    };
 
     // Pause the transaction, KML is async in WorldWind
     transaction.pause();

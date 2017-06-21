@@ -86,7 +86,7 @@ cesiumEngine.utils = {
                 kmlString,
                 useDefaultIcon = false,
                 fillColor,
-                heading = undefined;
+                heading ;
 
         if (iconUrl === undefined || iconUrl === null || iconUrl === "null" || iconUrl === "undefined" || iconUrl === "")
         {
@@ -489,6 +489,7 @@ cesiumEngine.utils.isGeojsonCoordinateValid = function (args)
     var coordArray = [],
             i,
             pointArray,
+            coordDegrees,
             isValid = true;
 
     if (args.type)
@@ -497,7 +498,7 @@ cesiumEngine.utils.isGeojsonCoordinateValid = function (args)
         {
             if (args.coordinates)
             {
-                var coordDegrees = args.coordinates;
+                 coordDegrees = args.coordinates;
                 if (isNaN(parseFloat(coordDegrees[0])) || isNaN(parseFloat(coordDegrees[1])))// index 0 if for longitude, 1 for latitude
                 {
                     return false;
@@ -512,7 +513,7 @@ cesiumEngine.utils.isGeojsonCoordinateValid = function (args)
         {
             for (i = 0; i < args.coordinates.length; i += 1)
             {
-                var coordDegrees = args.coordinates[i];
+                 coordDegrees = args.coordinates[i];
                 if (isNaN(parseFloat(coordDegrees[0])) || isNaN(parseFloat(coordDegrees[1])))
                 {
                     return false;
@@ -3490,7 +3491,7 @@ cesiumEngine.utils.transformMilStdTransactionItemToAirspace3D = function (item)
                             break;
                     }
                 case cesiumEngine.utils.AirspaceShapeEnumType.SHAPE3D_TRACK:
-                    var isSymmetricWidth = true;
+                    isSymmetricWidth = true;
                     var widthArrayLength = milStdSymbologyModifiers[cesiumEngine.utils.MilStdSymbologyModifiers.DISTANCE].length;
                     if (widthArrayLength === iSegCnt * 2)
                     {
@@ -3884,7 +3885,7 @@ cesiumEngine.utils.checkForRequiredModifiers = function (item, viewDistance)
                     }
                 }
             }
-            if (oAM.length < 2)
+            if (oAM.length < 1)
             {
                 // Check to see if the each value is present.
                 for (i = 0; i < 2; i++)
@@ -4190,7 +4191,7 @@ cesiumEngine.utils.getSymbolIconCurrentScale = function (iconPixelSize)
  */
 cesiumEngine.utils.colorABGRToObjectRGBAndAlpha = function (style, argbFormat)
 {
-    var rgb,
+    var rgb;
             style = style.trim(); //KML uses ABGR hex
 
     if (style.charAt(0) === "#")
@@ -4698,7 +4699,7 @@ cesiumEngine.utils.getFontInfo = function (name, size, style)
     return {name: name, size: size, style: style, measurements: measurements};
 };
 
-// compare 2 objects's values for equality. Only for objects with no functions. No equality on reference. 
+// compare 2 objects's values for equality. Only for objects with no functions. No equality on reference.
 cesiumEngine.utils.jsonEqual = function (a, b)
 {
     return JSON.stringify(a) === JSON.stringify(b);

@@ -38,6 +38,14 @@ emp.editingManager = function(args) {
         mapInstance: args.mapInstance
       });
     }
+    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_TEXT)
+    {
+      // create the editor for the appropriate item being edited.
+      activeEditor = new emp.editors.Text({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    }
     else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
       (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
       // This is a path.  These are items that follow the rules of a multipoint
@@ -98,6 +106,20 @@ emp.editingManager = function(args) {
     else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.MilStdTwoPointLine({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    }
+    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE) {
+      // This is a circular range fan.
+      activeEditor = new emp.editors.MilStdCircularRangeFan({
+        feature: feature,
+        mapInstance: args.mapInstance
+      });
+    }
+    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE) {
+      // This is a sector range fan.
+      activeEditor = new emp.editors.MilStdSectorRangeFan({
         feature: feature,
         mapInstance: args.mapInstance
       });
@@ -323,6 +345,20 @@ emp.editingManager = function(args) {
           mapInstance: args.mapInstance
         });
       }
+      else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE) {
+        // This is a circular range fan
+        activeEditor = new emp.editors.MilStdCircularRangeFan({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
+      else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE) {
+        // This is a circular range fan
+        activeEditor = new emp.editors.MilStdSectorRangeFan({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      }
       else {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.EditorBase({
@@ -392,6 +428,7 @@ emp.editingManager = function(args) {
         // sure to copy the feature's properties and coordinates.
         feature = new emp.typeLibrary.Feature({
           overlayId: "vertices",
+          name: item.name,
           featureId: item.featureId || emp3.api.createGUID(),
           format: item.type,
           data: {
@@ -650,8 +687,8 @@ emp.editingManager = function(args) {
 
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.
-      if (originalFeature && featureId === originalFeature.featureId ||
-        activeEditor.isControlPoint(featureId)) {
+      if (originalFeature && featureId === originalFeature.featureId || (activeEditor &&
+        activeEditor.isControlPoint(featureId) )) {
 
         mapLock = new emp.typeLibrary.Lock({
           lock: emp3.api.enums.MapMotionLockEnum.NO_PAN
@@ -879,8 +916,38 @@ emp.editingManager = function(args) {
           });
         }
       }
+  //  }
+  },
+
+
+  /**
+   * Occurs each time the user double clicks on a  map after the
+   * drawing has started.
+   */
+  drawDoubleClick: function(pointer) {
+    var updates;
+    updates = activeEditor.drawDoubleClick(pointer);
+
+    // sometimes a draw click does not do anything.
+    // check to make sure something happened before overwriting
+    // updateData.
+    if (updates) {
+      updateData = updates;
+
+      if (updateData) {
+
+        editTransaction.items[0].update({
+          name: feature.name,
+          updates: updateData.coordinateUpdate,
+          properties: updateData.properties,
+          updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
+          mapInstanceId: mapInstance.mapInstanceId
+        });
+      }
     }
-  };
+  }
+};
+
 
 
   return publicInterface;

@@ -155,6 +155,11 @@ function EmpCesium() {
   this.bSmartMapMovingBottomLeftZone = false;
   this.startMousePosition = undefined;
   this.mousePosition = undefined;
+  this.bMapReady = false;
+  // Next flag is a way to detect a feature was clicked. The flag will be used by the
+  // mouse move event handler to decide when to delay the sending of the event to the core. When set to true
+  // the timeout is not used, and that accelerates the dragging of control points.
+  this.bFeaturePickedOnMouseDown = false;
   // this.cesiumConverter;
   this.drawData = {
     transaction: null,
@@ -218,6 +223,11 @@ function EmpCesium() {
       }
     });
     this.scene.skyAtmosphere = new this.SkyAtmosphere();
+    //hide stars and atmosphare until the map is ready. The first time the post renderer is called
+    // the sky and atmosphere are set to visible. The idea is to allow the map enough time to repositiion it self at the
+    // bounds location set by the emp core. An undesired shifting on the stars is noticed if the sky is visible.
+    this.scene.skyBox.show = false;
+    this.scene.skyAtmosphere.show = false;
     //this.scene.sun = new this.Sun();
     if (is2d) {
       this.do2DView();
@@ -1207,8 +1217,11 @@ function EmpCesium() {
     this.oMouseMoveEventData = this.populateEvent(event);
     this.oMouseMoveEventData.type = "move";
     var delay = 100;
-    //if (this.mapLocked)
-    if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION || this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.SMART_MOTION) {
+    // detect free hand drawing
+    if (this.bFeaturePickedOnMouseDown ||
+      (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_PAN && this.rootLayer &&
+        this.rootLayer.isFeaturePresentById("freehandX")))
+        {
       this.empMapInstance.eventing.Pointer(this.oMouseMoveEventData);
       //delay = 50;
     } else {
@@ -1247,6 +1260,17 @@ function EmpCesium() {
     eventData.screenX = (event.domEvent) ? event.domEvent.clientX : event.screenX;
     eventData.screenY = (event.domEvent) ? event.domEvent.clientY : event.screenY;
     if (event.feature !== null && event.feature !== undefined) {
+      // Next flag is a way to detect a feature was clicked. The flag will be used by the
+      // mouse move event handler to decide when to delay the sending of the event to the core. When set to true
+      // the timeout is not used, and that accelerates the dragging of control points.
+         if (event.domEvent.type ==='pointerdown')
+         {
+           this.bFeaturePickedOnMouseDown = true;
+         }
+         else if (event.domEvent.type ==='pointerup')
+         {
+           this.bFeaturePickedOnMouseDown = false;
+         }
       eventData.target = "feature";
       eventData.coreId = event.coreId;
       if (!event.featureId && event.feature.parentFeature && event.feature.parentFeature.featureId) {
@@ -1267,6 +1291,13 @@ function EmpCesium() {
         }
       }
     } else {
+      // Next flag is a way to detect a feature was clicked. The flag will be used by the
+      // mouse move event handler to decide when to delay the sending of the event to the core. When set to true
+      // the timeout is not used, and that accelerates the dragging of control points.
+      if ((event.domEvent.type ==='pointerup') || (event.domEvent.type ==='pointerdown'))
+      {
+        this.bFeaturePickedOnMouseDown = false;
+      }
       eventData.target = "globe";
     }
     eventData.altKey = event.altKey;
@@ -1752,7 +1783,7 @@ function EmpCesium() {
               },
               domEvent: event.domEvent
             };
-            this.prePopulateEvent(callbackData, false);
+            this.prePopulateEvent(callbackData, true);// truue to be able to remove conyrol points in edit or draw modes.
             this.handleDblClick(callbackData);
             this.cesiumRenderOptimizer.boundNotifyRepaintRequired();
           }
@@ -2833,9 +2864,13 @@ function EmpCesium() {
       //var options = {};
       geoJsonDataSource.zoom = args.zoom;
       geoJsonDataSource.featureType = EmpCesiumConstants.featureType.DATA_SOURCE;
-      geoJsonDataSource.load(args.data, options).then(function(geoJsonDataSource)
+      //console.log("geojosndatasource before loading control point");
+      var promise = geoJsonDataSource.load(args.data, options);
+      //geoJsonDataSource.load(args.data, options).then(
+      promise.then(function(geoJsonDataSource)
         //geoJsonDataSource.load(args.data, options).then(function (geoJsonDataSource)
         {
+          //console.log("geojosndatasource loading control point");
           if (EmpCesiumConstants.USE_DATA_SOURCE) {
             geoJsonDataSource.id = args.id;
             geoJsonDataSource.featureId = args.featureId;
@@ -2984,7 +3019,10 @@ function EmpCesium() {
             }
             geoJsonDataSource = undefined;
           }
-        }.bind(this));
+        }.bind(this)).otherwise(function(error){
+        //Display any errrors encountered while loading.
+        window.alert("-------------------------" + error);
+    });;
       //}
     } catch (err) {
       result = {
@@ -6382,29 +6420,24 @@ function EmpCesium() {
   this.addWmtsToMap = function(item) {
     try {
       var layer = this.getLayer(item.coreId),
-        useProxy = false;
+      sLayers = "", options = {},
+      webMapTileServiceImageryProvider,
+      tileMatrixSetID = 'default028mm',
+      useProxy = false;
+
       if (layer) {
         this.removeLayer(layer);
       }
-      var options = {};
+
+      tileMatrixSetID = (this.defined(item.tileMatrixSetID) )?item.tileMatrixSetID:tileMatrixSetID;
       layer = new EmpLayer(item.name, item.coreId, EmpCesiumConstants.layerType.WMTS_LAYER, this); //empCesium);
       layer.providers = [];
       layer.url = item.url;
       layer.globalType = EmpCesiumConstants.layerType.WMTS_LAYER;
-      var sLayers = "";
-      if (this.isV2Core && item.activeLayers) {
-        sLayers = item.activeLayers.join();
-      } else if (!this.isV2Core && item.layers) {
-        sLayers = item.layers.join();
-      }
+      sLayers = item.layer;
+      useProxy = (this.defined(item.useProxy) )?item.useProxy:useProxy;
 
-      if (this.isV2Core) {
-        useProxy = emp.util.config.getUseProxySetting();
-      } else if (item && item.useProxy) {
-        useProxy = item.useProxy;
-      }
-
-      var webMapTileServiceImageryProvider = new this.WebMapTileServiceImageryProvider({
+        webMapTileServiceImageryProvider = new this.WebMapTileServiceImageryProvider({
         url: layer.url,
         style: 'default',
         format: 'image/jpeg',
@@ -6421,15 +6454,9 @@ function EmpCesium() {
         imageryLayer: undefined,
         enable: false
       });
-      //}
-      //imageryEmpLayers[imageryEmpLayersIndex] = layer;
-      //imageryEmpLayersOptions[imageryEmpLayersIndex] = {isCors: ("true" === imageryJsonObject.disableProxy.toLowerCase()), isBase: true};
-      // layer.options = imageryEmpLayersOptions[imageryEmpLayersIndex];
-      //imageryEmpLayersOptions[imageryEmpLayersIndex].singleTile = false;
-      //dropDown.options.add(new Option(imageryJsonObject.name));
+
       this.addLayer(layer);
       this.imageryEmpLayers.push(layer);
-      //this.imageryEmpLayersOptions.push(options);
       this.enableLayer(layer, true);
     } catch (err) {
       console.error("Adding WMTS to Cesium failed! ", err);
@@ -8648,8 +8675,72 @@ function EmpCesium() {
       if (entity.polyline !== undefined) {
         isRenderableEntity = true;
         var rgbaLineColor = undefined;
-        if (!this.defined(entity.polyline.material)) {
-          entity.polyline.material = new this.PolylineOutlineMaterialProperty();
+        var dashPattern = parseInt("110000001111", 2);
+        var dashLength = 12;
+        //reset default material used by the geojson parser. The default material is constant
+        // so it doesn't take color changes.
+        // none stippling pattern.
+          entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+            color: Cesium.Color.BLACK,
+            dashPattern: undefined,
+            dashLength: 0
+          });
+        if (args.data.properties.strokeStyle && args.data.properties.strokeStyle.stipplingPattern &&
+        args.data.properties.strokeStyle.stipplingFactor )
+        {
+          var stipplingFactor = 0;
+          var stipplingPattern = "none";
+          if (args.data.properties.strokeStyle.stipplingFactor)
+          {
+            stipplingFactor = args.data.properties.strokeStyle.stipplingFactor;
+          }
+          if (args.data.properties.strokeStyle.stipplingPattern)
+          {
+            stipplingPattern = args.data.properties.strokeStyle.stipplingPattern;
+          }
+          switch (stipplingPattern)
+          {
+            case "dash":
+              dashPattern =  undefined, //parseInt("110000001111", 2);
+              dashLength = 12;
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: dashPattern,
+                dashLength: dashLength
+              });
+              break;
+            case "long dash":
+              dashPattern =   undefined, //parseInt("110000001111", 2);
+              dashLength = 20;
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: dashPattern,
+                dashLength: dashLength
+              });
+              break;
+            case "short dash":
+              dashPattern =  undefined, //parseInt("110000001111", 2);
+              dashLength = 8;
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: dashPattern,
+                dashLength: dashLength
+              });
+              break;
+            case "dot":
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: parseInt("000001000001", stipplingFactor)
+              });
+              break;
+              default:
+              //none pattern
+              entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+                color: Cesium.Color.BLACK,
+                dashPattern: undefined,
+                dashLength: 0
+              });
+          }
         }
         if (this.isFeatureSelected(args.data.id)) {
           var selectionProperties = this.getFeatureSelection(entity.id || args.data.id);
@@ -8659,16 +8750,29 @@ function EmpCesium() {
           entity.polyline.material.outlineColor = this.selectionColor;
           //entity.polyline.material.outlineColor = EmpCesiumConstants.selectionProperties.COLOR;
           entity.polyline.material.outlineWidth = EmpCesiumConstants.selectionProperties.WIDTH;
-        } else if (args.data.properties.lineColor) {
+        }
+        else if (args.data.properties.strokeStyle && args.data.properties.strokeStyle.strokeColor) {
+          rgbaLineColor = args.data.properties.strokeStyle.strokeColor;
+          //rgbaLineColor = cesiumEngine.utils.hexToRGB(args.data.properties.lineColor);
+          entity.polyline.material.color = new this.Color(rgbaLineColor.red, rgbaLineColor.green, rgbaLineColor.blue, rgbaLineColor.alpha);
+          // entity.polyline.material = new Cesium.PolylineDashMaterialProperty({
+          //   color: new this.Color(rgbaLineColor.red, rgbaLineColor.green, rgbaLineColor.blue, rgbaLineColor.alpha),
+          //   dashPattern: undefined,
+          //   dashLength: 0
+          // });
+        }
+        else if (args.data.properties.lineColor) {
           rgbaLineColor = cesiumEngine.utils.hexToRGB(args.data.properties.lineColor);
           entity.polyline.material.color = new this.Color(rgbaLineColor.r, rgbaLineColor.g, rgbaLineColor.b, rgbaLineColor.a);
         } else if (!this.defined(entity.polyline.material.color)) {
           entity.polyline.material.color = EmpCesiumConstants.propertyDefaults.LINE_COLOR;
         }
-        if ((args.data.properties.lineWidth && !isNaN(args.data.properties.lineWidth)) || !entity.polyline.width) {
+       if (args.data.properties.strokeStyle && args.data.properties.strokeStyle.strokeWidth) {
+          entity.polyline.width = parseInt(args.data.properties.strokeStyle.strokeWidth);
+        }
+        else if ((args.data.properties.lineWidth && !isNaN(args.data.properties.lineWidth)) || !entity.polyline.width) {
           entity.polyline.width = args.data.properties.lineWidth || EmpCesiumConstants.propertyDefaults.LINE_WIDTH;
-        } else
-        if (entity.polyline.width.getValue() < 3) {
+        } else if (entity.polyline.width.getValue() < 3) {
           entity.polyline.width = EmpCesiumConstants.propertyDefaults.LINE_WIDTH;
         }
       }
@@ -8901,19 +9005,23 @@ function EmpCesium() {
           }
           if (entity.polyline && presentEntity.polyline) {
             // if (this.mapLocked)
-            if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_MOTION && presentEntity.overlayId === "vertices") {
-              this.freeHandPositions = entity.polyline.positions.getValue();
-              presentEntity.polyline.positions = new this.CallbackProperty(function(time, result) {
-                if (this.freeHandPositions.length > 1) {
-                  return this.freeHandPositions;
+            if (this.mapMotionLockEnum === emp3.api.enums.MapMotionLockEnum.NO_PAN || presentEntity.id === "freehandX") {
+              var positions = entity.polyline.positions.getValue();
+              var getPositions = function(pos) {
+                if (pos.length > 1) {
+                  return pos;
                 }
-              }.bind(this), false);
-              this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
+              }
+              presentEntity.polyline.positions = new this.CallbackProperty(getPositions.bind(undefined, positions), false);
+              presentEntity.polyline.material = entity.polyline.material;
+              presentEntity.polyline.width = entity.polyline.width;
+              // this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
             } else {
-              presentEntity.polyline.positions = entity.polyline.positions;
+              presentEntity.polyline.positions = entity.polyline.positions.getValue();
               presentEntity.polyline.material = entity.polyline.material;
               presentEntity.polyline.width = entity.polyline.width;
             }
+            this.viewer.dataSourceDisplay.update(Cesium.JulianDate.fromDate(new Date()));
           } else if (entity.polyline && !presentEntity.polyline) {
             presentEntity.polyline = entity.polyline;
           } else if (!entity.polyline && presentEntity.polyline) {
@@ -11735,6 +11843,25 @@ var CesiumRenderOptimizer = function(empCesium) {
       var scene = empCesium.scene;
       if (!empCesium.Matrix4.equalsEpsilon(empCesium.lastCameraViewMatrix, scene.camera.viewMatrix, 1e-5)) {
         this.lastCameraMoveTime = now;
+
+        if (!empCesium.bMapReady && empCesium.empMapInstance)
+        {
+          empCesium.bMapReady = true;
+          setTimeout(function() {
+            empCesium.globe.show = true;
+            //send initial extent of map as a ViewChange event
+            empCesium.currentExtent = undefined;
+            empCesium.currentExtent = empCesium.getExtent();
+            empCesium.viewChange(empCesium.currentExtent, true, emp3.api.enums.MapViewEventEnum.VIEW_MOTION_STOPPED);
+            empCesium.prevExtent = empCesium.currentExtent;
+            empCesium.singlePointAltitudeRangeMode = cesiumEngine.utils.getSinglePointAltitudeRangeMode(empCesium.cameraAltitude, empCesium.singlePointAltitudeRanges);
+            //args.mapInstance.engine.initialize.succeed(empCesium);
+            empCesium.scene.skyBox.show = true;
+            empCesium.scene.skyAtmosphere.show = true;
+            empCesium.redrawGraphics();
+            empCesium.empMapInstance.engine.initialize.succeed(empCesium);
+          }, 20);
+        }
       }
       //var cameraMovedInLastSecond = now - empCesium.lastCameraMoveTime < 1000;
       //var surface = scene.globe._surface;

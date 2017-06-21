@@ -173,11 +173,13 @@ class CreateMilStdSymbolTest extends Component {
   constructSymbolCode(symbol) {
     let newString = String(symbol.symbolCode);
 
-    // update affiliation
-    newString = splice(newString, this.state.affiliation, MILSTD_2525_POSITIONS.IDENTITY);
-
-    // update status
-    newString = splice(newString, this.state.status, MILSTD_2525_POSITIONS.STATUS);
+    // update affiliation and status if symbol do not start with w (METOC)
+    if (!newString.toLowerCase().startsWith("w"))
+    {
+      newString = splice(newString, this.state.affiliation, MILSTD_2525_POSITIONS.IDENTITY);
+      // update status
+      newString = splice(newString, this.state.status, MILSTD_2525_POSITIONS.STATUS);
+    }
 
     let unitEchelon = armyc2.c2sd.renderer.utilities.SymbolUtilities.canUnitHaveModifier(
       newString,
@@ -486,12 +488,15 @@ class CreateMilStdSymbolTest extends Component {
 
     let symbol;
     try {
+      if ( !_.find(this.props.features, {geoId: args.geoId}))
+      { // create only when feature not found in core
       symbol = new emp3.api.MilStdSymbol(args);
       if (!silent) {
         toastr.success('Symbol Created Successfully');
       }
       addResult(args, 'createMilStdSymbol');
       addFeature(symbol);
+    }
     } catch (err) {
       addError(err.message, 'createMilStdSymbol');
       if (!silent) {
@@ -513,6 +518,8 @@ class CreateMilStdSymbolTest extends Component {
 
     try {
       const symbol = this.createMilStdSymbol(true);
+      if (symbol)
+      {
       overlay.addFeatures({
         features: [symbol],
         onSuccess: (args) => {
@@ -524,6 +531,7 @@ class CreateMilStdSymbolTest extends Component {
           toastr.error(JSON.stringify(err), 'Create MilStd Symbol Add To Overlay');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createPolygonAddToOverlay:Critical');
       toastr.error(err.message, 'Create MilStd Symbol Add To Overlay:Critical');
@@ -720,5 +728,3 @@ const mapStateToProps = state => {
 };
 
 export default connect(mapStateToProps)(CreateMilStdSymbolTest);
-
-

@@ -2319,17 +2319,17 @@ define('Core/scaleToGeodeticSurface',[
 /*global define*/
 define('Core/Cartographic',[
         './Cartesian3',
+        './Check',
         './defaultValue',
         './defined',
-        './DeveloperError',
         './freezeObject',
         './Math',
         './scaleToGeodeticSurface'
     ], function(
         Cartesian3,
+        Check,
         defaultValue,
         defined,
-        DeveloperError,
         freezeObject,
         CesiumMath,
         scaleToGeodeticSurface) {
@@ -3269,15 +3269,15 @@ define('Core/Intersect',[
 /*global define*/
 define('Core/AxisAlignedBoundingBox',[
         './Cartesian3',
+        './Check',
         './defaultValue',
         './defined',
-        './DeveloperError',
         './Intersect'
     ], function(
         Cartesian3,
+        Check,
         defaultValue,
         defined,
-        DeveloperError,
         Intersect) {
     'use strict';
 
@@ -3939,7 +3939,7 @@ define('Core/Matrix3',[
 
         var m10 = cosTheta * sinPsi;
         var m11 = cosPhi * cosPsi + sinPhi * sinTheta * sinPsi;
-        var m12 = -sinTheta * cosPhi + cosPhi * sinTheta * sinPsi;
+        var m12 = -sinPhi * cosPsi + cosPhi * sinTheta * sinPsi;
 
         var m20 = -sinTheta;
         var m21 = sinPhi * cosTheta;
@@ -8346,7 +8346,7 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Creates an rectangle given the boundary longitude and latitude in degrees.
+     * Creates a rectangle given the boundary longitude and latitude in degrees.
      *
      * @param {Number} [west=0.0] The westernmost longitude in degrees in the range [-180.0, 180.0].
      * @param {Number} [south=0.0] The southernmost latitude in degrees in the range [-90.0, 90.0].
@@ -8377,7 +8377,7 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Creates an rectangle given the boundary longitude and latitude in radians.
+     * Creates a rectangle given the boundary longitude and latitude in radians.
      *
      * @param {Number} [west=0.0] The westernmost longitude in radians in the range [-Math.PI, Math.PI].
      * @param {Number} [south=0.0] The southernmost latitude in radians in the range [-Math.PI/2, Math.PI/2].
@@ -8599,7 +8599,7 @@ define('Core/Rectangle',[
             };
 
     /**
-     * Computes the southwest corner of an rectangle.
+     * Computes the southwest corner of a rectangle.
      *
      * @param {Rectangle} rectangle The rectangle for which to find the corner
      * @param {Cartographic} [result] The object onto which to store the result.
@@ -8617,7 +8617,7 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Computes the northwest corner of an rectangle.
+     * Computes the northwest corner of a rectangle.
      *
      * @param {Rectangle} rectangle The rectangle for which to find the corner
      * @param {Cartographic} [result] The object onto which to store the result.
@@ -8635,7 +8635,7 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Computes the northeast corner of an rectangle.
+     * Computes the northeast corner of a rectangle.
      *
      * @param {Rectangle} rectangle The rectangle for which to find the corner
      * @param {Cartographic} [result] The object onto which to store the result.
@@ -8653,7 +8653,7 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Computes the southeast corner of an rectangle.
+     * Computes the southeast corner of a rectangle.
      *
      * @param {Rectangle} rectangle The rectangle for which to find the corner
      * @param {Cartographic} [result] The object onto which to store the result.
@@ -8671,7 +8671,7 @@ define('Core/Rectangle',[
     };
 
     /**
-     * Computes the center of an rectangle.
+     * Computes the center of a rectangle.
      *
      * @param {Rectangle} rectangle The rectangle for which to find the center
      * @param {Cartographic} [result] The object onto which to store the result.
@@ -8882,7 +8882,7 @@ define('Core/Rectangle',[
 
     var subsampleLlaScratch = new Cartographic();
     /**
-     * Samples an rectangle so that it includes a list of Cartesian points suitable for passing to
+     * Samples a rectangle so that it includes a list of Cartesian points suitable for passing to
      * {@link BoundingSphere#fromPoints}.  Sampling is necessary to account
      * for rectangles that cover the poles or cross the equator.
      *
@@ -9189,7 +9189,7 @@ define('Core/BoundingSphere',[
     var fromRectangle2DNortheast = new Cartographic();
 
     /**
-     * Computes a bounding sphere from an rectangle projected in 2D.
+     * Computes a bounding sphere from a rectangle projected in 2D.
      *
      * @param {Rectangle} rectangle The rectangle around which to create a bounding sphere.
      * @param {Object} [projection=GeographicProjection] The projection used to project the rectangle into 2D.
@@ -9201,7 +9201,7 @@ define('Core/BoundingSphere',[
     };
 
     /**
-     * Computes a bounding sphere from an rectangle projected in 2D.  The bounding sphere accounts for the
+     * Computes a bounding sphere from a rectangle projected in 2D.  The bounding sphere accounts for the
      * object's minimum and maximum heights over the rectangle.
      *
      * @param {Rectangle} rectangle The rectangle around which to create a bounding sphere.
@@ -9247,7 +9247,7 @@ define('Core/BoundingSphere',[
     var fromRectangle3DScratch = [];
 
     /**
-     * Computes a bounding sphere from an rectangle in 3D. The bounding sphere is created using a subsample of points
+     * Computes a bounding sphere from a rectangle in 3D. The bounding sphere is created using a subsample of points
      * on the ellipsoid and contained in the rectangle. It may not be accurate for all rectangles on all types of ellipsoids.
      *
      * @param {Rectangle} rectangle The valid rectangle used to create a bounding sphere.
@@ -9710,6 +9710,7 @@ define('Core/BoundingSphere',[
      * @returns {BoundingSphere} The modified result parameter or a new BoundingSphere instance if none was provided.
      */
     BoundingSphere.fromOrientedBoundingBox = function(orientedBoundingBox, result) {
+        
         if (!defined(result)) {
             result = new BoundingSphere();
         }
@@ -9719,12 +9720,11 @@ define('Core/BoundingSphere',[
         var v = Matrix3.getColumn(halfAxes, 1, fromOrientedBoundingBoxScratchV);
         var w = Matrix3.getColumn(halfAxes, 2, fromOrientedBoundingBoxScratchW);
 
-        var uHalf = Cartesian3.magnitude(u);
-        var vHalf = Cartesian3.magnitude(v);
-        var wHalf = Cartesian3.magnitude(w);
+        Cartesian3.add(u, v, u);
+        Cartesian3.add(u, w, u);
 
         result.center = Cartesian3.clone(orientedBoundingBox.center, result.center);
-        result.radius = Math.max(uHalf, vHalf, wHalf);
+        result.radius = Cartesian3.magnitude(u);
 
         return result;
     };
@@ -11071,7 +11071,7 @@ define('Core/EllipsoidalOccluder',[
     var subsampleScratch = [];
 
     /**
-     * Computes a point that can be used for horizon culling of an rectangle.  If the point is below
+     * Computes a point that can be used for horizon culling of a rectangle.  If the point is below
      * the horizon, the ellipsoid-conforming rectangle is guaranteed to be below the horizon as well.
      * The returned point is expressed in the ellipsoid-scaled space and is suitable for use with
      * {@link EllipsoidalOccluder#isScaledSpacePointVisible}.
@@ -12658,11 +12658,13 @@ define('Core/Plane',[
         './Cartesian3',
         './defined',
         './DeveloperError',
+        './Math',
         './freezeObject'
     ], function(
         Cartesian3,
         defined,
         DeveloperError,
+        CesiumMath,
         freezeObject) {
     'use strict';
 
@@ -12688,6 +12690,8 @@ define('Core/Plane',[
      * @example
      * // The plane x=0
      * var plane = new Cesium.Plane(Cesium.Cartesian3.UNIT_X, 0.0);
+     *
+     * @exception {DeveloperError} Normal must be normalized
      */
     function Plane(normal, distance) {
         
@@ -12722,6 +12726,8 @@ define('Core/Plane',[
      * var point = Cesium.Cartesian3.fromDegrees(-72.0, 40.0);
      * var normal = ellipsoid.geodeticSurfaceNormal(point);
      * var tangentPlane = Cesium.Plane.fromPointNormal(point, normal);
+     *
+     * @exception {DeveloperError} Normal must be normalized
      */
     Plane.fromPointNormal = function(point, normal, result) {
         
@@ -12743,12 +12749,15 @@ define('Core/Plane',[
      * @param {Cartesian4} coefficients The plane's normal (normalized).
      * @param {Plane} [result] The object onto which to store the result.
      * @returns {Plane} A new plane instance or the modified result parameter.
+     *
+     * @exception {DeveloperError} Normal must be normalized
      */
     Plane.fromCartesian4 = function(coefficients, result) {
         
         var normal = Cartesian3.fromCartesian4(coefficients, scratchNormal);
         var distance = coefficients.w;
 
+        
         if (!defined(result)) {
             return new Plane(normal, distance);
         } else {
@@ -13658,11 +13667,11 @@ define('Core/deprecationWarning',[
 
 /*global define*/
 define('Core/binarySearch',[
-        './defined',
-        './DeveloperError'
+        './Check',
+        './defined'
     ], function(
-        defined,
-        DeveloperError) {
+        Check,
+        defined) {
     'use strict';
 
     /**
@@ -16531,6 +16540,8 @@ define('Core/joinUrls',[
      * @param {String|Uri} first The base URL.
      * @param {String|Uri} second The URL path to join to the base URL.  If this URL is absolute, it is returned unmodified.
      * @param {Boolean} [appendSlash=true] The boolean determining whether there should be a forward slash between first and second.
+     *
+     * @return {String} The combined url
      * @private
      */
     function joinUrls(first, second, appendSlash) {
@@ -16543,6 +16554,16 @@ define('Core/joinUrls',[
 
         if (!(second instanceof Uri)) {
             second = new Uri(second);
+        }
+
+        // Don't try to join a data uri
+        if (first.scheme === 'data') {
+            return first.toString();
+        }
+
+        // Don't try to join a data uri
+        if (second.scheme === 'data') {
+            return second.toString();
         }
 
         // Uri.isAbsolute returns false for a URL like '//foo.com'.  So if we have an authority but
@@ -17573,7 +17594,7 @@ define('Core/HeadingPitchRoll',[
      * Computes the heading, pitch and roll from a quaternion (see http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles )
      *
      * @param {Quaternion} quaternion The quaternion from which to retrieve heading, pitch, and roll, all expressed in radians.
-     * @param {Quaternion} [result] The object in which to store the result. If not provided, a new instance is created and returned.
+     * @param {HeadingPitchRoll} [result] The object in which to store the result. If not provided, a new instance is created and returned.
      * @returns {HeadingPitchRoll} The modified result parameter or a new HeadingPitchRoll instance if one was not provided.
      */
     HeadingPitchRoll.fromQuaternion = function(quaternion, result) {
@@ -17892,9 +17913,7 @@ define('Core/Quaternion',[
      * negative z axis. Pitch is the rotation about the negative y axis. Roll is the rotation about
      * the positive x axis.
      *
-     * @param {Number} heading The heading angle in radians.
-     * @param {Number} pitch The pitch angle in radians.
-     * @param {Number} roll The roll angle in radians.
+     * @param {HeadingPitchRoll} headingPitchRoll The rotation expressed as a heading, pitch and roll.
      * @param {Quaternion} [result] The object onto which to store the result.
      * @returns {Quaternion} The modified result parameter or a new Quaternion instance if none was provided.
      */
@@ -19391,14 +19410,17 @@ define('Core/Transforms',[
         return result;
     };
 
+    var swizzleMatrix = new Matrix4(
+        0.0, 0.0, 1.0, 0.0,
+        1.0, 0.0, 0.0, 0.0,
+        0.0, 1.0, 0.0, 0.0,
+        0.0, 0.0, 0.0, 1.0
+    );
+
     var scratchCartographic = new Cartographic();
     var scratchCartesian3Projection = new Cartesian3();
-    var scratchCartesian3 = new Cartesian3();
-    var scratchCartesian4Origin = new Cartesian4();
-    var scratchCartesian4NewOrigin = new Cartesian4();
-    var scratchCartesian4NewXAxis = new Cartesian4();
-    var scratchCartesian4NewYAxis = new Cartesian4();
-    var scratchCartesian4NewZAxis = new Cartesian4();
+    var scratchCenter = new Cartesian3();
+    var scratchRotation = new Matrix3();
     var scratchFromENU = new Matrix4();
     var scratchToENU = new Matrix4();
 
@@ -19407,59 +19429,24 @@ define('Core/Transforms',[
      */
     Transforms.basisTo2D = function(projection, matrix, result) {
         
+        var rtcCenter = Matrix4.getTranslation(matrix, scratchCenter);
         var ellipsoid = projection.ellipsoid;
 
-        var origin = Matrix4.getColumn(matrix, 3, scratchCartesian4Origin);
-        var cartographic = ellipsoid.cartesianToCartographic(origin, scratchCartographic);
-
-        var fromENU = Transforms.eastNorthUpToFixedFrame(origin, ellipsoid, scratchFromENU);
-        var toENU = Matrix4.inverseTransformation(fromENU, scratchToENU);
-
+        // Get the 2D Center
+        var cartographic = ellipsoid.cartesianToCartographic(rtcCenter, scratchCartographic);
         var projectedPosition = projection.project(cartographic, scratchCartesian3Projection);
-        var newOrigin = scratchCartesian4NewOrigin;
-        newOrigin.x = projectedPosition.z;
-        newOrigin.y = projectedPosition.x;
-        newOrigin.z = projectedPosition.y;
-        newOrigin.w = 1.0;
+        Cartesian3.fromElements(projectedPosition.z, projectedPosition.x, projectedPosition.y, projectedPosition);
 
-        var xAxis = Matrix4.getColumn(matrix, 0, scratchCartesian3);
-        var xScale = Cartesian3.magnitude(xAxis);
-        var newXAxis = Matrix4.multiplyByVector(toENU, xAxis, scratchCartesian4NewXAxis);
-        Cartesian4.fromElements(newXAxis.z, newXAxis.x, newXAxis.y, 0.0, newXAxis);
-
-        var yAxis = Matrix4.getColumn(matrix, 1, scratchCartesian3);
-        var yScale = Cartesian3.magnitude(yAxis);
-        var newYAxis = Matrix4.multiplyByVector(toENU, yAxis, scratchCartesian4NewYAxis);
-        Cartesian4.fromElements(newYAxis.z, newYAxis.x, newYAxis.y, 0.0, newYAxis);
-
-        var zAxis = Matrix4.getColumn(matrix, 2, scratchCartesian3);
-        var zScale = Cartesian3.magnitude(zAxis);
-
-        var newZAxis = scratchCartesian4NewZAxis;
-        Cartesian3.cross(newXAxis, newYAxis, newZAxis);
-        Cartesian3.normalize(newZAxis, newZAxis);
-        Cartesian3.cross(newYAxis, newZAxis, newXAxis);
-        Cartesian3.normalize(newXAxis, newXAxis);
-        Cartesian3.cross(newZAxis, newXAxis, newYAxis);
-        Cartesian3.normalize(newYAxis, newYAxis);
-
-        Cartesian3.multiplyByScalar(newXAxis, xScale, newXAxis);
-        Cartesian3.multiplyByScalar(newYAxis, yScale, newYAxis);
-        Cartesian3.multiplyByScalar(newZAxis, zScale, newZAxis);
-
-        Matrix4.setColumn(result, 0, newXAxis, result);
-        Matrix4.setColumn(result, 1, newYAxis, result);
-        Matrix4.setColumn(result, 2, newZAxis, result);
-        Matrix4.setColumn(result, 3, newOrigin, result);
+        // Assuming the instance are positioned in WGS84, invert the WGS84 transform to get the local transform and then convert to 2D
+        var fromENU = Transforms.eastNorthUpToFixedFrame(rtcCenter, ellipsoid, scratchFromENU);
+        var toENU = Matrix4.inverseTransformation(fromENU, scratchToENU);
+        var rotation = Matrix4.getRotation(matrix, scratchRotation);
+        var local = Matrix4.multiplyByMatrix3(toENU, rotation, result);
+        Matrix4.multiply(swizzleMatrix, local, result); // Swap x, y, z for 2D
+        Matrix4.setTranslation(result, projectedPosition, result); // Use the projected center
 
         return result;
     };
-
-    var swizzleMatrix = new Matrix4(
-        0.0, 0.0, 1.0, 0.0,
-        1.0, 0.0, 0.0, 0.0,
-        0.0, 1.0, 0.0, 0.0,
-        0.0, 0.0, 0.0, 1.0);
 
     /**
      * @private
@@ -19473,13 +19460,9 @@ define('Core/Transforms',[
 
         var cartographic = ellipsoid.cartesianToCartographic(center, scratchCartographic);
         var projectedPosition = projection.project(cartographic, scratchCartesian3Projection);
-        var newOrigin = scratchCartesian4NewOrigin;
-        newOrigin.x = projectedPosition.z;
-        newOrigin.y = projectedPosition.x;
-        newOrigin.z = projectedPosition.y;
-        newOrigin.w = 1.0;
+        Cartesian3.fromElements(projectedPosition.z, projectedPosition.x, projectedPosition.y, projectedPosition);
 
-        var translation = Matrix4.fromTranslation(newOrigin, scratchFromENU);
+        var translation = Matrix4.fromTranslation(projectedPosition, scratchFromENU);
         Matrix4.multiply(swizzleMatrix, toENU, result);
         Matrix4.multiply(translation, result, result);
 
@@ -19983,7 +19966,7 @@ define('Core/OrientedBoundingBox',[
         v3 = Cartesian3.multiplyByScalar(v3, 0.5 * (l3 + u3), v3);
 
         var center = Cartesian3.add(v1, v2, result.center);
-        center = Cartesian3.add(center, v3, center);
+        Cartesian3.add(center, v3, center);
 
         var scale = scratchCartesian3;
         scale.x = u1 - l1;
@@ -20484,12 +20467,14 @@ define('Core/OrientedBoundingBox',[
 define('Core/AttributeCompression',[
         './Cartesian2',
         './Cartesian3',
+        './Check',
         './defined',
         './DeveloperError',
         './Math'
     ], function(
         Cartesian2,
         Cartesian3,
+        Check,
         defined,
         DeveloperError,
         CesiumMath) {
@@ -22301,7 +22286,7 @@ define('Core/HeightmapTessellator',[
      * @param {Number} options.width The width of the heightmap, in height samples.
      * @param {Number} options.height The height of the heightmap, in height samples.
      * @param {Number} options.skirtHeight The height of skirts to drape at the edges of the heightmap.
-     * @param {Rectangle} options.nativeRectangle An rectangle in the native coordinates of the heightmap's projection.  For
+     * @param {Rectangle} options.nativeRectangle A rectangle in the native coordinates of the heightmap's projection.  For
      *                 a heightmap with a geographic projection, this is degrees.  For the web mercator
      *                 projection, this is meters.
      * @param {Number} [options.exaggeration=1.0] The scale used to exaggerate the terrain.

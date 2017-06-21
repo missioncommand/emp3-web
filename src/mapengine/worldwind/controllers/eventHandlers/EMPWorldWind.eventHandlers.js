@@ -119,6 +119,7 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
     feature.isHighAltitudeRangeImage = true;
     //  dot image based on affiliation
     feature.shapes[0].attributes._imageSource = EMPWorldWind.utils.selectHighAltitudeRangeImage(feature.feature.symbolCode);
+    feature.shapes[0].attributes.imageOffset = new WorldWind.Offset(WorldWind.OFFSET_FRACTION, 0.5, WorldWind.OFFSET_FRACTION, 0.5);// Centers the image on the geographic position.
     feature.shapes[0].highlightAttributes._imageSource = feature.shapes[0].attributes._imageSource;
     feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
     feature.feature.singlePointAltitudeRangeMode = this.singlePointAltitudeRangeMode;
@@ -145,23 +146,20 @@ EMPWorldWind.eventHandlers.triggerRenderUpdate = function() {
    * @private
    */
   function _handleSinglePoint(feature) {
-    var callRenderer = false;
+    //var callRenderer = false;
     feature.singlePointAltitudeRangeChanged = feature.singlePointAltitudeRangeMode !== this.singlePointAltitudeRangeMode;
 
     if (feature.singlePointAltitudeRangeChanged) {
       if ((this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.LOW_RANGE) && (this.iconLabelOption !== 'none') ||
         this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.MID_RANGE) {
-        callRenderer = true;
+        feature.bCallRenderer = true;
+        feature.feature.bCallRenderer = true;
         _handleMidOrLowRange.call(this, feature);
       } else if (this.singlePointAltitudeRangeMode === EMPWorldWind.constants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) {
         _handleHighRange.call(this, feature);
       }
     }
-
-    // Redraw if necessary
-    if (callRenderer) {
       this.plotFeature(feature);
-    }
   }
 
   emp.util.each(Object.keys(this.features), function(featureId) {
