@@ -832,20 +832,31 @@ EMPWorldWind.Map.prototype = function() {
       var rc = {
         success: false,
         message: ''
-      };
+      }, tileMatrixSet = 'GoogleMapsCompatible';
 
       var xhr, url,
         async = true;
 
       var _createWMTSLayer = function(xmlDom) {
-        var wmtsCapabilities, wmtsLayerCapabilities, wmtsConfig;
+        var wmtsCapabilities, wmtsLayerCapabilities, wmtsConfig, index; //, tileMatrixSetFound = false;
 
         wmtsCapabilities = new WorldWind.WmtsCapabilities(xmlDom);
         wmtsLayerCapabilities = wmtsCapabilities.getLayer(empWMTS.layer);
         wmtsConfig = WorldWind.WmtsLayer.formLayerConfiguration(wmtsLayerCapabilities);
         //next is a workaround of using a specific tileMatrixSEt suggested at WW web sdk issue##113
         // Modify the config object to use a TileMatrixSet currently supported:
-        wmtsConfig.tileMatrixSet  = wmtsLayerCapabilities.capabilities.contents.tileMatrixSet[1];
+        // worldwind supports tileMatrixSet GoogleMapsCompatible. WW is buggy when using default028mm.
+        // the emp api is now passing the identifier tileMatrixSet
+        for ( index =0; index < wmtsLayerCapabilities.capabilities.contents.tileMatrixSet.length; index++)
+        {
+          if (wmtsLayerCapabilities.capabilities.contents.tileMatrixSet[index].identifier === tileMatrixSet)
+          {
+            wmtsConfig.tileMatrixSet  = wmtsLayerCapabilities.capabilities.contents.tileMatrixSet[index];
+            //tileMatrixSetFound = true;
+            break;
+          }
+        }
+        ///wmtsConfig.tileMatrixSet  = wmtsLayerCapabilities.capabilities.contents.tileMatrixSet[1];
         return new WorldWind.WmtsLayer(wmtsConfig);
       };
 
@@ -891,7 +902,7 @@ EMPWorldWind.Map.prototype = function() {
         xhr.callback = callback;
         xhr.onload = xhrSuccess;
         xhr.onerror = xhrError;
-
+        tileMatrixSet = (empWMTS.tileMatrixSet)?empWMTS.tileMatrixSet: tileMatrixSet;
         // Make the request
         xhr.send();
 
