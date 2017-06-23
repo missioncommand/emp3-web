@@ -746,7 +746,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
          */
         instanceInterface.iMilStdIconSize = 24;
 
-        checkMapWidth();
+        //checkMapWidth();
         if (instanceInterface.renderingOptimization.enabled) {
             instanceInterface.renderingOptimization.refreshZone();
         }
@@ -888,7 +888,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             lockState = instanceInterface.getLockState();
 
         if (lockState !== emp3.api.enums.MapMotionLockEnum.NO_MOTION) {
-          checkMapCenter();
+          //checkMapCenter();
           center = instanceInterface.leafletInstance.getCenter();
           if ((center.lng < -180.0) || (center.lng > 180.0)) {
             instanceInterface.leafletInstance.setView(center.wrap());
@@ -920,7 +920,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
       }
 
       function onZoomEnd(event) {
-        checkMapWidth();
+        //checkMapWidth();
       }
 
       function onMouseUpDown(event) {

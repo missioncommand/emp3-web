@@ -5792,6 +5792,9 @@ L.TileLayer = L.GridLayer.extend({
 // Instantiates a tile layer object given a `URL template` and optionally an options object.
 
 L.tileLayer = function (url, options) {
+	//acevedo - next is to stop repeating te map over and over
+	// commented out. Nonwrapping is desired?
+	//options.noWrap = true;
 	return new L.TileLayer(url, options);
 };
 
