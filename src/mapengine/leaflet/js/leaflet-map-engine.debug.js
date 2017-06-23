@@ -2224,14 +2224,13 @@ emp.engineDefs.leafletMapEngine = function (args) {
             // The parent exists.
             var oParentOverlay = instanceInterface.mapEngObjectList[oNewWMTS.getParentCoreId()];
 
-            oParentOverlay.addChildObject(oNewWMTS);
+            oParentOverlay.addChildObject(oNewWMTS.options.leafletObject);
           } else {
             // The parent does not exists.
             item.createParent();
             if (instanceInterface.mapEngObjectList.hasOwnProperty(oNewWMTS.getParentCoreId())) {
               // The parent exists.
               var oParentOverlay = instanceInterface.mapEngObjectList[oNewWMTS.getParentCoreId()];
-
               oParentOverlay.addChildObject(oNewWMTS);
             } else {
               transaction.fail(new emp.typeLibrary.Error({

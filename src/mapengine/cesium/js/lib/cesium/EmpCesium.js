@@ -6422,14 +6422,14 @@ function EmpCesium() {
       var layer = this.getLayer(item.coreId),
       sLayers = "", options = {},
       webMapTileServiceImageryProvider,
-      tileMatrixSetID = 'default028mm',
+      tileMatrixSet = 'default028mm',
       useProxy = false;
 
       if (layer) {
         this.removeLayer(layer);
       }
 
-      tileMatrixSetID = (this.defined(item.tileMatrixSetID) )?item.tileMatrixSetID:tileMatrixSetID;
+      tileMatrixSet = (this.defined(item.tileMatrixSet) )?item.tileMatrixSet:tileMatrixSetID;
       layer = new EmpLayer(item.name, item.coreId, EmpCesiumConstants.layerType.WMTS_LAYER, this); //empCesium);
       layer.providers = [];
       layer.url = item.url;
@@ -6441,7 +6441,7 @@ function EmpCesium() {
         url: layer.url,
         style: 'default',
         format: 'image/jpeg',
-        tileMatrixSetID: 'default028mm',
+        tileMatrixSetID: tileMatrixSet,
         // tileMatrixLabels : ['default028mm:0', 'default028mm:1', 'default028mm:2' ...],
         maximumLevel: 19,
         //credit : new Cesium.Credit('U. S. Geological Survey')

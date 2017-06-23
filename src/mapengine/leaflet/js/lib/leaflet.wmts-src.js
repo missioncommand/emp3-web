@@ -31,7 +31,26 @@ L.TileLayer.WMTS = L.TileLayer.extend({
     },
 
     onAdd: function (map) {
-        L.TileLayer.prototype.onAdd.call(this, map);
+        if (this.options.leafletObject)
+        {
+            this.options.leafletObject._map = this._map;
+            if (this.getEvents) {
+    			var events = this.getEvents();
+    			map.on(events, this.options.leafletObject);
+    			this.once('remove', function () {
+    				map.off(events, this);
+    			}, this);
+		      }
+            this.options.leafletObject._zoomAnimated = this._zoomAnimated;
+            this.options.leafletObject._eventParents = this._eventParents;
+            this.options.leafletObject._layers = this._layers;
+            this.options.leafletObject._mapToAdd = this._mapToAdd;
+            L.TileLayer.prototype.onAdd.call(this.options.leafletObject, map);
+        }
+        else
+        {
+            L.TileLayer.prototype.onAdd.call(this, map);
+        }
     },
 
     getTileUrl: function (tilePoint, zoom) { // (Point, Number) -> String
@@ -63,10 +82,10 @@ L.TileLayer.WMTS = L.TileLayer.extend({
         }
         return this;
     },
-    
+
     getDefaultMatrix : function () {
         /**
-         * the matrix3857 represents the projection 
+         * the matrix3857 represents the projection
          * for in the IGN WMTS for the google coordinates.
          */
         var matrixIds3857 = new Array(22);
