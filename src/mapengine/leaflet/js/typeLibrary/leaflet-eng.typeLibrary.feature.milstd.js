@@ -209,7 +209,7 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
         }
       }
 
-      oMainModifiers.SIZE = this.getEngineInstanceInterface().iMilStdIconSize;
+      oMainModifiers[msa.PixelSize] = this.getEngineInstanceInterface().iMilStdIconSize;
       if (this.isSelected()) {}
 
       if (L.Browser.canvas) {

@@ -5794,7 +5794,7 @@ L.TileLayer = L.GridLayer.extend({
 L.tileLayer = function (url, options) {
 	//acevedo - next is to stop repeating te map over and over
 	// commented out. Nonwrapping is desired?
-	//options.noWrap = true;
+	options.noWrap = true;
 	return new L.TileLayer(url, options);
 };
 

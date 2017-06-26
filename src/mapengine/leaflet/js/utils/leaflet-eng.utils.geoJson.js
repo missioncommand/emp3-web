@@ -220,8 +220,11 @@ leafLet.utils.geoJson = (function () {
                     var dOpacity = parseInt("0x" + oFeatureProperties.fillColor.substr(0, 2)) / 255.0;
                     oProperties.fillOpacity = dOpacity;
                 }
-                if (oFeatureProperties.hasOwnProperty('lineWidth')) {
+                if (oFeatureProperties.hasOwnProperty('lineWidth') && oFeatureProperties.lineWidth & oFeatureProperties.lineWidth !== null ) {
                     oProperties.weight = parseInt(oFeatureProperties.lineWidth);
+                }
+                else{
+                    oProperties.weight = 3 ;
                 }
                 if (oFeatureProperties.hasOwnProperty('iconUrl')) {
                     sURL = (instanceInterface.bUseProxy ?

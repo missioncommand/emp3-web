@@ -2040,12 +2040,40 @@ emp.engineDefs.leafletMapEngine = function (args) {
     };
 
     engineInterface.settings.mil2525.icon.size.set = function (transaction) {
-        var oEmpObject;
-        var sCoreId;
-
-        instanceInterface.iMilStdIconSize = transaction.items[0];
+        var oEmpObject, sCoreId,
+        iIconSize = 32, txtIconSize;
 
         try {
+            txtIconSize = transaction.items[0].iconSize;
+            switch (txtIconSize)
+            {
+                case emp3.api.enums.IconSizeEnum.TINY:
+                    iIconSize = leafLet.utils.iconPixelSize.TINY;
+                    break;
+                case emp3.api.enums.IconSizeEnum.SMALL:
+                    iIconSize =  leafLet.utils.iconPixelSize.SMALL;
+                    break;
+                case emp3.api.enums.IconSizeEnum.MEDIUM:
+                    iIconSize = leafLet.utils.iconPixelSize.MEDIUM;
+                    break;
+                case emp3.api.enums.IconSizeEnum.LARGE:
+                    iIconSize = leafLet.utils.iconPixelSize.LARGE;
+                    break;
+                default:
+                    iIconSize = leafLet.utils.iconPixelSize.MEDIUM;
+                    break;
+            }
+
+            if (instanceInterface.iMilStdIconSize === iIconSize)
+            {
+                return;
+            }
+            else
+            {
+                instanceInterface.iMilStdIconSize = iIconSize;
+            }
+
+
             for (sCoreId in instanceInterface.mapEngObjectList) {
                 if (!instanceInterface.mapEngObjectList.hasOwnProperty(sCoreId)) {
                     continue;
@@ -2398,6 +2426,9 @@ emp.engineDefs.leafletMapEngine = function (args) {
                 break;
               case "brightness":
                 break;
+                case "iconSize":
+                  engineInterface.settings.mil2525.icon.size.set (transaction);
+                  break;
             }
           }
           if (previousRenderSettings.enabled) {
