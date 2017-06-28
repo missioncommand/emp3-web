@@ -20,13 +20,7 @@
           "compass": false,
           "coordinates": false
         },
-        "defaultLayers": [{
-          "type": "wms",
-          "name": "Local GeoServer",
-          "service": "http://localhost:8080/geoserver/wms",
-          "layerNames": "nasa:world_topo_bathy_lowres,nasa:world_topo_bathy_200405",
-          "format": "image/png"
-        }]
+        "defaultLayers": []
       }
     },
     {

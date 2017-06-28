@@ -746,7 +746,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
          */
         instanceInterface.iMilStdIconSize = 24;
 
-        checkMapWidth();
+        //checkMapWidth();
         if (instanceInterface.renderingOptimization.enabled) {
             instanceInterface.renderingOptimization.refreshZone();
         }
@@ -825,7 +825,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             smartLockBuffer = 0.05,
             offsetX,
             offsetY,
-            step = parseFloat((instanceInterface.getView().altitude / (L.CRS.Earth.R)).toFixed(25)),
+            step = parseFloat((instanceInterface.getView().altitude / (L.CRS.Earth.R)).toFixed(5)),
             smartLockAutoPan = function() {
               var geographicMapCenter = instanceInterface.leafletInstance.getCenter(),
                   panToLat = geographicMapCenter.lat,
@@ -888,7 +888,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
             lockState = instanceInterface.getLockState();
 
         if (lockState !== emp3.api.enums.MapMotionLockEnum.NO_MOTION) {
-          checkMapCenter();
+          //checkMapCenter();
           center = instanceInterface.leafletInstance.getCenter();
           if ((center.lng < -180.0) || (center.lng > 180.0)) {
             instanceInterface.leafletInstance.setView(center.wrap());
@@ -920,7 +920,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
       }
 
       function onZoomEnd(event) {
-        checkMapWidth();
+        //checkMapWidth();
       }
 
       function onMouseUpDown(event) {
@@ -2040,12 +2040,40 @@ emp.engineDefs.leafletMapEngine = function (args) {
     };
 
     engineInterface.settings.mil2525.icon.size.set = function (transaction) {
-        var oEmpObject;
-        var sCoreId;
-
-        instanceInterface.iMilStdIconSize = transaction.items[0];
+        var oEmpObject, sCoreId,
+        iIconSize = 32, txtIconSize;
 
         try {
+            txtIconSize = transaction.items[0].iconSize;
+            switch (txtIconSize)
+            {
+                case emp3.api.enums.IconSizeEnum.TINY:
+                    iIconSize = leafLet.utils.iconPixelSize.TINY;
+                    break;
+                case emp3.api.enums.IconSizeEnum.SMALL:
+                    iIconSize =  leafLet.utils.iconPixelSize.SMALL;
+                    break;
+                case emp3.api.enums.IconSizeEnum.MEDIUM:
+                    iIconSize = leafLet.utils.iconPixelSize.MEDIUM;
+                    break;
+                case emp3.api.enums.IconSizeEnum.LARGE:
+                    iIconSize = leafLet.utils.iconPixelSize.LARGE;
+                    break;
+                default:
+                    iIconSize = leafLet.utils.iconPixelSize.MEDIUM;
+                    break;
+            }
+
+            if (instanceInterface.iMilStdIconSize === iIconSize)
+            {
+                return;
+            }
+            else
+            {
+                instanceInterface.iMilStdIconSize = iIconSize;
+            }
+
+
             for (sCoreId in instanceInterface.mapEngObjectList) {
                 if (!instanceInterface.mapEngObjectList.hasOwnProperty(sCoreId)) {
                     continue;
@@ -2196,7 +2224,108 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
     };
 
-    engineInterface.view.getLatLonFromXY = function (transaction) {
+  engineInterface.wmts.add = function (transaction) {
+    var oaItems = transaction.items;
+
+    for (var iIndex = 0; iIndex < oaItems.length; iIndex++) {
+      var item = oaItems[iIndex];
+
+      try {
+        var oNewWMTS;
+
+        if (instanceInterface.isV2Core()) {
+          item.useProxy = emp.util.config.getUseProxySetting();
+        }
+
+        if (instanceInterface.mapEngObjectList.hasOwnProperty(item.coreId)) {
+          // Its an update
+          oNewWMTS = instanceInterface.mapEngObjectList[item.coreId];
+
+          oNewWMTS.updateWMTS(item);
+        } else {
+          oNewWMTS = new leafLet.typeLibrary.WMTS({
+            item: item,
+            instanceInterface: instanceInterface
+          });
+
+          if (instanceInterface.mapEngObjectList.hasOwnProperty(oNewWMTS.getParentCoreId())) {
+            // The parent exists.
+            var oParentOverlay = instanceInterface.mapEngObjectList[oNewWMTS.getParentCoreId()];
+
+            oParentOverlay.addChildObject(oNewWMTS.options.leafletObject);
+          } else {
+            // The parent does not exists.
+            item.createParent();
+            if (instanceInterface.mapEngObjectList.hasOwnProperty(oNewWMTS.getParentCoreId())) {
+              // The parent exists.
+              var oParentOverlay = instanceInterface.mapEngObjectList[oNewWMTS.getParentCoreId()];
+              oParentOverlay.addChildObject(oNewWMTS);
+            } else {
+              transaction.fail(new emp.typeLibrary.Error({
+                coreId: item.coreId,
+                level: emp.typeLibrary.Error.level.MAJOR,
+                message: "Parent " + oNewWMTS.getParentCoreId() + " does not exists."
+              }));
+              iIndex--;
+              continue;
+            }
+          }
+
+          instanceInterface.addEmpObject(oNewWMTS);
+        }
+      } catch (Ex) {
+        transaction.fail(new emp.typeLibrary.Error({
+          coreId: item.coreId,
+          level: emp.typeLibrary.Error.level.MAJOR,
+          message: Ex.name + ": " + Ex.message,
+          jsError: Ex
+        }));
+        iIndex--;
+      }
+    }
+  }
+
+  engineInterface.wmts.remove = function (transaction) {
+    var oaItems = transaction.items;
+
+    for (var iIndex = 0; iIndex < oaItems.length; iIndex++) {
+      var item = oaItems[iIndex];
+      try {
+        if (instanceInterface.mapEngObjectList.hasOwnProperty(item.coreId)) {
+          // The feature exists.
+          var oParentOverlay;
+          var oFeature = instanceInterface.mapEngObjectList[item.coreId];
+
+          if (item.parentCoreId === undefined) {
+            // The parent is the root.
+            oParentOverlay = instanceInterface.rootOverlay;
+          } else {
+            oParentOverlay = instanceInterface.mapEngObjectList[item.parentCoreId];
+          }
+
+          oParentOverlay.removeChildObject(oFeature);
+          oFeature.destroy();
+        } else {
+          transaction.fail(new emp.typeLibrary.Error({
+            coreId: item.coreId,
+            level: emp.typeLibrary.Error.level.MAJOR,
+            message: "WMTS " + item.id + " does not exists."
+          }));
+          iIndex--;
+        }
+      } catch (Ex) {
+        transaction.fail(new emp.typeLibrary.Error({
+          coreId: item.coreId,
+          level: emp.typeLibrary.Error.level.MAJOR,
+          message: Ex.name + ": " + Ex.message,
+          jsError: Ex
+        }));
+        iIndex--;
+      }
+    }
+  };
+
+  engineInterface.view.getLatLonFromXY = function (transaction) {
         var item;
         var oLatLng;
         var oPoint;
@@ -2297,6 +2426,9 @@ emp.engineDefs.leafletMapEngine = function (args) {
                 break;
               case "brightness":
                 break;
+                case "iconSize":
+                  engineInterface.settings.mil2525.icon.size.set (transaction);
+                  break;
             }
           }
           if (previousRenderSettings.enabled) {

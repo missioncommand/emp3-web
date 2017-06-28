@@ -7,7 +7,7 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
     var oStringModifiers = leafLet.utils.milstd.longModifiers;
     var oLongToShortModifierName = leafLet.utils.milstd.stringToModifiers;
     var o2525ModifierToLong = leafLet.utils.milstd.o2525ModifierToLong;
-    
+
     var publicInterface = {
         oModifiers: {},
         getAMValueCount: function()
@@ -16,7 +16,7 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
             {
                 this.oModifiers[o2525Modifiers.DISTANCE] = [];
             }
-            
+
             return this.oModifiers[o2525Modifiers.DISTANCE].length;
         },
         getAMValue: function(iIndex)
@@ -25,9 +25,9 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
             {
                 return NaN;
             }
-            
+
             var dValue = this.oModifiers[o2525Modifiers.DISTANCE][iIndex];
-            
+
             switch (oMilStdFeature.getUnits())
             {
                 case leafLet.utils.Units.FEET:
@@ -60,7 +60,7 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
             {
                 this.oModifiers[o2525Modifiers.AZIMUTH] = [];
             }
-            
+
             return this.oModifiers[o2525Modifiers.AZIMUTH].length;
         },
         getANValue: function(iIndex)
@@ -69,16 +69,16 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
             {
                 return NaN;
             }
-            
+
             var dValue = this.oModifiers[o2525Modifiers.AZIMUTH][iIndex];
-            
+
             switch (oMilStdFeature.getAzimuthUnits())
             {
                 case leafLet.utils.AngleUnits.MILS:
                     dValue = dValue * leafLet.utils.DEGREE_PER_MILS;
                     break;
             }
-            
+
             return dValue;
         },
         setANValue: function(iIndex, dValue)
@@ -96,7 +96,7 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
             }
             else
             {
-                this.oModifiers[o2525Modifiers.AZIMUTH].push(dValue); 
+                this.oModifiers[o2525Modifiers.AZIMUTH].push(dValue);
             }
         },
         getXValueCount: function()
@@ -105,7 +105,7 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
             {
                 this.oModifiers[o2525Modifiers.ALTITUDE_DEPTH] = [];
             }
-            
+
             return this.oModifiers[o2525Modifiers.ALTITUDE_DEPTH].length;
         },
         getXValue: function(iIndex)
@@ -114,16 +114,16 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
             {
                 return NaN;
             }
-            
+
             var dValue = this.oModifiers[o2525Modifiers.ALTITUDE_DEPTH][iIndex];
-            
+
             switch (oMilStdFeature.getAltitudeUnits())
             {
                 case leafLet.utils.Units.FEET:
                     dValue = Math.round(dValue * leafLet.utils.FEET_PER_METERS);
                     break;
             }
-            
+
             return dValue;
         },
         setXValue: function(iIndex, dValue)
@@ -134,20 +134,20 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
                     dValue = Math.round(dValue * leafLet.utils.METERS_PER_FEET);
                     break;
             }
-            
+
             if (iIndex < this.getXValueCount())
             {
                 this.oModifiers[o2525Modifiers.ALTITUDE_DEPTH][iIndex] = dValue;
             }
             else
             {
-                this.oModifiers[o2525Modifiers.ALTITUDE_DEPTH].push(dValue); 
+                this.oModifiers[o2525Modifiers.ALTITUDE_DEPTH].push(dValue);
             }
         },
         toModifiers: function()
         {
             var oNewModifiers = {};
-            
+
             for (var sModifier in this.oModifiers)
             {
                 if (!this.oModifiers.hasOwnProperty(sModifier)) {
@@ -158,22 +158,22 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
                     oNewModifiers[sModifier] = emp.helpers.copyObject(this.oModifiers[sModifier]);
                 }
             }
-            
+
             return oNewModifiers;
         },
         toLongModifiers: function()
         {
             var sLongModifier;
             var oNewModifiers = {};
-            
+
             for (var sModifier in this.oModifiers) {
                 if (!this.oModifiers.hasOwnProperty(sModifier)) {
                     continue;
                 }
                 if (this.oModifiers[sModifier] !== undefined)
                 {
-                    sLongModifier = o2525ModifierToLong[sModifier];
-                    
+                    sLongModifier = (o2525ModifierToLong[sModifier])?o2525ModifierToLong[sModifier]: sModifier;
+
                     switch (sModifier)
                     {
                         case o2525Modifiers.STANDARD:
@@ -185,13 +185,13 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
                     }
                 }
             }
-            
+
             return oNewModifiers;
         }
     };
-    
+
     var sShortName;
-    
+
     for (var sProp in args)
     {
         if (!args.hasOwnProperty(sProp)) {
@@ -214,7 +214,7 @@ leafLet.typeLibrary.MilStdModifiers = function(oFeature, args)
                 {
                     sShortName = oLongToShortModifierName[sProp];
                 }
-                
+
                 switch (sProp)
                 {
                     case oStringModifiers.STANDARD:

@@ -331,6 +331,7 @@ var manifest = {
     "src/mapengine/leaflet/js/lib/KML.js",
 
     "src/mapengine/leaflet/js/lib/leaflet.markercluster-src.js",
+    "src/mapengine/leaflet/js/lib/leaflet.wmts-src.js",
 
     "src/mapengine/leaflet/js/utils/emp.typeLibrary.utils.js",
     "src/mapengine/leaflet/js/typeLibrary/leaflet-eng.typeLibrary.js",
@@ -346,6 +347,7 @@ var manifest = {
     "src/mapengine/leaflet/js/typeLibrary/leaflet-eng.typeLibrary.overlay.js",
     "src/mapengine/leaflet/js/typeLibrary/leaflet-eng.typeLibrary.feature.js",
     "src/mapengine/leaflet/js/typeLibrary/leaflet-eng.typeLibrary.wms.js",
+    "src/mapengine/leaflet/js/typeLibrary/leaflet-eng.typeLibrary.wmts.js",
     "src/mapengine/leaflet/js/typeLibrary/leaflet-eng.typeLibrary.EmpBoundary.js",
     "src/mapengine/leaflet/js/typeLibrary/leaflet-eng.typeLibrary.empObject.js",
     "src/mapengine/leaflet/js/typeLibrary/leaflet-eng.typeLibrary.DisplayableObject.js",

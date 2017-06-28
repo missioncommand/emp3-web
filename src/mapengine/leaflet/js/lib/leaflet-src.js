@@ -122,9 +122,13 @@ L.Util = {
 
 			} else {
 				// call and lock until later
-				fn.apply(context, arguments);
-				setTimeout(later, time);
-				lock = true;
+				// acevedo added condition to check for undefined fn
+				if (fn)
+				{
+					fn.apply(context, arguments);
+					setTimeout(later, time);
+					lock = true;
+				}
 			}
 		};
 
@@ -584,6 +588,8 @@ L.Evented = L.Class.extend({
 				this._firingCount = (this._firingCount + 1) || 1;
 				for (var i = 0, len = listeners.length; i < len; i++) {
 					var l = listeners[i];
+					//acevedo added condition to check for undefined fn
+					if (l.fn)
 					l.fn.call(l.ctx || this, event);
 				}
 
@@ -5786,6 +5792,9 @@ L.TileLayer = L.GridLayer.extend({
 // Instantiates a tile layer object given a `URL template` and optionally an options object.
 
 L.tileLayer = function (url, options) {
+	//acevedo - next is to stop repeating te map over and over
+	// commented out. Nonwrapping is desired?
+	options.noWrap = true;
 	return new L.TileLayer(url, options);
 };
 

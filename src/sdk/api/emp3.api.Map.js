@@ -2374,7 +2374,8 @@ emp3.api.Map.prototype.getMapServices = function(args) {
     recursive: true,
     filter: [{
       property: "overlayId",
-      term: emp3.api.enums.defaultOverlayId.WMS
+      // passing the wms overlayId instead of the default WMS overlayId.
+      term: emp.wms.manager.getWmsOverlayId(this.geoId)
     }],
     onSuccess: args.onSuccess,
     onError: args.onError
@@ -2946,7 +2947,8 @@ emp3.api.Map.prototype.removeMapService = function(args) {
 
   var cmd = {
     cmd: emp3.api.enums.channel.unplotFeature,
-    overlayId: emp3.api.enums.defaultOverlayId.WMS,
+    // passing the wms overlayId instead of the default WMS overlayId.
+    overlayId: emp.wms.manager.getWmsOverlayId(this.geoId),
     features: services,
     onSuccess: args.onSuccess,
     onError: args.onError
