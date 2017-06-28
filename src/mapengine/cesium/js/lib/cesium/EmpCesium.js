@@ -6429,7 +6429,7 @@ function EmpCesium() {
         this.removeLayer(layer);
       }
 
-      tileMatrixSet = (this.defined(item.tileMatrixSet) )?item.tileMatrixSet:tileMatrixSetID;
+      tileMatrixSet = (this.defined(item.tileMatrixSet) )?item.tileMatrixSet:tileMatrixSet;
       layer = new EmpLayer(item.name, item.coreId, EmpCesiumConstants.layerType.WMTS_LAYER, this); //empCesium);
       layer.providers = [];
       layer.url = item.url;
