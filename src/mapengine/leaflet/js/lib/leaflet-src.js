@@ -4759,7 +4759,7 @@ L.GridLayer = L.Layer.extend({
 		// effect when the [map CRS](#map-crs) doesn't wrap around. Can be used
 		// in combination with [`bounds`](#gridlayer-bounds) to prevent requesting
 		// tiles outside the CRS limits.
-		noWrap: false,
+		noWrap: true,
 
 		// @option pane: String = 'tilePane'
 		// `Map pane` where the grid layer will be added.
@@ -5793,7 +5793,6 @@ L.TileLayer = L.GridLayer.extend({
 
 L.tileLayer = function (url, options) {
 	//acevedo - next is to stop repeating te map over and over
-	// commented out. Nonwrapping is desired?
 	options.noWrap = true;
 	return new L.TileLayer(url, options);
 };
