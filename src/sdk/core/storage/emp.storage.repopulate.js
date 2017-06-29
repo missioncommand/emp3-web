@@ -167,7 +167,7 @@ emp.storage.MapReload = function(InstanceId) {
             {
                 for (var i = 0; i < data.length;) {
                     var oOverlays = [],
-                        wmsServices = [];
+                        wmsServices = [],
                         wmtsServices = [];
                     oFeatures = [];
 
