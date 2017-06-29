@@ -68,6 +68,8 @@ L.TileLayer.WMTS = L.TileLayer.extend({
     Y0 = this.matrixIds[zoom].topLeftCorner.lat;
     tilecol = Math.floor((nw.x - X0) / tilewidth);
     tilerow = -Math.floor((nw.y - Y0) / tilewidth);
+    // hack to fix bad tile location on north pole area
+    tilerow = (Math.abs(tilerow) < 0.001)?0:tilerow;
     url = L.Util.template(this._url, {
       s: this._getSubdomain(tilePoint)
     });
