@@ -44,6 +44,17 @@ describe('emp3.api.Container', function() {
     });
   });
 
+  describe('hasChildren', function() {
+    it('will send message to the message handler to check if has children', function(){
+        //stub out the message handler function we'd be calling
+        var hasChildrenStub = sandbox.stub(emp3.api.MessageHandler.getInstance(), 'hasChildren');
+        var container = new emp3.api.Container();
+        container.hasChildren();
+        hasChildrenStub.should.have.been.calledWith(container);
+
+    });
+  });
+
   describe('removeEventListener', function() {
     it('expects the eventType', function() {
       var container = new emp3.api.Container();
