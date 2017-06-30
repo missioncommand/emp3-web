@@ -73,6 +73,9 @@ L.TileLayer.WMTS = L.TileLayer.extend({
     url = L.Util.template(this._url, {
       s: this._getSubdomain(tilePoint)
     });
+    if (this.options.useProxy) {
+         url  = emp.util.config.getProxyUrl() + "?" + "mime=image/*&url=" + encodeURIComponent(url);
+     }
     return url + L.Util.getParamString(this.wmtsParams, url) + "&tilematrix=" + ident + "&tilerow=" + tilerow + "&tilecol=" + tilecol;
   },
 
