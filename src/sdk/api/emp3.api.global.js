@@ -16,7 +16,7 @@ if (!window.emp3.api) {
  */
 emp3.api.global = emp3.api.global || {
 
-    version: "2.8.0_dev",
+    version: "2.8.0",
     /**
      * @name emp3.api.global#configuration
      */
