@@ -1,15 +1,15 @@
-/*global emp, console, window */
+/* global console, window */
 /* eslint-disable no-console */
-/*
- * ERROR Handler.
- */
+
+var emp = window.emp || {};
+
 /**
  * Error Handler
  *
  * @namespace  errorHandler
  * @memberOf emp
  */
-emp.errorHandler = (function () {
+emp.errorHandler = (function() {
   /**
    * Level of Debug.
    * 0 = Normal Operation. No console output
@@ -23,9 +23,9 @@ emp.errorHandler = (function () {
   var logJSONArray = [];
 
   // Avoid console errors in browsers that lack a console.
-  (function () {
+  (function() {
     var method,
-      placeholder = function () {
+      placeholder = function() {
       },
       methods = [
         'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
@@ -77,7 +77,7 @@ emp.errorHandler = (function () {
      * @param {number} [args.level]
      * @param {object} args.jsError JavaScript error object
      */
-    log: function (args) {
+    log: function(args) {
       /**
        * Level of error
        * @enum {number}
@@ -180,14 +180,14 @@ emp.errorHandler = (function () {
      * @memberOf emp.errorHandler
      * @param {string} args
      */
-    set: function (args) {
+    set: function(args) {
       debugLevel = args;
     },
     /**
      * Gets the debug level
      * @returns {number}
      */
-    get: function () {
+    get: function() {
       return debugLevel;
     },
     /**
@@ -196,7 +196,7 @@ emp.errorHandler = (function () {
      * @public
      * @memberOf  emp.errorHandler
      */
-    getMessages: function () {
+    getMessages: function() {
       return logJSONArray;
     },
     /**
@@ -205,7 +205,7 @@ emp.errorHandler = (function () {
      * @public
      * @memberOf  emp.errorHandler
      */
-    clearLog: function () {
+    clearLog: function() {
       logJSONArray = [];
     },
     /**
@@ -214,7 +214,7 @@ emp.errorHandler = (function () {
      * @public
      * @memberOf  emp.errorHandler
      */
-    exportLog: function () {
+    exportLog: function() {
       var jsonOutputStr = JSON.stringify(logJSONArray);
 
       function dataUrl(txtData) {

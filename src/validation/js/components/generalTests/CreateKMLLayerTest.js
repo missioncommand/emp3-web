@@ -16,7 +16,7 @@ class CreateKMLLayerTest extends Component {
       selectedMapId: selectedMapId,
       name: '',
       geoId: '',
-      url: 'https://developers.google.com/maps/documentation/javascript/examples/kml/westcampus.kml',
+      url: './resources/KML_samples.kml',
       description: '',
       kmlString: '',
       useProxy: false
@@ -95,7 +95,7 @@ class CreateKMLLayerTest extends Component {
     this.props.addMapService(kmlLayer);
 
     if (kmlLayer) {
-      toastr.success('KML Layer ' + name + ' added succesfully');
+      toastr.success('KML Layer ' + name + ' added successfully');
     } else {
       toastr.error('KML Layer ' + name + ' creation failed');
     }

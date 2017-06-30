@@ -1,5 +1,5 @@
-/* globals emp */
-
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
 
 /**
  * @memberof emp.typeLibrary
@@ -331,39 +331,7 @@ emp.typeLibrary.Feature = function (args) {
     this.schema.required = ["featureId", "url", "format", "overlayId"];
     this.schema.properties.format["enum"] = ["kml", "geojson", "image", "arc"];
   }
-  /*
-   if (this.intent === "feature.remove") {
-   this.schema.properties = {
-   "featureId": {
-   "type": "string"
-   }
-   };
-   this.schema.required = ["featureId"];
-   }
-   if (this.intent === "overlay.clear") {
-   this.schema.properties = {
-   "overlayId": {
-   "type": "string"
-   },
-   "transactionId": {
-   "type": ["string", "null"]
-   },
-   "parentId": {
-   "type": ["string", "null"]
-   },
-   "featureId": {
-   "type": ["string", "null"]
-   }
-   };
-   this.schema.required = ["overlayId"];
-   }
-   if (this.intent === "visibility.get") {
-   this.schema.required = ["featureId", "overlayId"];
-   }
-   if (this.intent === "feature.update") {
-   this.schema.required = [];
-   }
-   */
+  
   /**
    * @description Create a parent overlay for a feature if it doesn't exist
    *

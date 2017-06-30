@@ -1,10 +1,10 @@
-emp.classLibrary.privateClass = function () {
+emp.classLibrary.privateClass = function() {
   var publicInterface = {
     /**
      * @memberof emp.classLibrary.EmpWMS#
      * @param {object} args
      */
-    initialize: function (args) {
+    initialize: function(args) {
       /**
        * @memberof emp.classLibrary.EmpWMS#
        */
@@ -17,7 +17,8 @@ emp.classLibrary.privateClass = function () {
         version: args.version || "1.0.0",
         layer: args.layer,
         style: args.style || "default",
-        sampleDimensions: args.sampleDimensions
+        sampleDimensions: args.sampleDimensions,
+        tileMatrixSet: args.tileMatrixSet
       };
 
       args.coreObjectType = emp.typeLibrary.types.WMTS;
@@ -29,7 +30,7 @@ emp.classLibrary.privateClass = function () {
     /**
      *
      */
-    getObjectData: function (mapInstanceId, coreParentId) {
+    getObjectData: function(mapInstanceId, coreParentId) {
       var oParent = this.getParentByIndex(0);
 
       var oObj = {
@@ -45,7 +46,8 @@ emp.classLibrary.privateClass = function () {
         version: this.options.params.version,
         layer: this.options.params.layer,
         style: this.options.params.style,
-        visible: this.isVisibleOnMap(mapInstanceId)
+        visible: this.isVisibleOnMap(mapInstanceId),
+        tileMatrixSet: this.options.params.tileMatrixSet
       };
 
       if (this.options.sampleDimensions) {
@@ -55,7 +57,7 @@ emp.classLibrary.privateClass = function () {
       return new emp.typeLibrary.WMTS(oObj);
     },
 
-    compareProperty: function (mapInstanceId, sProperty, Value) {
+    compareProperty: function(mapInstanceId, sProperty, Value) {
       var bRet = false;
 
       if (!emp.util.isEmptyString(sProperty)) {

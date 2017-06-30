@@ -122,9 +122,13 @@ L.Util = {
 
 			} else {
 				// call and lock until later
-				fn.apply(context, arguments);
-				setTimeout(later, time);
-				lock = true;
+				// acevedo added condition to check for undefined fn
+				if (fn)
+				{
+					fn.apply(context, arguments);
+					setTimeout(later, time);
+					lock = true;
+				}
 			}
 		};
 
@@ -584,6 +588,8 @@ L.Evented = L.Class.extend({
 				this._firingCount = (this._firingCount + 1) || 1;
 				for (var i = 0, len = listeners.length; i < len; i++) {
 					var l = listeners[i];
+					//acevedo added condition to check for undefined fn
+					if (l.fn)
 					l.fn.call(l.ctx || this, event);
 				}
 
@@ -4753,7 +4759,7 @@ L.GridLayer = L.Layer.extend({
 		// effect when the [map CRS](#map-crs) doesn't wrap around. Can be used
 		// in combination with [`bounds`](#gridlayer-bounds) to prevent requesting
 		// tiles outside the CRS limits.
-		noWrap: false,
+		noWrap: true,
 
 		// @option pane: String = 'tilePane'
 		// `Map pane` where the grid layer will be added.
@@ -5786,6 +5792,8 @@ L.TileLayer = L.GridLayer.extend({
 // Instantiates a tile layer object given a `URL template` and optionally an options object.
 
 L.tileLayer = function (url, options) {
+	//acevedo - next is to stop repeating te map over and over
+	options.noWrap = true;
 	return new L.TileLayer(url, options);
 };
 

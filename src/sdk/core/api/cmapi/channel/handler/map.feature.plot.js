@@ -59,6 +59,15 @@ cmapi.channel.handler[cmapi.channel.names.MAP_FEATURE_PLOT] = {
                 visible: payload.visible
             });
 
+            // If its a point and it does not have an image URL, assign it a url
+            // immediately.
+            if (oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT &&
+              !oItem.properties.iconUrl) {
+              oItem.properties.iconUrl = emp.ui.images.defaultPoint;
+              oItem.properties.offsetX = 12;
+              oItem.properties.offsetY = 0;
+            }
+
             if (oItem.format === emp.typeLibrary.featureFormatType.GEOJSON ||
               oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
               oItem.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
@@ -79,6 +88,13 @@ cmapi.channel.handler[cmapi.channel.names.MAP_FEATURE_PLOT] = {
     },
 
     mergeGeoJSONStyles: function(oFeature) {
+
+      // remove symbolCode if it has one.  This prevents issues where
+      // engine chokes up if it checks for a symbolCode on any symbolCode
+      // and doesn't know what to do with it.
+      oFeature.symbolCode = undefined;
+      oFeature.data.symbolCode = undefined;
+
       if (oFeature.hasOwnProperty('properties')) {
         if (oFeature.properties.hasOwnProperty('iconUrl')) {
           //It has an icon url defined.

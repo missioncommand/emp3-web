@@ -8,10 +8,10 @@ class CreateMapTest extends Component {
 
     this.state = {
       bounds: {
-        north: '',
-        south: '',
-        east: '',
-        west: '',
+        north: '50',
+        south: '40',
+        east: '50',
+        west: '40',
         centerLat: '',
         centerLon: '',
         range: '',
@@ -29,6 +29,7 @@ class CreateMapTest extends Component {
     this.clearForm = this.clearForm.bind(this);
     this.updateRecorder = this.updateRecorder.bind(this);
     this.addMap = this.addMap.bind(this);
+    this.createMap = this.createMap.bind(this);
   }
 
   clearForm() {
@@ -79,13 +80,92 @@ class CreateMapTest extends Component {
     });
   }
 
+  createMap(bounds, mapEngineId, recorder, brightness, midDistanceThreshold, farDistanceThreshold) {
+    const {maps, addMap, addResult, addError} = this.props;
+    if (maps.length >= 4) {
+      toastr.error('Remove a map', 'Map Limit Reached');
+      return;
+    }
+
+    let config = empConfig;
+
+    if (typeof empConfig.recorder !== 'undefined') {
+      recorder = empConfig.recorder;
+    }
+
+    if (config.engines.length === 0) {
+      toastr.warning('No engines are specified in the config', 'EMP3 Validation');
+      return;
+    }
+
+    try {
+      let engine = _.find(empConfig.engines, {mapEngineId: mapEngineId});
+      empConfig.startMapEngineId = engine.mapEngineId;
+      let containerId = 'map' + maps.length;
+      let environment = config.environment;
+      let envOverride = false;
+      (function() {
+        let urlEnv = emp.util.getParameterByName('empenv');
+        if (urlEnv !== null) {
+          environment = urlEnv;
+          switch (environment) {
+            case "iwc":
+            case "starfish":
+            case "owf":
+              envOverride = true;
+              break;
+          }
+        }
+      }());
+
+      let map;
+      const registerMapCallback = () => {
+        addMap(map);
+      };
+
+      const mapDefinition = {
+        bounds: bounds,
+        environment: environment,
+        engine: engine,
+        recorder: recorder,
+        backgroundBrightness: brightness,
+        midDistanceThreshold: midDistanceThreshold,
+        farDistanceThreshold: farDistanceThreshold,
+        onSuccess: args => {
+          toastr.success('Map created successfully', 'Map Creation');
+          addResult(args, 'emp3.api.Map Constructor');
+
+          // Register the map with the application
+          registerMapCallback();
+        },
+        onError: err => {
+          toastr.error('Map creation failed', 'Map Creation');
+          addError(err, 'emp3.api.Map Constructor');
+        }
+      };
+
+      if (envOverride === false) {
+        // We only want to spawn a local map instance if we are using standalone embedded browser environment which is the default here
+        mapDefinition.container = containerId;
+      }
+      emp3.api.global.configuration.urlProxy = config.urlProxy;
+
+      map = new emp3.api.Map(mapDefinition);
+      toastr.info('Map creation pending', 'Map Creation');
+    } catch (e) {
+      toastr.error(e.message, 'Map creation failed: Critical');
+      addError(e.message, 'emp3.api.Map Constructor: Critical');
+    }
+  }
+
+
   /**
    * Creates a new map and map frame in the application.
    * This is a special case, this affects the whole application and requires some async work so it is just passed
    * up to the main application
    */
   addMap() {
-    const {createMap} = this.props;
+    const {addMapContainer} = this.props;
 
     let bounds = {
       north: this.state.bounds.north === '' ? undefined : parseFloat(this.state.bounds.north),
@@ -105,12 +185,18 @@ class CreateMapTest extends Component {
         break;
       }
     }
+
     if (blankBounds) {
       bounds = undefined;
     }
 
-    createMap(bounds, this.state.engineId === '' ? undefined : this.state.engineId,
-      false, this.state.recorder, parseInt(this.state.brightness), parseInt(this.state.midDistanceThreshold),
+    addMapContainer();
+
+    this.createMap(bounds,
+      this.state.engineId === '' ? undefined : this.state.engineId,
+      this.state.recorder,
+      parseInt(this.state.brightness),
+      parseInt(this.state.midDistanceThreshold),
       parseInt(this.state.farDistanceThreshold));
   }
 
@@ -169,12 +255,6 @@ class CreateMapTest extends Component {
             Create a new map
           </button>
 
-          <button
-            className='mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--12-col'
-            onClick={this.clearForm}>
-            Reset Form
-          </button>
-
           <RelatedTests className='mdl-cell mdl-cell--12-col' relatedTests={[
             {text: 'Populate the map with sample data', target: 'populateMapTest'},
             {text: 'Create a new overlay', target: 'createOverlayTest'},
@@ -190,9 +270,11 @@ class CreateMapTest extends Component {
 
 CreateMapTest.propTypes = {
   config: PropTypes.any,
-  createMap: PropTypes.func.isRequired,
-  addResult: PropTypes.func.isRequired,
-  addError: PropTypes.func.isRequired
+  addResult: PropTypes.func,
+  addError: PropTypes.func,
+  addMap: PropTypes.func,
+  maps: PropTypes.array,
+  addMapContainer: PropTypes.func
 };
 
 export default CreateMapTest;

@@ -907,6 +907,24 @@ Material Design Lite
    whether and how they wish to license it.
 
 // =====================================================================================================================
+tv4
+
+Author: Geraint Luff and others
+Year: 2013
+
+This code is released into the "public domain" by its author(s).  Anybody may use, alter and distribute the code without restriction.  The author makes no guarantees, and takes no liability of any kind for use of this code.
+
+If you find a bug or make an improvement, it would be courteous to let the author know, but it is not compulsory.
+
+// =====================================================================================================================
+// Fonts and Icons
+// =====================================================================================================================
+Font Awesome by Dave Gandy - http://fontawesome.io
+
+Very Basic Globe Icon provided by Icons8
+http://icons8.com/license/
+
+// =====================================================================================================================
 // Additional Attributions
 // =====================================================================================================================
 Babel - https://babeljs.io/
@@ -966,8 +984,6 @@ tv4 - https://github.com/geraintluff/tv4
 
 D3 - https://d3js.org/
 d3-tip
-
-Font Awesome by Dave Gandy - http://fontawesome.io
 
 JQuery - https://jquery.com/
 Lodash - https://lodash.com/

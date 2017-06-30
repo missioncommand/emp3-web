@@ -48,8 +48,8 @@ emp.editors.Path.prototype.addControlPoints = function() {
         },
         properties: {
           iconUrl: emp.ui.images.editPoint,
-          iconXOffset: 12,
-          iconYOffset: 12,
+          iconXOffset: 10,
+          iconYOffset: 10,
           xUnits: "pixels",
           yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -83,8 +83,8 @@ emp.editors.Path.prototype.addControlPoints = function() {
           },
           properties: {
             iconUrl: emp.ui.images.addPoint,
-            iconXOffset: 8,
-            iconYOffset: 8,
+            iconXOffset: 6,
+            iconYOffset: 6,
             xUnits: "pixels",
             yUnits: "pixels",
             altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -117,50 +117,6 @@ emp.editors.Path.prototype.addControlPoints = function() {
     transaction.run();
   } // end if
 
-};
-
-
-emp.editors.Path.prototype.removeControlPoints = function() {
-
-  // do nothing
-  var transaction;
-  var items;
-  var vertices = this.vertices.getFeatures();
-  items = vertices;
-
-  transaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
-    mapInstanceId: this.mapInstance.mapInstanceId,
-    transactionId: null,
-    sender: this.mapInstance.mapInstanceId,
-    originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-    source: emp.api.cmapi.SOURCE,
-    messageOriginator: this.mapInstance.mapInstanceId,
-    originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
-    items: items
-  });
-
-  this.vertices.clear();
-
-  // Hide the control points
-  transaction.run();
-};
-
-/**
- * Determine if the featureId is a controlPoint or if it is a feature.
- * This is useful for determining if a featureDrag event should be staticContent
- * out or not.
- */
-emp.editors.Path.prototype.isControlPoint = function(featureId) {
-
-  var result = false;
-
-  // Return true if we found the id.
-  if (this.vertices.find(featureId)) {
-    result = true;
-  }
-
-  return result;
 };
 
 emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) {
@@ -196,7 +152,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
     if (currentVertex.type === 'add') {
 
       type = emp.typeLibrary.CoordinateUpdateType.ADD;
-      currentVertex.type = 'vertex';
+      //currentVertex.type = 'vertex';
+      this.vertices.promoteVertex(currentVertex.feature.featureId);
 
       currentFeature = currentVertex.feature;
 
@@ -223,8 +180,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
         },
         properties: {
           iconUrl: emp.ui.images.addPoint,
-          iconXOffset: 8,
-          iconYOffset: 8,
+          iconXOffset: 6,
+          iconYOffset: 6,
           xUnits: "pixels",
           yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -251,8 +208,8 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
         },
         properties: {
           iconUrl: emp.ui.images.addPoint,
-          iconXOffset: 8,
-          iconYOffset: 8,
+          iconXOffset: 6,
+          iconYOffset: 6,
           xUnits: "pixels",
           yUnits: "pixels",
           altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
@@ -297,7 +254,15 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
       type: 'LineString'
     },
     properties: {
-      lineColor: "FFFFFF00"
+      lineColor: "FFFFFF00",
+      strokeStyle: {
+        strokeColor: {
+          red: 255,
+          green: 255,
+          blue: 0,
+          alpha: 1.0
+        }
+      }
     }
   });
 
@@ -308,15 +273,15 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
   //this.featureCopy.data.coordinates =  this.vertices.getVerticesAsLineString();
 
   var transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
   });
 
   transaction.run();
@@ -334,9 +299,9 @@ emp.editors.Path.prototype.startMoveControlPoint = function(featureId, pointer) 
   }
 
   coordinateUpdate = {
-      type: type,
-      indices: [index],
-      coordinates: newCoordinates
+    type: type,
+    indices: [index],
+    coordinates: newCoordinates
   };
 
   updateData.coordinateUpdate = coordinateUpdate;
@@ -359,7 +324,7 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
     frontFeature,
     nextFrontVertexFeature,
     nextBackVertexFeature,
-    items =[],
+    items = [],
     pt1,
     pt2,
     pt3,
@@ -434,15 +399,15 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
   items.push(this.animation);
 
   var transaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
   });
 
   transaction.run();
@@ -460,9 +425,9 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
   index = this.vertices.getIndex(featureId);
 
   coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index], //TODO: Get the correct index.
-      coordinates: newCoordinates
+    type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+    indices: [index],
+    coordinates: newCoordinates
   };
 
   updateData.coordinateUpdate = coordinateUpdate;
@@ -476,7 +441,7 @@ emp.editors.Path.prototype.moveControlPoint = function(featureId, pointer) {
  * Also updates the control point and the feature with the change.
  */
 emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
-  var items =[],
+  var items = [],
     newCoordinates,
     coordinateUpdate,
     updateData = {},
@@ -500,11 +465,14 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
   currentVertex = this.vertices.find(featureId);
   currentFeature = currentVertex.feature;
   currentFeature.data.coordinates = [pointer.lon, pointer.lat];
+  items.push(currentFeature);
 
   // copy the coordinates into our object, so we can eventually complete
   // the edit.
   this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
-  items.push(this.featureCopy);
+  var copy = emp.helpers.copyObject(this.featureCopy);
+  items.push(copy);
+  //items.push(this.featureCopy);
 
   // now that this point moved, we need to update the points directly to the leaflet
   // and right of this feature.
@@ -516,7 +484,7 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
     backFeature = back.feature;
     nextBackVertexFeature = back.before.feature;
 
-    // get the new location of the backFeature, the feature in before the current feature
+    // get the new location of the backFeature, the feature before the current feature
     pt1 = new LatLon(nextBackVertexFeature.data.coordinates[1], nextBackVertexFeature.data.coordinates[0]);
     pt2 = new LatLon(currentFeature.data.coordinates[1], currentFeature.data.coordinates[0]);
 
@@ -548,20 +516,20 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
   }
 
   addTransaction = new emp.typeLibrary.Transaction({
-      intent: emp.intents.control.FEATURE_ADD,
-      mapInstanceId: this.mapInstance.mapInstanceId,
-      transactionId: null,
-      sender: this.mapInstance.mapInstanceId,
-      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
-      source: emp.api.cmapi.SOURCE,
-      messageOriginator: this.mapInstance.mapInstanceId,
-      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
-      items: items
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
   });
 
   // Remove the line animation.
   removeTransaction = new emp.typeLibrary.Transaction({
-    intent: emp.intents.control.CMAPI_GENERIC_FEATURE_REMOVE,
+    intent: emp.intents.control.FEATURE_REMOVE,
     mapInstanceId: this.mapInstance.mapInstanceId,
     transactionId: null,
     sender: this.mapInstance.mapInstanceId,
@@ -591,9 +559,9 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
   index = this.vertices.getIndex(featureId);
 
   coordinateUpdate = {
-      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
-      indices: [index], //TODO: Get the correct index.
-      coordinates: newCoordinates
+    type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+    indices: [index],
+    coordinates: newCoordinates
   };
 
   updateData.coordinateUpdate = coordinateUpdate;
@@ -608,5 +576,377 @@ emp.editors.Path.prototype.endMoveControlPoint = function(featureId, pointer) {
  * Moves the entire feature, offsetting from the starting position.
  */
 emp.editors.Path.prototype.moveFeature = function() {
+
+};
+
+/**
+ * Indicates the drawing has started and the first click has
+ * been made.  Respond accordingly.
+ *
+ * In the case of the line, we just track the first point. nothing.
+ * occurs until the mouse is moved.
+ */
+emp.editors.Path.prototype.drawStart = function(pointer) {
+  var coordinateUpdate,
+    updateData = {},
+    controlPoint,
+    vertex,
+    items = [],
+    transaction;
+
+  // Create a vertex.
+  controlPoint = new emp.typeLibrary.Feature({
+    overlayId: "vertices",
+    featureId: emp3.api.createGUID(),
+    format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+    data: {
+      coordinates: [pointer.lon, pointer.lat],
+      type: 'Point'
+    },
+    properties: {
+      iconUrl: emp.ui.images.editPoint,
+      iconXOffset: 10,
+      iconYOffset: 10,
+      xUnits: "pixels",
+      yUnits: "pixels",
+      altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+    }
+  });
+
+  vertex = new emp.editors.Vertex(controlPoint, "vertex");
+  this.vertices.push(vertex);
+  items.push(controlPoint);
+
+  // Update the feature, only internally -- we don't want events sent out
+  // from this.
+  this.featureCopy = new emp.typeLibrary.Feature({
+    overlayId: this.featureCopy.overlayId,
+    featureId: this.featureCopy.featureId,
+    format: this.featureCopy.format,
+    data: {
+      type: "LineString",
+      coordinates: [
+        [pointer.lon, pointer.lat]
+      ],
+      symbolCode: (this.featureCopy.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT) ? undefined : this.featureCopy.symbolCode
+    },
+    properties: this.featureCopy.properties
+  });
+
+  // Place the vertex that you clicked on the map.
+  transaction = new emp.typeLibrary.Transaction({
+    intent: emp.intents.control.FEATURE_ADD,
+    mapInstanceId: this.mapInstance.mapInstanceId,
+    transactionId: null,
+    sender: this.mapInstance.mapInstanceId,
+    originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+    source: emp.api.cmapi.SOURCE,
+    messageOriginator: this.mapInstance.mapInstanceId,
+    originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+    items: items
+  });
+
+  transaction.run();
+
+
+  // Create the return object.  This will tell you which index was changed,
+  // the locations of the new indeces, and the type of change it was.
+  coordinateUpdate = {
+    type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+    indices: [0],
+    coordinates: this.vertices.getVerticesAsLineString()
+  };
+
+  updateData.coordinateUpdate = coordinateUpdate;
+  updateData.properties = this.featureCopy.properties;
+
+  return updateData;
+
+};
+
+/**
+ * Occurs when the map is clicked after the draw has started.
+ */
+emp.editors.Path.prototype.drawClick = function(pointer) {
+  var coordinateUpdate,
+    updateData = {},
+    controlPoint,
+    vertex,
+    addVertex,
+    items = [],
+    newCoordinates,
+    index,
+    updateTransaction,
+    midpoint,
+    addPoint;
+
+  // Verify this point is different than the last point. Otherwise ignore.
+  if (this.vertices.tail.feature.data.coordinates[0] !== pointer.lon ||
+    this.vertices.tail.feature.data.coordinates[1] !== pointer.lat) {
+
+    // create a midPoint vertex.
+    // find the mid point between this point and the next point.
+    var pt1 = new LatLon(this.vertices.tail.feature.data.coordinates[1], this.vertices.tail.feature.data.coordinates[0]);
+    var pt2 = new LatLon(pointer.lat, pointer.lon);
+
+    // Get the mid point between this vertex and the next vertex.
+    var pt3 = pt1.midpointTo(pt2);
+    midpoint = [pt3.lon(), pt3.lat()];
+
+    // create a feature for each of these coordinates.  This
+    // will be our 'add point'
+    addPoint = new emp.typeLibrary.Feature({
+      overlayId: "vertices",
+      featureId: emp3.api.createGUID(),
+      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+      data: {
+        coordinates: midpoint,
+        type: 'Point'
+      },
+      properties: {
+        iconUrl: emp.ui.images.addPoint,
+        iconXOffset: 6,
+        iconYOffset: 6,
+        xUnits: "pixels",
+        yUnits: "pixels",
+        altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+      }
+    });
+
+    // create new vertex.
+    controlPoint = new emp.typeLibrary.Feature({
+      overlayId: "vertices",
+      featureId: emp3.api.createGUID(),
+      format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+      data: {
+        coordinates: [pointer.lon, pointer.lat],
+        type: 'Point'
+      },
+      properties: {
+        iconUrl: emp.ui.images.editPoint,
+        iconXOffset: 10,
+        iconYOffset: 10,
+        xUnits: "pixels",
+        yUnits: "pixels",
+        altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+      }
+    });
+
+    addVertex = new emp.editors.Vertex(addPoint, "add");
+    vertex = new emp.editors.Vertex(controlPoint, "vertex");
+    this.vertices.push(addVertex);
+    this.vertices.push(vertex);
+    items.push(addPoint);
+    items.push(controlPoint);
+
+    // update feature copy
+    this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
+
+    // update line
+    items.push(this.featureCopy);
+
+    updateTransaction = new emp.typeLibrary.Transaction({
+      intent: emp.intents.control.FEATURE_ADD,
+      mapInstanceId: this.mapInstance.mapInstanceId,
+      transactionId: null,
+      sender: this.mapInstance.mapInstanceId,
+      originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+      source: emp.api.cmapi.SOURCE,
+      messageOriginator: this.mapInstance.mapInstanceId,
+      originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+      items: items
+    });
+
+    updateTransaction.run();
+
+
+    // return updateData
+    // Create the return object.  This will tell you which index was added,
+    // the locations of the new indices, and the type of change it was.
+    newCoordinates = [];
+    for (var i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+      newCoordinates.push({
+        lat: this.featureCopy.data.coordinates[i][1],
+        lon: this.featureCopy.data.coordinates[i][0]
+      });
+    }
+
+    index = this.vertices.length - 1;
+
+    coordinateUpdate = {
+      type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+      indices: [index],
+      coordinates: newCoordinates
+    };
+
+    updateData.coordinateUpdate = coordinateUpdate;
+    updateData.properties = this.featureCopy.properties;
+
+  }
+
+  return updateData;
+};
+
+
+/**
+ * Occurs when the map is clicked after the draw has started.
+ */
+emp.editors.Path.prototype.drawDoubleClick = function(pointer) {
+  var coordinateUpdate,
+    updateData,
+    items = [],
+    updateTransaction,
+    index,
+    newCoordinates,
+    i, currentVertex, previousVertex, NextVertex;
+
+  if (pointer.target.toLowerCase() === "feature" && this.vertices.vertexLength > 2) {
+    // check if control point was clicked
+    currentVertex = this.vertices.find(pointer.featureId);
+    if (currentVertex && currentVertex.type === "vertex") {
+      index = this.vertices.getIndex(pointer.featureId);
+      if (this.vertices.head.feature.featureId === currentVertex.feature.featureId)
+      {
+        //it is update vertex head
+        items.push(currentVertex.next.feature);
+        ///previousVertex = this.vertices.tail.before;
+        //NextVertex = currentVertex.next.next;
+      }
+      else if (this.vertices.tail.feature.featureId === currentVertex.feature.featureId)
+      {
+        //it is the last update vertex
+        items.push(currentVertex.before.feature);
+        //previousVertex = currentVertex.before.before;
+        //NextVertex = this.vertices.head;
+      }
+      else
+      {
+        // update vertex in between first and last.
+        items.push(currentVertex.before.feature);
+        items.push(currentVertex.next.feature);
+        previousVertex = currentVertex.before.before;
+        NextVertex = currentVertex.next.next;
+      }
+
+      //items.push(currentVertex.next.feature);
+      items.push(currentVertex.feature);
+
+      //removes selected update vertex and the 2 add vertex close to it for a total of 3 verteces.
+      var beforeVertexFeatureId = (currentVertex.before !== null)?currentVertex.before.feature.featureId:undefined;
+      var nextVertexFeatureId = (currentVertex.next !== null)?currentVertex.next.feature.featureId:undefined;
+      this.vertices.remove(beforeVertexFeatureId);
+      this.vertices.remove(nextVertexFeatureId);
+      this.vertices.remove(currentVertex.feature.featureId);
+
+      var removeTransaction = new emp.typeLibrary.Transaction({
+        intent: emp.intents.control.FEATURE_REMOVE,
+        mapInstanceId: this.mapInstance.mapInstanceId,
+        transactionId: null,
+        sender: this.mapInstance.mapInstanceId,
+        originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+        source: emp.api.cmapi.SOURCE,
+        messageOriginator: this.mapInstance.mapInstanceId,
+        originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+        items: items
+      });
+
+      //remove selected vertex and 2 add verteces from engine.
+      removeTransaction.run();
+
+      items = [];
+      if (previousVertex && NextVertex )
+      {
+      //find the mid point between this point and the next point.
+      var pt1 = new LatLon(previousVertex.feature.data.coordinates[1],
+        previousVertex.feature.data.coordinates[0]);
+      var pt2 = new LatLon(NextVertex.feature.data.coordinates[1], NextVertex.feature.data.coordinates[0]);
+
+      //Get the mid point between this vertex and the first vertex.
+      var pt3 = pt1.midpointTo(pt2);
+      var midpoint = [pt3.lon(), pt3.lat()];
+      //     // create a feature
+      var addPoint = new emp.typeLibrary.Feature({
+        overlayId: "vertices",
+        featureId: emp3.api.createGUID(),
+        format: emp3.api.enums.FeatureTypeEnum.GEO_POINT,
+        data: {
+          coordinates: midpoint,
+          type: 'Point'
+        },
+        properties: {
+          iconUrl: emp.ui.images.addPoint,
+          iconXOffset: 6,
+          iconYOffset: 6,
+          xUnits: "pixels",
+          yUnits: "pixels",
+          altitudeMode: cmapi.enums.altitudeMode.CLAMP_TO_GROUND
+        }
+      });
+      //create new vertex.
+      var addVertex = new emp.editors.Vertex(addPoint, "add");
+      this.vertices.append(previousVertex.feature.featureId, addVertex);
+      items.push(addPoint);
+    }
+      // update feature copy
+      this.featureCopy.data.coordinates = this.vertices.getVerticesAsLineString();
+      // update line
+      items.push(this.featureCopy);
+
+      updateTransaction = new emp.typeLibrary.Transaction({
+        intent: emp.intents.control.FEATURE_ADD,
+        mapInstanceId: this.mapInstance.mapInstanceId,
+        transactionId: null,
+        sender: this.mapInstance.mapInstanceId,
+        originChannel: cmapi.channel.names.MAP_FEATURE_PLOT,
+        source: emp.api.cmapi.SOURCE,
+        messageOriginator: this.mapInstance.mapInstanceId,
+        originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
+        items: items
+      });
+
+      updateTransaction.run();
+
+
+      // return updateData
+      // Create the return object.  This will tell you which index was added,
+      // the locations of the new indices, and the type of change it was.
+      //
+      // The coordinates will be formatted slightly different it is a GEO_MIL_SYMBOL.
+      // We need to first account for that.
+      newCoordinates = [];
+
+      for (i = 0; i < this.featureCopy.data.coordinates.length; i++) {
+        newCoordinates.push({
+          lat: this.featureCopy.data.coordinates[i][1],
+          lon: this.featureCopy.data.coordinates[i][0]
+        });
+      }
+
+
+      //index = this.vertices.vertexLength - 1;
+
+      coordinateUpdate = {
+        type: emp.typeLibrary.CoordinateUpdateType.UPDATE,
+        indices: [index],//currentVertexIndex is the vertex that was removed
+        coordinates: newCoordinates
+      };
+
+      updateData = {};
+      updateData.coordinateUpdate = coordinateUpdate;
+      updateData.properties = this.featureCopy.properties;
+
+    }//   if (currentVertex && currentVertex.type === "vertex")
+  }// if (pointer.target.toLowerCase() === "feature" && this.vertices.vertexLength > 3) {
+
+
+  return updateData;
+};
+
+
+/**
+ * Occurs after the draw has started and user is moving mouse.
+ * Animation should occur here.
+ */
+emp.editors.Path.prototype.drawMove = function() {
 
 };

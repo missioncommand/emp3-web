@@ -73,12 +73,15 @@ class CreateTextTest extends Component {
 
     let text;
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       text = new emp3.api.Text(args);
       addResult(args, 'createText');
       addFeature(text);
       if (!silent) {
         toastr.success('Text created Successfully');
       }
+    }
     } catch (err) {
       addError(err.message, 'createText');
       if (!silent) {
@@ -102,6 +105,8 @@ class CreateTextTest extends Component {
 
     try {
       const text = this.createText(true);
+      if (text)
+      {
       overlay.addFeatures({
         features: [text],
         onSuccess: () => {
@@ -113,6 +118,7 @@ class CreateTextTest extends Component {
           toastr.error('Text Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createTextAddToOverlay: Critical');
       toastr.error(err.message, 'Create Text Add To Overlay: Critical');

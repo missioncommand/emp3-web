@@ -17,6 +17,12 @@ leafLet.utils.FEET_PER_METERS = 3.28084;
 leafLet.utils.MILS_PER_DEGREE = (6400.0 / 360.0);
 leafLet.utils.DEGREE_PER_MILS = (360.0 / 6400.0);
 
+leafLet.utils.iconPixelSize = {};
+leafLet.utils.iconPixelSize.TINY = 16;
+leafLet.utils.iconPixelSize.SMALL = 24;
+leafLet.utils.iconPixelSize.MEDIUM = 32;
+leafLet.utils.iconPixelSize.LARGE = 48;
+
 leafLet.utils.AltitudeModeAbbr = function(sMode) {
     var sText = "";
 
@@ -137,13 +143,13 @@ leafLet.utils.wrapCoordinates = function(oMapBoundry, oLatLngList, bWrappedAlrea
     var bCoordWrapped = bWrappedAlready || false;
     var empBoundary = new leafLet.typeLibrary.EmpBoundary(oMapBoundry);
     var bIDLinView = empBoundary.containsIDL();
-    
+
     //console.log("Start wrapCoordinte");
-    
+
     for (iIndex = 0; iIndex < iCoorCnt; iIndex++) {
         oLatLngList[iIndex] = oLatLngList[iIndex].wrap();
         lng = oLatLngList[iIndex].lng;
-        
+
         bLnginView = empBoundary.containsCoordiante(oLatLngList[iIndex]);
 
         if (bIDLinView) {
@@ -167,7 +173,7 @@ leafLet.utils.wrapCoordinates = function(oMapBoundry, oLatLngList, bWrappedAlrea
                 tempLng = (empBoundary.getWest() + 180.0);
                 tempLng += (180.0 - empBoundary.getEast());
                 tempLng = tempLng / 2.0;
-                
+
                 if ((empBoundary.getWest() - tempLng) >= -180) {
                     tempLng = empBoundary.getWest() - tempLng;
                     if (lng < tempLng) {

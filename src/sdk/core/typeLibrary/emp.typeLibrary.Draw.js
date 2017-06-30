@@ -1,6 +1,7 @@
-/* globals emp */
+/* global armyc2 */
 
-/* global emp, armyc2 */
+var emp = window.emp || {};
+emp.typeLibrary = emp.typeLibrary || {};
 
 /**
  * @memberOf emp.typeLibrary
@@ -50,16 +51,9 @@ emp.typeLibrary.Draw = function (args) {
 
     /**
      * @field
-     * @type string
-     * @description This field contains a menuId to be applied tothe feature drawn,
-     */
-    this.menuId = args.menuId;
-
-    /**
-     * @field
-     * @type emp.typeLibrary.Draw.Types
+     * @type emp3.api.FeatureTypeEnum
      * @description This field will identify the type of feature that is to be drawn.
-     * @see {@link emp.typeLibrary.Draw.Types} For a list of valid types.
+     * @see {@link emp3.api.FeatureTypeEnum} For a list of valid types.
      */
     this.type = args.type;
 
@@ -73,14 +67,12 @@ emp.typeLibrary.Draw = function (args) {
      */
     this.properties = args.properties || {};
 
-
     /**
      * @field
      * @type string
      * @description This field should contain the symbol code for drawing a MilStd graphic or the 3D airspace.
      */
     this.symbolCode = args.symbolCode;
-
 
     /**
      * Contains a geojson object containing the starting coordinates of a draw.   This will
@@ -97,10 +89,6 @@ emp.typeLibrary.Draw = function (args) {
      */
     this.data = args.data || {};
 
-    /* EMP-188 start */
-    // CMAPI Shim.
-
-    /* EMP-188 end */
     /**
      * @field
      * @private
@@ -118,10 +106,6 @@ emp.typeLibrary.Draw = function (args) {
      * @private
      */
     this.sender = args.sender;
-    /**
-     * @private
-     */
-    this.autoPopulate = args.autoPopulate;
 
     if ((this.properties.altitudeMode === undefined) ||
             (this.properties.altitudeMode === null))
@@ -130,18 +114,17 @@ emp.typeLibrary.Draw = function (args) {
         // The client has not provided an altitudeMode.
         switch (this.type)
         {
-            case "point":
-            case "line":
-            case "polygon":
-            case "path":
-            case "rectangle":
-            case "square":
-            case "circle":
-            case "ellipse":
-            case "text":
+            case emp3.api.enums.FeatureTypeEnum.GEO_POINT:
+            case emp3.api.enums.FeatureTypeEnum.GEO_PATH:
+            case emp3.api.enums.FeatureTypeEnum.GEO_POLYGON:
+            case emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE:
+            case emp3.api.enums.FeatureTypeEnum.GEO_SQUARE:
+            case emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE:
+            case emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE:
+            case emp3.api.enums.FeatureTypeEnum.GEO_TEXT:
                 this.properties.altitudeMode = emp.typeLibrary.featureAltitudeModeType.CLAMP_TO_GROUND;
                 break;
-            case "milstd":
+            case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL:
 
                 var iStdVersion = emp.typeLibrary.featureMilStdVersionType.convertToNumeric(this.properties.standard);
                 this.properties.altitudeMode = emp.typeLibrary.featureAltitudeModeType.CLAMP_TO_GROUND;
@@ -151,7 +134,7 @@ emp.typeLibrary.Draw = function (args) {
                     this.properties.altitudeMode = emp.typeLibrary.featureAltitudeModeType.RELATIVE_TO_GROUND;
                 }
                 break;
-            case "airspace":
+            case emp3.api.enums.FeatureTypeEnum.GEO_ACM:
                 this.properties.altitudeMode = emp.typeLibrary.featureAltitudeModeType.RELATIVE_TO_GROUND;
                 break;
         }
@@ -203,7 +186,7 @@ emp.typeLibrary.Draw = function (args) {
                 o,
                 feature,
                 sTranID = emp.helpers.id.newGUID(),
-                format = "geojson";
+                format = this.type;
         /*
          we don't want to create transactions for create menu initiated draws
          so filter on the source
@@ -212,14 +195,6 @@ emp.typeLibrary.Draw = function (args) {
 
         if (emp.api.checkApiSource(this.source) === true){
 
-            // when we create a typeLibrary feature, set the format
-            // to geojson for any v2 messages.  If it is a v3 message, the type
-            // will be the format.
-            if (args.properties && args.properties.v3) {
-                if (args.properties.v3) {
-                  format = this.type;
-                }
-            }
             feature = new emp.typeLibrary.Feature({
                 featureId: t.featureId,
                 name: args.name || t.name,
@@ -233,16 +208,11 @@ emp.typeLibrary.Draw = function (args) {
                 complete: ((args.updateEventType === emp.typeLibrary.UpdateEventType.COMPLETE)? true: false),
                 updateEventType: args.updateEventType,
                 format: format,
-                data: t.data
+                data: args.data
             });
 
             feature.transactionId = t.transactionId;
-
-            if (t.v1Type !== undefined)
-            {
-                // This is for V1 draw request.
-                feature.v1Type = t.v1Type;
-            }
+            /*
             if (args.plotFeature && args.plotFeature.format)
             {
                 feature.format = args.plotFeature.format;
@@ -250,7 +220,7 @@ emp.typeLibrary.Draw = function (args) {
             if (args.plotFeature && args.plotFeature.data)
             {
                 feature.data = args.plotFeature.data;
-            }
+            }*/
 
             feature.type = this.type;
 
@@ -276,7 +246,7 @@ emp.typeLibrary.Draw = function (args) {
      * @private
      */
     this.end = function () {
-
+      // Intentionally empty
     };
 
     /**
@@ -285,15 +255,7 @@ emp.typeLibrary.Draw = function (args) {
      */
     this.coreId = emp.helpers.id.newGUID();
 
-    // when we create a typeLibrary feature, set the format
-    // to geojson for any v2 messages.  If it is a v3 message, the type
-    // will be the format.
-    var format = "geojson";
-    if (this.properties && this.properties.v3) {
-        if (this.properties.v3) {
-          format = this.type;
-        }
-    }
+    /**
     this.plotFeature = new emp.typeLibrary.Feature({
         intent: emp.intents.control.FEATURE_ADD,
         source: emp.core.sources.MAP,
@@ -301,9 +263,10 @@ emp.typeLibrary.Draw = function (args) {
         name: this.name,
         sender: this.sender,
         properties: this.properties,
-        format: format,
+        format: this.type,
         originChannel: "map.feature.plot"
     });
+    **/
 
     this.originFeature = undefined;
 
@@ -321,128 +284,8 @@ emp.typeLibrary.Draw = function (args) {
         }
     };
 
-    this.cancel = function(args) {
-        if (this.originFeature !== undefined)
-        {
-            // If originFeature exists an existing feature was placed into draw mode.
-            // and the user canceled the draw.
-            // Given that the map engines delete the feature upon terminating a draw
-            // we must re-plot it in its original form.
-
-            // This transaction will send the feature to the API's
-            var oToAPITrans = new emp.typeLibrary.Transaction({
-                intent: emp.intents.control.FEATURE_OUTBOUND_PLOT,
-                mapInstanceId: args.mapInstanceId,
-                source: emp.core.sources.MAP,
-                items:[this.originFeature]
-            });
-            // This transaction will cause the plot to go to the map.
-            var oToMapTran = new emp.typeLibrary.Transaction({
-                intent: emp.intents.control.MI_FEATURE_ADD,
-                mapInstanceId: args.mapInstanceId,
-                source: emp.core.sources.MAP,
-                sender: this.sender,
-                items: [this.originFeature]
-            });
-
-            // We pospone the execusion of the transaction because we don't know
-            // if the map will delete the feature before calling the end event or after.
-            setTimeout(function(){
-                oToMapTran.run();
-                oToAPITrans.run();
-            }, 0);
-        }
+    this.cancel = function() {
+        // do nothing.  In v2 we used to issue a feature plot, but we no longer need to do this.
     };
 };
 emp.typeLibrary.Draw.prototype.validate = emp.typeLibrary.base.validate;
-
-/**
- * @memberOf emp.typeLibrary.Draw
- * @typedef {object} emp.typeLibrary.Draw.Types
- * @description This type defines the possible values identifying the opbject to be drawn.
- */
-emp.typeLibrary.Draw.Types = {
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that a single point GeoJSON feature is to be drawn.
-     */
-    POINT: 'point',
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that a GeoJSON line is to be drawn.
-     */
-    LINE: 'line',
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that a GeoJSON polygon is to be drawn.
-     */
-    POLYGON: 'polygon',
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that a line is to be drawn.
-     */
-    PATH: 'path',
-
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that a circle is to be drawn.
-     */
-    CIRCLE: 'circle',
-
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that an ellipse is to be drawn.
-     */
-    ELLIPSE: 'ellipse',
-
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that a rectangle is to be drawn.
-     */
-    RECTANGLE: 'rectangle',
-
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that a square is to be drawn.
-     */
-    SQUARE: 'square',
-
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that a freehand text is to be drawn.
-     */
-    TEXT: 'text',
-
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that a MIL-STD feature is to be drawn.
-     */
-    MILSTD: 'milstd',
-    /**
-     * @public
-     * @constant
-     * @type string
-     * @description This value indicates that an airspace is to be drawn.
-     */
-    AIRSPACE: 'airspace'
-};

@@ -78,12 +78,15 @@ class CreateSquareTest extends Component {
 
     let square;
     try {
+      if ( !_.find(this.props.features, {geoId: this.state.feature.geoId}))
+      { // create only when feature not found in core
       square = new emp3.api.Square(args);
       addResult(args, 'createSquareFeature');
       addFeature(square);
       if (!silent) {
         toastr.success('Square Created Successfully');
       }
+    }
     } catch (err) {
       addError(err.message, 'createSquareFeature');
       if (!silent) {
@@ -103,6 +106,8 @@ class CreateSquareTest extends Component {
     const overlay = _.find(overlays, {geoId: this.state.selectedOverlayId});
     try {
       const square = this.createSquareFeature(true);
+      if (square)
+      {
       overlay.addFeatures({
         features: [square],
         onSuccess: () => {
@@ -114,6 +119,7 @@ class CreateSquareTest extends Component {
           toastr.error('Square Add To Overlay Failed');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createSquareAddToOverlay:Critical');
       toastr.error(err.message, 'Square Add To Overlay: Critical');

@@ -7,13 +7,15 @@
 
   var editor = ace.edit("editor");
   var setupScript = "";
-  //editor.setTheme("ace/theme/twilight");
+
   editor.session.setMode("ace/mode/javascript");
   editor.setOption("wrap", true);
 
+  var scope = scope || {};
+
   function evalstuff() {
     try {
-      eval.call(null, "(function(){" + editor.getValue() + "}());");
+      eval.call(null, "(function(){" + editor.getValue() + "}.call(scope));");
       $("#empMapInstance").html("");
     } catch (e) {
       showToaster("Error: " + (e.lineNumber ? (" line " + e.lineNumber) + ", " : "") + e.message);

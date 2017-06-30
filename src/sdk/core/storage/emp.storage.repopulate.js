@@ -1,14 +1,14 @@
 /* globals emp */
 /**
  * Used to replay storage to the engine after a swap has occurred.
- * 
+ *
  * @type {Object}
  * @protected
  * @property {method} structure Used to generate the right order of objects
  * @property {method} fire Start lobbing objects at the engine
  * @property {method} start Used to swap target on intent workflows
  * @property {method} stop Used to swap target back on replay end
- * 
+ *
  */
 emp.storage._replay = {};
 
@@ -26,7 +26,7 @@ emp.storage.MapReload = function(InstanceId) {
          */
         startFireTimer: function() {
             var oThis = this;
-            
+
             setTimeout(function(){ oThis.fire();}, 50);
         },
         /**
@@ -44,7 +44,8 @@ emp.storage.MapReload = function(InstanceId) {
             oaLevels[iCurrentLevel] = {
                     overlays: [],
                     features: [],
-                    wms:[]
+                    wms:[],
+                    wmts:[]
             };
             oDupItem = oRootOverlay.getObjectData(mapInstanceId, undefined);
             oDupItem.parentCoreId = undefined;
@@ -59,7 +60,8 @@ emp.storage.MapReload = function(InstanceId) {
                     oaLevels[iLevel] = {
                         overlays: [],
                         features: [],
-                        wms:[]
+                        wms:[],
+                        wmts:[]
                     };
                 }
 
@@ -101,14 +103,31 @@ emp.storage.MapReload = function(InstanceId) {
                                     oaLevels[iLevel].wms.push(oDupItem);
                                 }
                                 break;
+                                case emp.typeLibrary.types.WMTS:
+                                    if (emp.helpers.canMapEnginePlotFeature(mapInstanceId, oStorageEntry))
+                                    {
+                                        // Send it to the map if it can plot it.
+                                        var sWMTSParentID = rootCoreId;
+                                        var oWMTSParent = oStorageEntry.getParentByIndex(0);
+                                        var sWMTSOverlayId = emp.wms.manager.getWmsOverlayId(mapInstanceId);
+
+                                        if (sWMTSOverlayId === oWMTSParent.getCoreId()) {
+                                            sWMTSParentID = sWMTSOverlayId;
+                                        }
+                                        oDupItem = oStorageEntry.getObjectData(mapInstanceId, sWMTSParentID);
+                                        oDupItem.parentCoreId = rootCoreId;
+                                        oaLevels[iLevel].wmts.push(oDupItem);
+                                    }
+                                    break;
                         }
                         buildStructure(iLevel + 1, oStorageEntry.getChildrenList());
                     }
                 }
-                
-                if ((oaLevels[iLevel].overlays.length === 0)
-                        && (oaLevels[iLevel].features.length === 0)
-                        &&(oaLevels[iLevel].wms.length === 0)) {
+
+                if ((oaLevels[iLevel].overlays.length === 0) &&
+                          (oaLevels[iLevel].features.length === 0) &&
+                          (oaLevels[iLevel].wms.length === 0) &&
+                      (oaLevels[iLevel].wmts.length === 0)) {
                     oaLevels.splice(iLevel, 1);
                 }
             };
@@ -148,12 +167,14 @@ emp.storage.MapReload = function(InstanceId) {
             {
                 for (var i = 0; i < data.length;) {
                     var oOverlays = [],
-                        wmsServices = [];
+                        wmsServices = [],
+                        wmtsServices = [];
                     oFeatures = [];
 
                     while (((data[i].overlays.length > 0) ||
                             (data[i].features.length > 0) ||
-                            (data[i].wms.length > 0)) &&
+                            (data[i].wms.length > 0) ||
+                            (data[i].wmts.length > 0)) &&
                             (itemCount < iMaxItemsPerIteration)) {
                         if (data[i].overlays.length > 0) {
                             oItem = data[i].overlays[0];
@@ -161,7 +182,11 @@ emp.storage.MapReload = function(InstanceId) {
                         } else if (data[i].features.length > 0) {
                             oItem = data[i].features[0];
                             sCurrentType = emp.typeLibrary.types.FEATURE;
-                        } else {
+                        } else if (data[i].wmts.length > 0){
+                            oItem = data[i].wmts[0];
+                            sCurrentType = emp.typeLibrary.types.WMTS;
+                        }
+                        else {
                             oItem = data[i].wms[0];
                             sCurrentType = emp.typeLibrary.types.WMS;
                         }
@@ -192,6 +217,10 @@ emp.storage.MapReload = function(InstanceId) {
                             case emp.typeLibrary.types.WMS:
                                 wmsServices.push(oItem);
                                 data[i].wms.splice(0, 1); // Remove the first value
+                                break;
+                            case emp.typeLibrary.types.WMTS:
+                                wmtsServices.push(oItem);
+                                data[i].wmts.splice(0, 1); // Remove the first value
                                 break;
                         }
                     }
@@ -237,9 +266,24 @@ emp.storage.MapReload = function(InstanceId) {
                         oTransaction.run();
                     }
 
+                    if (wmtsServices.length > 0)
+                    {
+                        oTransaction  = new emp.typeLibrary.Transaction({
+                            intent: emp.intents.control.MI_WMTS_ADD,
+                            mapInstanceId: mapInstanceId,
+                            source: emp.core.sources.STORAGE,
+                            transactionId: sTransID,
+                            items: wmtsServices
+                        });
+                        iItemsSent += wmtsServices.length;
+                        //console.log("SE reload WMS " + itemCount + " fire Sent:" + emp.storage._replay.iItemsSent + ". Completed:" + emp.storage._replay.iItemsCompleted);
+                        oTransaction.run();
+                    }
+
                     if ((data[i].overlays.length === 0) &&
                             (data[i].features.length === 0) &&
-                            (data[i].wms.length === 0))
+                            (data[i].wms.length === 0) &&
+                            (data[i].wmts.length === 0))
                     {
                         //console.log("Drop a level");
                         data.splice(i, 1); //Remove the index.
@@ -280,6 +324,11 @@ emp.storage.MapReload = function(InstanceId) {
                 mapInstanceId: mapInstanceId,
                 callback: emp.storage.processTransactionComplete
             });
+            emp.transactionQueue.listener.add({
+                type: emp.intents.control.MI_WMTS_ADD,
+                mapInstanceId: mapInstanceId,
+                callback: emp.storage.processTransactionComplete
+            });
         },
         /**
          * @memberof emp.storage.MapReload#
@@ -300,6 +349,11 @@ emp.storage.MapReload = function(InstanceId) {
                 mapInstanceId: mapInstanceId,
                 callback: emp.storage.processTransactionComplete
             });
+            emp.transactionQueue.listener.remove({
+                type: emp.intents.control.MI_WMTS_ADD,
+                mapInstanceId: mapInstanceId,
+                callback: emp.storage.processTransactionComplete
+            });
 
             var oTransaction = new emp.typeLibrary.Transaction({
                 intent: emp.intents.control.STORAGE_RELOAD_COMPLETE,
@@ -308,7 +362,7 @@ emp.storage.MapReload = function(InstanceId) {
                 items: []
             });
             oTransaction.run();
-            
+
             delete emp.storage._replay[mapInstanceId];
         },
         /**
@@ -322,6 +376,7 @@ emp.storage.MapReload = function(InstanceId) {
             switch (oTransaction.intent) {
                 case emp.intents.control.MI_FEATURE_ADD:
                 case emp.intents.control.MI_OVERLAY_ADD:
+                case emp.intents.control.MI_WMTS_ADD:
                 case emp.intents.control.MI_WMS_ADD:
                     clearTimeout(hReloadTimer);
                     if ((oTransaction.failures !== undefined) &&
@@ -352,7 +407,7 @@ emp.storage.MapReload = function(InstanceId) {
             }
         }
     };
-    
+
     return publicInterface;
 };
 
@@ -388,7 +443,7 @@ emp.storage._dropStaticContent = function(oStorageEntry) {
     var oChildEntry;
     var iIndex;
     var aChildCoreIdList = oStorageEntry.getChildrenCoreIds();
-    
+
     for (iIndex = 0; iIndex < aChildCoreIdList.length; iIndex++)
     {
         oChildEntry = emp.storage.findObject(aChildCoreIdList[iIndex]);

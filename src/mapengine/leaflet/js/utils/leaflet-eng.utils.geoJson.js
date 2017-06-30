@@ -187,8 +187,8 @@ leafLet.utils.geoJson = (function () {
                     oProperties.weigh = parseInt(oGeoJSONProperties.lineWidth);
                 }
                 if (oGeoJSONProperties.hasOwnProperty('iconUrl')) {
-                    sURL = (this.options.instanceInterface.bUseProxy ?
-                            this.options.instanceInterface.getProxyURL() + "?" + "mime=image/*&url=" + escape(oGeoJSONProperties.iconUrl) :
+                    sURL = (instanceInterface.bUseProxy ?
+                            instanceInterface.getProxyURL() + "?" + "mime=image/*&url=" + escape(oGeoJSONProperties.iconUrl) :
                             oGeoJSONProperties.iconUrl);
                 }
 
@@ -220,12 +220,15 @@ leafLet.utils.geoJson = (function () {
                     var dOpacity = parseInt("0x" + oFeatureProperties.fillColor.substr(0, 2)) / 255.0;
                     oProperties.fillOpacity = dOpacity;
                 }
-                if (oFeatureProperties.hasOwnProperty('lineWidth')) {
+                if (oFeatureProperties.hasOwnProperty('lineWidth') && oFeatureProperties.lineWidth & oFeatureProperties.lineWidth !== null ) {
                     oProperties.weight = parseInt(oFeatureProperties.lineWidth);
                 }
+                else{
+                    oProperties.weight = 3 ;
+                }
                 if (oFeatureProperties.hasOwnProperty('iconUrl')) {
-                    sURL = (this.options.instanceInterface.bUseProxy ?
-                            this.options.instanceInterface.getProxyURL() + "?" + "mime=image/*&url=" + escape(oFeatureProperties.iconUrl) :
+                    sURL = (instanceInterface.bUseProxy ?
+                            instanceInterface.getProxyURL() + "?" + "mime=image/*&url=" + escape(oFeatureProperties.iconUrl) :
                             oFeatureProperties.iconUrl);
                 }
 

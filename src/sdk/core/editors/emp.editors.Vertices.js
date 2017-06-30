@@ -9,6 +9,7 @@ emp.editors.Vertices = function() {
   this.tail = null;
   this.list = [];
   this.length = 0;
+  this.vertexLength = 0;
 };
 
 /**
@@ -42,6 +43,10 @@ emp.editors.Vertices.prototype.push = function(vertex) {
     this.list[vertex.feature.featureId] = vertex;
 
     this.length++;
+
+    if (vertex.type === "vertex") {
+      this.vertexLength++;
+    }
   }
 };
 
@@ -97,6 +102,10 @@ emp.editors.Vertices.prototype.insert = function(featureId, vertex) {
     this.list[vertex.feature.featureId] = vertex;
 
     this.length++;
+
+    if (vertex.type === "vertex") {
+      this.vertexLength++;
+    }
   }
 };
 
@@ -122,6 +131,10 @@ emp.editors.Vertices.prototype.append = function(featureId, vertex) {
     this.list[vertex.feature.featureId] = vertex;
 
     this.length++;
+
+    if (vertex.type === "vertex") {
+      this.vertexLength++;
+    }
   }
 
 };
@@ -131,6 +144,135 @@ emp.editors.Vertices.prototype.append = function(featureId, vertex) {
  */
 emp.editors.Vertices.prototype.find = function(featureId) {
   return this.list[featureId];
+};
+
+
+/**
+ * remove the vertex of the specified id. Function  removes all types of vertex.
+ */
+emp.editors.Vertices.prototype.remove = function(featureId) {
+
+  // Make sure we have the appropriate data available.
+  if (featureId === undefined || featureId === null)
+  {
+    return;
+  }
+  var vertex =  this.find(featureId);
+  if (vertex  ) {
+
+
+    if (this.head !== null && this.head.feature.featureId === featureId) {
+      //removing head
+      delete this.list[vertex.feature.featureId];
+      this.length--;
+      if (vertex.type === "vertex")
+      {
+          this.vertexLength--;
+      }
+      this.head = vertex.next;
+      this.head.before = null;
+    }
+    else if (this.tail !== null && this.tail.feature.featureId === featureId) {
+      //removing tail
+      delete this.list[vertex.feature.featureId];
+      this.length--;
+      if (vertex.type === "vertex")
+      {
+          this.vertexLength--;
+      }
+      this.tail = vertex.before;
+      this.tail.next = null;
+    }
+    else {
+
+      delete this.list[vertex.feature.featureId];
+      this.length--;
+      if (vertex.type === "vertex")
+      {
+          this.vertexLength--;
+      }
+      vertex.before.next = vertex.next;
+      vertex.next.before = vertex.before;
+    }
+
+
+
+  }
+};
+
+
+
+// /**
+//  * remove the vertex of the specified id. Function only removes vertex of type vertex and
+//  * any corresponding types adds.
+//  */
+// emp.editors.Vertices.prototype.remove = function(featureId) {
+//
+//   // Make sure we have the appropriate data available.
+//   var vertex =  this.find(featureId);
+//   if (vertex && vertex.type === "vertex") {
+//     // delete this.list[vertex.next.feature.featureId];
+//     // this.length--;
+//     // delete this.list[vertex.feature.featureId];
+//     // this.length--;
+//     // delete this.list[vertex.before.feature.featureId];
+//     // this.length--;
+//
+//
+//
+//     if (this.head !== null && this.head.feature.featureId === featureId) {
+//       //removing head
+//       delete this.list[vertex.next.feature.featureId];
+//       this.length--;
+//       delete this.list[vertex.feature.featureId];
+//       this.length--;
+//       delete this.list[this.tail.feature.featureId];
+//       this.length--;
+//       this.vertexLength--;
+//       this.head = vertex.next.next;
+//       this.head.before = null;
+//       this.tail = this.tail.before;
+//       this.tail.next = null;
+//     }
+//     else if (this.tail !== null && this.tail.before.feature.featureId === featureId) {
+//       //removing last update vertex. no the same as tail that is always an add vertex
+//       delete this.list[vertex.before.feature.featureId];
+//       this.length--;
+//       delete this.list[vertex.feature.featureId];
+//       this.length--;
+//       this.vertexLength--;
+//       delete this.list[this.tail.feature.featureId];// tail removed.
+//       this.length--;
+//       this.tail = vertex.before.before;
+//       this.tail.next = null;
+//     }
+//     else {
+//       delete this.list[vertex.before.feature.featureId];
+//       this.length--;
+//       delete this.list[vertex.feature.featureId];
+//       this.length--;
+//       delete this.list[vertex.next.feature.featureId];// tail removed.
+//       this.length--;
+//       this.vertexLength--;
+//       vertex.before.before.next = vertex.next.next;
+//       vertex.next.next.before = vertex.before.before;
+//     }
+//
+//
+//   }
+// };
+
+
+/**
+ * promote vertex from type add to type vertex.
+ */
+emp.editors.Vertices.prototype.promoteVertex = function(featureId) {
+  // Make sure we have the appropriate data available.
+  var vertex =  this.find(featureId);
+  if (vertex && vertex.type === "add") {
+    vertex.type = "vertex";
+    this.vertexLength++;
+  }
 };
 
 /**
@@ -178,6 +320,26 @@ emp.editors.Vertices.prototype.getVerticesAsLineString = function() {
 };
 
 /**
+ * Return only the vertices of this object as a geojson polygon array.
+ */
+emp.editors.Vertices.prototype.getVerticesAsPolygon = function() {
+  var coordinates = [];
+  var currentVertex;
+  currentVertex = this.head;
+
+  // loop through the coordinates starting at the beginning.
+  // only get the coordinates that are a vertex.
+  while (currentVertex !== null) {
+    if (currentVertex.type === "vertex") {
+      coordinates.push(currentVertex.feature.data.coordinates);
+    }
+    currentVertex = currentVertex.next;
+  }
+
+  return [coordinates];
+};
+
+/**
  * Removes all the control points out of vertices.
  */
 emp.editors.Vertices.prototype.clear = function() {
@@ -185,6 +347,7 @@ emp.editors.Vertices.prototype.clear = function() {
   this.tail = null;
   this.list = [];
   this.length = 0;
+  this.vertexLength = 0;
 };
 
 /**
@@ -192,12 +355,22 @@ emp.editors.Vertices.prototype.clear = function() {
  * of an "add" point.
  */
 emp.editors.Vertices.prototype.getIndex = function(featureId) {
-  var index = 0,
+  var index = -1,
     currentVertex = this.head;
 
 
   // loop through the coordinates starting at the beginning.
   // only get the coordinates that are a vertex.
+  //
+     if (currentVertex === null)
+    {
+      return index;
+    }
+    else if (currentVertex.type === "vertex"  )
+    {
+      index++;
+    }
+
 
   while (currentVertex.feature.featureId !== featureId && currentVertex !== null) {
     currentVertex = currentVertex.next;
@@ -212,4 +385,37 @@ emp.editors.Vertices.prototype.getIndex = function(featureId) {
   }
 
   return index;
+};
+
+/**
+ * Returns the  a vertex by index.  This does not find the index
+ * of an "add" point.
+ */
+emp.editors.Vertices.prototype.getVertexByIndex = function(vertexIndex) {
+  var index = -1,
+    currentVertex = this.head;
+    if (currentVertex === null)
+    {
+      return undefined;
+    }
+    else if (currentVertex.type === "vertex"  )
+    {
+      index++;
+    }
+
+  // loop through the coordinates starting at the beginning.
+  // only get the coordinates that are a vertex.
+
+  while (vertexIndex !== index ) {
+    currentVertex = currentVertex.next;
+    if (currentVertex.type === "vertex") {
+      index++;
+    }
+  }
+
+  if (vertexIndex !== index ) {
+    return undefined;
+  }
+
+  return currentVertex;
 };

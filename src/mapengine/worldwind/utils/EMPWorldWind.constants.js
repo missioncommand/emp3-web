@@ -31,10 +31,34 @@ EMPWorldWind.constants.WHITE_CONTRAST = 0;
 EMPWorldWind.constants.BLACK_CONTRAST = 1;
 
 /**
+ * Copied from Cesium
+ * @enum
+ */
+EMPWorldWind.constants.IconSize = {
+  "verySmall": 0.5,
+  "tiny" : 0.5, // Duplicate of verySmall
+  "small": 0.75,
+  "medium": 1.0,
+  "large": 1.5,
+  "extraLarge": 1.75
+};
+
+/**
+ * @constant
+ * @enum
+ */
+EMPWorldWind.constants.PAN_STATE = {
+  HALTED: 'halted',
+  PANNING: 'panning',
+  COMPLETE: 'complete'
+};
+
+/**
  * No panning state for autoPanning in smart motion
  * @constant {object}
  */
 EMPWorldWind.constants.NO_PANNING = {
+  state: String(EMPWorldWind.constants.PAN_STATE.HALTED),
   step: 0,
   up: false,
   down: false,
@@ -60,7 +84,7 @@ EMPWorldWind.constants.SCALE_LINE_LENGTH = 50;
 EMPWorldWind.constants.propertyDefaults = {
   FILL_COLOR_HEX: "ffffff",
   LINE_COLOR_HEX: "000000",
-  LINE_WIDTH: 3
+  LINE_WIDTH: 1
 };
 
 /**
@@ -176,6 +200,38 @@ EMPWorldWind.constants.LabelStyle = {
   ALL_LABELS: 'all_labels'
 };
 
+/**
+ * Modifiers for All labels to be displayed
+ * @enum {object}
+ * @constant
+ */
+EMPWorldWind.constants.AllLabels = {
+  "V": true,
+  "L": true,
+  "S": true,
+  "AA": true,
+  "AB": true,
+  "AC": true,
+  "H": true,
+  "M": true,
+  "T": true,
+  "T1": true,
+  "CN": true,
+  "C": true,
+  "F": true,
+  "G": true,
+  "H1": true,
+  "H2": true,
+  "J": true,
+  "K": true,
+  "N": true,
+  "P": true,
+  "W": true,
+  "W1": true,
+  "X": true,
+  "Y": true,
+  "Z": true
+};
 
 /**
  * @namespace
@@ -223,6 +279,7 @@ EMPWorldWind.constants.RendererSettings.modifierLookup = {
   AZIMUTH: "azimuth",
   FILL_COLOR: "fillColor",
   LINE_COLOR: "lineColor",
+  TEXT_COLOR: "textColor",
   X_OFFSET: "xOffset",
   X_UNITS: "xUnits",
   Y_OFFSET: "yOffset",

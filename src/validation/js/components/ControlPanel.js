@@ -13,18 +13,18 @@ const PANEL_TO_TEST_ANIMATION = 'panelToTest';
 //======================================================================================================================
 let TestNotFound = ({dispatch, testStack}) => {
   return (
-    <div className='mdl-layout__container'>
-      <h4>Test Not Found</h4>
-      <span className='mdl-layout-title'>{testStack.testStack[testStack.testStackIndex]}</span>
-      <div className='mdl-grid'>
-        <button
-          className='mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect mdl-cell mdl-cell--12-col'
-          onClick={() => {
-            dispatch(selectTest(null));
-          }}>
-          <i className='fa fa-arrow-left'/> Back
-        </button>
-      </div>
+    <div className='mdl-grid'>
+      <span className="mdl-layout-title">Test Not Found</span>
+      <div className="mdl-cell mdl-cell--12-col">{testStack.testStack[testStack.testStackIndex]}</div>
+
+      <button
+        className='mdl-button mdl-js-button mdl-button--raised mdl-button--colored mdl-js-ripple-effect mdl-cell mdl-cell--12-col'
+        onClick={() => {
+          dispatch(selectTest(null));
+        }}>
+        <i className='fa fa-arrow-left'/> Back
+      </button>
+
     </div>
   );
 };

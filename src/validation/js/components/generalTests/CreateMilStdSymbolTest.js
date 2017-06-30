@@ -96,9 +96,23 @@ class CreateMilStdSymbolTest extends Component {
   }
 
   createRandomPositions(num, lat, lon) {
-    const range = 30, // How far apart we want the values.  maxRange = minRange + range.
-      startLat = 30,
-      startLon = 30; // The starting point.
+    const {maps} = this.props,
+      map = _.first(maps);
+
+    let range = 30,
+      bounds = {
+        west: 30,
+        south: 30
+      };
+
+    if (map) {
+      bounds = map.getBounds();
+      range = bounds.north - bounds.south;
+    }
+
+    let startLat = bounds.south,
+      startLon = bounds.west;
+
     let latAnchor,
       lonAnchor;
 
@@ -159,11 +173,13 @@ class CreateMilStdSymbolTest extends Component {
   constructSymbolCode(symbol) {
     let newString = String(symbol.symbolCode);
 
-    // update affiliation
-    newString = splice(newString, this.state.affiliation, MILSTD_2525_POSITIONS.IDENTITY);
-
-    // update status
-    newString = splice(newString, this.state.status, MILSTD_2525_POSITIONS.STATUS);
+    // update affiliation and status if symbol do not start with w (METOC)
+    if (!newString.toLowerCase().startsWith("w"))
+    {
+      newString = splice(newString, this.state.affiliation, MILSTD_2525_POSITIONS.IDENTITY);
+      // update status
+      newString = splice(newString, this.state.status, MILSTD_2525_POSITIONS.STATUS);
+    }
 
     let unitEchelon = armyc2.c2sd.renderer.utilities.SymbolUtilities.canUnitHaveModifier(
       newString,
@@ -472,12 +488,15 @@ class CreateMilStdSymbolTest extends Component {
 
     let symbol;
     try {
+      if ( !_.find(this.props.features, {geoId: args.geoId}))
+      { // create only when feature not found in core
       symbol = new emp3.api.MilStdSymbol(args);
       if (!silent) {
         toastr.success('Symbol Created Successfully');
       }
       addResult(args, 'createMilStdSymbol');
       addFeature(symbol);
+    }
     } catch (err) {
       addError(err.message, 'createMilStdSymbol');
       if (!silent) {
@@ -499,6 +518,8 @@ class CreateMilStdSymbolTest extends Component {
 
     try {
       const symbol = this.createMilStdSymbol(true);
+      if (symbol)
+      {
       overlay.addFeatures({
         features: [symbol],
         onSuccess: (args) => {
@@ -510,6 +531,7 @@ class CreateMilStdSymbolTest extends Component {
           toastr.error(JSON.stringify(err), 'Create MilStd Symbol Add To Overlay');
         }
       });
+    }
     } catch (err) {
       addError(err.message, 'createPolygonAddToOverlay:Critical');
       toastr.error(err.message, 'Create MilStd Symbol Add To Overlay:Critical');
@@ -561,7 +583,7 @@ class CreateMilStdSymbolTest extends Component {
       <DropdownList className="mdl-cell mdl-cell--9-col"
                     defaultValue="Friendly"
                     data={_affiliation}
-                    textField="value" dataField="key"
+                    textField="value"
                     onChange={value => this.setState({affiliation: value.key}, this.updateSymbol)}/>
 
       <label className="mdl-cell mdl-cell--3-col">Status</label>
@@ -569,14 +591,14 @@ class CreateMilStdSymbolTest extends Component {
       <DropdownList className="mdl-cell mdl-cell--9-col"
                     defaultValue="Present"
                     data={_status}
-                    textField="value" dataField="key"
+                    textField="value"
                     onChange={value => this.setState({status: value.key}, this.updateSymbol)}/>
 
       <label className="mdl-cell mdl-cell--3-col">Echelon</label>
       <DropdownList className="mdl-cell mdl-cell--9-col"
                     defaultValue="Battalion"
                     data={_echelon}
-                    textField="value" dataField="key"
+                    textField="value"
                     onChange={value => this.setState({echelon: value.key}, this.updateSymbol)}/>
 
       <SymbolExplorer data={this.state.symbolDefs}
@@ -692,17 +714,17 @@ CreateMilStdSymbolTest.propTypes = {
   addError: PropTypes.func.isRequired,
   addFeature: PropTypes.func.isRequired,
   addFeatures: PropTypes.func.isRequired,
+  maps: PropTypes.array,
   features: PropTypes.array,
   overlays: PropTypes.array
 };
 
 const mapStateToProps = state => {
   return {
+    maps: state.maps,
     features: state.features,
     overlays: state.overlays
   };
 };
 
 export default connect(mapStateToProps)(CreateMilStdSymbolTest);
-
-

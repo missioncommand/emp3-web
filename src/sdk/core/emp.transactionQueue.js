@@ -102,7 +102,7 @@ emp.transactionQueue = (function() {
 
     // repeat with break in between code execution to avoid locking thread
     // with back to back calls in a loop
-    setTimeout(runQueue, 50);
+    setTimeout(runQueue, 10);
   }
 
   /**
@@ -383,7 +383,7 @@ emp.transactionQueue = (function() {
         transactionQueueString = "";
 
         for (i = 0; i < oInstanceData.transQueue.length; i += 1) {
-          console.log(i + ": " + oInstanceData.transQueue[i].intent + "\n");
+          console.log("%s : %s - %s\n" , i, oInstanceData.transQueue[i].intent, oInstanceData.transQueue[i].transactionId);
         }
 
         console.log(transactionQueueString);

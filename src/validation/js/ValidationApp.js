@@ -7,7 +7,8 @@ import {connect} from 'react-redux';
 import {DragDropContext} from 'react-dnd';
 import HTML5Backend from 'react-dnd-html5-backend';
 import {guid} from './util/UUIDGen';
-import {Map, Navbar} from './components/app';
+
+import {Map, Navbar, About} from './components/app';
 
 // Import containers
 import ControlPanel from './components/ControlPanel';
@@ -38,17 +39,15 @@ class ValidationApp extends Component {
     super(props);
 
     this.state = {
-      isLoading: true,
       isResultsOpen: false,
       isSettingsOpen: false,
-      resizing: false,
-      lastResults: null,
-      ghostWidth: 300,
-      width: 300,
+      resizing: false, // Used for dragging
+      ghostWidth: 325, //
+      width: 325,
       windows: [],
-      createMapPending: false,
       activeScript: '',
-      activeMap: 'map0'
+      activeMap: 'map0',
+      mapContainers: 1 // Defaults to one
     };
 
     toastr.options.closeButton = true;
@@ -58,30 +57,16 @@ class ValidationApp extends Component {
     this.resizeComponents = this.resizeComponents.bind(this);
     this.executeScript = this.executeScript.bind(this);
     this.handleMouseUp = this.handleMouseUp.bind(this);
-    this.createMap = this.createMap.bind(this);
     this.createOverlay = this.createOverlay.bind(this);
     this.hideResults = this.hideResults.bind(this);
     this.showResults = this.showResults.bind(this);
     this.toggleSettings = this.toggleSettings.bind(this);
     this.mapGoto = this.mapGoto.bind(this);
-    this.waitForConfig = this.waitForConfig.bind(this);
+    this.addMapContainer = this.addMapContainer.bind(this);
   }
 
   componentDidMount() {
     document.addEventListener('mouseup', this.handleMouseUp);
-    this.waitForConfig();
-  }
-
-  /**
-   * This fixes the load time on the config object
-   */
-  waitForConfig() {
-    if (!empConfig.engines) {
-      setTimeout(this.waitForConfig, 50);
-    } else {
-      componentHandler.upgradeDom();
-      this.forceUpdate();
-    }
   }
 
   componentDidUpdate() {
@@ -91,6 +76,12 @@ class ValidationApp extends Component {
 
   componentWillUnmount() {
     document.removeEventListener('mouseup', this.handleMouseUp);
+  }
+
+  componentWillReceiveProps(props) {
+    if (props.maps.length < this.state.mapContainers) {
+      this.setState({mapContainers: Math.max(props.maps.length, 1)});
+    }
   }
 
   // EMP functions =====================================================================================================
@@ -138,106 +129,7 @@ class ValidationApp extends Component {
       offset = window.innerWidth - 400;
     }
 
-    this.setState({ghostWidth: (Math.round(offset / 10) * 10)});
-  }
-
-  /**
-   * Creates a new map in the map panel to a maximum of four maps
-   * @param {object} [bounds]
-   * @param {number} [mapEngineId]
-   * @param {boolean} [silent=false] If set, it will suppress any output from displaying in the results dialog
-   * @param {boolean} [recorder=false]
-   */
-  createMap(bounds, mapEngineId, silent = false, recorder = false, brightness = 50,
-            midDistanceThreshold = 20000, farDistanceThreshold = 600000) {
-    const {maps, addResult, addCamera, addMap, addError} = this.props;
-    const toastrTitle = 'Create Map';
-    let config = empConfig;
-
-    if (typeof empConfig.recorder !== 'undefined') {
-      recorder = empConfig.recorder;
-    }
-
-    if (config.engines.length === 0) {
-      toastr.warning('No engines are specified in the config', 'EMP3 Validation');
-      return;
-    }
-
-    if (this.state.createMapPending) {
-      toastr.warning('Map creation already in progress, please wait for it to complete before adding additional maps', toastrTitle);
-      return;
-    }
-
-    if (maps.length >= 4) {
-      toastr.warning('Current limit of 4 maps', toastrTitle);
-      return;
-    }
-    try {
-      let engine = _.find(config.engines, {mapEngineId: mapEngineId || config.startMapEngineId});
-      empConfig.startMapEngineId = engine.mapEngineId;
-      let containerId = 'map' + parseInt(maps.length);
-      let environment = config.environment;
-      let envOverride = false;
-      (function() {
-        let urlEnv = emp.util.getParameterByName('empenv');
-        if (urlEnv !== null) {
-          environment = urlEnv;
-          switch (environment) {
-            case "iwc":
-            case "starfish":
-            case "owf":
-              envOverride = true;
-              break;
-          }
-        }
-      }());
-
-      const mapDefinition = {
-        bounds: bounds,
-        environment: environment,
-        engine: engine,
-        recorder: recorder,
-        backgroundBrightness: brightness,
-        midDistanceThreshold: midDistanceThreshold,
-        farDistanceThreshold: farDistanceThreshold,
-        onSuccess: args => {
-          toastr.success('Map created successfully', toastrTitle);
-          addResult(args, 'emp3.api.Map Constructor');
-          addCamera(map.getCamera());
-          this.setState({
-            isLoading: false,
-            createMapPending: false
-          });
-
-          addMap(map);
-
-          if (!silent) {
-            this.setState({lastResults: args});
-          }
-        },
-        onError: err => {
-          toastr.error('Map creation failed', toastrTitle);
-          addError(err, 'emp3.api.Map Constructor');
-          this.setState({
-            createMapPending: false,
-            lastResults: err
-          });
-        }
-      };
-
-      if (envOverride === false) {
-        // We only want to spawn a local map instance if we are using standalone embedded browser environment which is the default here
-        mapDefinition.container = containerId;
-      }
-      emp3.api.global.configuration.urlProxy = config.urlProxy;
-      const map = new emp3.api.Map(mapDefinition);
-      toastr.info('Map creation pending', toastrTitle);
-      this.setState({createMapPending: true});
-    } catch (e) {
-      this.setState({createMapPending: false});
-      toastr.error(e.message, 'Map creation failed: Critical');
-      addError(e.message, 'emp3.api.Map Constructor: Critical');
-    }
+    this.setState({ghostWidth: Math.round(offset)});
   }
 
   /**
@@ -321,9 +213,15 @@ class ValidationApp extends Component {
     });
   }
 
-  render() {
-    const {maps, addFeature, addOverlay} = this.props;
+  addMapContainer() {
+    if (this.state.mapContainers < 4) {
+      this.setState({mapContainers: this.state.mapContainers + 1});
+    } else {
+      toastr.warning('Cannot exceed 4 maps', 'Map Limit');
+    }
+  }
 
+  render() {
     const ghostbar =
       <div id='ghostbar' className='dragbar' style={{
         left: this.state.ghostWidth + 'px',
@@ -331,52 +229,55 @@ class ValidationApp extends Component {
       }}>
       </div>;
 
-    const dragbar =
+    const dragbar = (
       <div id='dragbar' className='dragbar'
            onMouseDown={this.handleDragBarMouseDown.bind(this)}
            style={{left: (this.state.width + 3) + 'px'}}>
-      </div>;
+      </div>);
 
-    let numMaps = maps.length;
-    if (this.state.createMapPending) {
-      numMaps += 1;
-    }
+    // Set up grid of maps
+    let baseMapStyle = {position: 'absolute', top: 0, bottom: 0, left: 0, right: 0};
 
-    let topRowStyle = {height: '100%', width: '100%'};
-    let bottomRowStyle = {height: '50%', width: '100%'};
-    switch (numMaps) {
-      case 2: {
-        topRowStyle.height = '50%';
-        break;
-      }
-      case 3: {
-        topRowStyle.height = '50%';
-        topRowStyle.width = '50%';
-        break;
-      }
-      case 4: {
-        topRowStyle.height = '50%';
-        topRowStyle.width = '50%';
-        bottomRowStyle.width = '50%';
-        break;
-      }
-    }
-
-    const renderedMaps = [];
-    for (let iMap = 0; iMap < (maps.length + 1); iMap++) {
+    const mapContainers = [];
+    for (let iMap = 0; iMap < this.state.mapContainers; iMap++) {
       let mapId = 'map' + iMap;
-      let mapStyle = _.clone(iMap < 2 ? topRowStyle : bottomRowStyle);
-      if (maps.length > 1) {
-        mapStyle.backgroundColor = (mapId === this.state.activeMap) ? 'green' : 'transparent';
+      let mapStyle = _.clone(baseMapStyle);
+
+      // Remember iMap is offset by 1
+      if (this.state.mapContainers === 4) {
+        // map0,1 on top; map2,3 on the bottom
+        mapStyle.top = iMap >= 2 ? '50%' : 0;
+        mapStyle.bottom = iMap >= 2 ? 0 : '50%';
+
+        // map0,3 are on the left, map1,3 on the right
+        if (iMap === 0 || iMap === 2) {
+          mapStyle.left = 0;
+          mapStyle.right = '50%';
+        } else {
+          mapStyle.left = '50%';
+          mapStyle.right = 0;
+        }
+
+      } else if (this.state.mapContainers > 1) {
+        // map0 on top; map1,2 on the bottom
+        mapStyle.top = iMap >= 1 ? '50%' : 0;
+        mapStyle.bottom = iMap >= 1 ? 0 : '50%';
+
+        if (iMap === 0 || this.state.mapContainers < 3) {
+          mapStyle.left = 0;
+          mapStyle.right = 0;
+        } else if (iMap === 1) {
+          mapStyle.left = 0;
+          mapStyle.right = '50%';
+        } else {
+          mapStyle.left = '50%';
+          mapStyle.right = 0;
+        }
       }
 
-      renderedMaps.push(<Map id={mapId}
-                             maps={maps}
-                             addOverlay={addOverlay}
-                             addFeature={addFeature}
-                             key={'mapContainer_' + iMap}
-                             style={mapStyle}
-                             selectMap={() => this.setState({activeMap: mapId})}/>);
+      mapContainers.push(<Map mapId={mapId}
+                              key={'mapContainer_' + iMap}
+                              style={mapStyle}/>);
     }
 
     return (
@@ -385,15 +286,20 @@ class ValidationApp extends Component {
                 goto={this.mapGoto}
                 showResults={this.showResults}
                 toggleSettings={() => this.setState({isSettingsOpen: !this.state.isSettingsOpen})}
+                toggleAbout={() => this.setState({isAboutOpen: !this.state.isAboutOpen})}
                 isSettingsOpen={this.state.isSettingsOpen}
-                createMap={this.createMap}
+                addMapContainer={this.addMapContainer}
                 createOverlay={this.createOverlay}
                 executeScript={this.executeScript}
                 setActiveScript={scriptName => this.setState({activeScript: scriptName})}
                 activeScript={this.state.activeScript}/>
 
+        { /** Modals */ }
         <Results isResultsOpen={this.state.isResultsOpen}
                  hideResults={this.hideResults}/>
+
+        <About isOpen={this.state.isAboutOpen}
+               close={() => this.setState({isAboutOpen: false})}/>
 
         {ghostbar}
         {dragbar}
@@ -401,37 +307,17 @@ class ValidationApp extends Component {
         <div id='contentPane'>
           <div id='sidebar' style={{width: this.state.width + 'px'}} className='mdl-layout__content'>
             <ControlPanel id='controlPanel'
-                          {...this.props}
-                          createMap={this.createMap}/>
+                          addMapContainer={this.addMapContainer}
+                          {...this.props}/>
           </div>
 
           <div id='mapsPanel' style={{
             left: (this.state.width + 6) + 'px',
             opacity: this.state.isSettingsOpen ? 0 : 1
           }}>
-            {renderedMaps.length === 1 ? <div style={{
-              position: 'absolute',
-              top: '40%',
-              textAlign: 'center',
-              left: 0, right: 0
-            }}>
-              <div style={{margin: '8px'}}><h4>Extensible Map Platform 3 (EMP3) Validation Tool</h4></div>
-              { _.map(empConfig.engines, engine => {
-                return (<div key={engine.mapEngineId} className="mdl-grid">
-                  <button
-                    className="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-button--colored mdl-cell mdl-cell--4-col mdl-cell--4-offset"
-                    onClick={() => this.createMap({
-                      west: 40,
-                      east: 50,
-                      north: 50,
-                      south: 40
-                    }, engine.mapEngineId)}>
-                    {engine.mapEngineId.substring(0, engine.mapEngineId.length - 9)}
-                  </button>
-                </div>);
-              })}
-            </div> : null}
-            {renderedMaps}
+
+            {mapContainers}
+
           </div>
 
           <div id='settingsPanel' style={{

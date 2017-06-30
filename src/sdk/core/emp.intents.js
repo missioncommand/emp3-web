@@ -1,10 +1,5 @@
 /*global emp, cmapi */
-
-/**
- * emp Name Space
- * @namespace  emp
- * @type {Object}
- */
+var emp = window.emp || {};
 
 /**
  * emp.intents Name Space
@@ -45,8 +40,8 @@ emp.intents.control = {
   WMS_REMOVE: "wms.remove",
   WMTS_ADD: "wmts.add",
   WMTS_REMOVE: "wmts.remove",
-  KMLLAYER_ADD: "kmllayer.add",
-  KMLLAYER_REMOVE: "kmllayer.remove",
+  KML_LAYER_ADD: "kmllayer.add",
+  KML_LAYER_REMOVE: "kmllayer.remove",
   FEATURE_OUTBOUND_PLOT: "feature.outbound.plot",
   FEATURE_REMOVE: "feature.remove",
   MP_FEATURE_REMOVE: "multiparent.feature.remove",
@@ -306,7 +301,7 @@ emp.intents.control.transactionComplete = function(args) {
 
 /**
  * This is a temporary function used to determine if we should use new core
- * editing or the old editing.  Once the full transtion to the new editing is
+ * editing or the old editing.  Once the full transition to the new editing is
  * done remove this.
  */
 emp.intents.control.useNewEditing = function(args) {
@@ -323,11 +318,6 @@ emp.intents.control.useNewEditing = function(args) {
   // remove this code after all core editors have been complete.
   var originalFeature = args.items[0].originFeature;
   var symbol;
-  var symbolCode;
-  var standard;
-  var basicCode;
-  var symbolDef;
-  var unitDef;
   var drawCategory;
 
   // Determine if this is a MIL Symbol.  The mil symbol categories can greatly
@@ -335,39 +325,97 @@ emp.intents.control.useNewEditing = function(args) {
   if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
     symbol = true;
 
-    // get the symbolCode of the MIL Std feature
-    symbolCode = originalFeature.data.symbolCode;
-
-    // Get which standard the symbol is using, by default it is MIL-STD-2525C.
-    if (originalFeature.properties && originalFeature.properties.modifiers) {
-      standard = originalFeature.properties.modifiers.standard || 1;
+    drawCategory = emp.util.getDrawCategory(originalFeature);
     }
-
-    basicCode = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(symbolCode, standard);
-
-    // Determine the draw category.  We do this using our renderer's utility
-    // methods.  The draw category tells us what type of editor to use.
-    if (armyc2.c2sd.renderer.utilities.SymbolDefTable.hasSymbolDef(basicCode, standard)) {
-      symbolDef = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(basicCode, standard);
-      if (symbolDef) {
-        drawCategory = symbolDef.drawCategory;
-      }
-    } else {
-      unitDef = armyc2.c2sd.renderer.utilities.UnitDefTable.getUnitDef(basicCode, standard);
-      if (unitDef) {
-        drawCategory = unitDef.drawCategory;
-      }
-    }
-  }
 
   if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT)) {
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_TEXT  ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE ||
+    originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE ||
+    (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL && symbol &&
+      (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE  ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE
+      ))) {
+
     result = true;
-  } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
-    result = true;
-  } else if (originalFeature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
-    (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON)) {
+  }
+
+  return result;
+};
+
+/**
+ * Determine if we will use the old drawing from v2 or the new.  The new
+ * drawing is controlled by the map core code, the old drawing is done in
+ * each engine.
+ */
+emp.intents.control.useNewDrawing = function(args) {
+  var result = false,
+    symbol = false,
+    milstd,
+    drawCategory;
+
+  // At this point we need to decide if we are doing this the
+  // old way or new way.  Until all the editors or done, we must
+  // support both.
+  //
+  // In this case we need the format and drawCategory (if it's a MILSymbol)
+  // This will tell me if this is something the new core editors
+  // handle
+  //
+  // remove this code after all core editors have been complete.
+  var item = args.items[0];
+
+  // Determine if this is a MIL Symbol.  The mil symbol categories can greatly
+  // vary, so we need to know the symbol code and standard for this.
+  if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL) {
+    symbol = true;
+
+    if (item.properties && item.properties.modifiers) {
+      milstd = item.properties.modifiers.standard;
+    }
+
+    drawCategory = emp.util.getDrawCategoryBySymbolId(item.symbolCode, milstd);
+
+  }
+
+  if (item.type === emp3.api.enums.FeatureTypeEnum.GEO_POINT ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_TEXT  ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE ||
+      item.type === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE ||
+    (symbol &&
+      (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POINT ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE  ||
+        drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE
+      ))) {
     result = true;
   }
 
@@ -571,42 +619,42 @@ emp.intents.control.intentSequenceMapper = (function() {
     };
   };
   /*
-  LEGACY, remove if this comment does not cause issue
-  intentSequenceMapper[emp.intents.control.STATUS] = function(args)
-  {
-      return {
-        forward: [
-          emp.status.get
-        ],
-        exit: [
-          emp.intents.control.transactionComplete
-        ],
-        constructor: [emp.typeLibrary.Status]
-      };
-  };
-  intentSequenceMapper[emp.intents.control.STATUS_RESET] = function(args)
-  {
-      return {
-        forward: [
-          emp.status.get
-        ],
-        exit: [
-          emp.intents.control.transactionComplete
-        ]
-      };
-  };
-  intentSequenceMapper[emp.intents.control.STATUS_DESTROY] = function(args)
-  {
-      return {
-        forward: [
-          emp.status.get
-        ],
-        exit: [
-          emp.intents.control.transactionComplete
-        ]
-      };
-  };
-  */
+   LEGACY, remove if this comment does not cause issue
+   intentSequenceMapper[emp.intents.control.STATUS] = function(args)
+   {
+   return {
+   forward: [
+   emp.status.get
+   ],
+   exit: [
+   emp.intents.control.transactionComplete
+   ],
+   constructor: [emp.typeLibrary.Status]
+   };
+   };
+   intentSequenceMapper[emp.intents.control.STATUS_RESET] = function(args)
+   {
+   return {
+   forward: [
+   emp.status.get
+   ],
+   exit: [
+   emp.intents.control.transactionComplete
+   ]
+   };
+   };
+   intentSequenceMapper[emp.intents.control.STATUS_DESTROY] = function(args)
+   {
+   return {
+   forward: [
+   emp.status.get
+   ],
+   exit: [
+   emp.intents.control.transactionComplete
+   ]
+   };
+   };
+   */
   intentSequenceMapper[emp.intents.control.CAPTURE_SCREENSHOT] = function() {
     return {
       forward: [],
@@ -1005,9 +1053,21 @@ emp.intents.control.intentSequenceMapper = (function() {
         emp.storage.editBegin,
         function(args) {
           var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
+          var useNewEditing;
 
-          if (oMapInstance && oMapInstance.engine) {
-            oMapInstance.engine.draw.begin(args);
+          // Check to see if we are using the new editing for this feature.
+          useNewEditing = emp.intents.control.useNewDrawing(args);
+
+          if (useNewEditing) {
+            // new editing.
+            if (oMapInstance && oMapInstance.editingManager) {
+              oMapInstance.editingManager.get().draw(args);
+            }
+          } else {
+              // old editing.
+            if (oMapInstance && oMapInstance.engine) {
+              oMapInstance.engine.draw.begin(args);
+            }
           }
 
           if (args.failures.length > 0) {
@@ -1030,8 +1090,17 @@ emp.intents.control.intentSequenceMapper = (function() {
         function(args) {
           var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
 
-          if (oMapInstance && oMapInstance.engine) {
-            oMapInstance.engine.draw.end(args);
+          // Check to see if we are using the new editing for this feature.
+          var useNewEditing = emp.intents.control.useNewDrawing(args);
+
+          if (useNewEditing) {
+            if (oMapInstance && oMapInstance.status) {
+              oMapInstance.editingManager.get().complete(args);
+            }
+          } else {
+            if (oMapInstance && oMapInstance.engine) {
+              oMapInstance.engine.draw.end(args);
+            }
           }
         }
       ],
@@ -1047,8 +1116,17 @@ emp.intents.control.intentSequenceMapper = (function() {
         function(args) {
           var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
 
-          if (oMapInstance && oMapInstance.engine) {
-            oMapInstance.engine.draw.cancel(args);
+          // Check to see if we are using the new editing for this feature.
+          var useNewEditing = emp.intents.control.useNewDrawing(args);
+
+          if (useNewEditing) {
+            if (oMapInstance && oMapInstance.status) {
+              oMapInstance.editingManager.get().cancel(args);
+            }
+          } else {
+            if (oMapInstance && oMapInstance.engine) {
+              oMapInstance.engine.draw.cancel(args);
+            }
           }
         }
       ],
@@ -1083,7 +1161,7 @@ emp.intents.control.intentSequenceMapper = (function() {
               oMapInstance.editingManager.get().edit(args);
             }
           } else {
-              // old editing.
+            // old editing.
             if (oMapInstance && oMapInstance.engine) {
               oMapInstance.engine.edit.begin(args);
             }
@@ -1552,25 +1630,25 @@ emp.intents.control.intentSequenceMapper = (function() {
   };
   intentSequenceMapper[emp.intents.control.POINTER] = function() {
     return {
-      forward: [  /*
-        function(transaction) {
+      forward: [/*
+       function(transaction) {
 
-          // check to see if we are in edit mode, if not exit.
-          var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
-          var pointer = transaction.items[0];
+       // check to see if we are in edit mode, if not exit.
+       var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
+       var pointer = transaction.items[0];
 
-          if (oMapInstance && oMapInstance.editingManager) {
-            if (pointer.type === emp.typeLibrary.Pointer.EventType.DRAG) {
+       if (oMapInstance && oMapInstance.editingManager) {
+       if (pointer.type === emp.typeLibrary.Pointer.EventType.DRAG) {
 
-            }
-          }
+       }
+       }
 
-          // is it a feature drag event?
-          //
-          //   if so is it an editing feature?
-          //
-          //
-        }*/
+       // is it a feature drag event?
+       //
+       //   if so is it an editing feature?
+       //
+       //
+       }*/
       ],
       exit: [emp.transactionQueue._custom]
     };

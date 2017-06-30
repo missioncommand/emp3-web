@@ -749,11 +749,7 @@ emp3.api.enums.EventType = {
    * If a map container subscribes to this event type, a standard JSON object will be generated in response to the
    * {@link emp3.api.enums.UserInteractionEventEnum|emp3.api.enums.UserInteractionEventEnum.MOUSE_MOVE} action that
    * can occur on the map container and passed to the registered callback function(s) that pertain to the subscribed
-   * map container.
-   *
-   * <u><i>Notes:</i></u>
-   * The {@link emp3.api.events.MapCursorMoveEvent} type is not currently generated for mouse move events. As mentioned,
-   * a standard JSON object is used instead.
+   * map container.   
    */
   MAP_CURSOR_MOVE: "emp3.api.events.MapCursorMoveEvent",
   /**
@@ -1070,8 +1066,6 @@ emp3.api.enums.updateEventType = {
   COMPLETE: "complete",
   START: "start"
 };
-
-emp3.api.enums.version = "ER1 Sprint 10";
 
 /**
  *

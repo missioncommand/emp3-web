@@ -11,7 +11,7 @@ emp.util = emp.util || {};
  * @param {String} str The string on which the test is to be performed.
  * @returns {Boolean}
  */
-emp.util.isEmptyString = function (str) {
+emp.util.isEmptyString = function(str) {
   var isEmpty = false;
   if (str === undefined ||
     str === null ||
@@ -31,7 +31,7 @@ emp.util.isEmptyString = function (str) {
  * @throws {String} This function throw an error if the bDefault parameters is NOT a boolean value.
  * @returns {Boolean}
  */
-emp.util.getBooleanValue = function (value, bDefault) {
+emp.util.getBooleanValue = function(value, bDefault) {
 
   var ret;
 
@@ -62,7 +62,7 @@ emp.util.getBooleanValue = function (value, bDefault) {
  * @param sSymbolCode
  * @returns {boolean}
  */
-emp.util.isAirspaceSymbol = function (sSymbolCode) {
+emp.util.isAirspaceSymbol = function(sSymbolCode) {
   return (sSymbolCode === emp.constant.airspaceSymbolCode.SHAPE3D_CAKE ||
   sSymbolCode === emp.constant.airspaceSymbolCode.SHAPE3D_ROUTE ||
   sSymbolCode === emp.constant.airspaceSymbolCode.SHAPE3D_CYLINDER ||
@@ -81,7 +81,7 @@ emp.util.isAirspaceSymbol = function (sSymbolCode) {
  * @param url
  * @returns {*}
  */
-emp.util.getParameterByName = function (name, url) {
+emp.util.getParameterByName = function(name, url) {
   if (!url) url = window.location.href;
   name = name.replace(/[\[\]]/g, "\\$&");
   var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
@@ -96,7 +96,7 @@ emp.util.getParameterByName = function (name, url) {
  * @param {string} environment
  * @returns {string}
  */
-emp.util.validateEnvironment = function (environment) {
+emp.util.validateEnvironment = function(environment) {
   switch (environment) {
     case "starfish":
       environment = emp.environment.starfish;
@@ -118,7 +118,7 @@ emp.util.validateEnvironment = function (environment) {
  * @param {ColorObject} color
  * @returns {string} AARRGGBB
  */
-emp.util.convertColorToHexColor = function (color) {
+emp.util.convertColorToHexColor = function(color) {
   var red,
     green,
     blue,
@@ -148,7 +148,7 @@ emp.util.convertColorToHexColor = function (color) {
  * @param {string} hex AARRGGBB
  * @returns {ColorObject}
  */
-emp.util.convertHexToColor = function (hex) {
+emp.util.convertHexToColor = function(hex) {
   var color = {},
     alpha,
     red,
@@ -185,7 +185,7 @@ emp.util.convertHexToColor = function (hex) {
  * @param xmlStr
  * @returns {Document}
  */
-emp.util.parseXML = function (xmlStr) {
+emp.util.parseXML = function(xmlStr) {
   return (new window.DOMParser()).parseFromString(xmlStr, "text/xml");
 };
 
@@ -195,7 +195,7 @@ emp.util.parseXML = function (xmlStr) {
  * @param {emp.util.each~Callback} func
  * @throws TypeError
  */
-emp.util.each = function (collection, func) {
+emp.util.each = function(collection, func) {
   if (!collection) {
     return;
   }
@@ -207,7 +207,7 @@ emp.util.each = function (collection, func) {
 
   if (Array.isArray(collection)) {
     // use standard array logic
-    Array.prototype.forEach.call(collection, function (el, i) {
+    Array.prototype.forEach.call(collection, function(el, i) {
       func(el, i);
     });
   } else if (collection instanceof NamedNodeMap) {
@@ -218,6 +218,103 @@ emp.util.each = function (collection, func) {
       func(collection[i], i);
     }
   }
+};
+
+emp.util.getSymbolDef = function(feature) {
+  // get the symbolCode of the MIL Std feature
+  var symbolCode = feature.data.symbolCode;
+  var standard,
+    basicCode,
+    symbolDef;
+
+  if (symbolCode) {
+
+    // Get which standard the symbol is using, by default it is MIL-STD-2525C.
+    if (feature.properties && feature.properties.modifiers) {
+
+      if (feature.properties.modifiers === "2525b") {
+        standard = 0;
+      } else {
+        standard = 1;
+      }
+    }
+
+    basicCode = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(symbolCode, standard);
+
+    // Get the symbol def.   This is different if it is a unit or a mil-std multipoint.
+    if (armyc2.c2sd.renderer.utilities.SymbolDefTable.hasSymbolDef(basicCode, standard)) {
+      symbolDef = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(basicCode, standard);
+    } else {
+      symbolDef = armyc2.c2sd.renderer.utilities.UnitDefTable.getUnitDef(basicCode, standard);
+    }
+
+  }
+
+  return symbolDef;
+};
+
+/**
+ * Retrieves the drawCategory of a feature id if it is a MIL-STD-2525 feature.
+ */
+emp.util.getDrawCategory = function(feature) {
+
+  // get the symbolCode of the MIL Std feature
+  var symbolCode = feature.data.symbolCode;
+  var standard,
+    basicCode,
+    symbolDef,
+    unitDef,
+    drawCategory;
+
+  if (symbolCode) {
+
+    // Get which standard the symbol is using, by default it is MIL-STD-2525C.
+    if (feature.properties && feature.properties.modifiers) {
+
+      if (feature.properties.modifiers === "2525b") {
+        standard = 0;
+      } else {
+        standard = 1;
+      }
+    }
+
+    basicCode = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(symbolCode, standard);
+
+    // Determine the draw category.  We do this using our renderer's utility
+    // methods.  The draw category tells us what type of editor to use.
+    if (armyc2.c2sd.renderer.utilities.SymbolDefTable.hasSymbolDef(basicCode, standard)) {
+      symbolDef = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(basicCode, standard);
+      if (symbolDef) {
+        drawCategory = symbolDef.drawCategory;
+      }
+    } else {
+      unitDef = armyc2.c2sd.renderer.utilities.UnitDefTable.getUnitDef(basicCode, standard);
+      if (unitDef) {
+        drawCategory = unitDef.drawCategory;
+      }
+    }
+  }
+
+  return drawCategory;
+};
+
+/**
+ * Retrieves the drawCategory of a MIL-STD-2525 symbol id. If no milstd
+ * is passed in it uses MIL-STD-2525C as default.
+ */
+emp.util.getDrawCategoryBySymbolId = function(symbolId, milstd) {
+  var feature = {
+    data: {
+      symbolCode: symbolId
+    },
+    properties: {
+      modifiers: {
+        standard: (milstd !== undefined) ? milstd : 1
+      }
+    }
+  };
+
+  return emp.util.getDrawCategory(feature);
 };
 
 /**

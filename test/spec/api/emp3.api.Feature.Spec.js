@@ -109,14 +109,14 @@ describe('emp3.api.Feature', function () {
     });
   });
 
-  describe('apply', function () {
-    it('calls the message handler apply method with itself as the argument', function () {
+  describe('update', function () {
+    it('calls the message handler update method with itself as the argument', function () {
       var feature = new emp3.api.Feature();
       feature.stubProp = 'stub';
 
-      var applyStub = sandbox.stub(emp3.api.MessageHandler.getInstance(), 'apply');
-      feature.apply();
-      applyStub.should.have.been.calledWith(feature);
+      var updateStub = sandbox.stub(emp3.api.MessageHandler.getInstance(), 'update');
+      feature.update();
+      updateStub.should.have.been.calledWith(feature);
     });
   });
 

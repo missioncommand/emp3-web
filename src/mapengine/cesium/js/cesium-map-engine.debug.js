@@ -319,6 +319,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                             }
                         }
                         empCesium.rootOverlayId = item.overlayId;
+                        empCesium.rootLayer = overlay;
                         result = {
                             success: true,
                             message: "New layer added to vega/cesium map"
@@ -541,7 +542,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                 }
             }
         }
-         empCesium.redrawGraphics();
+        empCesium.redrawGraphics();
         if (failList.length > 0)
         {
             transaction.fail(failList);
@@ -708,7 +709,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     }
                 }
             }
-             empCesium.redrawGraphics();
+            empCesium.redrawGraphics();
             if (failList.length > 0)
             {
                 transaction.fail(failList);
@@ -1851,7 +1852,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 //
 //                // Assign the class level variable.
 //                empCesium.iconLabels = newIconLabelSettings;
-//                //check altitude range mode before calling the throttlering. If icon label option is none 
+//                //check altitude range mode before calling the throttlering. If icon label option is none
 //                //and the range mode is mid or high then there is no need to render because teh icons are already with no labels.
 //                if (empCesium.iconLabelOption === "none" && (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
 //                        empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
@@ -1957,6 +1958,7 @@ emp.engineDefs.cesiumMapEngine = function (args)
 
         if (transaction && transaction.items)
         {
+            empCesium.bSmartMapMoving = false;
             enabled = transaction.items[0];
             switch (enabled.lock)
             {
@@ -1970,13 +1972,16 @@ emp.engineDefs.cesiumMapEngine = function (args)
                     empCesium.viewer.cesiumNavigation.setNavigationLocked(true);
                     break;
                 case emp3.api.enums.MapMotionLockEnum.UNLOCKED:
-                    empCesium.scene.screenSpaceCameraController.enableRotate = true;
-                    empCesium.scene.screenSpaceCameraController.enableTranslate = true;
-                    empCesium.scene.screenSpaceCameraController.enableZoom = true;
-                    empCesium.scene.screenSpaceCameraController.enableTilt = true;
-                    empCesium.scene.screenSpaceCameraController.enableLook = true;
-                    empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
-                    empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
+                var delayUnlockingMapTimeOut = setTimeout(function ()
+                   {
+                      empCesium.scene.screenSpaceCameraController.enableRotate = true;
+                      empCesium.scene.screenSpaceCameraController.enableTranslate = true;
+                      empCesium.scene.screenSpaceCameraController.enableZoom = true;
+                      empCesium.scene.screenSpaceCameraController.enableTilt = true;
+                      empCesium.scene.screenSpaceCameraController.enableLook = true;
+                      empCesium.mapMotionLockEnum = emp3.api.enums.MapMotionLockEnum.UNLOCKED;
+                      empCesium.viewer.cesiumNavigation.setNavigationLocked(false);
+                    }.bind(this), 70);
                     break;
                 case emp3.api.enums.MapMotionLockEnum.NO_PAN:
                     empCesium.scene.screenSpaceCameraController.enableRotate = false;
@@ -2034,7 +2039,8 @@ emp.engineDefs.cesiumMapEngine = function (args)
     {
         engineInterface.map.config = function (transaction)
         {
-            var singlePointKey,
+            var singlePointKey, milStdIconLabels, newMilStdIconLabelSetting,
+                    drawCountryCodeChanged,
                     bRangeChanged = false,
                     iconSizeChanged = false,
                     bSelectionStyleChanged = false;
@@ -2127,6 +2133,79 @@ emp.engineDefs.cesiumMapEngine = function (args)
                                 if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
                                 {
                                     empCesium.throttleMil2525IconSizeSet(singlePointKey);
+                                }
+                            }
+                        }
+                    }
+
+                    if (empCesium.defined(config.milStdIconLabels))
+                    {
+                        // Retrieve the array of labels that are turned on from the
+                        // transaction.
+                        milStdIconLabels = config.milStdIconLabels;
+                        if (milStdIconLabels && milStdIconLabels.length <= 6)
+                        {
+                            empCesium.iconLabelOption = "none";
+                        }
+                        else if (milStdIconLabels && milStdIconLabels.length <= 12)
+                        {
+                            empCesium.iconLabelOption = "common";
+                        }
+                        else if (milStdIconLabels && milStdIconLabels.length > 12)
+                        {
+                            empCesium.iconLabelOption = "all";
+                        }
+                        // Loop through the array of labels, and store in an
+                        // array.  Index it by the value of the label, so we can
+                        // do an easy lookup later.  Just set the value to true
+                        // so it equals something.
+                        newMilStdIconLabelSetting = [];
+                        for (i = 0; i < milStdIconLabels.length; i += 1)
+                        {
+                            newMilStdIconLabelSetting[milStdIconLabels[i]] = true;
+                        }
+
+                        if (newMilStdIconLabelSetting && newMilStdIconLabelSetting.hasOwnProperty("CC"))
+                        {
+                            drawCountryCodeChanged = empCesium.drawCountryCode === false;
+                            empCesium.drawCountryCode = true;
+                            armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
+                        }
+                        else
+                        {
+                            drawCountryCodeChanged = empCesium.drawCountryCode === true;
+                            empCesium.drawCountryCode = false;
+                            armyc2.c2sd.renderer.utilities.RendererSettings.setDrawCountryCode(empCesium.drawCountryCode);
+                        }
+
+                        // Assign the class level variable.
+                        empCesium.iconLabels = newMilStdIconLabelSetting;
+                        //check altitude range mode before calling the throttlering. If icon label option is none
+                        //and the range mode is mid or high then there is no need to render because teh icons are already with no labels.
+                        if (empCesium.iconLabelOption === "none" && (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
+                                empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
+                        {
+                            // do nothing. single points already with no labels and CC enabling not changed
+                            //console.log(empCesium.iconLabelOption);
+                            // console.log(empCesium.singlePointAltitudeRangeMode);
+                        }
+                        else if ((empCesium.iconLabelOption === "common" || empCesium.iconLabelOption === "all") &&
+                                (empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.MID_RANGE ||
+                                        empCesium.singlePointAltitudeRangeMode === EmpCesiumConstants.SinglePointAltitudeRangeMode.HIGHEST_RANGE) && empCesium.enableRenderingOptimization && !drawCountryCodeChanged)
+                        {
+                            // do nothing. single points are at a range with no labels and CC enabling not changed
+                            //console.log(empCesium.iconLabelOption);
+                            //console.log(empCesium.singlePointAltitudeRangeMode);
+                        }
+                        else
+                        {
+                            // Redraw all the symbols affected.
+                            for (singlePointKey in empCesium.singlePointCollection)
+                            {
+                                if (!empCesium.isSinglePointIdOnHoldPresent(singlePointKey))
+                                {
+                                    //empCesium.throttleMil2525IconLabelSet(empCesium.getSinglePoint(singlePointKey));
+                                    empCesium.throttleMil2525IconLabelSet(singlePointKey);
                                 }
                             }
                         }

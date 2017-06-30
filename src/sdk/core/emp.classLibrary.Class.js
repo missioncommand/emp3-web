@@ -1,3 +1,6 @@
+var emp = window.emp || {};
+emp.classLibrary = emp.classLibrary || {};
+
 /**
  * @namespace classLibrary
  * @memberof emp
@@ -181,8 +184,17 @@ emp.classLibrary.Util = {
  * Thanks to John Resig and Dean Edwards for inspiration!
  */
 
-emp.classLibrary.Class = function() { };
+/**
+ *
+ * @constructor
+ */
+emp.classLibrary.Class = function() {
+};
 
+/**
+ *
+ * @param props
+ */
 emp.classLibrary.Class.extend = function(props) {
 
   // extended class with the new prototype
@@ -200,7 +212,8 @@ emp.classLibrary.Class.extend = function(props) {
   };
 
   // instantiate class without calling constructor
-  var F = function() { };
+  var F = function() {
+  };
   F.prototype = this.prototype;
 
   var proto = new F();
@@ -263,17 +276,25 @@ emp.classLibrary.Class.extend = function(props) {
 };
 
 
-// method for adding properties to prototype
+/**
+ * method for adding properties to prototype
+ */
 emp.classLibrary.Class.include = function(props) {
   emp.classLibrary.Util.extend(this.prototype, props);
 };
 
-// merge new default options to the Class
+/**
+ * merge new default options to the Class
+ * @param options
+ */
 emp.classLibrary.Class.mergeOptions = function(options) {
   emp.classLibrary.Util.extend(this.prototype.options, options);
 };
 
-// add a constructor hook
+/**
+ * add a constructor hook
+ * @param fn
+ */
 emp.classLibrary.Class.addInitHook = function(fn) { // (Function) || (String, args...)
   var args = Array.prototype.slice.call(arguments, 1);
 

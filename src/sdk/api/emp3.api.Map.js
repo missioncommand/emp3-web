@@ -159,7 +159,7 @@ emp3.api.Map = function(args) {
   var callInfo,
     mhInstance,
     urlEnv;
-    
+
   /* eslint-disable no-console*/
   console.log("EMP3 web %s", emp3.api.global.version);
   /*eslint-enable no-console*/
@@ -281,7 +281,7 @@ emp3.api.Map = function(args) {
   if (args.backgroundBrightness !== undefined) {
     this.brightness = args.backgroundBrightness;
   } else {
-    this.brightness = args.backgroundBrightness;
+    this.brightness = 50;
   }
   args.engine.properties.brightness = this.brightness;
 
@@ -2374,7 +2374,8 @@ emp3.api.Map.prototype.getMapServices = function(args) {
     recursive: true,
     filter: [{
       property: "overlayId",
-      term: emp3.api.enums.defaultOverlayId.WMS
+      // passing the wms overlayId instead of the default WMS overlayId.
+      term: emp.wms.manager.getWmsOverlayId(this.geoId)
     }],
     onSuccess: args.onSuccess,
     onError: args.onError
@@ -2946,7 +2947,8 @@ emp3.api.Map.prototype.removeMapService = function(args) {
 
   var cmd = {
     cmd: emp3.api.enums.channel.unplotFeature,
-    overlayId: emp3.api.enums.defaultOverlayId.WMS,
+    // passing the wms overlayId instead of the default WMS overlayId.
+    overlayId: emp.wms.manager.getWmsOverlayId(this.geoId),
     features: services,
     onSuccess: args.onSuccess,
     onError: args.onError

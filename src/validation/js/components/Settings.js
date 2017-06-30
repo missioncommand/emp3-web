@@ -87,6 +87,8 @@ FeatureCard.propTypes = {
 
 //======================================================================================================================
 let ServiceCard = ({service}) => {
+  service.layers = service.layers || [];
+
   return (
     <div className='mdl-cell mdl-card mdl-shadow--2dp mdl-color--blue-grey-200 mdl-color-text--primary-contrast'>
       <div className='mdl-card__title mdl-card--expand'>
@@ -139,13 +141,23 @@ class Settings extends Component {
         <div id="settings-emp3global" className="mdl-tabs__panel is-active">
           <div className="mdl-grid">
             <div className="mdl-cell mdl-cell--12-col mdl-grid mdl-grid--no-space">
-              <div className="mdl-cell mdl-cell--9-col">emp3.api.global.configuration.urlProxy</div>
-              <div className="mdl-cell mdl-cell--3-col">
-                <input type="text" placeholder="url proxy location" defaultValue={emp3.api.global.configuration.urlProxy} onChange={(event) => {
-                  emp3.api.global.configuration.urlProxy = event.target.value;
-                }}/>
+              <div className="mdl-cell mdl-cell--4-col">emp3.api.global.configuration.urlProxy</div>
+              <div className="mdl-cell mdl-cell--8-col">
+                <input type="text" placeholder="url proxy location"
+                       defaultValue={emp3.api.global.configuration.urlProxy}
+                       onChange={(event) => {
+                         emp3.api.global.configuration.urlProxy = event.target.value;
+                       }}/>
               </div>
             </div>
+
+            { /* Dummy apply button to take focus out of the input fields */ }
+            { /* Will eventually be smarter but doesn't need to for now */ }
+            <button
+              className="mdl-button mdl-js-button mdl-js-ripple-effect mdl-button--raised mdl-cell mdl-cell--8-col">
+              Apply
+            </button>
+
           </div>
         </div>
         <div id='settings-maps' className='mdl-tabs__panel'>
