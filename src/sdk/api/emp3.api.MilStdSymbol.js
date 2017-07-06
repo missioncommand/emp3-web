@@ -88,7 +88,7 @@ if (!window.emp3.api) {
 emp3.api.MilStdSymbol = function(args) {
   cmapi.inherit(new cmapi.IGeoMilSymbol(), this);
 
-  var basicSymbolId, symbolDefTable, index, positionsLen;
+  var basicSymbolId, symbolDefTable, index, positionsLen, geoPosition;
   // Sterilize the inputs
   if (typeof args === 'undefined' || args === null || typeof args !== 'object') {
     args = {
