@@ -86,20 +86,20 @@ if (!window.emp3.api) {
  *
  */
 emp3.api.MilStdSymbol = function(args) {
-
   cmapi.inherit(new cmapi.IGeoMilSymbol(), this);
 
-
+  var basicSymbolId, symbolDefTable, index, positionsLen;
   // Sterilize the inputs
   if (typeof args === 'undefined' || args === null || typeof args !== 'object') {
     args = {
       position: new emp3.api.GeoPosition({
         latitude: 0,
-        longitude: 0})
+        longitude: 0
+      })
     };
   } else {
     if (typeof args.positions === 'undefined' &&
-       (typeof args.position === 'undefined' || args.position === null || typeof args.position !== 'object')) {
+      (typeof args.position === 'undefined' || args.position === null || typeof args.position !== 'object')) {
       args.position = new emp3.api.GeoPosition({
         latitude: 0,
         longitude: 0
@@ -124,7 +124,42 @@ emp3.api.MilStdSymbol = function(args) {
   // provide the positions property inherited from cmapi.IGeoPoint with a default location of 0,0
   this.positions = [new cmapi.IGeoPosition()];
   if (args.hasOwnProperty('positions')) {
+    // this.positions = [];
+    // for (index = 0 ;index < args.positions.length; index++)
+    // {
+    //     this.positions.push (new emp3.api.GeoPosition({
+    //       latitude: args.positions[index].latitude,
+    //       longitude: args.positions[index].longitude
+    //     }));
+    // }
     this.positions = args.positions;
+  }
+
+  // Validate and make any corrections to coordinates based on symbol code and standard
+  if (args.symbolCode) {
+    basicSymbolId = armyc2.c2sd.renderer.utilities.SymbolUtilities.getBasicSymbolID(args.symbolCode);
+    symbolDefTable = armyc2.c2sd.renderer.utilities.SymbolDefTable.getSymbolDef(basicSymbolId, (args.symbolStandard) ? args.symbolStandard : 1);
+    if (symbolDefTable) {
+      positionsLen = this.positions.length;
+      if (this.positions && positionsLen < symbolDefTable.minPoints) {
+        for (index = 0; index < (symbolDefTable.minPoints - positionsLen); index++) {
+          geoPosition = new emp3.api.GeoPosition({
+            latitude: 0,
+            longitude: 0
+          });
+          if (this.positions.length > 0) {
+            geoPosition.latitude = (this.positions[this.positions.length - 1].latitude + 0.1);
+            geoPosition.longitude = (this.positions[this.positions.length - 1].longitude + 0.1);
+          }
+          this.positions.push(geoPosition);
+        }
+      }
+      if (this.positions && positionsLen > symbolDefTable.maxPoints) {
+        for (index = 0; index < (positionsLen - symbolDefTable.maxPoints); index++) {
+          this.positions.pop();
+        }
+      }
+    }
   }
 
   /**
@@ -133,8 +168,12 @@ emp3.api.MilStdSymbol = function(args) {
    */
   Object.defineProperty(this, "position", {
     enumerable: true,
-    get: function () { return this.positions[0]; },
-    set: function (value) { this.positions[0] = value; }
+    get: function() {
+      return this.positions[0];
+    },
+    set: function(value) {
+      this.positions[0] = value;
+    }
   });
 
   /**
@@ -143,7 +182,7 @@ emp3.api.MilStdSymbol = function(args) {
    * @default emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL
    * @type {emp3.api.enums.FeatureTypeEnum}
    */
-  Object.defineProperty(this, "featureType",{
+  Object.defineProperty(this, "featureType", {
     enumerable: true,
     writable: false,
     value: emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL

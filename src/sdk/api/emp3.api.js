@@ -884,7 +884,7 @@ emp3.api.convertGeoJsonToCMAPIPositions = function (geojson) {
  */
 emp3.api.convertFeatureToGeoJSON = function (feature) {
 
-  var convertedFeature = {};
+  var convertedFeature = {}, symStd = 1;
 
   // First determine the type of GeoJSON this symbolCode
   // will be.  This is determined by the Feature type.
@@ -920,7 +920,11 @@ emp3.api.convertFeatureToGeoJSON = function (feature) {
       convertedFeature.type = "Polygon";
       break;
     case emp3.api.enums.FeatureTypeEnum.GEO_MIL_SYMBOL:
-      if (armyc2.c2sd.renderer.utilities.SymbolUtilities.isMultiPoint(feature.symbolCode, 0)) {
+      if (feature.symbolStandard && feature.symbolStandard.toLowerCase() ===  emp.typeLibrary.featureMilStdVersionType.MILSTD_2525B.toLowerCase())
+      {
+        symStd = 0;
+      }
+      if (armyc2.c2sd.renderer.utilities.SymbolUtilities.isMultiPoint(feature.symbolCode, symStd)) {
         convertedFeature.type = "LineString";
       } else {
         convertedFeature.type = "Point";
