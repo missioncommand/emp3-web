@@ -12193,14 +12193,14 @@ var EmpLayer = function(name, id, type, empCesium) {
           feature.billboard.show = visibility;
           this.updateFeature(feature); // the update removes and then adds the feature to the entity or primitive collection. The children are not remove and readded.
         }
-        feature.billboard.show = new this.ConstantProperty(visibility);
+        feature.billboard.show = new this.empCesium.ConstantProperty(visibility);
       }
       if (feature.path !== undefined) {
-        feature.path.show = new this.ConstantProperty(visibility);
+        feature.path.show = new this.empCesium.ConstantProperty(visibility);
       }
       if (feature.polyline !== undefined) {
         if (!this.empCesium.defined(feature.polyline.show)) {
-          feature.polyline.show = new this.ConstantProperty(visibility);
+          feature.polyline.show = new this.empCesium.ConstantProperty(visibility);
         } else {
           feature.polyline.show = visibility;
         }
@@ -12216,35 +12216,35 @@ var EmpLayer = function(name, id, type, empCesium) {
       }
       if (feature.polygon !== undefined) {
         if (!this.empCesium.defined(feature.polygon.show)) {
-          feature.polygon.show = new this.ConstantProperty(visibility);
+          feature.polygon.show = new this.empCesium.ConstantProperty(visibility);
         } else {
           feature.polygon.show = visibility;
         }
       }
       if (feature.label !== undefined) {
         if (!this.empCesium.defined(feature.label.show)) {
-          feature.label.show = new this.ConstantProperty(visibility);
+          feature.label.show = new this.empCesium.ConstantProperty(visibility);
         } else {
           feature.label.show = visibility;
         }
       }
       if (feature.ellipse !== undefined) {
         if (!this.empCesium.defined(feature.ellipse.show)) {
-          feature.ellipse.show = new this.ConstantProperty(visibility);
+          feature.ellipse.show = new this.empCesium.ConstantProperty(visibility);
         } else {
           feature.ellipse.show = visibility;
         }
       }
       if (feature.rectangle !== undefined) {
         if (!this.empCesium.defined(feature.rectangle.show)) {
-          feature.rectangle.show = new this.ConstantProperty(visibility);
+          feature.rectangle.show = new this.empCesium.ConstantProperty(visibility);
         } else {
           feature.rectangle.show = visibility;
         }
         if (this.empCesium.isMultiPointPresent(id)) {
           var oMultiPoint = this.empCesium.getMultiPoint(id);
           if (oMultiPoint) {
-            oMultiPoint.visible = new this.ConstantProperty(visibility);
+            oMultiPoint.visible = new this.empCesium.ConstantProperty(visibility);
           }
         }
       }
@@ -12259,7 +12259,7 @@ var EmpLayer = function(name, id, type, empCesium) {
         }
       }
     } else if (feature.featureType === EmpCesiumConstants.featureType.COMPOUND_ENTITY) {
-      feature.show = new this.ConstantProperty(visibility);
+      feature.show = new this.empCesium.ConstantProperty(visibility);
       if (feature.childrenFeatureKeys !== undefined) {
         for (var childrenFeatureId in feature.childrenFeatureKeys) {
           if (feature.childrenFeatureKeys.hasOwnProperty(childrenFeatureId)) {

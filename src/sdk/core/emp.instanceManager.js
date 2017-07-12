@@ -135,10 +135,10 @@ emp.instanceManager = (function() {
     initEngine = function() {
       setTimeout(function() {
         try {
-          // Send out INITIALIZING map status event.
-          new map.eventing.StatusChange({
-            status: emp.map.states.INITIALIZING
-          });
+          // // Send out INITIALIZING map status event.
+          // new map.eventing.StatusChange({
+          //   status: emp.map.states.INITIALIZING
+          // });
           map.engines.load(args.engine);
         } catch (err) {
           console.error("Map instance startup failed." + "\n  name:" + err.name + "\n  message:" + err.message + "\n  stack:" + err.stack);
@@ -148,6 +148,10 @@ emp.instanceManager = (function() {
     };
     environment = emp.util.validateEnvironment(args.environment);
     // Initialize emp core
+    //   // Send out INITIALIZING map status event.
+      new map.eventing.StatusChange({
+        status: emp.map.states.INITIALIZING
+      });
     initialize({
       callback: initEngine,
       environment: environment,
