@@ -37,16 +37,13 @@ emp.editingManager = function(args) {
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_TEXT)
-    {
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_TEXT) {
       // create the editor for the appropriate item being edited.
       activeEditor = new emp.editors.Text({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
       (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
       // This is a path.  These are items that follow the rules of a multipoint
       // line.  It could be MIL-STD or not.
@@ -54,32 +51,28 @@ emp.editingManager = function(args) {
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON) {
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON) {
       // This is a polygon.   MIL-STD polygons are handled slightly different
       // so there is a separate editor for those.
       activeEditor = new emp.editors.Polygon({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
       // This is a polygon.   MIL-STD polygons are handled slightly different
       // so there is a separate editor for those.
       activeEditor = new emp.editors.Square({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON) {
+    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON) {
       // This is a MIL-STD polygon.  It uses a GEOJSON linestring to represent
       // itself.  It is stored slightly different than the regular polygon.
       activeEditor = new emp.editors.MilStdPolygon({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+    } else if (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
         drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE)) {
       // This is a circle defined by a point and radius.  It uses a GEOJSON point and
       // a distance in meters to represent
@@ -88,66 +81,57 @@ emp.editingManager = function(args) {
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW) {
+    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ARROW) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.MilStdArrow({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW) {
+    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTARROW) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.MilStdTwoPointArrow({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE) {
+    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_TWOPOINTLINE) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.MilStdTwoPointLine({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE) {
+    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE) {
       // This is a circular range fan.
       activeEditor = new emp.editors.MilStdCircularRangeFan({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE) {
+    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE) {
       // This is a sector range fan.
       activeEditor = new emp.editors.MilStdSectorRangeFan({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
+    } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
       // This is an arrow.  It is a line with the coordinates reversed when drawn.
       activeEditor = new emp.editors.AxisOfAdvance({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
       (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
       // This is an circle.  It is a point with a radius.
       activeEditor = new emp.editors.Circle({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
       (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
       // This is an rectangle.  It is a point with a wioth and height.
       activeEditor = new emp.editors.Rectangle({
         feature: feature,
         mapInstance: args.mapInstance
       });
-    }
-    else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE) {
+    } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE) {
       // This is an ellipse.  It is a point with a semi minor and semi major..
       activeEditor = new emp.editors.Ellipse({
         feature: feature,
@@ -276,8 +260,7 @@ emp.editingManager = function(args) {
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
+      } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_PATH ||
         (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_LINE)) {
         // This is a path.  These are items that follow the rules of a multipoint
         // line.  It could be MIL-STD or not.
@@ -285,24 +268,21 @@ emp.editingManager = function(args) {
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON) {
+      } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_POLYGON) {
         // This is a polygon.   MIL-STD polygons are handled slightly different
         // so there is a separate editor for those.
         activeEditor = new emp.editors.Polygon({
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON) {
+      } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_POLYGON) {
         // This is a MIL-STD polygon.  It uses a GEOJSON linestring to represent
         // itself.  It is stored slightly different than the regular polygon.
         activeEditor = new emp.editors.MilStdPolygon({
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
+      } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_CIRCLE ||
         (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_PARAMETERED_AUTOSHAPE)) {
         // This is a circle defined by a point and radius.  It uses a GEOJSON point and
         // a distance in meters to represent
@@ -311,8 +291,7 @@ emp.editingManager = function(args) {
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE) {
+      } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_ELLIPSE) {
         // This is a ellipse defined by a point and radius.  It uses a GEOJSON point and
         // a distance in meters to represent
         // itself.
@@ -320,46 +299,40 @@ emp.editingManager = function(args) {
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
+      } else if (feature.format === emp3.api.enums.FeatureTypeEnum.GEO_RECTANGLE ||
         (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_RECTANGULAR_PARAMETERED_AUTOSHAPE)) {
         // This is a rectangle defined by a point, width, height and azimuth.
         activeEditor = new emp.editors.Rectangle({
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (feature.format == emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
+      } else if (feature.format == emp3.api.enums.FeatureTypeEnum.GEO_SQUARE) {
         // This is a square.
         // so there is a separate editor for those.
         activeEditor = new emp.editors.Square({
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
+      } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_ROUTE) {
         // This is an axis of advance defined by a line.  The last point of the line in relation to the first point
         // decides the width of the axis of advance.
         activeEditor = new emp.editors.AxisOfAdvance({
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE) {
+      } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_CIRCULAR_RANGEFAN_AUTOSHAPE) {
         // This is a circular range fan
         activeEditor = new emp.editors.MilStdCircularRangeFan({
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE) {
+      } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE) {
         // This is a circular range fan
         activeEditor = new emp.editors.MilStdSectorRangeFan({
           feature: feature,
           mapInstance: args.mapInstance
         });
-      }
-      else {
+      } else {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.EditorBase({
           feature: feature,
@@ -419,8 +392,7 @@ emp.editingManager = function(args) {
         feature.coreParent = undefined;
         feature.overlayId = emp.constant.parentIds.ALL_PARENTS;
 
-      }
-      else {
+      } else {
 
         // The feature does not exist.
         // The draw needs to return a feature.  Prepare this feature.
@@ -490,8 +462,7 @@ emp.editingManager = function(args) {
           transaction: editTransaction,
           failures: initFailList
         });
-      }
-      else {
+      } else {
         mapInstance.eventing.EditEnd({
           transaction: editTransaction,
           failures: initFailList
@@ -520,8 +491,7 @@ emp.editingManager = function(args) {
             originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
             items: [originalFeature]
           });
-        }
-        else {
+        } else {
           // If we are drawing a new feature, remove it from the map.
           transaction = new emp.typeLibrary.Transaction({
             intent: emp.intents.control.FEATURE_REMOVE,
@@ -537,8 +507,7 @@ emp.editingManager = function(args) {
         }
 
 
-      }
-      else {
+      } else {
         // restore the feature to its original state.  Create
         // a FEATURE_ADD transaction that updates the feature
         // to its original state.
@@ -574,7 +543,7 @@ emp.editingManager = function(args) {
     complete: function() {
 
       //publish the drawing end event
-      var item,
+      var item, removeAnimationTransaction,
         transaction;
 
       editTransaction.items[0].updatedFeature = activeEditor.featureCopy;
@@ -600,8 +569,7 @@ emp.editingManager = function(args) {
             originalMessageType: cmapi.channel.names.MAP_FEATURE_PLOT,
             items: [originalFeature]
           });
-        }
-        else {
+        } else {
           // If we are drawing a new feature, remove it from the map.
           transaction = new emp.typeLibrary.Transaction({
             intent: emp.intents.control.FEATURE_REMOVE,
@@ -615,12 +583,12 @@ emp.editingManager = function(args) {
             items: [activeEditor.featureCopy]
           });
         }
-      }
-      else {
+      } else {
         // update the feature to its new state. Create
         // a FEATURE_ADD transaction that updates the feature
         // to its new state.  We pull that state from the editor.
-        item = activeEditor.featureCopy;
+        item = emp.helpers.copyObject(activeEditor.featureCopy);
+        //item.overlayId = originalFeature.overlayId;
 
         transaction = new emp.typeLibrary.Transaction({
           intent: emp.intents.control.FEATURE_ADD,
@@ -642,8 +610,7 @@ emp.editingManager = function(args) {
         mapInstance.eventing.DrawEnd({
           transaction: editTransaction
         });
-      }
-      else {
+      } else {
         mapInstance.eventing.EditEnd({
           transaction: editTransaction
         });
@@ -672,6 +639,29 @@ emp.editingManager = function(args) {
       // Immediately update the feature to the new state.
       transaction.run();
 
+
+      if (activeEditor.animation) {
+        //case when completing a draw or edit operation while dragging and mousing up outside the map.
+        // remove animation line and unlock the map
+        removeAnimationTransaction = new emp.typeLibrary.Transaction({
+          intent: emp.intents.control.FEATURE_REMOVE,
+          mapInstanceId: mapInstance.mapInstanceId,
+          transactionId: null,
+          sender: mapInstance.mapInstanceId,
+          originChannel: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+          source: emp.api.cmapi.SOURCE,
+          messageOriginator: mapInstance.mapInstanceId,
+          originalMessageType: cmapi.channel.names.MAP_FEATURE_UNPLOT,
+          items: [activeEditor.animation]
+        });
+
+        activeEditor.animation = undefined;
+        removeAnimationTransaction.run();
+      }
+
+      // call mouseUp callback event to unlock map that covers case when completing a draw or edit operation while dragging and mousing up outside the map
+      this.editMouseUp();
+
       // We are done editing. Reset state of editingManager.
       editTransaction = undefined;
       feature = undefined;
@@ -688,7 +678,7 @@ emp.editingManager = function(args) {
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.
       if (originalFeature && featureId === originalFeature.featureId || (activeEditor &&
-        activeEditor.isControlPoint(featureId) )) {
+          activeEditor.isControlPoint(featureId))) {
 
         mapLock = new emp.typeLibrary.Lock({
           lock: emp3.api.enums.MapMotionLockEnum.NO_PAN
@@ -751,8 +741,7 @@ emp.editingManager = function(args) {
             mapInstanceId: mapInstance.mapInstanceId
           });
         }
-      }
-      else {
+      } else {
         mapLock = new emp.typeLibrary.Lock({
           lock: emp3.api.enums.MapMotionLockEnum.NO_PAN
         });
@@ -787,8 +776,7 @@ emp.editingManager = function(args) {
             mapInstanceId: mapInstance.mapInstanceId
           });
         }
-      }
-      else if (activeEditor.isControlPoint(featureId)) {
+      } else if (activeEditor.isControlPoint(featureId)) {
         updateData = activeEditor.moveControlPoint(featureId, pointer);
 
         if (updateData) {
@@ -809,8 +797,7 @@ emp.editingManager = function(args) {
 
       if (originalFeature && featureId === originalFeature.featureId && activeEditor.isFeature(featureId)) {
         updateData = activeEditor.moveFeature(startX, startY, pointer);
-      }
-      else if (activeEditor.isControlPoint(featureId)) {
+      } else if (activeEditor.isControlPoint(featureId)) {
         updateData = activeEditor.endMoveControlPoint(featureId, pointer);
       }
 
@@ -866,8 +853,7 @@ emp.editingManager = function(args) {
       // act like if we are adding a new point.
       if (feature.overlayId === emp.constant.parentIds.ALL_PARENTS) {
         updateData = activeEditor.drawClick(pointer);
-      }
-      else {
+      } else {
         updateData = activeEditor.drawStart(pointer);
       }
 
@@ -916,37 +902,37 @@ emp.editingManager = function(args) {
           });
         }
       }
-  //  }
-  },
+      //  }
+    },
 
 
-  /**
-   * Occurs each time the user double clicks on a  map after the
-   * drawing has started.
-   */
-  drawDoubleClick: function(pointer) {
-    var updates;
-    updates = activeEditor.drawDoubleClick(pointer);
+    /**
+     * Occurs each time the user double clicks on a  map after the
+     * drawing has started.
+     */
+    drawDoubleClick: function(pointer) {
+      var updates;
+      updates = activeEditor.drawDoubleClick(pointer);
 
-    // sometimes a draw click does not do anything.
-    // check to make sure something happened before overwriting
-    // updateData.
-    if (updates) {
-      updateData = updates;
+      // sometimes a draw click does not do anything.
+      // check to make sure something happened before overwriting
+      // updateData.
+      if (updates) {
+        updateData = updates;
 
-      if (updateData) {
+        if (updateData) {
 
-        editTransaction.items[0].update({
-          name: feature.name,
-          updates: updateData.coordinateUpdate,
-          properties: updateData.properties,
-          updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
-          mapInstanceId: mapInstance.mapInstanceId
-        });
+          editTransaction.items[0].update({
+            name: feature.name,
+            updates: updateData.coordinateUpdate,
+            properties: updateData.properties,
+            updateEventType: emp.typeLibrary.UpdateEventType.UPDATE,
+            mapInstanceId: mapInstance.mapInstanceId
+          });
+        }
       }
     }
-  }
-};
+  };
 
 
 
