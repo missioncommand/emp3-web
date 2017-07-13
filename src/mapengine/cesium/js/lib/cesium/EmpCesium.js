@@ -7889,6 +7889,11 @@ function EmpCesium() {
 
       if (this.defined(this.singlePointCollection[singlePointKey])) {
         singlePointBatch = emp.helpers.copyObject(this.singlePointCollection[singlePointKey]);
+        if (singlePointBatch && singlePointBatch.isClusterIcon === true)
+        {
+          // it is a dot. no need to chnage icon size at this moment.
+          return;
+        }
         billboardCollection = this.getFeature(singlePointKey); // feature is a billboard collection
         if (billboardCollection && billboardCollection.length > 0) {
           if (billboardCollection.overlayId) {

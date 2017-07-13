@@ -84,14 +84,14 @@ emp.engineDefs.leafletMapEngine = function (args) {
             var view = instanceInterface.getView();
 
             this.zoneChanged = false;
-            if (view.altitude >= this.farDistanceThreshold.value) {
+            if (view.altitude >= this.farDistanceThreshold.value*3) {
               // Mil-std single point icons are shown as an ellipses colored with the corresponding affiliation and
               // labels are turned off.
               if (this.viewInZone !== "farDistanceZone") {
                 this.zoneChanged = true;
                 this.viewInZone = "farDistanceZone";
               }
-            } else if (view.altitude >= this.midDistanceThreshold) {
+          } else if (view.altitude >= this.midDistanceThreshold*3) {
               // Mil-std single point icons are displayed in normal fashion and labels are turned off.
               if (this.viewInZone !== "midDistanceZone") {
                 this.zoneChanged = true;
@@ -2095,32 +2095,32 @@ emp.engineDefs.leafletMapEngine = function (args) {
         }
     };
 
-    engineInterface.settings.mil2525.icon.labels.set = function (transaction) {
-        var oEmpObject;
-        var sCoreId;
-
-        try {
-            var sTemp = JSON.stringify(transaction.items[0]);
-            instanceInterface.oLabelList = JSON.parse(sTemp);
-
-            for (sCoreId in instanceInterface.mapEngObjectList) {
-                if (!instanceInterface.mapEngObjectList.hasOwnProperty(sCoreId)) {
-                    continue;
-                }
-                oEmpObject = instanceInterface.mapEngObjectList[sCoreId];
-
-                if ((oEmpObject instanceof leafLet.typeLibrary.MilStdFeature) && !oEmpObject.isMultiPointTG()) {
-                    oEmpObject.updateFeature({bUpdateGraphic: true});
-                }
-            }
-        } catch (Ex) {
-            new emp.typeLibrary.Error({
-                level: emp.typeLibrary.Error.level.MAJOR,
-                message: Ex.name + ": " + Ex.message,
-                jsError: Ex
-            });
-        }
-    };
+    // engineInterface.settings.mil2525.icon.labels.set = function (transaction) {
+    //     var oEmpObject;
+    //     var sCoreId;
+    //
+    //     try {
+    //         var labelList = JSON.stringify(transaction.items[0]);
+    //         instanceInterface.oLabelList = JSON.parse(sTemp);
+    //
+    //         for (sCoreId in instanceInterface.mapEngObjectList) {
+    //             if (!instanceInterface.mapEngObjectList.hasOwnProperty(sCoreId)) {
+    //                 continue;
+    //             }
+    //             oEmpObject = instanceInterface.mapEngObjectList[sCoreId];
+    //
+    //             if ((oEmpObject instanceof leafLet.typeLibrary.MilStdFeature) && !oEmpObject.isMultiPointTG()) {
+    //                 oEmpObject.updateFeature({bUpdateGraphic: true});
+    //             }
+    //         }
+    //     } catch (Ex) {
+    //         new emp.typeLibrary.Error({
+    //             level: emp.typeLibrary.Error.level.MAJOR,
+    //             message: Ex.name + ": " + Ex.message,
+    //             jsError: Ex
+    //         });
+    //     }
+    // };
 
     engineInterface.wms.add = function (transaction) {
         var oaItems = transaction.items;
@@ -2393,7 +2393,7 @@ emp.engineDefs.leafletMapEngine = function (args) {
 
     engineInterface.map.config = function (transaction) {
       var iIndex,
-          prop,
+          prop, oEmpObject, sCoreId,
           previousRenderSettings = {
             enabled: instanceInterface.renderingOptimization.enabled,
             midDistanceThreshold: instanceInterface.renderingOptimization.midDistanceThreshold,
@@ -2406,6 +2406,27 @@ emp.engineDefs.leafletMapEngine = function (args) {
         try {
           for (prop in newConfig) {
             switch (prop) {
+              case "milStdIconLabels":
+                try {
+                    instanceInterface.oLabelList = newConfig[prop];
+                    for (sCoreId in instanceInterface.mapEngObjectList) {
+                        if (!instanceInterface.mapEngObjectList.hasOwnProperty(sCoreId)) {
+                            continue;
+                        }
+                        oEmpObject = instanceInterface.mapEngObjectList[sCoreId];
+
+                        if ((oEmpObject instanceof leafLet.typeLibrary.MilStdFeature) && !oEmpObject.isMultiPointTG()) {
+                            oEmpObject.updateFeature({bUpdateGraphic: true});
+                        }
+                    }
+                } catch (Ex) {
+                    new emp.typeLibrary.Error({
+                        level: emp.typeLibrary.Error.level.MAJOR,
+                        message: Ex.name + ": " + Ex.message,
+                        jsError: Ex
+                    });
+                }
+                break;
               case "renderingOptimization":
                 if (typeof newConfig[prop] !== 'boolean') {
                   throw new Error("'renderingOptimization' property must be of Boolean type.");

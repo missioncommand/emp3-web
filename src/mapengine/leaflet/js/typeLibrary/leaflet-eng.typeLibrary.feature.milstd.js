@@ -177,7 +177,10 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
       if (!oMainModifiers.hasOwnProperty('T') ||
         (oMainModifiers.hasOwnProperty('T') && (oMainModifiers.T !== oItem.name))) {
         // If there is no T or its diff than name.
-        oMainModifiers["CN"] = oItem.name;
+         if (this._modifierOnList("CN"))
+         {
+          oModifiers["CN"] = oItem.name;
+         }
       }
 
       for (sModifier in oMainModifiers) {
@@ -209,19 +212,11 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
         }
       }
 
-      oMainModifiers[msa.PixelSize] = this.getEngineInstanceInterface().iMilStdIconSize;
+      oModifiers[msa.PixelSize] = this.getEngineInstanceInterface().iMilStdIconSize;
       if (this.isSelected()) {}
 
       if (L.Browser.canvas) {
-        image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, oMainModifiers);
-        iconUrl = image.toDataUrl();
-        oOffset = image.getCenterPoint();
-        iconAnchor = new L.Point(oOffset.x, oOffset.y);
-        popupAnchor = new L.Point(oOffset.x, oOffset.y);
-        oImageBounds = image.getImageBounds();
-        iconSize = new L.Point(oImageBounds.width, oImageBounds.height);
         renderingOptimization = this.getEngineInstanceInterface().renderingOptimization;
-        oMilStdIcon;
         if (renderingOptimization.viewInZone) {
           switch (renderingOptimization.viewInZone) {
             case "farDistanceZone":
@@ -265,7 +260,7 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
               break;
             case "midDistanceZone":
               image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, {
-                SIZE: oMainModifiers.SIZE
+                SIZE: oModifiers.SIZE
               });
               iconUrl = image.toDataUrl();
               oOffset = image.getCenterPoint();
@@ -274,7 +269,27 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
               oImageBounds = image.getImageBounds();
               iconSize = new L.Point(oImageBounds.width, oImageBounds.height);
               break;
+            default:
+              //below mid distance zone - show labels
+              // image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, oModifiers);
+              // iconUrl = image.toDataUrl();
+              // oOffset = image.getCenterPoint();
+              // iconAnchor = new L.Point(oOffset.x, oOffset.y);
+              // popupAnchor = new L.Point(oOffset.x, oOffset.y);
+              // oImageBounds = image.getImageBounds();
+              // iconSize = new L.Point(oImageBounds.width, oImageBounds.height);
+              break;
           }
+        }
+        else {
+          // below mid distance zone. show icon with labels
+          image = armyc2.c2sd.renderer.MilStdIconRenderer.Render(oItem.data.symbolCode, oModifiers);
+          iconUrl = image.toDataUrl();
+          oOffset = image.getCenterPoint();
+          iconAnchor = new L.Point(oOffset.x, oOffset.y);
+          popupAnchor = new L.Point(oOffset.x, oOffset.y);
+          oImageBounds = image.getImageBounds();
+          iconSize = new L.Point(oImageBounds.width, oImageBounds.height);
         }
         oMilStdIcon = new L.Icon({
           iconUrl: iconUrl,

@@ -2741,14 +2741,28 @@ emp3.api.MessageHandler = (function() {
       // make sure message.properties.featureType is defined -- if not we
       // won't know what to build.
       if (message.updates && message.properties && message.properties.featureType && message.feature) {
-        args.feature = emp3.api.buildFeature({
-          type: message.properties.featureType,
-          geoId: message.featureId,
-          name: message.name,
-          coordinates: emp3.api.convertLocationArrayToCMAPI(message.updates.coordinates),
-          properties: message.properties,
-          symbolCode: message.feature.symbolCode
-        });
+        if (callbacks.args && callbacks.args.feature )
+        {
+          //callbacks is holding original feature sent by client. Use this message feature to keep
+          //the reference to the client's feature instead of sending a copy with no reference to client.
+          //Update original feature with updates sent by the editor
+          args.feature = callbacks.args.feature;
+          args.feature.coordinates = emp3.api.convertLocationArrayToCMAPI(message.updates.coordinates);
+          args.feature.properties = message.properties;
+          args.feature.symbolCode = message.symbolCode;
+        }
+        else
+        {
+
+          args.feature = emp3.api.buildFeature({
+            type: message.properties.featureType,
+            geoId: message.featureId,
+            name: message.name,
+            coordinates: emp3.api.convertLocationArrayToCMAPI(message.updates.coordinates),
+            properties: message.properties,
+            symbolCode: message.feature.symbolCode
+          });
+       }
       }
       if (callbacks) {
         // If callbacks are defined for this message we must call it.
