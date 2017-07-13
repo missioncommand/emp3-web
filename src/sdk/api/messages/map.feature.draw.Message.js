@@ -36,7 +36,7 @@
 
     this.mapId = callInfo.mapId;
   }
-  
+
   // Extend emp3.api.Message
   MapFeatureDrawMessage.prototype = Object.create(emp3.api.Message.prototype);
 
