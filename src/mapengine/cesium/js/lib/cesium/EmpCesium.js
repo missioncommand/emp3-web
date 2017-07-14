@@ -2929,8 +2929,17 @@ function EmpCesium() {
                     } else {
                       entity.billboard.image = new this.ConstantProperty(args.feature.properties.iconUrl);
                     }
+                    if (emp.utilities.getDefaultIcon().iconUrl  === args.feature.properties.iconUrl )
+                    {
+                      //fix default icon offset. offset sent by cmapi feature class is wrong. (x:12, y: 0) in pixels
+                      entity.billboard.pixelOffset = new this.Cartesian2(emp.utilities.getDefaultIcon().offset.x, emp.utilities.getDefaultIcon().offset.y);
+                      entity.billboard.horizontalOrigin = undefined;
+                    }
                   } else {
-                    entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
+                    entity.billboard.image = emp.ui.images.defaultPoint;
+                    //entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
+                    entity.billboard.pixelOffset = new this.Cartesian2(emp.utilities.getDefaultIcon().offset.x, emp.utilities.getDefaultIcon().offset.y);
+                    entity.billboard.horizontalOrigin = undefined;
                   }
 
 

@@ -169,6 +169,16 @@ leafLet.utils.geoJson = (function () {
             var sURL = (instanceInterface.bUseProxy ?
                     instanceInterface.getProxyURL() + "?" + "mime=image/*&url=" + escape(sDefaultIconUrl) : sDefaultIconUrl);
 
+            //fix offset for the case of default iconUrl
+            if ( oFeatureProperties.iconUrl && oFeatureProperties.iconUrl.indexOf(emp.utilities.getDefaultIcon().iconUrl) > -1  )
+            {
+                iXOffset = 12.5;
+                iYOffset = -41;
+                sXUnits = "pixels";
+                sYUnits = "pixels";
+            }
+
+
             if (oGeoJSONProperties) {
                 if (oGeoJSONProperties.hasOwnProperty('id')) {
                     oProperties.sSubItemID = oGeoJSONProperties.id;

@@ -84,14 +84,14 @@ emp.engineDefs.leafletMapEngine = function (args) {
             var view = instanceInterface.getView();
 
             this.zoneChanged = false;
-            if (view.altitude >= this.farDistanceThreshold.value*3) {
+            if (view.altitude  >= this.farDistanceThreshold.value  ) {
               // Mil-std single point icons are shown as an ellipses colored with the corresponding affiliation and
               // labels are turned off.
               if (this.viewInZone !== "farDistanceZone") {
                 this.zoneChanged = true;
                 this.viewInZone = "farDistanceZone";
               }
-          } else if (view.altitude >= this.midDistanceThreshold*3) {
+          } else if (view.altitude  >= this.midDistanceThreshold  ) {
               // Mil-std single point icons are displayed in normal fashion and labels are turned off.
               if (this.viewInZone !== "midDistanceZone") {
                 this.zoneChanged = true;
