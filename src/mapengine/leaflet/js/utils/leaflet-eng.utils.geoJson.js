@@ -172,8 +172,11 @@ leafLet.utils.geoJson = (function () {
             //fix offset for the case of default iconUrl
             if ( oFeatureProperties.iconUrl && oFeatureProperties.iconUrl.indexOf(emp.utilities.getDefaultIcon().iconUrl) > -1  )
             {
-                iXOffset = 12.5;
-                iYOffset = -41;
+                // in Geojson the coordinate system for fraction and pixels is located at the upper left corner of icon.
+                // for the case of inset the coodinate system is located at the upper right corner? (definition taken from KML doc)
+                // deafult icon units are in fraction. convert to pixels.
+                iXOffset = emp.utilities.getDefaultIcon().offset.width*emp.utilities.getDefaultIcon().offset.x;
+                iYOffset = -emp.utilities.getDefaultIcon().offset.height*emp.utilities.getDefaultIcon().offset.y;
                 sXUnits = "pixels";
                 sYUnits = "pixels";
             }

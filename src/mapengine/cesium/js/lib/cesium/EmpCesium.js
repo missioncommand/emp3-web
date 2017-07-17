@@ -2820,7 +2820,7 @@ function EmpCesium() {
   this.addGeojsonToOverlay = function(args) {
     var result = {
         success: true
-      },
+      }, isDefaultIcon = false,
       options = {},
       useProxy = false,
       layer;
@@ -2929,17 +2929,22 @@ function EmpCesium() {
                     } else {
                       entity.billboard.image = new this.ConstantProperty(args.feature.properties.iconUrl);
                     }
-                    if (emp.utilities.getDefaultIcon().iconUrl  === args.feature.properties.iconUrl )
+                    if (args.feature.properties.iconUrl.indexOf(emp.utilities.getDefaultIcon().iconUrl) > -1 )
                     {
+                      // fix URL for  default icon. The core is incorrectly appending the server URL.
+                      entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
                       //fix default icon offset. offset sent by cmapi feature class is wrong. (x:12, y: 0) in pixels
-                      entity.billboard.pixelOffset = new this.Cartesian2(emp.utilities.getDefaultIcon().offset.x, emp.utilities.getDefaultIcon().offset.y);
-                      entity.billboard.horizontalOrigin = undefined;
+                      entity.billboard.pixelOffset = new this.Cartesian2(-emp.utilities.getDefaultIcon().offset.width*emp.utilities.getDefaultIcon().offset.x, -emp.utilities.getDefaultIcon().offset.height*emp.utilities.getDefaultIcon().offset.y);
+                      entity.billboard.horizontalOrigin = this.HorizontalOrigin.LEFT;
+                      entity.billboard.verticalOrigin = this.VerticalOrigin.TOP;
+                      isDefaultIcon = true;
                     }
                   } else {
-                    entity.billboard.image = emp.ui.images.defaultPoint;
+                    entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
                     //entity.billboard.image = emp.utilities.getDefaultIcon().iconUrl;
-                    entity.billboard.pixelOffset = new this.Cartesian2(emp.utilities.getDefaultIcon().offset.x, emp.utilities.getDefaultIcon().offset.y);
-                    entity.billboard.horizontalOrigin = undefined;
+                    entity.billboard.pixelOffset = new this.Cartesian2(-emp.utilities.getDefaultIcon().offset.width*emp.utilities.getDefaultIcon().offset.x, -emp.utilities.getDefaultIcon().offset.height*emp.utilities.getDefaultIcon().offset.y);
+                    entity.billboard.horizontalOrigin = this.HorizontalOrigin.LEFT;
+                    entity.billboard.verticalOrigin = this.VerticalOrigin.TOP;
                   }
 
 
@@ -2996,8 +3001,15 @@ function EmpCesium() {
                       label.horizontalOrigin = this.HorizontalOrigin.LEFT;
                     }
                     label.verticalOrigin = this.VerticalOrigin.BOTTOM;
-                    label.pixelOffset = new this.Cartesian2(10, 10);
+                    label.pixelOffset = (isDefaultIcon)?new this.Cartesian2(emp.utilities.getDefaultIcon().offset.width/2 + 10,  +41):new this.Cartesian2(10,10);
                     entity.label = label;
+                    //  entity.point = new this.PointGraphics({
+                    //      pixelSize : 3,
+                    //          color : Cesium.Color.YELLOW});
+
+
+
+
                   }
                   // }
 
