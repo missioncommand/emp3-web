@@ -490,11 +490,24 @@ EMPWorldWind.editors.primitiveBuilders = (function() {
       // Set the imageURL
       if (feature.properties.iconUrl) {
         attributes.imageSource = feature.properties.iconUrl;
+        //if (emp.ui.images.defaultPoint === feature.properties.iconUrl )
+        if (feature.properties.iconUrl.indexOf(emp.utilities.getDefaultIcon().iconUrl) > -1)        {
+          // fix URL. the core is appending the server URL when it is not needed. Default icon is a dataUrl
+          attributes.imageSource = emp.utilities.getDefaultIcon().iconUrl;
+          //fix offset for default iconUrl. cmapi is sending the wrong offset.
+          attributes.imageOffset = new WorldWind.Offset(WorldWind.OFFSET_FRACTION, emp.utilities.getDefaultIcon().offset.x, -WorldWind.OFFSET_FRACTION, emp.utilities.getDefaultIcon().offset.y);
+        }
         if (feature.properties.useProxy) {
           attributes.imageSource = emp3.api.global.configuration.urlProxy + "?url=" + attributes.imageSource;
         }
       } else {
-        attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
+        attributes.imageSource = emp.utilities.getDefaultIcon().iconUrl;
+        //attributes.imageSource = emp.utilities.getDefaultIcon().iconUrl;
+        //fix offset for default iconUrl
+        attributes.imageOffset = new WorldWind.Offset(WorldWind.OFFSET_FRACTION, emp.utilities.getDefaultIcon().offset.x, WorldWind.OFFSET_FRACTION, -emp.utilities.getDefaultIcon().offset.y);
+        //attributes.imageOffset = new WorldWind.Offset(WorldWind.OFFSET_PIXELS, emp.utilities.getDefaultIcon().offset.x, WorldWind.OFFSET_PIXELS, emp.utilities.getDefaultIcon().offset.y);
+        //attributes.imageOffset = new WorldWind.Offset(WorldWind.OFFSET_FRACTION, emp.utilities.getDefaultIcon().offset.x, WorldWind.OFFSET_FRACTION, emp.utilities.getDefaultIcon().offset.y);
+        //attributes.imageSource = WorldWind.configuration.baseUrl + "images/emp-default-icon.png";
       }
 
       // Set the image size
