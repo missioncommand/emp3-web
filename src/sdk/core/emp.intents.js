@@ -702,16 +702,12 @@ emp.intents.control.intentSequenceMapper = (function() {
           // Updates features on the map engine.
           var oMapInstance = emp.instanceManager.getInstance(args.mapInstanceId);
           if (oMapInstance) {
-            if (oMapInstance.editingManager && oMapInstance.editingManager.get() &&   oMapInstance.editingManager.get().getOriginalFeature())
+            if (oMapInstance.editingManager && oMapInstance.editingManager.get() &&   oMapInstance.editingManager.getStatus() === emp.core.editor.status.ACTIVE)
             {
               if (args.items.length > 0 && (oMapInstance.editingManager.get().getOriginalFeature().coreId === args.items[0].coreId) )
               {
-                if (oMapInstance.editingManager.get().getStatus() === emp.core.editor.status.ACTIVE )
-                {
-                  //feature to update is in edit mode. update
-                  // the editor
+                  //feature to update is in edit mode. update the editor
                   oMapInstance.editingManager.get().updateEditor(args);
-                }
               }
             }
             if (oMapInstance.engine) {
