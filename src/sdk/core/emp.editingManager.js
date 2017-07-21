@@ -13,6 +13,7 @@ emp.editingManager = function(args) {
     activeEditor, // The editor chosen based on the format and or draw type.
     updateData, // The most recent change to the feature, includes metadata about the vertex move/removal and updates.
     originalFeature,
+    status = emp.core.editor.status.ACTIVE,
     drawing = false;
 
   var getEditor = function(feature) {
@@ -188,11 +189,38 @@ emp.editingManager = function(args) {
 
   var publicInterface = {
 
+    getOriginalFeature: function() {
+      return originalFeature;
+    },
+
+    getStatus: function() {
+      return status;
+    },
+
+    /**
+     * Called when the feature get updated outside the editor.
+     */
+    updateEditor: function(transaction) {
+      if (transaction.items.length > 0 && status === emp.core.editor.status.ACTIVE)
+      {
+        // commit updates to original feature
+        originalFeature.data.coordinates = transaction.items[0].data.coordinates;
+        originalFeature.properties.coordinates = transaction.items[0].properties.coordinates;
+        //update the editor
+        activeEditor.removeControlPoints();
+        activeEditor.featureCopy = emp.helpers.copyObject(originalFeature);
+        activeEditor.addControlPoints();
+
+      }
+
+
+    },
+
     /**
      * Called when the map goes into edit mode.
      */
     edit: function(transaction) {
-
+      status = emp.core.editor.status.ACTIVE;
       var symbol = false,
         drawCategory;
 
@@ -349,6 +377,7 @@ emp.editingManager = function(args) {
      * Called when the map goes into draw mode.
      */
     draw: function(transaction) {
+      status = emp.core.editor.status.ACTIVE;
       var item;
 
       // let the editor know this is a draw.
@@ -445,6 +474,13 @@ emp.editingManager = function(args) {
      * map, and feature returns to original state.
      */
     cancel: function() {
+      // When canceling set editor manager to iddle to indicate to the core that it is not acepting updates outside the
+      // editor
+      status = emp.core.editor.status.IDDLE;
+      if (!activeEditor)
+      {
+        return;
+      }
 
       var initFailList = [],
         transaction;
@@ -538,13 +574,21 @@ emp.editingManager = function(args) {
       activeEditor = undefined;
       updateData = undefined;
       originalFeature = undefined;
+      status = emp.core.editor.status.IDDLE;
     },
 
     complete: function() {
-
+      // When completing set editor manager to iddle to indicate to the core that it is not acepting updates outside the
+      // editor
+      status = emp.core.editor.status.IDDLE;
       //publish the drawing end event
       var item, removeAnimationTransaction,
         transaction;
+
+        if (!activeEditor)
+        {
+          return;
+        }
 
       editTransaction.items[0].updatedFeature = activeEditor.featureCopy;
 
@@ -668,12 +712,18 @@ emp.editingManager = function(args) {
       activeEditor = undefined;
       updateData = undefined;
       originalFeature = undefined;
+      status = emp.core.editor.status.IDDLE;
     },
 
     editMouseDown: function(featureId) {
 
       var mapLock,
         lockMapTransaction;
+
+        if (!activeEditor)
+        {
+          return;
+        }
 
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.
@@ -706,6 +756,11 @@ emp.editingManager = function(args) {
       var lockMapTransaction;
       var mapLock;
       var updateData;
+
+      if (!activeEditor)
+      {
+        return;
+      }
 
       // only raise the event if the item we are trying to drag is
       // the item that is being edited.
@@ -762,6 +817,10 @@ emp.editingManager = function(args) {
 
     editDragMove: function(featureId, startX, startY, pointer) {
 
+      if (!activeEditor)
+      {
+        return;
+      }
       if (originalFeature && featureId === originalFeature.featureId && activeEditor.isFeature(featureId)) {
 
         updateData = activeEditor.moveFeature(startX, startY, pointer);
@@ -794,6 +853,11 @@ emp.editingManager = function(args) {
 
     editDragComplete: function(featureId, startX, startY, pointer) {
       var transaction;
+
+      if (!activeEditor)
+      {
+        return;
+      }
 
       if (originalFeature && featureId === originalFeature.featureId && activeEditor.isFeature(featureId)) {
         updateData = activeEditor.moveFeature(startX, startY, pointer);
@@ -883,6 +947,10 @@ emp.editingManager = function(args) {
      */
     drawClick: function(pointer) {
       var updates;
+      if (!activeEditor)
+      {
+        return;
+      }
       updates = activeEditor.drawClick(pointer);
 
       // sometimes a draw click does not do anything.
@@ -912,6 +980,10 @@ emp.editingManager = function(args) {
      */
     drawDoubleClick: function(pointer) {
       var updates;
+      if (!activeEditor)
+      {
+        return;
+      }
       updates = activeEditor.drawDoubleClick(pointer);
 
       // sometimes a draw click does not do anything.

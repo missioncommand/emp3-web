@@ -29,6 +29,13 @@ emp.core = {
     CORE: "core"
   }
 };
+
+emp.core.editor = {
+  status: {
+    IDDLE: "iddle", // do not acept external updates to edited feature
+    ACTIVE: "active" // acept external updates to edited feature
+  }
+};
 /**
  * @namespace
  */

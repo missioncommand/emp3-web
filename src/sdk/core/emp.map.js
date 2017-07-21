@@ -1553,8 +1553,19 @@ emp.map = function(args) {
               oTransaction.pause();
               oRemoveTransaction = oTransaction;
               bExecuteRemove = true;
+              // Start the remove feature on a timer to let the editor to finish cancelling to editing.
+              // When  the editor does a cancel it also adds the feature to its original state before the edit.
+              // The timeout waits for the feature to be re added  to the map, and then it removes the feature.
+
+              setTimeout(function()
+                {
+                  oRemoveTransaction.run();
+                }, 50);
+
+              publicInterface.engines.drawEditCancel();
+
               // Start the cancel on a timer so we have time to return to the paused transaction.
-              setTimeout(publicInterface.engines.drawEditCancel(), 100);
+              //setTimeout(publicInterface.engines.drawEditCancel(), 100);
             }
             else {
               bExecuteRemove = false;
@@ -1594,8 +1605,16 @@ emp.map = function(args) {
               oTransaction.pause();
               oRemoveTransaction = oTransaction;
               bExecuteRemove = true;
-              // Start the cancel on a timer so we have time to return to the paused transaction.
-              setTimeout(publicInterface.engines.drawEditCancel, 50);
+              // Start the remove feature on a timer to let the editor to finish cancelling to editing.
+              // When  the editor does a cancel it also adds the feature to its original state before the edit.
+              // The timeout waits for the feature to be re added  to the map, and then it removes the feature.
+              setTimeout(function()
+                {
+                  oRemoveTransaction.run();
+                }, 50);
+
+                publicInterface.engines.drawEditCancel();
+              //setTimeout(publicInterface.engines.drawEditCancel, 50);
             }
             else {
               bExecuteRemove = false;
