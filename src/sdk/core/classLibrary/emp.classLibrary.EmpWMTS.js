@@ -18,7 +18,9 @@ emp.classLibrary.privateClass = function() {
         layer: args.layer,
         style: args.style || "default",
         sampleDimensions: args.sampleDimensions,
-        tileMatrixSet: args.tileMatrixSet
+        tileMatrixSet: args.tileMatrixSet,
+        url: args.url,
+        useProxy: args.useProxy
       };
 
       args.coreObjectType = emp.typeLibrary.types.WMTS;
@@ -56,6 +58,52 @@ emp.classLibrary.privateClass = function() {
 
       return new emp.typeLibrary.WMTS(oObj);
     },
+
+    /**
+     * @memberof emp.classLibrary.EmpWMS#
+     */
+    update: function (args) {
+      if (args.hasOwnProperty('params')) {
+        // if (args.params.hasOwnProperty('transparent')) {
+        //   if (typeof (args.params.transparent) === "boolean") {
+        //     this.options.transparent = args.params.transparent;
+        //   }
+        //   else if (typeof (args.params.transparent) === "string") {
+        //     this.options.transparent = (this.params.transparent.toUpperCase() !== "FALSE");
+        //   }
+        // }
+
+        if (args.params.hasOwnProperty('format') && (typeof (args.params.format) === "string")) {
+          this.options.format = args.params.format;
+        }
+
+        if (args.params.hasOwnProperty('version') && (typeof (args.params.version) === "string")) {
+          this.options.version = args.params.version;
+        }
+      }
+
+      if (args.hasOwnProperty('url')) {
+        this.options.url = args.url;
+      }
+
+      if (args.hasOwnProperty('name')) {
+        this.setName(args.name);
+      }
+
+      if (emp.helpers.isEmptyString(this.getName())) {
+        this.setName('WMTS: ' + this.options.url);
+      }
+
+      if ((args.layer !== undefined) && (args.layer !== null)) {
+        this.options.layer = emp.helpers.copyObject(args.layer);
+        //this.options.activeLayers = emp.helpers.copyObject(args.layers);
+      }
+
+     if (args.hasOwnProperty('tileMatrixSet')) {
+        this.options.tileMatrixSet =  args.tileMatrixSet;
+      }
+    },
+
 
     compareProperty: function(mapInstanceId, sProperty, Value) {
       var bRet = false;

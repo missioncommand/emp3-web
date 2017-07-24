@@ -578,8 +578,7 @@ emp.classLibrary.privateClass = function () {
         this.setName('WMS: ' + this.options.url);
       }
 
-      if ((args.layers !== undefined)
-        && (args.layers !== null)) {
+      if ((args.layers !== undefined) && (args.layers !== null)) {
         this.options.layers = emp.helpers.copyObject(args.layers);
         this.options.activeLayers = emp.helpers.copyObject(args.layers);
       }
