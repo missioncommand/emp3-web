@@ -491,6 +491,7 @@ emp.editingManager = function(args) {
         level: emp.typeLibrary.Error.level.INFO
       }));
 
+      //editTransaction.items[0].cancel(mapInstance.mapInstanceId);
       editTransaction.items[0].originFeature = originalFeature;
 
       if (drawing) {

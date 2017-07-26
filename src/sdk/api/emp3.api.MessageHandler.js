@@ -2548,6 +2548,25 @@ emp3.api.MessageHandler = (function() {
         if (callbacks.cancelCallback) {
           callbacks.cancelCallback(args);
         }
+        // cancelling sent to the api map that covers the case of user editing of drawing and cancelling
+        // the operation to start a freehand draw. The cancelling originates on the map core so this notifies the
+        // api about the cancelling by setting the transaction to null  with a delay. The delay
+        // allows the cancelling operation to complete. A more proper implementation would be to
+        // use a callback to set the transaction to null. The existing callbaks in the transaction
+        // can originate in the client I need a callback originating in the api map to be able to
+        // access the transactions.
+        if (message.originatingChannel && message.originatingChannel === 'map.feature.edit')
+        {
+          setTimeout(function() {
+              callbacks.source.editTransaction = null;
+          }.bind(this), 50);
+        }
+        else if (message.originatingChannel && message.originatingChannel === 'map.feature.draw')
+        {
+          setTimeout(function() {
+              callbacks.source.drawTransaction = null;
+          }.bind(this), 50);
+        }
       }
       return args;
     };
