@@ -416,9 +416,8 @@ emp3.api.MessageHandler = (function() {
       }
 
       if (message.freehandCallback) {
-        callbacks = this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT];
-        if (callbacks) {
-          callbacks.push(transaction.freehandCallback);
+        if (this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT]) {
+          this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT].push(transaction.freehandCallback);
         }
         else
         {
@@ -2571,13 +2570,13 @@ emp3.api.MessageHandler = (function() {
         {
           setTimeout(function() {
               callbacks.source.editTransaction = null;
-          }.bind(this), 50);
+          }, 50);
         }
         else if (message.originatingChannel && message.originatingChannel === 'map.feature.draw')
         {
           setTimeout(function() {
               callbacks.source.drawTransaction = null;
-          }.bind(this), 50);
+          }, 50);
         }
       }
       return args;
