@@ -415,6 +415,18 @@ emp3.api.MessageHandler = (function() {
         transaction.updateCallback = message.updateCallback;
       }
 
+      if (message.freehandCallback) {
+        callbacks = this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT];
+        if (callbacks) {
+          callbacks.push(transaction.freehandCallback);
+        }
+        else
+        {
+          this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT] = [];
+          this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT].push(transaction.freehandCallback);
+        }
+      }
+
       this.messageCallbackHash.setItem(transactionId, transaction);
 
       // Create appropriate channel payload constructor
