@@ -417,12 +417,12 @@ emp3.api.MessageHandler = (function() {
 
       if (message.freehandCallback) {
         if (this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT]) {
-          this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT].push(transaction.freehandCallback);
+          this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT].push(message.freehandCallback);
         }
         else
         {
           this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT] = [];
-          this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT].push(transaction.freehandCallback);
+          this.eventListeners[transaction.mapId][emp3.api.enums.EventType.MAP_FREEHAND_DRAW_EVENT].push(message.freehandCallback);
         }
       }
 
