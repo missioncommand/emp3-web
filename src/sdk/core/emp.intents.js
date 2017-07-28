@@ -704,7 +704,7 @@ emp.intents.control.intentSequenceMapper = (function() {
           if (oMapInstance) {
             if (oMapInstance.editingManager && oMapInstance.editingManager.get() &&   oMapInstance.editingManager.get().getStatus() === emp.core.editor.status.ACTIVE)
             {
-              if (args.items.length > 0 && (oMapInstance.editingManager.get().getOriginalFeature().coreId === args.items[0].coreId) )
+              if (args.items.length > 0 && oMapInstance.editingManager.get().getOriginalFeature() && (oMapInstance.editingManager.get().getOriginalFeature().coreId === args.items[0].coreId) )
               {
                   //feature to update is in edit mode. update the editor
                   oMapInstance.editingManager.get().updateEditor(args);
