@@ -231,10 +231,11 @@ emp3.api.Map = function(args) {
   args.onSuccess = args.onSuccess || function() {};
   args.onError = args.onError || function() {};
 
-  // holds current transactions for editing and drawing.  When
-  // not drawing or editing these should be null.
+  // holds current transactions for editing,  drawing, and freehand draw.  When
+  // not drawing , editing, or freehand  these should be null.
   this.drawTransaction = null;
   this.editTransaction = null;
+  //this.freehandTransaction = null;
 
   // If a default bounds was passed in, verify the values.
   if (args.bounds) {
@@ -1451,7 +1452,7 @@ emp3.api.Map.prototype.drawFreehand = function(args) {
     freehandCallback: args.onFreehandEvent
   };
 
-  emp3.api.MessageHandler.getInstance().sendMessage(cmd, {
+    emp3.api.MessageHandler.getInstance().sendMessage(cmd, {
     mapId: this.geoId,
     source: this,
     method: "Map.drawFreehand",
@@ -1485,7 +1486,7 @@ emp3.api.Map.prototype.drawFreehandExit = function() {
     cmd: emp3.api.enums.channel.freehandDrawExit
   };
 
-  emp3.api.MessageHandler.getInstance().sendMessage(cmd, {
+    emp3.api.MessageHandler.getInstance().sendMessage(cmd, {
     mapId: this.geoId,
     source: this,
     method: "Map.drawFreehandExit"

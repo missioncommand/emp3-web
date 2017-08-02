@@ -59,7 +59,7 @@ class MockDataStream extends Component {
         position.longitude += 0.01 * _randomNegative();
       }
 
-      feature.apply();
+      feature.update();
     });
   }
 

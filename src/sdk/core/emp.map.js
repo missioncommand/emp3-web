@@ -333,7 +333,7 @@ emp.map = function(args) {
               oDrawEditOperation = undefined;
               sDrawEditTransactionID = undefined;
               // Switch state success of failure.
-              new publicInterface.eventing.StatusChange({
+            new publicInterface.eventing.StatusChange({
                 status: emp.map.states.READY
               });
               break;
@@ -705,6 +705,23 @@ emp.map = function(args) {
      * line is remove from the map.
      */
     freehandStart: function(args) {
+      var bProceedWithFreehand = false,
+      sTempText;
+      if ((publicInterface.status.get() === emp.map.states.DRAW) ||
+            (publicInterface.status.get() === emp.map.states.EDIT)) {
+              sTempText = publicInterface.status.get();
+              bProceedWithFreehand = confirm("Going into freehand drawing at this time will cancel the " +
+              sTempText + " operation.\nDo you want to cancel the operation and go into freehand?");
+            if (bProceedWithFreehand) {
+              publicInterface.engines.drawEditCancel();
+            }
+            else {
+              args.transaction.fail("Freehand drawing was cancelled!");
+              return;
+            }
+          }
+
+
       // lock the map so it is in smart mode.
       var transaction = new emp.typeLibrary.Transaction({
         intent: emp.intents.control.VIEW_LOCK,
@@ -723,6 +740,9 @@ emp.map = function(args) {
 
       this.engine.navigation.enable(transaction);
       freehandMode = true;
+      new publicInterface.eventing.StatusChange({
+                status: emp.map.states.FREEHAND
+              });
 
       // override the default freehand style if necessary.
       if (args.freehandStrokeStyle) {
@@ -758,6 +778,10 @@ emp.map = function(args) {
 
       this.engine.navigation.enable(transaction);
       freehandMode = false;
+      new publicInterface.eventing.StatusChange({
+                status: emp.map.states.READY
+              });
+
       // reset any overrides.
       freehandLineColorOverride = undefined;
       freehandLineWidthOverride = undefined;
@@ -1283,12 +1307,34 @@ emp.map = function(args) {
        * @param {emp.typeLibrary.Transaction} args.transaction It must contain a reference to the instance of the draw start transaction passed to the map engine.
        */
       DrawStart: function(args) {
+        var bProceedWithDrawMode = false,
+        sTempText = "";
         if (args.hasOwnProperty("failures")) {
           args.transaction.fail(args.failures);
         }
         if (publicInterface.eventing.voice.silent) {
           args.transaction.success = [];
         }
+
+        if (publicInterface.status.get() === emp.map.states.FREEHAND)
+                {
+                sTempText = publicInterface.status.get();
+                bProceedWithDrawMode = confirm("Going into Draw mode at this time will cancel the " +
+                sTempText + " operation.\nDo you want to cancel the operation and go into draw mode?");
+              if (bProceedWithDrawMode ) {//&& publicInterface.status.get() === emp.map.states.FREEHAND) {
+                publicInterface.freehandStop();
+              }
+              // else if (bProceedWithDrawMode)
+              // {
+              //   publicInterface.engines.drawEditCancel();
+              // }
+              else {
+                args.transaction.fail("Drawing was cancelled!");
+                return;
+              }
+
+            }
+
         var transaction = new emp.typeLibrary.Transaction({
           mapInstanceId: mapInstanceId,
           intent: emp.intents.control.DRAW_START,
@@ -1359,12 +1405,32 @@ emp.map = function(args) {
        * @param {emp.typeLibrary.Transaction} args.transaction It must contain a reference to the instance of the edit start transaction passed to the map engine.
        */
       EditStart: function(args) {
+        var bProceedWithEditMode = false,
+        sTempText = "";
         if (args.hasOwnProperty("failures")) {
           args.transaction.fail(args.failures);
         }
         if (publicInterface.eventing.voice.silent) {
           args.transaction.success = [];
         }
+
+        if (publicInterface.status.get() === emp.map.states.FREEHAND)
+              {
+                sTempText = publicInterface.status.get();
+                bProceedWithEditMode = confirm("Going into Edit mode at this time will cancel the " +
+                sTempText + " operation.\nDo you want to cancel the operation and go into edit mode?");
+              if (bProceedWithEditMode ) {//}&& publicInterface.status.get() === emp.map.states.FREEHAND) {
+                publicInterface.freehandStop();
+              }
+              // else if (bProceedWithDrawMode)
+              // {
+              //   publicInterface.engines.drawEditCancel();
+              // }
+              else {
+                args.transaction.fail("Editing was cancelled!");
+                return;
+              }
+            }
 
         var transaction = new emp.typeLibrary.Transaction({
           mapInstanceId: mapInstanceId,
@@ -1455,6 +1521,7 @@ emp.map = function(args) {
           confirmationMessage = "";
 
         if (oTransaction.intent === emp.intents.control.DRAW_BEGIN) {
+            //oEditDrawTransaction = oTransaction;
           switch (publicInterface.status.get()) {
             case emp.map.states.EDIT:
               confirmationMessage = 'A new draw command has started while in edit mode. Click "OK" to cancel the current edit operation and begin drawing a new feature.  Click "Cancel" to ignore the new draw command and continue editing the current feature.';
@@ -1468,6 +1535,7 @@ emp.map = function(args) {
           }
         }
         else if (oTransaction.intent === emp.intents.control.EDIT_BEGIN) {
+            //oEditDrawTransaction = oTransaction;
           switch (publicInterface.status.get()) {
             case emp.map.states.EDIT:
               confirmationMessage = 'A new edit command has started while in edit mode. Click "OK" to cancel the current edit operation and begin editing a different feature.  Click "Cancel" to ignore the new edit command and continue editing the current feature.';
@@ -1553,8 +1621,19 @@ emp.map = function(args) {
               oTransaction.pause();
               oRemoveTransaction = oTransaction;
               bExecuteRemove = true;
+              // Start the remove feature on a timer to let the editor to finish cancelling to editing.
+              // When  the editor does a cancel it also adds the feature to its original state before the edit.
+              // The timeout waits for the feature to be re added  to the map, and then it removes the feature.
+
+              setTimeout(function()
+                {
+                  oRemoveTransaction.run();
+                }, 50);
+
+              publicInterface.engines.drawEditCancel();
+
               // Start the cancel on a timer so we have time to return to the paused transaction.
-              setTimeout(publicInterface.engines.drawEditCancel(), 100);
+              //setTimeout(publicInterface.engines.drawEditCancel(), 100);
             }
             else {
               bExecuteRemove = false;
@@ -1594,8 +1673,16 @@ emp.map = function(args) {
               oTransaction.pause();
               oRemoveTransaction = oTransaction;
               bExecuteRemove = true;
-              // Start the cancel on a timer so we have time to return to the paused transaction.
-              setTimeout(publicInterface.engines.drawEditCancel, 50);
+              // Start the remove feature on a timer to let the editor to finish cancelling to editing.
+              // When  the editor does a cancel it also adds the feature to its original state before the edit.
+              // The timeout waits for the feature to be re added  to the map, and then it removes the feature.
+              setTimeout(function()
+                {
+                  oRemoveTransaction.run();
+                }, 50);
+
+                publicInterface.engines.drawEditCancel();
+              //setTimeout(publicInterface.engines.drawEditCancel, 50);
             }
             else {
               bExecuteRemove = false;

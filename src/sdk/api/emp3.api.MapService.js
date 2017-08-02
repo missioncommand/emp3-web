@@ -139,13 +139,13 @@ emp3.api.MapService = function(args) {
  * @param {ErrorCallback} [args.onError]
  */
 emp3.api.MapService.prototype.remove = function(args) {
-  if (!this.id || this.id.length < 1) {
+  if (!this.geoId || this.geoId.length < 1) {
     throw new Error("This layer does not have an ID. Has it been added " +
       "to the map yet?");
   }
   args = args || {};
   var cmd = {
-    cmd: emp3.api.channels.unplotFeature,
+    cmd: emp3.api.enums.channel.unplotFeature,
     feature: this,
     onSuccess: args.onSuccess,
     onError: args.onError
@@ -167,17 +167,17 @@ emp3.api.MapService.prototype.remove = function(args) {
  */
 emp3.api.MapService.prototype.setVisible = function(args) {
   args = args || {};
-  if (!this.id || this.id.length < 1) {
+  if (!this.geoId || this.geoId.length < 1) {
     throw new Error("This layer does not have an ID. Has it been added to the map yet?");
   }
   var visible = true;
   if (typeof args.visible == 'boolean') {
     visible = args.visible;
-    this.properties.visible = args.visible;
+    //this.properties.visible = args.visible;
   }
   // Format the request
   var cmd = {
-    cmd: visible ? emp3.api.channels.showFeature : emp3.api.channels.hideFeature,
+    cmd: visible ? emp3.api.enums.channel.showFeature : emp3.api.enums.channel.hideFeature,
     layer: this,
     visible: visible,
     onSuccess: args.onSuccess,

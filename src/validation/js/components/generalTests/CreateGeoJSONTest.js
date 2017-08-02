@@ -150,9 +150,9 @@ class CreateGeoJSONTest extends Component {
         {properties: this.state.featureProps},
         {GeoJSONData: JSON.parse(this.state.geojsonString)}
       );
-      GeoJSONFeature.apply();
+      GeoJSONFeature.update();
     } catch (err) {
-      toastr.error(err.message, 'GeoJSONFeature.apply: Critical');
+      toastr.error(err.message, 'GeoJSONFeature.update: Critical');
     }
   }
 

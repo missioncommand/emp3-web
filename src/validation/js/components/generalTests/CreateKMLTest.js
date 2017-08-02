@@ -148,9 +148,9 @@ class CreateKMLTest extends Component {
         {properties: this.state.featureProps},
         {KMLString: this.state.feature.KMLString}
       );
-      KMLFeature.apply();
+      KMLFeature.update();
     } catch (err) {
-      toastr.error(err.message, 'KMLFeature.apply: Critical');
+      toastr.error(err.message, 'KMLFeature.update: Critical');
     }
   }
 

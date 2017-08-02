@@ -3332,9 +3332,9 @@ emp.storage.mapservice.validateAdd = function(oTransaction) {
       id: oItem.coreId
     });
 
-    if (oStorageEntry &&
-      (oStorageEntry.getCoreObjectType() !== emp.typeLibrary.types.WMS)) {
-      // The item has an ID which is a duplicate of an item in storage that is not a WMS.
+    if ( oStorageEntry &&
+      (oStorageEntry.getCoreObjectType() !== emp.typeLibrary.types.WMS) && (oStorageEntry.getCoreObjectType() !== emp.typeLibrary.types.WMTS  )) {
+      // The item has an ID which is a duplicate of an item in storage that is not a WMS or wmts.
       oTransaction.fail({
         coreId: oItem.coreId,
         level: emp.typeLibrary.Error.level.MAJOR,
