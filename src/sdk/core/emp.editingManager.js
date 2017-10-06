@@ -360,6 +360,13 @@ emp.editingManager = function(args) {
           feature: feature,
           mapInstance: args.mapInstance
         });
+      } else if  (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+          drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE)) {
+        // This is a super auto shape
+        activeEditor = new emp.editors.MilStdAutoshape({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
       } else {
         // create the editor for the appropriate item being edited.
         activeEditor = new emp.editors.EditorBase({

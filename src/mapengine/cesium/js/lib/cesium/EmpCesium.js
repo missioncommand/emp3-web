@@ -9099,6 +9099,7 @@ function EmpCesium() {
             presentEntity.label.outlineColor = entity.label.outlineColor;
             presentEntity.label.scale = entity.label.scale;
             presentEntity.label.font = entity.label.font;
+            presentEntity.label.text = entity.label.text;
             presentEntity.label.horizontalOrigin = entity.label.horizontalOrigin;
           } else if (entity.label && !presentEntity.label) {
             presentEntity.label = entity.label;
