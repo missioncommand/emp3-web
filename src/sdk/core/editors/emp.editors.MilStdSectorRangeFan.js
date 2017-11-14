@@ -156,7 +156,7 @@ emp.editors.MilStdSectorRangeFan.prototype.addControlPoints = function() {
         });
 
         items.push(addAzimuthPointLeft);
-        azimuthLeftVertex = new emp.editors.Vertex(addAzimuthPointLeft, "add");
+        azimuthLeftVertex = new emp.editors.Vertex(addAzimuthPointLeft, "azimuth");
         this.vertices.push(azimuthLeftVertex);
 
         newPoint = emp.geoLibrary.geodesic_coordinate({
@@ -183,7 +183,7 @@ emp.editors.MilStdSectorRangeFan.prototype.addControlPoints = function() {
         });
 
         items.push(addAzimuthPointRight);
-        azimuthRightVertex = new emp.editors.Vertex(addAzimuthPointRight, "add");
+        azimuthRightVertex = new emp.editors.Vertex(addAzimuthPointRight, "azimuth");
         this.vertices.push(azimuthRightVertex);
       }
 
@@ -307,18 +307,19 @@ emp.editors.MilStdSectorRangeFan.prototype.startMoveControlPoint = function(feat
     newCoordinates,
     newPoint, addPoint,
     newRadiusPosition,
-    maxRadiusDistance,
-    azimuthVertex,
+    maxRadiusDistance, azimuthVertex,
+    azimuthVertex1,azimuthVertex2,
     azimuth, latLonAzimuthLeft, latLonAzimuthRight,
     rangePosition,
     midRangePoint, midAzimuth,
     azimuthPosition,
     newAzimuth,
-    azimuthFeature,
+    azimuthFeature1, azimuthFeature2,
     azimuthIndex, vertex,
     o,a,h, delta,
     //  isRadius = false,
     radiusVertex,
+    bMovingAddRadius = false,
     x, y;
 
   // We have an issue in that GEO_CIRCLE uses GeoJSON Point, and all
@@ -491,6 +492,7 @@ else if (featureId !== this.center.feature.featureId) {
 
     if (this.addRadius && this.addRadius.feature.featureId === featureId) {
       // moving the addRadius control point
+      bMovingAddRadius = true;
       this.featureCopy.properties.modifiers.distance.push(distance);
       this.featureCopy.properties.modifiers.azimuth.push(-45);
       this.featureCopy.properties.modifiers.azimuth.push(45);
@@ -498,7 +500,7 @@ else if (featureId !== this.center.feature.featureId) {
       // Change the icon to be that of a vertex.
       currentFeature.properties.iconUrl = emp.ui.images.radius;
       //this.radius.push(currentVertex);
-      this.addRadius = undefined;
+      //////this.addRadius = undefined;
 
       //add azimuths
       newPoint = emp.geoLibrary.geodesic_coordinate({
@@ -525,10 +527,10 @@ else if (featureId !== this.center.feature.featureId) {
       });
 
       items.push(addPoint);
-      azimuthVertex = new emp.editors.Vertex(addPoint, "azimuth");
-      this.vertices.push(azimuthVertex);
+      azimuthVertex1 = new emp.editors.Vertex(addPoint, "azimuth");
+      this.vertices.push(azimuthVertex1);
       currentVertex.azimuth = [];
-      currentVertex.azimuth.push(azimuthVertex);
+      currentVertex.azimuth.push(azimuthVertex1);
 
       // add second azimuth
       newPoint = emp.geoLibrary.geodesic_coordinate({
@@ -555,9 +557,9 @@ else if (featureId !== this.center.feature.featureId) {
       });
 
       items.push(addPoint);
-      azimuthVertex = new emp.editors.Vertex(addPoint, "add");
-      this.vertices.push(azimuthVertex);
-      currentVertex.azimuth.push(azimuthVertex);
+      azimuthVertex2 = new emp.editors.Vertex(addPoint, "azimuth");
+      this.vertices.push(azimuthVertex2);
+      currentVertex.azimuth.push(azimuthVertex2);
       this.featureCopy.properties.modifiers.distance.max = function() {
         return Math.max.apply(Math, this);
       }; //attach max funct
@@ -601,25 +603,25 @@ else if (featureId !== this.center.feature.featureId) {
       if (index > 0)
       {
         //update azimuth locations
-        azimuthVertex = currentVertex.azimuth[0];
-        azimuthFeature = azimuthVertex.feature;
+        azimuthVertex1 = currentVertex.azimuth[0];
+        azimuthFeature1 = azimuthVertex1.feature;
         azimuth = this.featureCopy.properties.modifiers.azimuth[(index - 1) * 2];
         newPoint = emp.geoLibrary.geodesic_coordinate({
           x: x,
           y: y
         }, distance, azimuth);
-        azimuthFeature.data.coordinates = [newPoint.x, newPoint.y];
-        items.push(azimuthFeature);
+        azimuthFeature1.data.coordinates = [newPoint.x, newPoint.y];
+        items.push(azimuthFeature1);
 
-        azimuthVertex = currentVertex.azimuth[1];
-        azimuthFeature = azimuthVertex.feature;
+        azimuthVertex2 = currentVertex.azimuth[1];
+        azimuthFeature2 = azimuthVertex2.feature;
         azimuth = this.featureCopy.properties.modifiers.azimuth[(index - 1) * 2 + 1];
         newPoint = emp.geoLibrary.geodesic_coordinate({
           x: x,
           y: y
         }, distance, azimuth);
-        azimuthFeature.data.coordinates = [newPoint.x, newPoint.y];
-        items.push(azimuthFeature);
+        azimuthFeature2.data.coordinates = [newPoint.x, newPoint.y];
+        items.push(azimuthFeature2);
     }
       if (this.addRadius) {
         // update location of add radius control point.
@@ -667,25 +669,25 @@ else if (featureId !== this.center.feature.featureId) {
       if (index > 0)
       {
         //update azimuth locations
-        azimuthVertex = vertex.azimuth[0];
-        azimuthFeature = azimuthVertex.feature;
+        azimuthVertex1 = vertex.azimuth[0];
+        azimuthFeature1 = azimuthVertex1.feature;
         azimuth = this.featureCopy.properties.modifiers.azimuth[(index - 1) * 2];
         newPoint = emp.geoLibrary.geodesic_coordinate({
           x: x,
           y: y
         }, distance, azimuth);
-        azimuthFeature.data.coordinates = [newPoint.x, newPoint.y];
-        items.push(azimuthFeature);
+        azimuthFeature1.data.coordinates = [newPoint.x, newPoint.y];
+        items.push(azimuthFeature1);
 
-        azimuthVertex = vertex.azimuth[1];
-        azimuthFeature = azimuthVertex.feature;
+        azimuthVertex2 = vertex.azimuth[1];
+        azimuthFeature2 = azimuthVertex2.feature;
         azimuth = this.featureCopy.properties.modifiers.azimuth[(index - 1) * 2 + 1];
         newPoint = emp.geoLibrary.geodesic_coordinate({
           x: x,
           y: y
         }, distance, azimuth);
-        azimuthFeature.data.coordinates = [newPoint.x, newPoint.y];
-        items.push(azimuthFeature);
+        azimuthFeature2.data.coordinates = [newPoint.x, newPoint.y];
+        items.push(azimuthFeature2);
     }
 
     } //for
@@ -708,14 +710,23 @@ else if (featureId !== this.center.feature.featureId) {
       this.addRadius.feature.data.coordinates = [newRadiusPosition.x, newRadiusPosition.y];
       items.push(this.addRadius.feature);
     }
-  }
+}
 
   // make sure the symbol is updated with its new properties.
   items.push(this.featureCopy);
 
   // Add our updated feature onto the items we will be updating in our
-  // transaction.
-  items.push(currentFeature);
+  // transaction
+  // acevedo 11/14/2017 - bMovingAddRadius as true indicates not to update the current feature because
+  // it represented a new range added. Updating it would generate a duplicate control point. Why?
+  //  Keep this condition as a workaround  until i figure out what is causing the  duplication of control points.
+    if (!bMovingAddRadius)
+    {
+      items.push(currentFeature);
+    }
+
+
+  index = this.vertices.getIndex(featureId);
 
   var transaction = new emp.typeLibrary.Transaction({
     intent: emp.intents.control.FEATURE_ADD,
@@ -733,7 +744,7 @@ else if (featureId !== this.center.feature.featureId) {
 
   // Now send back the information to the editingManager that will
   // help with generating some events.
-  index = this.vertices.getIndex(featureId);
+  //
   newCoordinates = [];
   newCoordinates.push({
     lat: y,

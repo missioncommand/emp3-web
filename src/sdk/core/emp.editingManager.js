@@ -206,6 +206,7 @@ emp.editingManager = function(args) {
         // commit updates to original feature
         originalFeature.data.coordinates = transaction.items[0].data.coordinates;
         originalFeature.properties.coordinates = transaction.items[0].properties.coordinates;
+        originalFeature.properties = transaction.items[0].properties;
         //update the editor
         activeEditor.removeControlPoints();
         activeEditor.featureCopy = emp.helpers.copyObject(originalFeature);
