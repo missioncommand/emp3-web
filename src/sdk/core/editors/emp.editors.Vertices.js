@@ -375,7 +375,7 @@ emp.editors.Vertices.prototype.getIndex = function(featureId) {
   while (currentVertex.feature.featureId !== featureId && currentVertex !== null) {
     currentVertex = currentVertex.next;
 
-    if (currentVertex.type === "vertex") {
+    if (currentVertex && currentVertex.type === "vertex") {
       index++;
     }
   }
@@ -408,7 +408,7 @@ emp.editors.Vertices.prototype.getVertexByIndex = function(vertexIndex) {
 
   while (vertexIndex !== index ) {
     currentVertex = currentVertex.next;
-    if (currentVertex.type === "vertex") {
+    if (currentVertex && currentVertex.type === "vertex") {
       index++;
     }
   }

@@ -359,7 +359,8 @@ emp.classLibrary.privateClass = function () {
      * @memberof emp.classLibrary.EmpFeature#
      */
     updateFeature: function (oUpdateFeature) {
-      if (!emp.util.isEmptyString(oUpdateFeature.name)) {
+      if (oUpdateFeature.name !== undefined && oUpdateFeature.name !== null ) {
+        //allow empty string for name. issue 343 GitHub emp3-web
         this.setName(oUpdateFeature.name);
       }
 

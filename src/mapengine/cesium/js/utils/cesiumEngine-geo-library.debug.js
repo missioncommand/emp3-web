@@ -556,7 +556,7 @@ cesiumEngine.geoLibrary = {
             if (Area === 4)
             {
 
-                //' analyse UTM code               
+                //' analyse UTM code
                 if (!isNaN(parseFloat(GRCell.substr(0, 2))))
                 {
                     //if (parseInt(GRCell.substr(1, 1)))
@@ -593,7 +593,7 @@ cesiumEngine.geoLibrary = {
                 {
                     return -181; //"#INVALID MGRS GRID REFERENCE 3";
                 }
-                //' 24 long codes 'A'..'Z' missing out 'I' and 'O'                      
+                //' 24 long codes 'A'..'Z' missing out 'I' and 'O'
                 //' ABCDEFFG  JKLMNPQR  STUVWXYZ
                 //' 12345678  12345678  12345678
                 if (Long100Number > 8)
@@ -619,7 +619,7 @@ cesiumEngine.geoLibrary = {
                     // INVALID MGRS GRID REFERENCE 4
                     return -181; //"#INVALID MGRS GRID REFERENCE 4";
                 }
-                //' 20 lat zones 'C'..'X' Missing out I' and 'O' 'C'=1  at 80S                      
+                //' 20 lat zones 'C'..'X' Missing out I' and 'O' 'C'=1  at 80S
                 if (LatZoneNumber > 6)
                 {
                     //  ' get rid of 'I' and 'O'
@@ -637,7 +637,7 @@ cesiumEngine.geoLibrary = {
                     //INVALID MGRS GRID REFERENCE 5
                     return -181; //;
                 }
-                //' 20 lat codes 'A'..'V' missing out 'I' and 'O'                      
+                //' 20 lat codes 'A'..'V' missing out 'I' and 'O'
                 if (Lat100Number > 8)
                 {
                     // Then  ' get rid of 'I' and 'O'
@@ -719,7 +719,7 @@ cesiumEngine.geoLibrary = {
                                 break;
                             default:
                                 // INVALID MGRS GRID REFERENCE 5
-                                return -181; //;                               
+                                return -181; //;
                         }
                         break;
                     case 2:
@@ -1474,8 +1474,8 @@ cesiumEngine.geoLibrary = {
                 i;
         // if the user passes in a coordinate string, parse
         // the coordinate string and find the min and max values for
-        // each to get the bounding box.  
-        // at sacrifice for accuracy if difference between left and right is 
+        // each to get the bounding box.
+        // at sacrifice for accuracy if difference between left and right is
         // greater than 180, make the asssumption they crossed the 180th meridian.
         if (pointString != null)
         {
@@ -1534,7 +1534,7 @@ cesiumEngine.geoLibrary = {
                     }
                     // if the difference between right and left is greater
                     // than 180 there is a good chance that the user intends
-                    // to cross the 180th meridian.  reverse left and right in 
+                    // to cross the 180th meridian.  reverse left and right in
                     // that case.  There is no way to prove this.
                     if ((this.right - this.left) > 180)
                     {
@@ -1611,8 +1611,8 @@ cesiumEngine.geoLibrary = {
             }
             // if the difference between right and left is greater
             // than 180 there is a good chance that the user intends
-            // to cross the 180th meridian.  reverse left and right in 
-            // that case.  There is no way to prove 
+            // to cross the 180th meridian.  reverse left and right in
+            // that case.  There is no way to prove
             if ((right - left) > 180)
             {
                 var savedvalue = left;
@@ -2077,7 +2077,7 @@ cesiumEngine.geoLibrary = {
 function LatLon(lat, lon, rad)
 {
     if (typeof (rad) == 'undefined')
-       
+
         rad = 6371; // earth's mean radius in km
     // only accept numbers or valid numeric strings
     this._lat = typeof (lat) == 'number' ? lat : typeof (lat) == 'string' && lat.trim() != '' ? +lat : NaN;
@@ -2101,7 +2101,7 @@ LatLon.prototype.distanceTo = function (point, precision)
 {
     // default 4 sig figs reflects typical 0.3% accuracy of spherical model
     if (typeof precision == 'undefined')
-       
+
         precision = 4;
 
     var R = this._radius;
@@ -2122,7 +2122,7 @@ LatLon.prototype.distanceTo = function (point, precision)
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     var d = R * c;
     //return d.toPrecisionFixed(precision);
-    return d.toPrecisionFixed(precision) * 1000;// meters
+    return d.toPrecisionFixed(precision)*1 ;// meters
 }
 
 
@@ -2211,7 +2211,7 @@ LatLon.prototype.destinationPoint = function (brng, dist)
 {
     dist = typeof (dist) == 'number' ? dist : typeof (dist) == 'string' && dist.trim() != '' ? +dist : NaN;
     dist = dist / this._radius; // convert dist to angular distance in radians
-    brng = brng.toRad(); // 
+    brng = brng.toRad(); //
     var lat1 = this._lat.toRad(),
             lon1 = this._lon.toRad();
 
@@ -2248,14 +2248,14 @@ LatLon.intersection = function (p1, brng1, p2, brng2)
     dist12 = 2 * Math.asin(Math.sqrt(Math.sin(dLat / 2) * Math.sin(dLat / 2) +
             Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLon / 2) * Math.sin(dLon / 2)));
     if (dist12 == 0)
-       
+
         return null;
 
     // initial/final bearings between points
     brngA = Math.acos((Math.sin(lat2) - Math.sin(lat1) * Math.cos(dist12)) /
             (Math.sin(dist12) * Math.cos(lat1)));
     if (isNaN(brngA))
-       
+
         brngA = 0; // protect against rounding
     brngB = Math.acos((Math.sin(lat1) - Math.sin(lat2) * Math.cos(dist12)) /
             (Math.sin(dist12) * Math.cos(lat2)));
@@ -2275,10 +2275,10 @@ LatLon.intersection = function (p1, brng1, p2, brng2)
     alpha2 = (brng21 - brng23 + Math.PI) % (2 * Math.PI) - Math.PI; // angle 1-2-3
 
     if (Math.sin(alpha1) == 0 && Math.sin(alpha2) == 0)
-       
+
         return null; // infinite intersections
     if (Math.sin(alpha1) * Math.sin(alpha2) < 0)
-       
+
         return null; // ambiguous intersection
 
     //alpha1 = Math.abs(alpha1);
@@ -2323,7 +2323,7 @@ LatLon.prototype.rhumbDistanceTo = function (point)
     var q = (!isNaN(dLat / dPhi) && (dPhi !== 0)) ? dLat / dPhi : Math.cos(lat1); // E-W line gives dPhi=0 // ish fix
     // if dLon over 180° take shorter rhumb across 180° meridian:
     if (dLon > Math.PI)
-       
+
         dLon = 2 * Math.PI - dLon;
     var dist = Math.sqrt(dLat * dLat + q * q * dLon * dLon) * R;
 
@@ -2344,7 +2344,7 @@ LatLon.prototype.rhumbBearingTo = function (point)
 
     var dPhi = Math.log(Math.tan(lat2 / 2 + Math.PI / 4) / Math.tan(lat1 / 2 + Math.PI / 4));
     if (Math.abs(dLon) > Math.PI)
-       
+
         dLon = dLon > 0 ? -(2 * Math.PI - dLon) : (2 * Math.PI + dLon);
     var brng = Math.atan2(dLon, dPhi);
 
@@ -2374,7 +2374,7 @@ LatLon.prototype.rhumbDestinationPoint = function (brng, dist)
     var dLon = d * Math.sin(brng) / q;
     // check for some daft bugger going past the pole
     if (Math.abs(lat2) > Math.PI / 2)
-       
+
         lat2 = lat2 > 0 ? Math.PI - lat2 : -(Math.PI - lat2);
     lon2 = (lon1 + dLon + 3 * Math.PI) % (2 * Math.PI) - Math.PI;
 
@@ -2397,7 +2397,7 @@ LatLon.prototype.rhumbDestinationPoint = function (brng, dist)
 LatLon.prototype.lat = function (format, dp)
 {
     if (typeof format == 'undefined')
-       
+
         return this._lat;
 
     return Geo.toLat(this._lat, format, dp);
@@ -2416,7 +2416,7 @@ LatLon.prototype.lat = function (format, dp)
 LatLon.prototype.lon = function (format, dp)
 {
     if (typeof format == 'undefined')
-       
+
         return this._lon;
 
     return Geo.toLon(this._lon, format, dp);
@@ -2434,11 +2434,11 @@ LatLon.prototype.lon = function (format, dp)
 LatLon.prototype.toString = function (format, dp)
 {
     if (typeof format == 'undefined')
-       
+
         format = 'dms';
 
     if (isNaN(this._lat) || isNaN(this._lon))
-       
+
         return '-,-';
 
     return Geo.toLat(this._lat, format, dp) + ', ' + Geo.toLon(this._lon, format, dp);
@@ -2493,7 +2493,7 @@ if (typeof (Number.prototype.toDegFromMils) === "undefined")
     }
 }
 
-/** 
+/**
  * Formats the significant digits of a number, using only fixed-point notation (no exponential)
  *
  * @param   {Number} precision: Number of significant digits to appear in the returned string
@@ -2504,7 +2504,7 @@ if (typeof (Number.prototype.toPrecisionFixed) === "undefined")
     Number.prototype.toPrecisionFixed = function (precision)
     {
         if (isNaN(this))
-           
+
             return 'NaN';
         var numb = this < 0 ? -this : this; // can't take log of -ve number...
         var sign = this < 0 ? '-' : '';
@@ -2513,7 +2513,7 @@ if (typeof (Number.prototype.toPrecisionFixed) === "undefined")
         { // can't take log of zero, just format with precision zeros
             var n = '0.';
             while (precision--)
-               
+
                 n += '0';
             return n
         }
@@ -2524,16 +2524,16 @@ if (typeof (Number.prototype.toPrecisionFixed) === "undefined")
         { // add trailing zeros & insert decimal as required
             l = scale - n.length;
             while (l-- > 0)
-               
+
                 n = n + '0';
             if (scale < n.length)
-               
+
                 n = n.slice(0, scale) + '.' + n.slice(scale);
         }
         else
         { // prefix decimal and leading zeros if required
             while (scale++ < 0)
-               
+
                 n = '0' + n;
             n = '0.' + n;
         }

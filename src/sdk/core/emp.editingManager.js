@@ -206,6 +206,7 @@ emp.editingManager = function(args) {
         // commit updates to original feature
         originalFeature.data.coordinates = transaction.items[0].data.coordinates;
         originalFeature.properties.coordinates = transaction.items[0].properties.coordinates;
+        originalFeature.properties = transaction.items[0].properties;
         //update the editor
         activeEditor.removeControlPoints();
         activeEditor.featureCopy = emp.helpers.copyObject(originalFeature);
@@ -357,6 +358,13 @@ emp.editingManager = function(args) {
       } else if (symbol && drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SECTOR_PARAMETERED_AUTOSHAPE) {
         // This is a circular range fan
         activeEditor = new emp.editors.MilStdSectorRangeFan({
+          feature: feature,
+          mapInstance: args.mapInstance
+        });
+      } else if  (symbol && (drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_AUTOSHAPE ||
+          drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE)) {
+        // This is a super auto shape
+        activeEditor = new emp.editors.MilStdAutoshape({
           feature: feature,
           mapInstance: args.mapInstance
         });

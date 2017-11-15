@@ -111,7 +111,7 @@ emp.editors.EditorBase.prototype.addControlPoints = function() {
         type: 'Point'
       },
       properties: {
-        iconUrl: (this.drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE && i ===2 )?emp.ui.images.distancePoint:emp.ui.images.editPoint,
+        iconUrl: (this.drawCategory === armyc2.c2sd.renderer.utilities.SymbolDefTable.DRAW_CATEGORY_SUPERAUTOSHAPE && i > 1 )?emp.ui.images.distancePoint:emp.ui.images.editPoint,
         iconXOffset: 10,
         iconYOffset: 10,
         xUnits: "pixels",

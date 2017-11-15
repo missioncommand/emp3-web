@@ -133,8 +133,9 @@ emp.classLibrary.privateClass = function () {
      * @memberof emp.classLibrary.EmpRenderableObject#
      */
     setName: function (sName) {
-      if (!emp.helpers.isEmptyString(sName)) {
-        this.options.name = sName;
+        if (sName !== undefined && sName !== null ) {
+          //allow empty string for name. issue 343 GitHub emp3-web
+          this.options.name = sName;
       }
     },
     /**

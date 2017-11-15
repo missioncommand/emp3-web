@@ -549,7 +549,10 @@ class CreateMilStdSymbolTest extends Component {
     }
 
     let props = {...this.state.symbol};
-    props.name = this.state.symbol.name === '' ? undefined : this.state.symbol.name.trim();
+    // let the name be empty
+      if ( this.state.symbol.name !== undefined &&  this.state.symbol.name !== null ) {
+          props.name = this.state.symbol.name;
+      }
     props.symbolCode = this.state.symbol.symbolCode;
     props.positions = this.convertPositionStringToGeoPositions(this.state.symbol.positions);
     props.symbolStandard = this.state.symbol.symbolStandard;
