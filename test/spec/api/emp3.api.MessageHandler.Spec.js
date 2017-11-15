@@ -285,9 +285,7 @@ describe('emp3.api.MessageHandler', function() {
         features: [{
           name: "point1",
           geoId: "point1",
-          properties: {
-            featureType: emp3.api.enums.FeatureTypeEnum.GEO_POINT
-          },
+          
           feature: {
             coordinates: [40, 40],
             type: "Point"
@@ -296,7 +294,9 @@ describe('emp3.api.MessageHandler', function() {
       };
 
     it('can create feature add events', function() {
-
+      message = {properties: {
+            featureType: emp3.api.enums.FeatureTypeEnum.GEO_POINT
+          }};
       var eventType = emp3.api.enums.EventType.MAP_FEATURE_ADDED,
         messageHandler = emp3.api.MessageHandler.getInstance(),
         callback = sandbox.spy(),
@@ -318,6 +318,9 @@ describe('emp3.api.MessageHandler', function() {
     });
 
     it('can create feature update events', function() {
+      message = {properties: {
+            featureType: emp3.api.enums.FeatureTypeEnum.GEO_POINT
+          }};
       var eventType = emp3.api.enums.EventType.MAP_FEATURE_UPDATED,
         messageHandler = emp3.api.MessageHandler.getInstance(),
         callback = sandbox.spy(),
@@ -338,6 +341,9 @@ describe('emp3.api.MessageHandler', function() {
     });
 
     it('can create feature removed events', function() {
+       message = {properties: {
+            featureType: emp3.api.enums.FeatureTypeEnum.GEO_POINT
+          }};
       var eventType = emp3.api.enums.EventType.MAP_FEATURE_REMOVED,
         messageHandler = emp3.api.MessageHandler.getInstance(),
         callback = sandbox.spy(),

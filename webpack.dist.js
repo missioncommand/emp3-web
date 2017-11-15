@@ -59,5 +59,11 @@ module.exports = {
       {test: /\.json$/, loader: 'json'},
       {test: /\.xml$/i, loader: 'xml'}
     ]
-  }
+  },
+  externals:
+    [
+      {
+        xmlhttprequest: '{XMLHttpRequest:XMLHttpRequest}'
+      }
+    ]
 };
