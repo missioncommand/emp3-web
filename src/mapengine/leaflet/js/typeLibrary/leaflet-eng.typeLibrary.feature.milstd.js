@@ -204,7 +204,7 @@ leafLet.internalPrivateClass.MilStdFeature = function() {
               oModifiers[sModifier] = oMainModifiers[sModifier];
               break;
             default:
-              if (this._modifierOnList(sModifier)) {
+              if (!this._modifierOnList(sModifier)) {
                 oModifiers[sModifier] = oMainModifiers[sModifier];
               }
               break;
