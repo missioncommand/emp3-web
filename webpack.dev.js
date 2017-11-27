@@ -58,6 +58,11 @@ module.exports = {
       {test: /\.(ttf|eot|svg)(\?v=[0-9]\.[0-9]\.[0-9])?$/, loader: 'file-loader?name=[name].[ext]'},
       {test: /\.json$/, loader: 'json'},
       {test: /\.xml$/i, loader: 'xml'}
+    ]    
+  },
+  externals:[
+      {
+        xmlhttprequest: '{XMLHttpRequest:XMLHttpRequest}'
+      }
     ]
-  }
 };
