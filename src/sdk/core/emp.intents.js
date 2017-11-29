@@ -707,7 +707,9 @@ emp.intents.control.intentSequenceMapper = (function() {
               if (args.items.length > 0 && oMapInstance.editingManager.get().getOriginalFeature() && (oMapInstance.editingManager.get().getOriginalFeature().coreId === args.items[0].coreId) )
               {
                   //feature to update is in edit mode. update the editor
-                  oMapInstance.editingManager.get().updateEditor(args);
+                  //Next line commented out because it breaks the editors. Next line needs improvement to
+                  // to handle case of outside originating updates to feature that is in edit mode.
+                  //oMapInstance.editingManager.get().updateEditor(args);
               }
             }
             if (oMapInstance.engine) {
